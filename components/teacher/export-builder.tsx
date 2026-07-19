@@ -42,12 +42,6 @@ function csvEscape(v: string): string {
   return v;
 }
 
-function studentId(s: ExportStudent): string {
-  return `${s.grade}${String(s.class_no).padStart(2, "0")}${String(
-    s.student_no
-  ).padStart(2, "0")}`;
-}
-
 export default function ExportBuilder({
   students,
   units,
@@ -117,36 +111,57 @@ export default function ExportBuilder({
         p,
       ])
     );
-    const unitMap = new Map(units.map((u) => [u.id, u]));
     const pickedStudents = students.filter((s) => selStudents.has(s.id));
-    const pickedActivities = activities.filter((a) => selActivities.has(a.id));
 
-    const header = [
-      "학번", "이름", "단원", "활동", "유형",
-      "완료", "점수", "정답 제출", "작성글", "수정시각",
-    ];
-    const lines: string[] = [];
-    for (const s of pickedStudents) {
-      for (const a of pickedActivities) {
-        const p = progressMap.get(`${s.id}|${a.id}`);
-        lines.push(
-          [
-            studentId(s),
-            s.name,
-            unitMap.get(a.unit_id)?.title ?? "",
-            a.title,
-            TYPE_LABELS[a.type] ?? a.type,
-            p?.completed ? "완료" : "미완료",
-            p?.score == null ? "" : String(p.score),
-            p?.submission?.answer ?? "",
-            p?.response_text ?? "",
-            p?.updated_at ? new Date(p.updated_at).toLocaleString("ko-KR") : "",
-          ]
-            .map(csvEscape)
-            .join(",")
+    // 활동 열 순서: 단원 순서 → 활동 순서. 열머리는 "단원번호-활동번호 활동명"
+    const unitOrder = new Map(units.map((u, i) => [u.id, i]));
+    const pickedActivities = activities
+      .filter((a) => selActivities.has(a.id))
+      .sort(
+        (a, b) =>
+          (unitOrder.get(a.unit_id) ?? 0) - (unitOrder.get(b.unit_id) ?? 0) ||
+          a.order_index - b.order_index
+      );
+    const actLabel = (a: ExportActivity) => {
+      const uIdx = (unitOrder.get(a.unit_id) ?? 0) + 1;
+      const inUnit = pickedActivities.filter((x) => x.unit_id === a.unit_id);
+      const aIdx = inUnit.indexOf(a) + 1;
+      return `활동${uIdx}-${aIdx} ${a.title}`;
+    };
+
+    // 활동 셀 내용: 작성글·정답 제출을 하나의 칸에 담는다
+    const cellValue = (p?: ProgressRow): string => {
+      if (!p) return "";
+      const parts: string[] = [];
+      if (p.submission?.answer) {
+        parts.push(
+          `답: ${p.submission.answer}${p.score != null ? ` (${p.score}점)` : ""}`
         );
       }
-    }
+      if (p.response_text) parts.push(p.response_text);
+      if (parts.length === 0) return p.completed ? "완료" : "미완료";
+      return parts.join(" / ");
+    };
+
+    // 한 학생 = 한 행 (반 / 번호 / 이름 / 활동1-1 / 활동1-2 / ...)
+    const header = ["반", "번호", "이름", ...pickedActivities.map(actLabel)];
+    const lines = pickedStudents
+      .sort(
+        (a, b) =>
+          a.grade - b.grade || a.class_no - b.class_no || a.student_no - b.student_no
+      )
+      .map((s) =>
+        [
+          `${s.grade}학년 ${s.class_no}반`,
+          String(s.student_no),
+          s.name,
+          ...pickedActivities.map((a) =>
+            cellValue(progressMap.get(`${s.id}|${a.id}`))
+          ),
+        ]
+          .map(csvEscape)
+          .join(",")
+      );
 
     const blob = new Blob(["\uFEFF" + [header.join(","), ...lines].join("\n")], {
       type: "text/csv",

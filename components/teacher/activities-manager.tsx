@@ -30,6 +30,8 @@ type FormState = {
   htmlBody: string;
   htmlHeight: number;
   responsePrompt: string; // 모든 유형 공통 — 있으면 학생 글 작성란 표시
+  assignAll: boolean; // true = 학년 전체 공개
+  assignedClasses: number[]; // assignAll=false일 때 대상 반
 };
 
 const EMPTY_FORM: FormState = {
@@ -48,6 +50,8 @@ const EMPTY_FORM: FormState = {
   htmlBody: "",
   htmlHeight: 600,
   responsePrompt: "",
+  assignAll: true,
+  assignedClasses: [],
 };
 
 function buildContent(f: FormState): Record<string, unknown> {
@@ -92,15 +96,19 @@ function formFromActivity(a: Activity): FormState {
     htmlBody: (c.html as string) ?? "",
     htmlHeight: (c.height as number) ?? 600,
     responsePrompt: (c.response_prompt as string) ?? "",
+    assignAll: a.assigned_classes === null,
+    assignedClasses: a.assigned_classes ?? [],
   };
 }
 
 export default function ActivitiesManager({
   unit,
   initialActivities,
+  classList,
 }: {
   unit: Unit;
   initialActivities: Activity[];
+  classList: number[];
 }) {
   const [activities, setActivities] = useState<Activity[]>(initialActivities);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -156,6 +164,10 @@ export default function ActivitiesManager({
       setError("이미지를 먼저 업로드하세요.");
       return;
     }
+    if (!form.assignAll && form.assignedClasses.length === 0) {
+      setError("대상 반을 하나 이상 선택하거나 '학년 전체'를 선택하세요.");
+      return;
+    }
     setSaving(true);
     setError(null);
 
@@ -166,6 +178,7 @@ export default function ActivitiesManager({
       order_index: form.order_index,
       is_published: form.is_published,
       content: buildContent(form),
+      assigned_classes: form.assignAll ? null : [...form.assignedClasses].sort((a, b) => a - b),
     };
 
     const supabase = createClient();
@@ -430,6 +443,53 @@ export default function ActivitiesManager({
             </div>
           )}
 
+          {/* 공통: 대상 반 (부여하지 않은 반에는 활동이 보이지 않음) */}
+          <div className="flex flex-col gap-2 rounded-lg border border-dashed border-zinc-300 p-4">
+            <label className="text-sm font-medium text-zinc-700">공개 대상</label>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-700">
+              <label className="flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  checked={form.assignAll}
+                  onChange={() => set("assignAll", true)}
+                />
+                {unit.grade}학년 전체
+              </label>
+              <label className="flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  checked={!form.assignAll}
+                  onChange={() => set("assignAll", false)}
+                />
+                선택한 반만
+              </label>
+              {!form.assignAll &&
+                (classList.length === 0 ? (
+                  <span className="text-zinc-400">
+                    (이 학년에 등록된 학생이 없습니다)
+                  </span>
+                ) : (
+                  classList.map((cls) => (
+                    <label key={cls} className="flex items-center gap-1">
+                      <input
+                        type="checkbox"
+                        checked={form.assignedClasses.includes(cls)}
+                        onChange={(e) =>
+                          set(
+                            "assignedClasses",
+                            e.target.checked
+                              ? [...form.assignedClasses, cls]
+                              : form.assignedClasses.filter((c) => c !== cls)
+                          )
+                        }
+                      />
+                      {cls}반
+                    </label>
+                  ))
+                ))}
+            </div>
+          </div>
+
           {/* 공통: 학생 글 작성란 */}
           <div className="flex flex-col gap-1 rounded-lg border border-dashed border-zinc-300 p-4">
             <label className="text-sm font-medium text-zinc-700">
@@ -485,6 +545,7 @@ export default function ActivitiesManager({
                 <th className="py-2 pr-4">순서</th>
                 <th className="py-2 pr-4">유형</th>
                 <th className="py-2 pr-4">활동명</th>
+                <th className="py-2 pr-4">대상</th>
                 <th className="py-2 pr-4">공개</th>
                 <th className="py-2"></th>
               </tr>
@@ -495,6 +556,11 @@ export default function ActivitiesManager({
                   <td className="py-2 pr-4">{a.order_index}</td>
                   <td className="py-2 pr-4">{TYPE_LABELS[a.type]}</td>
                   <td className="py-2 pr-4 font-medium text-zinc-900">{a.title}</td>
+                  <td className="py-2 pr-4 text-zinc-600">
+                    {a.assigned_classes === null
+                      ? "전체"
+                      : a.assigned_classes.map((c) => `${c}반`).join(", ")}
+                  </td>
                   <td className="py-2 pr-4">
                     <button
                       onClick={() => togglePublish(a)}

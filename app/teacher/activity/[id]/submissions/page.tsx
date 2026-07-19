@@ -32,25 +32,30 @@ export default async function SubmissionsPage({
 
   const { data: activity } = await supabase
     .from("activities")
-    .select("id, title, type, unit_id, units(title, grade)")
+    .select("id, title, type, unit_id, assigned_classes, units(title, grade)")
     .eq("id", id)
     .single<{
       id: string;
       title: string;
       type: string;
       unit_id: string;
+      assigned_classes: number[] | null;
       units: { title: string; grade: number };
     }>();
   if (!activity) notFound();
 
+  // 대상 반이 지정된 활동이면 그 반 학생만 표시
+  let studentQuery = supabase
+    .from("profiles")
+    .select("id, grade, class_no, student_no, name")
+    .eq("role", "student")
+    .eq("grade", activity.units.grade);
+  if (activity.assigned_classes !== null) {
+    studentQuery = studentQuery.in("class_no", activity.assigned_classes);
+  }
+
   const [{ data: students }, { data: progress }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, grade, class_no, student_no, name")
-      .eq("role", "student")
-      .eq("grade", activity.units.grade)
-      .order("class_no")
-      .order("student_no"),
+    studentQuery.order("class_no").order("student_no"),
     supabase
       .from("progress")
       .select("student_id, completed, score, submission, response_text, updated_at")

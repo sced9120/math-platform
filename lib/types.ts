@@ -24,6 +24,7 @@ export type Activity = {
   content: Record<string, unknown>;
   order_index: number;
   is_published: boolean;
+  assigned_classes: number[] | null; // null = 학년 전체, 배열 = 지정 반만
   created_at: string;
 };
 

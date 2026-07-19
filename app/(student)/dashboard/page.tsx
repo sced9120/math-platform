@@ -28,7 +28,10 @@ export default async function DashboardPage() {
     return { total: acts.length, done };
   }
 
-  const unitList = (units as Unit[]) ?? [];
+  // 나에게 부여된 활동이 하나도 없는 단원은 숨긴다
+  const unitList = ((units as Unit[]) ?? []).filter(
+    (u) => unitStats(u.id).total > 0
+  );
 
   return (
     <div>

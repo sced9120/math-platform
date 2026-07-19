@@ -18,13 +18,31 @@ export default async function TeacherUnitDetailPage({
 
   if (!unit) notFound();
 
-  const { data: activities } = await supabase
-    .from("activities")
-    .select("*")
-    .eq("unit_id", unit.id)
-    .order("order_index");
+  const [{ data: activities }, { data: classRows }] = await Promise.all([
+    supabase
+      .from("activities")
+      .select("*")
+      .eq("unit_id", unit.id)
+      .order("order_index"),
+    supabase
+      .from("profiles")
+      .select("class_no")
+      .eq("role", "student")
+      .eq("grade", unit.grade),
+  ]);
+
+  // 해당 학년에 존재하는 반 목록 (중복 제거·정렬)
+  const classList = [
+    ...new Set(
+      ((classRows as { class_no: number }[]) ?? []).map((r) => r.class_no)
+    ),
+  ].sort((a, b) => a - b);
 
   return (
-    <ActivitiesManager unit={unit} initialActivities={(activities as Activity[]) ?? []} />
+    <ActivitiesManager
+      unit={unit}
+      initialActivities={(activities as Activity[]) ?? []}
+      classList={classList}
+    />
   );
 }

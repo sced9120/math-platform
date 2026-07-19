@@ -26,10 +26,15 @@ export default function TeacherPage() {
           </p>
         </Link>
 
-        <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-6 opacity-60">
-          <h3 className="mb-1 font-semibold text-zinc-500">진행현황 조회</h3>
-          <p className="text-sm text-zinc-400">STEP 4 이후 제공됩니다.</p>
-        </div>
+        <Link
+          href="/teacher/export"
+          className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-blue-400"
+        >
+          <h3 className="mb-1 font-semibold text-zinc-900">기록 다운로드</h3>
+          <p className="text-sm text-zinc-500">
+            학생·반·활동을 선택해 제출 기록을 CSV(엑셀)로 다운로드
+          </p>
+        </Link>
       </div>
     </div>
   );

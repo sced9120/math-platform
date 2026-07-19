@@ -8,6 +8,7 @@ type ProgressRow = {
   completed: boolean;
   score: number | null;
   submission: { answer?: string; correct?: boolean } | null;
+  response_text: string | null;
 };
 
 // 활동 실행 화면. 활동 데이터는 정답이 제거된 RPC(student_activities)로만 가져온다.
@@ -33,7 +34,7 @@ export default async function StudentActivityPage({
     supabase.from("units").select("id, title").eq("id", activity.unit_id).single(),
     supabase
       .from("progress")
-      .select("completed, score, submission")
+      .select("completed, score, submission, response_text")
       .eq("activity_id", id)
       .maybeSingle<ProgressRow>(),
     supabase

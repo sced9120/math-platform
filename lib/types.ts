@@ -7,12 +7,15 @@ export type Unit = {
   created_at: string;
 };
 
-export type ActivityType = "geogebra" | "content" | "problem";
+export type ActivityType = "geogebra" | "content" | "problem" | "image" | "html";
 
 // content(jsonb)의 유형별 형태
 // geogebra: { materialId: string, height: number }
 // content:  { body: string }
 // problem:  { question: string, answer: string, tolerance: number }
+// image:    { imagePath: string, caption?: string }
+// html:     { html: string, height: number }
+// 공통 옵션: { response_prompt?: string } — 있으면 학생 글 작성란 표시
 export type Activity = {
   id: string;
   unit_id: string;

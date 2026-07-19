@@ -9,6 +9,8 @@ const TYPE_LABELS: Record<ActivityType, string> = {
   geogebra: "GeoGebra",
   content: "자료/설명",
   problem: "문제 풀이",
+  image: "사진/이미지",
+  html: "HTML 콘텐츠",
 };
 
 type FormState = {
@@ -23,6 +25,11 @@ type FormState = {
   question: string;
   answer: string;
   tolerance: number;
+  imagePath: string;
+  caption: string;
+  htmlBody: string;
+  htmlHeight: number;
+  responsePrompt: string; // 모든 유형 공통 — 있으면 학생 글 작성란 표시
 };
 
 const EMPTY_FORM: FormState = {
@@ -36,16 +43,33 @@ const EMPTY_FORM: FormState = {
   question: "",
   answer: "",
   tolerance: 0,
+  imagePath: "",
+  caption: "",
+  htmlBody: "",
+  htmlHeight: 600,
+  responsePrompt: "",
 };
 
 function buildContent(f: FormState): Record<string, unknown> {
+  const common = f.responsePrompt.trim()
+    ? { response_prompt: f.responsePrompt.trim() }
+    : {};
   switch (f.type) {
     case "geogebra":
-      return { materialId: f.materialId.trim(), height: f.height };
+      return { materialId: f.materialId.trim(), height: f.height, ...common };
     case "content":
-      return { body: f.body };
+      return { body: f.body, ...common };
     case "problem":
-      return { question: f.question, answer: f.answer.trim(), tolerance: f.tolerance };
+      return {
+        question: f.question,
+        answer: f.answer.trim(),
+        tolerance: f.tolerance,
+        ...common,
+      };
+    case "image":
+      return { imagePath: f.imagePath, caption: f.caption.trim(), ...common };
+    case "html":
+      return { html: f.htmlBody, height: f.htmlHeight, ...common };
   }
 }
 
@@ -63,6 +87,11 @@ function formFromActivity(a: Activity): FormState {
     question: (c.question as string) ?? "",
     answer: (c.answer as string) ?? "",
     tolerance: (c.tolerance as number) ?? 0,
+    imagePath: (c.imagePath as string) ?? "",
+    caption: (c.caption as string) ?? "",
+    htmlBody: (c.html as string) ?? "",
+    htmlHeight: (c.height as number) ?? 600,
+    responsePrompt: (c.response_prompt as string) ?? "",
   };
 }
 
@@ -77,6 +106,7 @@ export default function ActivitiesManager({
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -98,8 +128,34 @@ export default function ActivitiesManager({
     setForm(EMPTY_FORM);
   }
 
+  async function handleImageUpload(file: File) {
+    setUploading(true);
+    setError(null);
+    const supabase = createClient();
+    const ext = file.name.split(".").pop() ?? "png";
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("activity-files")
+      .upload(path, file);
+    if (error) {
+      setError("이미지 업로드에 실패했습니다. (마이그레이션 0004 적용 여부 확인)");
+    } else {
+      set("imagePath", path);
+    }
+    setUploading(false);
+  }
+
+  function imageUrl(path: string): string {
+    return createClient().storage.from("activity-files").getPublicUrl(path).data
+      .publicUrl;
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    if (form.type === "image" && !form.imagePath) {
+      setError("이미지를 먼저 업로드하세요.");
+      return;
+    }
     setSaving(true);
     setError(null);
 
@@ -306,10 +362,97 @@ export default function ActivitiesManager({
             </div>
           )}
 
+          {form.type === "image" && (
+            <div className="flex flex-col gap-3 rounded-lg bg-zinc-50 p-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-zinc-700">이미지 파일</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    e.target.files?.[0] && handleImageUpload(e.target.files[0])
+                  }
+                  className="text-sm"
+                />
+                {uploading && (
+                  <p className="text-sm text-zinc-500">업로드 중...</p>
+                )}
+                {form.imagePath && !uploading && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={imageUrl(form.imagePath)}
+                    alt="업로드된 이미지 미리보기"
+                    className="mt-2 max-h-64 w-auto rounded-md border border-zinc-200"
+                  />
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-zinc-700">
+                  설명 (선택)
+                </label>
+                <input
+                  type="text"
+                  placeholder="이미지 아래에 표시할 설명"
+                  value={form.caption}
+                  onChange={(e) => set("caption", e.target.value)}
+                  className={inputCls}
+                />
+              </div>
+            </div>
+          )}
+
+          {form.type === "html" && (
+            <div className="flex flex-col gap-3 rounded-lg bg-zinc-50 p-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-zinc-700">HTML 코드</label>
+                <p className="text-xs text-zinc-500">
+                  클로드/챗GPT 등으로 만든 HTML을 그대로 붙여넣으세요. 학생
+                  화면에서 격리된 영역(iframe)에 표시되어 바로 조작할 수 있습니다.
+                </p>
+                <textarea
+                  required
+                  rows={10}
+                  placeholder="<!DOCTYPE html> 또는 <div>...</div> 등 HTML 전체 붙여넣기"
+                  value={form.htmlBody}
+                  onChange={(e) => set("htmlBody", e.target.value)}
+                  className={`${inputCls} font-mono text-xs`}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-zinc-700">높이(px)</label>
+                <input
+                  type="number"
+                  value={form.htmlHeight}
+                  onChange={(e) => set("htmlHeight", Number(e.target.value))}
+                  className={`w-24 ${inputCls}`}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* 공통: 학생 글 작성란 */}
+          <div className="flex flex-col gap-1 rounded-lg border border-dashed border-zinc-300 p-4">
+            <label className="text-sm font-medium text-zinc-700">
+              학생 글 작성란 안내문 (선택)
+            </label>
+            <p className="text-xs text-zinc-500">
+              입력하면 학생 화면에 글 작성란이 생깁니다. 예: &quot;오늘 활동에서
+              알게 된 점을 적어 보세요&quot;, &quot;풀이 과정을 서술하세요&quot;.
+              작성 내용은 제출 보기/CSV에서 확인할 수 있습니다.
+            </p>
+            <input
+              type="text"
+              value={form.responsePrompt}
+              onChange={(e) => set("responsePrompt", e.target.value)}
+              placeholder="비워두면 작성란이 표시되지 않습니다"
+              className={inputCls}
+            />
+          </div>
+
           <div className="flex gap-2">
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || uploading}
               className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
               {saving ? "저장 중..." : editingId ? "수정 저장" : "추가"}
@@ -366,6 +509,12 @@ export default function ActivitiesManager({
                   </td>
                   <td className="py-2 text-right">
                     <div className="flex justify-end gap-3">
+                      <Link
+                        href={`/teacher/activity/${a.id}/submissions`}
+                        className="text-xs text-blue-600 hover:underline"
+                      >
+                        제출 보기
+                      </Link>
                       <button
                         onClick={() => {
                           setEditingId(a.id);

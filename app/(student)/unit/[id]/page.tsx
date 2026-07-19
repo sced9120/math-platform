@@ -7,6 +7,8 @@ const TYPE_LABELS: Record<string, string> = {
   geogebra: "GeoGebra",
   content: "자료",
   problem: "문제",
+  image: "사진",
+  html: "체험",
 };
 
 type StudentActivity = {

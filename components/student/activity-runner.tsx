@@ -20,13 +20,22 @@ export default function ActivityRunner({
   activity,
   initialProgress,
   aiConsented,
+  initialTab,
 }: {
   activity: Activity;
   initialProgress: ProgressState | null;
   aiConsented: boolean;
+  initialTab?: string;
 }) {
+  // 사이드메뉴에서 ?tab=socratic / ?tab=feedback 으로 진입 시 해당 탭을 바로 연다
+  const startTab: Tab =
+    initialTab === "socratic"
+      ? "socratic"
+      : initialTab === "feedback" && activity.type === "problem"
+        ? "feedback"
+        : "run";
   const [progress, setProgress] = useState<ProgressState | null>(initialProgress);
-  const [tab, setTab] = useState<Tab>("run");
+  const [tab, setTab] = useState<Tab>(startTab);
   const [consented, setConsented] = useState(aiConsented); // AI 탭 간 공유
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -14,10 +14,13 @@ type ProgressRow = {
 // 활동 실행 화면. 활동 데이터는 정답이 제거된 RPC(student_activities)로만 가져온다.
 export default async function StudentActivityPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const { id } = await params;
+  const { tab } = await searchParams;
   const supabase = await createClient();
 
   const { data: rows } = await supabase.rpc("student_activities", {
@@ -60,6 +63,7 @@ export default async function StudentActivityPage({
         activity={activity}
         initialProgress={progress ?? null}
         aiConsented={!!me?.ai_consent_at}
+        initialTab={tab}
       />
     </div>
   );

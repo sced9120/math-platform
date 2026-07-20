@@ -1,0 +1,177 @@
+# 수학 학습 플랫폼 — 구조 이해하고 직접 고쳐보기
+
+> 이 글은 개발자가 아닌 운영자(교사)가 사이트의 구조를 이해하고,
+> 메뉴 이름·문구·구성 같은 것을 스스로 고칠 수 있게 쓴 안내서다.
+> 위키독스에 그대로 옮겨 실어도 되도록 작성했다.
+
+---
+
+## 1. 전체 그림: 이 사이트는 어떻게 굴러가는가
+
+이 사이트는 세 덩어리로 이루어져 있다.
+
+| 덩어리 | 역할 | 비유 |
+|---|---|---|
+| **Next.js 코드** (내 컴퓨터의 프로젝트 폴더) | 화면과 동작을 정의 | 건물의 설계도 |
+| **Supabase** (클라우드 DB) | 계정, 단원, 활동, 제출 기록 저장 | 창고 + 경비실 |
+| **Vercel** (클라우드 호스팅) | 코드를 인터넷에 공개 | 건물이 서 있는 땅 |
+
+흐름은 이렇다: **내 폴더에서 코드를 고친다 → 로컬에서 확인한다 → Vercel에 올린다.**
+데이터(학생 계정, 활동 내용, 제출 기록)는 전부 Supabase에 있으므로
+코드를 고치고 다시 배포해도 데이터는 사라지지 않는다.
+
+한 가지 안심할 점: **코드를 아무리 망가뜨려도 git으로 되돌릴 수 있다** (7절 참고).
+
+---
+
+## 2. 폴더 지도
+
+프로젝트 폴더(`수학 컨텐츠 아카이브`)에서 알아야 할 곳은 사실 몇 개 안 된다.
+
+```
+app/                  ← 화면(페이지)들. 폴더 경로가 곧 주소(URL)가 된다
+├─ login/             ← /login 화면
+├─ (student)/         ← 학생 화면 묶음 (괄호 폴더는 주소에 안 나타남)
+│  ├─ layout.tsx      ← 학생 화면 공통 뼈대 (헤더, 사이드메뉴)
+│  ├─ dashboard/      ← /dashboard  학생 메인
+│  ├─ unit/[id]/      ← /unit/xxx   단원의 활동 목록
+│  └─ activity/[id]/  ← /activity/xxx  활동 실행
+├─ teacher/           ← 교사 화면 묶음 (/teacher, /teacher/units ...)
+└─ api/               ← 서버 전용 기능 (AI 호출, 계정 생성)
+
+components/           ← 화면 조각(부품)들
+├─ student/           ← 학생용 부품: side-menu, activity-runner, socratic-chat ...
+└─ teacher/           ← 교사용 부품: activities-manager, export-builder ...
+
+lib/                  ← 공용 도구 (Supabase 연결, AI 호출, 인증 가드)
+supabase/migrations/  ← DB 구조 변경 기록 (SQL) — 함부로 만지지 말 것
+docs/                 ← 설계 문서 (지금 이 글 포함)
+```
+
+**규칙 하나만 기억하면 된다:**
+- "어느 **주소**의 화면을 고치고 싶다" → `app/` 아래에서 주소와 같은 폴더의 `page.tsx`
+- "화면 속 **특정 부품**(메뉴, 표, 채팅창)을 고치고 싶다" → `components/` 아래의 해당 파일
+
+## 3. 화면 ↔ 파일 매칭표
+
+| 고치고 싶은 것 | 파일 |
+|---|---|
+| 학생 사이드메뉴 (☰) 항목·이름 | `components/student/side-menu.tsx` |
+| 학생 화면 상단 헤더 | `app/(student)/layout.tsx` |
+| 학생 메인(단원 카드 목록) | `app/(student)/dashboard/page.tsx` |
+| 활동 실행 화면(탭 구성) | `components/student/activity-runner.tsx` |
+| AI 챗봇 화면·문구 | `components/student/socratic-chat.tsx` |
+| AI 첨삭 화면·문구 | `components/student/feedback-panel.tsx` |
+| AI 동의 안내문 | `components/student/ai-consent.tsx` |
+| 로그인 화면 | `app/login/page.tsx` |
+| 교사 헤더·메뉴 | `app/teacher/layout.tsx` |
+| 교사 활동 등록 폼 | `components/teacher/activities-manager.tsx` |
+| 기록 다운로드 화면·CSV 구조 | `components/teacher/export-builder.tsx` |
+| AI 모델·프롬프트 | `lib/ai/provider.ts`, `lib/ai/socratic.ts`, `lib/ai/feedback.ts` |
+| AI 일일 한도 (질문 20/첨삭 10) | `lib/ai/server.ts`의 `AI_LIMITS` |
+
+## 4. 실습: 사이드메뉴를 직접 고쳐보기
+
+`components/student/side-menu.tsx`를 열면 이런 부분이 있다.
+
+```tsx
+{sectionBtn("units", "📚 활동")}
+{sectionBtn("socratic", "💬 소크라테스식 문답")}
+{sectionBtn("feedback", "✏️ 문제풀이 첨삭")}
+```
+
+- **이름 바꾸기**: 따옴표 안의 글자만 바꾸면 된다. `"📚 활동"` → `"📚 우리 반 활동"`
+- **이모지 바꾸기**: 이모지도 그냥 글자다. 지우거나 다른 걸로 바꾸면 된다.
+- **항목 순서 바꾸기**: 세 줄의 순서를 바꾸면 메뉴 순서가 바뀐다.
+
+단원 목록에 붙는 번호 형식(`활동1 이차함수와 그래프`)은 같은 파일에서
+`활동{i + 1} {u.title}` 부분을 찾으면 된다. 예를 들어
+`{i + 1}번째 활동 · {u.title}` 로 바꾸면 표기가 바뀐다.
+
+**화면 문구는 대부분 이런 식이다.** 어떤 화면의 문구든:
+1. 화면에 보이는 문구를 그대로 복사한다
+2. 프로젝트 폴더에서 그 문구로 파일 검색을 한다 (VS Code: `⌘⇧F`)
+3. 찾은 따옴표 안의 글자를 바꾼다
+
+## 5. 모양(색·크기)은 Tailwind 클래스로
+
+코드 곳곳의 `className="..."` 안 단어들이 모양을 결정한다. 자주 쓰는 것만:
+
+| 클래스 | 의미 |
+|---|---|
+| `bg-blue-600` | 배경 파랑 (숫자가 클수록 진함, 50~950) |
+| `text-zinc-500` | 글자 회색 |
+| `text-sm` / `text-lg` | 글자 작게 / 크게 |
+| `p-4` / `px-3` / `py-2` | 안쪽 여백 (전체/좌우/상하) |
+| `rounded-md` | 모서리 둥글게 |
+| `hidden` | 숨김 |
+
+예: 버튼을 파랑에서 초록으로 → `bg-blue-600 hover:bg-blue-700` 을
+`bg-green-600 hover:bg-green-700` 으로. 색 이름과 숫자 조합은
+[tailwindcss.com/docs/colors](https://tailwindcss.com/docs/colors) 참고.
+
+## 6. 고치고 → 확인하고 → 올리는 절차
+
+터미널을 열고 프로젝트 폴더로 이동한 뒤:
+
+```bash
+cd ~/Desktop/수학\ 컨텐츠\ 아카이브
+
+# 1) 로컬 미리보기 서버 켜기 (고칠 때마다 자동 반영됨)
+npm run dev
+# → 화면에 나오는 http://localhost:3000 을 브라우저로 열기
+#   (포트가 다르게 나오면 그 주소로)
+
+# 2) 다 확인했으면 Ctrl+C 로 끄고, 실제 사이트에 올리기
+npx vercel --prod
+```
+
+배포는 1~2분 걸리고, 끝나면 실제 주소에 바로 반영된다.
+**로컬 확인 없이 바로 배포하지 말 것** — 오타 하나로 사이트 전체가 안 뜰 수 있다.
+
+## 7. 망쳤을 때 되돌리기 (git)
+
+이 폴더는 git으로 모든 변경 이력이 저장돼 있다.
+
+```bash
+# 아직 배포 안 한 수정을 전부 버리고 마지막 저장 상태로 되돌리기
+git checkout .
+
+# 잘 됐던 시점들 목록 보기
+git log --oneline
+```
+
+수정이 잘 끝났으면 저장(커밋)해두는 습관:
+
+```bash
+git add -A && git commit -m "메뉴 이름 변경"
+```
+
+## 8. 건드리면 위험한 곳
+
+| 위치 | 이유 |
+|---|---|
+| `supabase/migrations/` | DB 구조 변경 기록. 수정해도 DB에 반영되지 않고 혼란만 생김 |
+| `lib/supabase/`, `proxy.ts` | 로그인·보안의 핵심. 잘못 고치면 아무도 로그인 못 함 |
+| `.env.local` | 비밀 키 저장소. **절대 남에게 보여주거나 올리지 말 것** |
+| `app/api/` | 서버 로직 (AI 한도, 계정 생성). 문구 수정 정도만 |
+
+DB 구조를 바꾸고 싶을 때(새 정보 저장 등)는 직접 하지 말고 클로드에게 맡기는 걸 권장.
+
+## 9. 제일 쉬운 방법: 클로드 코드에게 시키기
+
+이 폴더에는 클로드 코드용 스킬(`.claude/skills/math-platform-builder`)이 들어 있어서,
+폴더에서 클로드 코드를 실행하면 프로젝트의 규칙(보안, AI 비용 통제)을 알아서 지키며 작업한다.
+
+```bash
+cd ~/Desktop/수학\ 컨텐츠\ 아카이브
+claude
+```
+
+그리고 한국어로 시키면 된다:
+- "사이드메뉴에 '공지사항' 항목 추가해줘"
+- "삼각함수 단위원 체험 활동 만들어서 1학년 3반에 등록해줘"
+- "학생 대시보드에 지난주 완료한 활동 수를 보여줘"
+
+직접 고치는 건 4~5절 수준(문구·색·순서)까지만 하고,
+구조가 바뀌는 일은 클로드에게 맡기는 것이 안전하다.

@@ -1,15 +1,44 @@
 # 수학 학습 플랫폼
 
-고등학교 수학 교사가 단독 운영하는 학습 플랫폼 (MVP).
-학생은 학번으로 로그인해 단원별 활동(GeoGebra 조작 · 자료 열람 · 문제 풀이)을 수행하고,
-교사는 학생 계정 일괄 생성과 단원/활동 관리, 진행현황을 담당합니다.
+고등학교 교사가 운영하는 AI 학습 플랫폼.
+학생은 학번으로 로그인해 단원별 활동(GeoGebra·자료·문제·사진·HTML 체험)을 수행하고,
+**AI 소크라테스 문답**과 **사진/PDF 풀이 첨삭**을 받습니다.
+교사는 학생 계정 일괄 생성·활동 관리·기록 다운로드를, 관리자는 교사 계정까지 관리합니다.
 
-> 전체 설계: [docs/01_ARCHITECTURE.md](docs/01_ARCHITECTURE.md) ·
-> 2단계 AI 기능 설계: [docs/03_AI_FEATURES.md](docs/03_AI_FEATURES.md)
+> 수학이 아닌 다른 교과로 바꾸는 법과 처음부터 만드는 법:
+> [docs/06_BUILD_FROM_SCRATCH.md](docs/06_BUILD_FROM_SCRATCH.md)
+
+## 🚀 5분 만에 내 것으로 배포하기 (원클릭)
+
+아래 버튼을 누르면 이 코드가 **당신의 Vercel 계정**으로 복사·배포됩니다.
+(배포 중 Supabase·AI 키를 입력하는 칸이 나옵니다 — 아래 절차 참고)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/sced9120/math-platform&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,AI_PROVIDER,OPENAI_API_KEY&envDescription=Supabase%20URL/키%203개%20+%20AI_PROVIDER(gpt)%20+%20OpenAI%20키&project-name=math-platform&repository-name=math-platform)
+
+> 다른 분이 이 저장소를 자기 GitHub로 복사(fork)했다면, 버튼 주소의 `sced9120` 을 자기 아이디로 바꾸세요.
+
+**배포 순서 (버튼 누르기 전에 Supabase부터):**
+
+1. **Supabase 프로젝트 생성** ([supabase.com](https://supabase.com), Region: Seoul) → SQL Editor에
+   [`supabase/setup.sql`](supabase/setup.sql) 전체를 붙여넣고 Run (표·보안정책·함수가 한 번에 만들어짐)
+2. Supabase → Project Settings → API 에서 **URL / anon key / service_role key** 복사
+3. 위 **Deploy 버튼** 클릭 → 나오는 입력칸에:
+   - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` → 2번 값
+   - `AI_PROVIDER` → `gpt` (또는 `claude`)
+   - `OPENAI_API_KEY` → [OpenAI 키](https://platform.openai.com/api-keys) (claude면 `ANTHROPIC_API_KEY`)
+4. 배포 완료 후, 로컬에서 관리자 계정 1개 생성:
+   ```bash
+   git clone https://github.com/sced9120/math-platform && cd math-platform
+   npm install && cp .env.local.example .env.local   # .env.local 에 위 키들 입력
+   npm run create-teacher -- admin 관리자 --admin
+   ```
+   출력된 아이디/초기비번으로 로그인 → 관리자 화면에서 교사·학생 계정을 만들면 끝.
+
+각 단계를 화면과 함께 자세히: [docs/06_BUILD_FROM_SCRATCH.md](docs/06_BUILD_FROM_SCRATCH.md)
 
 ## 기술 스택
 
-Next.js (App Router, TypeScript) · Tailwind CSS · Supabase (Postgres + Auth + RLS) · Vercel 배포 · GeoGebra 임베드
+Next.js (App Router, TypeScript) · Tailwind CSS · Supabase (Postgres + Auth + RLS) · Vercel 배포 · OpenAI/Anthropic
 
 ---
 
@@ -35,21 +64,20 @@ cp .env.local.example .env.local
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 공개 키 (RLS로 보호됨) | 클라이언트 공개 |
 | `SUPABASE_SERVICE_ROLE_KEY` | 관리자 키 — **RLS 우회** | **서버 전용. 절대 클라이언트/저장소에 노출 금지** |
 
-### 1-3. 데이터베이스 마이그레이션
+### 1-3. 데이터베이스 설정
 
-Supabase 대시보드 **SQL Editor**에서 아래 파일 내용을 **순서대로** 붙여넣어 실행:
+Supabase 대시보드 **SQL Editor**에 [`supabase/setup.sql`](supabase/setup.sql)
+**전체를 한 번에** 붙여넣고 Run 하세요 (테이블·RLS 정책·함수가 모두 만들어집니다).
 
-1. `supabase/migrations/0001_init.sql` — 테이블 + RLS 정책
-2. `supabase/migrations/0002_step4_answer_security.sql` — 정답 은닉 · 채점 함수 · 치팅 방지
+> `supabase/setup.sql` 은 개별 마이그레이션(`supabase/migrations/0001~0006`)을 하나로 합친 파일입니다.
+> supabase CLI를 쓴다면 `supabase db push`.
 
-(supabase CLI를 쓴다면 `supabase db push`)
-
-### 1-4. 교사 계정 만들기 (최초 1회)
+### 1-4. 관리자·교사 계정 만들기 (최초 1회)
 
 ```bash
 npm install
-npm run create-teacher -- <아이디> <이름>
-# 예: npm run create-teacher -- teacher 김수학
+npm run create-teacher -- admin 관리자 --admin   # 관리자 (교사 계정까지 관리)
+npm run create-teacher -- teacher 김수학          # 일반 교사
 ```
 
 - 출력된 초기비밀번호로 로그인하면 **비밀번호 변경이 강제**됩니다.

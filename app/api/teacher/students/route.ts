@@ -15,6 +15,7 @@ function generatePassword(len = 8): string {
   return Array.from(bytes, (b) => PW_CHARS[b % PW_CHARS.length]).join("");
 }
 
+// 교사 또는 관리자면 통과 (admin은 교사 권한 포함)
 async function requireTeacher() {
   const supabase = await createClient();
   const {
@@ -27,7 +28,7 @@ async function requireTeacher() {
     .select("role")
     .eq("id", user.id)
     .single();
-  return me?.role === "teacher" ? user : null;
+  return me?.role === "teacher" || me?.role === "admin" ? user : null;
 }
 
 function isValidRow(s: StudentRow): boolean {

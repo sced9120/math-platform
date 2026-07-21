@@ -1,15 +1,22 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+export type Role = "student" | "teacher" | "admin";
+
 export type Profile = {
   id: string;
   grade: number | null;
   class_no: number | null;
   student_no: number | null;
   name: string;
-  role: "student" | "teacher";
+  role: Role;
   must_change_password: boolean;
 };
+
+// admin은 교사 기능을 모두 포함한다
+export function isStaff(role: Role): boolean {
+  return role === "teacher" || role === "admin";
+}
 
 // 보호된 페이지 공용 가드: 로그인 + 프로필을 보장하고,
 // 최초 로그인(비번 미변경) 상태면 비밀번호 변경 페이지로 강제 이동한다.

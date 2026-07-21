@@ -19,5 +19,7 @@ export default async function Home() {
   if (!profile) redirect("/login?error=no-profile");
   if (profile.must_change_password) redirect("/change-password");
 
-  redirect(profile.role === "teacher" ? "/teacher" : "/dashboard");
+  // admin·teacher는 교사 화면으로 (admin은 거기서 '교사 관리'까지 가능)
+  const staff = profile.role === "teacher" || profile.role === "admin";
+  redirect(staff ? "/teacher" : "/dashboard");
 }

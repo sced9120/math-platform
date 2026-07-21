@@ -1,6 +1,7 @@
-// 교사 계정 생성 (최초 1회 또는 추가 교사)
-// 실행: npm run create-teacher -- <아이디> <이름> [초기비밀번호]
-//   예: npm run create-teacher -- teacher 김수학
+// 교사 또는 관리자 계정 생성 (최초 1회 또는 추가)
+// 실행: npm run create-teacher -- <아이디> <이름> [초기비밀번호] [--admin]
+//   교사: npm run create-teacher -- teacher 김수학
+//   관리자: npm run create-teacher -- admin 관리자 --admin
 // 초기비밀번호를 생략하면 무작위로 생성해 출력합니다.
 // 생성된 계정은 최초 로그인 시 비밀번호 변경이 강제됩니다.
 import { createClient } from "@supabase/supabase-js";
@@ -12,10 +13,14 @@ if (!url || !key) {
   process.exit(1);
 }
 
-const [loginId, name, passwordArg] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const isAdmin = args.includes("--admin");
+const [loginId, name, passwordArg] = args.filter((a) => a !== "--admin");
+const role = isAdmin ? "admin" : "teacher";
 if (!loginId || !name) {
-  console.error("사용법: npm run create-teacher -- <아이디> <이름> [초기비밀번호]");
-  console.error("  예:   npm run create-teacher -- teacher 김수학");
+  console.error("사용법: npm run create-teacher -- <아이디> <이름> [초기비밀번호] [--admin]");
+  console.error("  교사:   npm run create-teacher -- teacher 김수학");
+  console.error("  관리자: npm run create-teacher -- admin 관리자 --admin");
   process.exit(1);
 }
 
@@ -44,7 +49,7 @@ if (authError) {
 const { error: profileError } = await supabase.from("profiles").insert({
   id: created.user.id,
   name,
-  role: "teacher",
+  role,
   must_change_password: true,
 });
 
@@ -54,7 +59,7 @@ if (profileError) {
   process.exit(1);
 }
 
-console.log("교사 계정이 생성되었습니다.");
+console.log(`${role === "admin" ? "관리자" : "교사"} 계정이 생성되었습니다.`);
 console.log(`  아이디(로그인용): ${loginId}`);
 console.log(`  이름:            ${name}`);
 console.log(`  초기비밀번호:     ${password}`);

@@ -1,7 +1,11 @@
 import Link from "next/link";
+import { requireProfile } from "@/lib/auth";
 
 // 교사 대시보드 — 관리 메뉴 진입점 (권한 가드는 layout에서 처리)
-export default function TeacherPage() {
+export default async function TeacherPage() {
+  const profile = await requireProfile();
+  const admin = profile.role === "admin";
+
   return (
     <div>
       <h2 className="mb-6 text-lg font-semibold text-zinc-900">관리 메뉴</h2>
@@ -35,6 +39,18 @@ export default function TeacherPage() {
             학생·반·활동을 선택해 제출 기록을 CSV(엑셀)로 다운로드
           </p>
         </Link>
+
+        {admin && (
+          <Link
+            href="/teacher/teachers"
+            className="rounded-xl border border-blue-200 bg-blue-50 p-6 shadow-sm hover:border-blue-400"
+          >
+            <h3 className="mb-1 font-semibold text-zinc-900">
+              교사 관리 <span className="text-xs font-normal text-blue-600">관리자</span>
+            </h3>
+            <p className="text-sm text-zinc-500">교사 계정 만들기 · 초기비밀번호 배포 · 삭제</p>
+          </Link>
+        )}
       </div>
     </div>
   );

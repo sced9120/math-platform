@@ -62,6 +62,48 @@ export async function aiChatJson<T>(params: {
   }
 }
 
+// 이미지(사진/PDF 페이지) + 텍스트를 함께 넣어 JSON 스키마 강제 응답
+export async function aiChatJsonWithImages<T>(params: {
+  feature: AiFeature;
+  system: string;
+  text: string;
+  images: string[]; // data URL 배열
+  schema: Record<string, unknown>;
+}): Promise<T> {
+  if (PROVIDER !== "gpt") {
+    // 이미지 첨삭은 현재 gpt provider에서만 지원 (필요 시 claude 분기 추가)
+    throw new Error(
+      `이미지 첨삭은 gpt provider에서만 지원합니다. (현재: ${PROVIDER})`
+    );
+  }
+
+  const response = await openai().chat.completions.create({
+    model: GPT_MODELS[params.feature],
+    max_completion_tokens: 8000,
+    reasoning_effort: "medium",
+    response_format: {
+      type: "json_schema",
+      json_schema: { name: "response", strict: true, schema: params.schema },
+    },
+    messages: [
+      { role: "system", content: params.system },
+      {
+        role: "user",
+        content: [
+          { type: "text", text: params.text },
+          ...params.images.map(
+            (url) =>
+              ({ type: "image_url", image_url: { url } }) as const
+          ),
+        ],
+      },
+    ],
+  });
+  const out = response.choices[0]?.message?.content;
+  if (!out) throw new Error("AI 응답이 비어 있습니다.");
+  return JSON.parse(out) as T;
+}
+
 // ---------- OpenAI (GPT) ----------
 
 let _openai: OpenAI | null = null;

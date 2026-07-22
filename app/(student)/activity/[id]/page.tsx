@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ActivityRunner from "@/components/student/activity-runner";
+import { getEnabledModels } from "@/lib/ai/models";
 import type { Activity } from "@/lib/types";
 
 type ProgressRow = {
@@ -33,19 +34,24 @@ export default async function StudentActivityPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: unit }, { data: progress }, { data: me }] = await Promise.all([
-    supabase.from("units").select("id, title").eq("id", activity.unit_id).single(),
-    supabase
-      .from("progress")
-      .select("completed, score, submission, response_text")
-      .eq("activity_id", id)
-      .maybeSingle<ProgressRow>(),
-    supabase
-      .from("profiles")
-      .select("ai_consent_at")
-      .eq("id", user!.id)
-      .single<{ ai_consent_at: string | null }>(),
-  ]);
+  const [{ data: unit }, { data: progress }, { data: me }, allModels] =
+    await Promise.all([
+      supabase.from("units").select("id, title").eq("id", activity.unit_id).single(),
+      supabase
+        .from("progress")
+        .select("completed, score, submission, response_text")
+        .eq("activity_id", id)
+        .maybeSingle<ProgressRow>(),
+      supabase
+        .from("profiles")
+        .select("ai_consent_at")
+        .eq("id", user!.id)
+        .single<{ ai_consent_at: string | null }>(),
+      getEnabledModels(),
+    ]);
+
+  // 학생 선택지로 쓸 최소 정보만 (provider는 서버가 검증하므로 노출 불필요)
+  const models = allModels.map((m) => ({ model_id: m.model_id, label: m.label }));
 
   return (
     <div>
@@ -64,6 +70,7 @@ export default async function StudentActivityPage({
         initialProgress={progress ?? null}
         aiConsented={!!me?.ai_consent_at}
         initialTab={tab}
+        models={models}
       />
     </div>
   );

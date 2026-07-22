@@ -16,6 +16,7 @@ import {
   setCached,
   consumeQuota,
 } from "@/lib/ai/server";
+import { resolveModel } from "@/lib/ai/models";
 
 // 문제풀이 첨삭 (서버 전용)
 //  입력: 텍스트(solution) 또는 사진/PDF(images: data URL 배열)
@@ -88,12 +89,21 @@ export async function POST(request: Request) {
   }
   const question = String(activity.content.question ?? "");
 
+  // 학생이 고른 모델 검증
+  const picked = await resolveModel(body?.model);
+  if (!picked) {
+    return NextResponse.json(
+      { error: "사용 가능한 AI 모델이 없습니다. 선생님(관리자)에게 문의하세요." },
+      { status: 503 }
+    );
+  }
+
   // 1) 캐시 확인 (한도 차감 전 — 캐시 적중은 무료)
-  //    이미지는 내용 해시를, 텍스트는 원문을 키에 넣는다.
+  //    모델·모드·입력이 모두 같을 때만 캐시 재사용 (모델별 결과 분리).
   const inputKey = hasImages
     ? "img:" + createHash("sha256").update(imageList.join("")).digest("hex")
     : "txt:" + solution!.trim();
-  const key = cacheKey("feedback", activityId, mode, inputKey);
+  const key = cacheKey("feedback", picked.model_id, activityId, mode, inputKey);
   const cached = await getCached<unknown>(key);
   if (cached) {
     return NextResponse.json({ result: cached, mode, cached: true });
@@ -108,11 +118,13 @@ export async function POST(request: Request) {
     );
   }
 
+  const call = { provider: picked.provider, model: picked.model_id };
+
   // 3) 호출 + 캐시 저장
   try {
     const result = hasImages
-      ? await reviewSolutionImages({ mode, question, images: imageList })
-      : await reviewSolutionText({ mode, question, solution: solution! });
+      ? await reviewSolutionImages({ call, mode, question, images: imageList })
+      : await reviewSolutionText({ call, mode, question, solution: solution! });
     await setCached(key, "feedback", result);
     return NextResponse.json({ result, mode, remaining });
   } catch (e) {

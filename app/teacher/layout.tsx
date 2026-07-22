@@ -32,9 +32,17 @@ export default async function TeacherLayout({
               기록 다운로드
             </Link>
             {admin && (
-              <Link href="/teacher/teachers" className="font-medium text-blue-600 hover:text-blue-800">
-                교사 관리
-              </Link>
+              <>
+                <Link href="/teacher/teachers" className="font-medium text-blue-600 hover:text-blue-800">
+                  교사 관리
+                </Link>
+                <Link href="/teacher/prompts" className="font-medium text-blue-600 hover:text-blue-800">
+                  AI 프롬프트
+                </Link>
+                <Link href="/teacher/ai-settings" className="font-medium text-blue-600 hover:text-blue-800">
+                  AI 키·모델
+                </Link>
+              </>
             )}
           </nav>
         </div>

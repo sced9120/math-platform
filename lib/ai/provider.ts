@@ -1,199 +1,229 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
+import { getApiKey, type Provider } from "@/lib/ai/models";
 
 // ============================================================
-// AI provider 추상화 — 모델 교체/로컬 전환은 이 파일만 수정하면 된다.
+// AI provider 추상화 — OpenAI / Gemini / Anthropic.
+// 호출부는 {provider, model}을 넘기고, 키는 DB(ai_secrets) 또는 환경변수에서.
 // (docs/03_AI_FEATURES.md "AI 호출 추상화 설계")
-// AI_PROVIDER 환경변수로 전환: 'gpt'(기본) | 'claude' | 'gemini' | 'local'
 // ============================================================
-
-export type AiFeature = "socratic" | "feedback";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 
-const PROVIDER = process.env.AI_PROVIDER ?? "gpt";
+type Call = { provider: Provider; model: string };
 
-// 모델 라우팅 (비용 통제):
-//  - socratic: 호출이 잦은 대화 → 저가 모델
-//  - feedback: 정밀한 수학 판정 + 구조화 JSON → 상위 모델
-const GPT_MODELS: Record<AiFeature, string> = {
-  socratic: "gpt-5-mini",
-  feedback: "gpt-5",
-};
-
-const CLAUDE_MODELS: Record<AiFeature, string> = {
-  socratic: "claude-sonnet-5",
-  feedback: "claude-opus-4-8",
-};
-
-// ---------- 공용 인터페이스 ----------
-
-// 텍스트 응답 (소크라테스 챗봇)
-export async function aiChat(params: {
-  feature: AiFeature;
-  system: string;
-  messages: ChatMessage[];
-}): Promise<string> {
-  switch (PROVIDER) {
-    case "gpt":
-      return gptChat(params);
-    case "claude":
-      return claudeChat(params);
-    default:
-      throw new Error(`AI provider '${PROVIDER}'는 아직 구현되지 않았습니다.`);
-  }
-}
-
-// JSON 스키마 강제 응답 (첨삭) — 스키마 위반 응답이 나올 수 없다
-export async function aiChatJson<T>(params: {
-  feature: AiFeature;
-  system: string;
-  messages: ChatMessage[];
-  schema: Record<string, unknown>;
-}): Promise<T> {
-  switch (PROVIDER) {
-    case "gpt":
-      return gptChatJson<T>(params);
-    case "claude":
-      return claudeChatJson<T>(params);
-    default:
-      throw new Error(`AI provider '${PROVIDER}'는 아직 구현되지 않았습니다.`);
-  }
-}
-
-// 이미지(사진/PDF 페이지) + 텍스트를 함께 넣어 JSON 스키마 강제 응답
-export async function aiChatJsonWithImages<T>(params: {
-  feature: AiFeature;
-  system: string;
-  text: string;
-  images: string[]; // data URL 배열
-  schema: Record<string, unknown>;
-}): Promise<T> {
-  if (PROVIDER !== "gpt") {
-    // 이미지 첨삭은 현재 gpt provider에서만 지원 (필요 시 claude 분기 추가)
+async function keyOrThrow(provider: Provider): Promise<string> {
+  const key = await getApiKey(provider);
+  if (!key) {
     throw new Error(
-      `이미지 첨삭은 gpt provider에서만 지원합니다. (현재: ${PROVIDER})`
+      `${provider} API 키가 설정되지 않았습니다. 관리자 설정에서 키를 등록하세요.`
     );
   }
+  return key;
+}
 
-  const response = await openai().chat.completions.create({
-    model: GPT_MODELS[params.feature],
-    max_completion_tokens: 8000,
-    reasoning_effort: "medium",
-    response_format: {
-      type: "json_schema",
-      json_schema: { name: "response", strict: true, schema: params.schema },
-    },
-    messages: [
-      { role: "system", content: params.system },
-      {
-        role: "user",
-        content: [
-          { type: "text", text: params.text },
-          ...params.images.map(
-            (url) =>
-              ({ type: "image_url", image_url: { url } }) as const
-          ),
-        ],
-      },
-    ],
+// "data:image/jpeg;base64,XXXX" → { mimeType, data }
+function splitDataUrl(url: string): { mimeType: string; data: string } {
+  const m = url.match(/^data:(.+?);base64,(.+)$/);
+  if (!m) throw new Error("잘못된 이미지 형식입니다.");
+  return { mimeType: m[1], data: m[2] };
+}
+
+// ---------- 텍스트 응답 (소크라테스 챗봇) ----------
+export async function callChat(
+  call: Call,
+  params: { system: string; messages: ChatMessage[] }
+): Promise<string> {
+  switch (call.provider) {
+    case "openai":
+      return openaiChat(call.model, params);
+    case "gemini":
+      return geminiChat(call.model, params);
+    case "anthropic":
+      return anthropicChat(call.model, params);
+  }
+}
+
+// ---------- JSON 스키마 응답 (첨삭, 텍스트 입력) ----------
+export async function callChatJson<T>(
+  call: Call,
+  params: { system: string; messages: ChatMessage[]; schema: Record<string, unknown> }
+): Promise<T> {
+  const text = params.messages.map((m) => m.content).join("\n");
+  return callChatJsonWithImages<T>(call, {
+    system: params.system,
+    text,
+    images: [],
+    schema: params.schema,
   });
-  const out = response.choices[0]?.message?.content;
-  if (!out) throw new Error("AI 응답이 비어 있습니다.");
-  return JSON.parse(out) as T;
 }
 
-// ---------- OpenAI (GPT) ----------
-
-let _openai: OpenAI | null = null;
-function openai(): OpenAI {
-  if (!_openai) _openai = new OpenAI(); // OPENAI_API_KEY 사용 (서버 전용)
-  return _openai;
+// ---------- JSON 스키마 응답 (첨삭, 텍스트 + 이미지) ----------
+export async function callChatJsonWithImages<T>(
+  call: Call,
+  params: { system: string; text: string; images: string[]; schema: Record<string, unknown> }
+): Promise<T> {
+  let raw: string;
+  switch (call.provider) {
+    case "openai":
+      raw = await openaiJson(call.model, params);
+      break;
+    case "gemini":
+      raw = await geminiJson(call.model, params);
+      break;
+    case "anthropic":
+      raw = await anthropicJson(call.model, params);
+      break;
+  }
+  if (!raw) throw new Error("AI 응답이 비어 있습니다.");
+  return JSON.parse(raw) as T;
 }
 
-async function gptChat(params: {
-  feature: AiFeature;
-  system: string;
-  messages: ChatMessage[];
-}): Promise<string> {
-  const response = await openai().chat.completions.create({
-    model: GPT_MODELS[params.feature],
+// ================= OpenAI =================
+
+async function openaiClient(): Promise<OpenAI> {
+  return new OpenAI({ apiKey: await keyOrThrow("openai") });
+}
+// gpt-5 계열만 reasoning_effort를 지원 → 다른 모델엔 넣지 않는다
+function openaiExtra(model: string, effort: "low" | "medium") {
+  return model.startsWith("gpt-5") ? { reasoning_effort: effort } : {};
+}
+
+async function openaiChat(
+  model: string,
+  params: { system: string; messages: ChatMessage[] }
+): Promise<string> {
+  const client = await openaiClient();
+  const res = await client.chat.completions.create({
+    model,
     max_completion_tokens: 4000,
-    reasoning_effort: "low", // 대화는 저지연·저비용 우선
-    messages: [
-      { role: "system", content: params.system },
-      ...params.messages,
-    ],
+    ...openaiExtra(model, "low"),
+    messages: [{ role: "system", content: params.system }, ...params.messages],
   });
-  return response.choices[0]?.message?.content ?? "";
+  return res.choices[0]?.message?.content ?? "";
 }
 
-async function gptChatJson<T>(params: {
-  feature: AiFeature;
-  system: string;
-  messages: ChatMessage[];
-  schema: Record<string, unknown>;
-}): Promise<T> {
-  const response = await openai().chat.completions.create({
-    model: GPT_MODELS[params.feature],
+async function openaiJson(
+  model: string,
+  params: { system: string; text: string; images: string[]; schema: Record<string, unknown> }
+): Promise<string> {
+  const client = await openaiClient();
+  const content: OpenAI.Chat.ChatCompletionContentPart[] = [
+    { type: "text", text: params.text },
+    ...params.images.map(
+      (url) => ({ type: "image_url", image_url: { url } }) as const
+    ),
+  ];
+  const res = await client.chat.completions.create({
+    model,
     max_completion_tokens: 8000,
-    reasoning_effort: "medium", // 수학 판정은 추론 필요
+    ...openaiExtra(model, "medium"),
     response_format: {
       type: "json_schema",
       json_schema: { name: "response", strict: true, schema: params.schema },
     },
     messages: [
       { role: "system", content: params.system },
-      ...params.messages,
+      { role: "user", content },
     ],
   });
-  const text = response.choices[0]?.message?.content;
-  if (!text) throw new Error("AI 응답이 비어 있습니다.");
-  return JSON.parse(text) as T;
+  return res.choices[0]?.message?.content ?? "";
 }
 
-// ---------- Anthropic (Claude) ----------
+// ================= Gemini =================
 
-let _anthropic: Anthropic | null = null;
-function anthropic(): Anthropic {
-  if (!_anthropic) _anthropic = new Anthropic(); // ANTHROPIC_API_KEY 사용 (서버 전용)
-  return _anthropic;
+async function geminiClient(): Promise<GoogleGenAI> {
+  return new GoogleGenAI({ apiKey: await keyOrThrow("gemini") });
 }
 
-async function claudeChat(params: {
-  feature: AiFeature;
-  system: string;
-  messages: ChatMessage[];
-}): Promise<string> {
-  const response = await anthropic().messages.create({
-    model: CLAUDE_MODELS[params.feature],
-    max_tokens: 8000,
-    output_config: { effort: "low" },
-    system: params.system,
-    messages: params.messages,
+async function geminiChat(
+  model: string,
+  params: { system: string; messages: ChatMessage[] }
+): Promise<string> {
+  const ai = await geminiClient();
+  const res = await ai.models.generateContent({
+    model,
+    contents: params.messages.map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    })),
+    config: { systemInstruction: params.system, maxOutputTokens: 4000 },
   });
-  const text = response.content.find((b) => b.type === "text");
-  return text?.text ?? "";
+  return res.text ?? "";
 }
 
-async function claudeChatJson<T>(params: {
-  feature: AiFeature;
-  system: string;
-  messages: ChatMessage[];
-  schema: Record<string, unknown>;
-}): Promise<T> {
-  const response = await anthropic().messages.create({
-    model: CLAUDE_MODELS[params.feature],
-    max_tokens: 16000,
-    thinking: { type: "adaptive" },
-    system: params.system,
-    messages: params.messages,
-    output_config: {
-      format: { type: "json_schema", schema: params.schema },
+async function geminiJson(
+  model: string,
+  params: { system: string; text: string; images: string[]; schema: Record<string, unknown> }
+): Promise<string> {
+  const ai = await geminiClient();
+  const parts: Array<
+    { text: string } | { inlineData: { mimeType: string; data: string } }
+  > = [{ text: params.text }];
+  for (const url of params.images) {
+    const { mimeType, data } = splitDataUrl(url);
+    parts.push({ inlineData: { mimeType, data } });
+  }
+  const res = await ai.models.generateContent({
+    model,
+    contents: [{ role: "user", parts }],
+    config: {
+      // 지정 스키마는 시스템 프롬프트에 명시돼 있으므로 JSON 모드만 켠다
+      systemInstruction: params.system,
+      responseMimeType: "application/json",
+      maxOutputTokens: 8000,
     },
   });
-  const text = response.content.find((b) => b.type === "text");
-  if (!text) throw new Error("AI 응답이 비어 있습니다.");
-  return JSON.parse(text.text) as T;
+  return res.text ?? "";
+}
+
+// ================= Anthropic (Claude) =================
+
+async function anthropicClient(): Promise<Anthropic> {
+  return new Anthropic({ apiKey: await keyOrThrow("anthropic") });
+}
+
+async function anthropicChat(
+  model: string,
+  params: { system: string; messages: ChatMessage[] }
+): Promise<string> {
+  const client = await anthropicClient();
+  const res = await client.messages.create({
+    model,
+    max_tokens: 8000,
+    system: params.system,
+    messages: params.messages,
+  });
+  const t = res.content.find((b) => b.type === "text");
+  return t?.text ?? "";
+}
+
+async function anthropicJson(
+  model: string,
+  params: { system: string; text: string; images: string[]; schema: Record<string, unknown> }
+): Promise<string> {
+  const client = await anthropicClient();
+  const blocks: Anthropic.ContentBlockParam[] = [{ type: "text", text: params.text }];
+  for (const url of params.images) {
+    const { mimeType, data } = splitDataUrl(url);
+    blocks.push({
+      type: "image",
+      source: {
+        type: "base64",
+        media_type: mimeType as "image/jpeg" | "image/png" | "image/gif" | "image/webp",
+        data,
+      },
+    });
+  }
+  const res = await client.messages.create({
+    model,
+    max_tokens: 16000,
+    system: params.system,
+    messages: [{ role: "user", content: blocks }],
+    output_config: { format: { type: "json_schema", schema: params.schema } },
+  });
+  const t = res.content.find((b) => b.type === "text");
+  return t?.text ?? "";
 }

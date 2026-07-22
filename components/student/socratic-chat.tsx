@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import AiConsent from "@/components/student/ai-consent";
+import ModelPicker from "@/components/student/model-picker";
+import type { AiModelOption } from "@/components/student/activity-runner";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -19,10 +21,12 @@ export default function SocraticChat({
   activityId,
   consented,
   onConsent,
+  models,
 }: {
   activityId: string;
   consented: boolean;
   onConsent: () => void;
+  models: AiModelOption[];
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -32,6 +36,7 @@ export default function SocraticChat({
   const [saved, setSaved] = useState<SavedConversation[] | null>(null);
   const [showSaved, setShowSaved] = useState(false);
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
+  const [model, setModel] = useState(models[0]?.model_id ?? "");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   if (!consented) {
@@ -107,7 +112,7 @@ export default function SocraticChat({
     const res = await fetch("/api/ai/socratic", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ activityId, messages: next }),
+      body: JSON.stringify({ activityId, messages: next, model }),
     });
     const data = await res.json().catch(() => null);
 
@@ -180,11 +185,14 @@ export default function SocraticChat({
       </form>
 
       <div className="flex items-center justify-between">
-        <p className="text-xs text-zinc-400">
-          {remaining !== null
-            ? `오늘 남은 질문 횟수: ${remaining}회`
-            : "일일 한도: 20회"}
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-zinc-400">
+            {remaining !== null
+              ? `오늘 남은 질문 횟수: ${remaining}회`
+              : "일일 한도: 20회"}
+          </p>
+          <ModelPicker models={models} value={model} onChange={setModel} />
+        </div>
         <div className="flex gap-2">
           {messages.length >= 2 && (
             <button

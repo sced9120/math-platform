@@ -41,15 +41,39 @@ export default async function TeacherPage() {
         </Link>
 
         {admin && (
-          <Link
-            href="/teacher/teachers"
-            className="rounded-xl border border-blue-200 bg-blue-50 p-6 shadow-sm hover:border-blue-400"
-          >
-            <h3 className="mb-1 font-semibold text-zinc-900">
-              교사 관리 <span className="text-xs font-normal text-blue-600">관리자</span>
-            </h3>
-            <p className="text-sm text-zinc-500">교사 계정 만들기 · 초기비밀번호 배포 · 삭제</p>
-          </Link>
+          <>
+            <Link
+              href="/teacher/teachers"
+              className="rounded-xl border border-blue-200 bg-blue-50 p-6 shadow-sm hover:border-blue-400"
+            >
+              <h3 className="mb-1 font-semibold text-zinc-900">
+                교사 관리 <span className="text-xs font-normal text-blue-600">관리자</span>
+              </h3>
+              <p className="text-sm text-zinc-500">교사 계정 만들기 · 초기비밀번호 배포 · 삭제</p>
+            </Link>
+            <Link
+              href="/teacher/prompts"
+              className="rounded-xl border border-blue-200 bg-blue-50 p-6 shadow-sm hover:border-blue-400"
+            >
+              <h3 className="mb-1 font-semibold text-zinc-900">
+                AI 프롬프트 <span className="text-xs font-normal text-blue-600">관리자</span>
+              </h3>
+              <p className="text-sm text-zinc-500">
+                문답·첨삭 AI의 성격·규칙을 코드 수정 없이 편집
+              </p>
+            </Link>
+            <Link
+              href="/teacher/ai-settings"
+              className="rounded-xl border border-blue-200 bg-blue-50 p-6 shadow-sm hover:border-blue-400"
+            >
+              <h3 className="mb-1 font-semibold text-zinc-900">
+                AI 키·모델 <span className="text-xs font-normal text-blue-600">관리자</span>
+              </h3>
+              <p className="text-sm text-zinc-500">
+                OpenAI·Gemini·Claude API 키 등록 + 학생이 고를 모델 관리
+              </p>
+            </Link>
+          </>
         )}
       </div>
     </div>

@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import AiConsent from "@/components/student/ai-consent";
+import ModelPicker from "@/components/student/model-picker";
 import { fileToImageDataUrls, MAX_PAGES } from "@/lib/client/file-to-images";
+import type { AiModelOption } from "@/components/student/activity-runner";
 
 type FeedbackMode = "correction" | "socratic";
 
@@ -38,11 +40,14 @@ export default function FeedbackPanel({
   activityId,
   consented,
   onConsent,
+  models,
 }: {
   activityId: string;
   consented: boolean;
   onConsent: () => void;
+  models: AiModelOption[];
 }) {
+  const [model, setModel] = useState(models[0]?.model_id ?? "");
   const [mode, setMode] = useState<FeedbackMode>("correction");
   const [inputType, setInputType] = useState<"text" | "image">("text");
   const [solution, setSolution] = useState("");
@@ -97,8 +102,8 @@ export default function FeedbackPanel({
 
     const payload =
       inputType === "text"
-        ? { activityId, mode, solution }
-        : { activityId, mode, images };
+        ? { activityId, mode, solution, model }
+        : { activityId, mode, images, model };
 
     const res = await fetch("/api/ai/feedback", {
       method: "POST",
@@ -219,6 +224,7 @@ export default function FeedbackPanel({
           <span className="text-xs text-zinc-400">
             {remaining !== null ? `오늘 남은 횟수: ${remaining}회` : "일일 한도: 10회"}
           </span>
+          <ModelPicker models={models} value={model} onChange={setModel} />
         </div>
       </form>
 

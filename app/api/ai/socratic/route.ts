@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { askSocratic, validateChatHistory } from "@/lib/ai/socratic";
+import { resolveModel } from "@/lib/ai/models";
 import {
   activityContext,
   getActivityForUser,
@@ -35,6 +36,15 @@ export async function POST(request: Request) {
     );
   }
 
+  // 학생이 고른 모델 검증 (활성 모델만 허용)
+  const picked = await resolveModel(body?.model);
+  if (!picked) {
+    return NextResponse.json(
+      { error: "사용 가능한 AI 모델이 없습니다. 선생님(관리자)에게 문의하세요." },
+      { status: 503 }
+    );
+  }
+
   // 일일 한도 (턴 단위)
   const remaining = await consumeQuota(guard.userId, "socratic");
   if (remaining === null) {
@@ -46,6 +56,8 @@ export async function POST(request: Request) {
 
   try {
     const reply = await askSocratic({
+      provider: picked.provider,
+      model: picked.model_id,
       activityContext: activityContext(activity),
       messages,
     });

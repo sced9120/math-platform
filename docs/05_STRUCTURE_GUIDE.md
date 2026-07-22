@@ -4,6 +4,23 @@
 > 메뉴 이름·문구·구성 같은 것을 스스로 고칠 수 있게 쓴 안내서다.
 > 위키독스에 그대로 옮겨 실어도 되도록 작성했다.
 
+## 0. 먼저 — 코드 없이 웹에서 바꿀 수 있는 것
+
+아래는 **관리자로 로그인하면 웹 화면에서** 바로 바꿀 수 있다. 코드도 배포도 필요 없다.
+(이 문서의 나머지는 "그 외의 것을 코드로 바꾸는 법"이다.)
+
+| 바꾸고 싶은 것 | 관리자 메뉴 |
+|---|---|
+| AI의 성격·규칙 (문답·첨삭 프롬프트) | **AI 프롬프트** |
+| AI 제공자 API 키 (OpenAI·Gemini·Claude) | **AI 키·모델** |
+| 학생이 고를 수 있는 AI 모델 목록 | **AI 키·모델** |
+| 교사 계정 만들기·삭제 | **교사 관리** |
+| 학생 계정 일괄 생성 | **학생 관리** |
+| 단원·활동 만들기, 반별 부여 | **단원/활동 관리** |
+
+즉 교과를 바꾸거나 최신 AI 모델을 쓰는 일은 대부분 웹에서 끝난다. 아래는 그보다
+더 깊은 것(메뉴 이름, 색, 화면 구성)을 코드로 손볼 때 본다.
+
 ---
 
 ## 1. 전체 그림: 이 사이트는 어떻게 굴러가는가
@@ -67,8 +84,16 @@ docs/                 ← 설계 문서 (지금 이 글 포함)
 | 교사 헤더·메뉴 | `app/teacher/layout.tsx` |
 | 교사 활동 등록 폼 | `components/teacher/activities-manager.tsx` |
 | 기록 다운로드 화면·CSV 구조 | `components/teacher/export-builder.tsx` |
-| AI 모델·프롬프트 | `lib/ai/provider.ts`, `lib/ai/socratic.ts`, `lib/ai/feedback.ts` |
+| 관리자: 교사 계정 관리 화면 | `components/teacher/teachers-manager.tsx` |
+| 관리자: AI 프롬프트 편집 화면 | `components/teacher/prompts-manager.tsx` |
+| 관리자: AI 키·모델 설정 화면 | `components/teacher/settings-manager.tsx` |
+| AI **기본** 프롬프트 (웹에서 안 바꿨을 때) | `lib/ai/prompts.ts` |
+| AI 제공자 연결(OpenAI/Gemini/Claude) | `lib/ai/provider.ts` |
+| AI 기본 모델·키 발급 도움말 문구 | `lib/ai/models.ts` |
 | AI 일일 한도 (질문 20/첨삭 10) | `lib/ai/server.ts`의 `AI_LIMITS` |
+
+> AI 프롬프트·키·모델은 대부분 **관리자 웹 화면**(0절)에서 코드 없이 바꾼다. 위 `lib/ai/*`
+> 파일은 웹에서 아무것도 저장하지 않았을 때 쓰이는 *기본값*이거나, 제공자 연결 로직이다.
 
 ## 4. 실습: 사이드메뉴를 직접 고쳐보기
 

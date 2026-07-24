@@ -40,13 +40,18 @@ export async function POST(request: Request) {
   const mode: FeedbackMode = body?.mode === "socratic" ? "socratic" : "correction";
   const solution: string | undefined = body?.solution;
   const images: unknown = body?.images;
+  // 자유 문제 모드: activityId 대신 학생이 문제를 직접 입력(또는 사진에 포함)
+  const freeQuestion = String(body?.question ?? "").trim();
 
   const hasImages = Array.isArray(images) && images.length > 0;
   const hasText = typeof solution === "string" && solution.trim().length >= 5;
 
   // 입력 검증
-  if (!activityId) {
-    return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
+  if (!activityId && freeQuestion.length > 2000) {
+    return NextResponse.json(
+      { error: "문제 내용은 2000자 이하로 입력하세요." },
+      { status: 400 }
+    );
   }
   if (!hasImages && !hasText) {
     return NextResponse.json(
@@ -80,14 +85,32 @@ export async function POST(request: Request) {
     }
   }
 
-  const activity = await getActivityForUser(guard.supabase, guard.role, activityId);
-  if (!activity || activity.type !== "problem") {
-    return NextResponse.json(
-      { error: "문제 활동에서만 첨삭을 사용할 수 있습니다." },
-      { status: 404 }
-    );
+  // 문제 내용 결정: 활동 문제 or 자유 문제(직접 입력/사진 포함)
+  let question: string;
+  let scopeKey: string; // 캐시 키에서 활동/자유 구분
+  if (activityId) {
+    const activity = await getActivityForUser(guard.supabase, guard.role, activityId);
+    if (!activity || activity.type !== "problem") {
+      return NextResponse.json(
+        { error: "문제 활동에서만 첨삭을 사용할 수 있습니다." },
+        { status: 404 }
+      );
+    }
+    question = String(activity.content.question ?? "");
+    scopeKey = activityId;
+  } else {
+    // 자유 모드: 텍스트 풀이면 문제도 텍스트로 필요, 사진이면 사진 속 문제 인식 허용
+    if (!freeQuestion && !hasImages) {
+      return NextResponse.json(
+        { error: "문제 내용을 입력해 주세요. (또는 문제가 보이게 사진을 올려 주세요)" },
+        { status: 400 }
+      );
+    }
+    question =
+      freeQuestion ||
+      "(문제는 별도로 입력되지 않았습니다. 학생이 올린 이미지에서 문제를 찾아 읽으세요.)";
+    scopeKey = "free:" + createHash("sha256").update(question).digest("hex").slice(0, 16);
   }
-  const question = String(activity.content.question ?? "");
 
   // 학생이 고른 모델 검증
   const picked = await resolveModel(body?.model);
@@ -103,7 +126,7 @@ export async function POST(request: Request) {
   const inputKey = hasImages
     ? "img:" + createHash("sha256").update(imageList.join("")).digest("hex")
     : "txt:" + solution!.trim();
-  const key = cacheKey("feedback", picked.model_id, activityId, mode, inputKey);
+  const key = cacheKey("feedback", picked.model_id, scopeKey, mode, inputKey);
   const cached = await getCached<unknown>(key);
   if (cached) {
     return NextResponse.json({ result: cached, mode, cached: true });

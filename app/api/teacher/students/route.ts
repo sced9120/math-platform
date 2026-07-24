@@ -8,13 +8,6 @@ import { toStudentId, type StudentRow } from "@/lib/types";
 
 const MAX_ROWS = 300;
 
-// 헷갈리는 문자(l/1, o/0 등) 제외한 초기비밀번호 생성
-const PW_CHARS = "abcdefghjkmnpqrstuvwxyz23456789";
-function generatePassword(len = 8): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(len));
-  return Array.from(bytes, (b) => PW_CHARS[b % PW_CHARS.length]).join("");
-}
-
 // 교사 또는 관리자면 통과 (admin은 교사 권한 포함)
 async function requireTeacher() {
   const supabase = await createClient();
@@ -73,7 +66,20 @@ export async function POST(request: Request) {
     }
 
     const studentId = toStudentId(row);
-    const password = generatePassword();
+    // 명단에 비밀번호가 있으면 그것을, 없으면 학번을 초기비밀번호로 사용
+    const givenPw = String(
+      (s as { password?: unknown }).password ?? ""
+    ).trim();
+    if (givenPw && (givenPw.length < 4 || givenPw.length > 72)) {
+      results.push({
+        studentId,
+        name: row.name,
+        ok: false,
+        error: "비밀번호는 4~72자여야 합니다",
+      });
+      continue;
+    }
+    const password = givenPw || studentId;
 
     const { data: created, error: authError } = await admin.auth.admin.createUser({
       email: `${studentId}@school.local`,
@@ -110,6 +116,62 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ results });
+}
+
+// 학생 비밀번호 재설정 (분실 시). 새 비밀번호 미지정이면 학번으로 초기화.
+// 재설정 후에는 첫 로그인 시 비밀번호 변경이 강제된다.
+export async function PATCH(request: Request) {
+  if (!(await requireTeacher())) {
+    return NextResponse.json({ error: "교사만 사용할 수 있습니다." }, { status: 403 });
+  }
+
+  const body = await request.json().catch(() => null);
+  const userId: string | undefined = body?.userId;
+  if (!userId) {
+    return NextResponse.json({ error: "userId가 필요합니다." }, { status: 400 });
+  }
+  const givenPw = String(body?.password ?? "").trim();
+  if (givenPw && (givenPw.length < 4 || givenPw.length > 72)) {
+    return NextResponse.json(
+      { error: "비밀번호는 4~72자로 입력하세요." },
+      { status: 400 }
+    );
+  }
+
+  const admin = createAdminClient();
+
+  // 학생 계정만 재설정 가능 (교사·관리자 계정 보호)
+  const { data: target } = await admin
+    .from("profiles")
+    .select("role, grade, class_no, student_no")
+    .eq("id", userId)
+    .single();
+  if (!target || target.role !== "student") {
+    return NextResponse.json(
+      { error: "학생 계정만 재설정할 수 있습니다." },
+      { status: 400 }
+    );
+  }
+
+  const password =
+    givenPw ||
+    toStudentId({
+      grade: target.grade as number,
+      class_no: target.class_no as number,
+      student_no: target.student_no as number,
+      name: "",
+    });
+
+  const { error } = await admin.auth.admin.updateUserById(userId, { password });
+  if (error) {
+    return NextResponse.json({ error: "재설정에 실패했습니다." }, { status: 500 });
+  }
+  await admin
+    .from("profiles")
+    .update({ must_change_password: true })
+    .eq("id", userId);
+
+  return NextResponse.json({ ok: true, password });
 }
 
 // 학생 계정 삭제 (잘못 생성한 계정 정리용). auth 계정 삭제 시 profiles는 FK cascade.

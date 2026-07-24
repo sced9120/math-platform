@@ -24,16 +24,26 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const messages = validateChatHistory(body?.messages);
   const activityId: string | undefined = body?.activityId;
-  if (!messages || !activityId) {
+  if (!messages) {
     return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
   }
 
-  const activity = await getActivityForUser(guard.supabase, guard.role, activityId);
-  if (!activity) {
-    return NextResponse.json(
-      { error: "활동을 찾을 수 없습니다." },
-      { status: 404 }
-    );
+  // activityId가 있으면 활동 문답, 없으면 자유 질문 모드(수학 학습 전반)
+  let context: string;
+  if (activityId) {
+    const activity = await getActivityForUser(guard.supabase, guard.role, activityId);
+    if (!activity) {
+      return NextResponse.json(
+        { error: "활동을 찾을 수 없습니다." },
+        { status: 404 }
+      );
+    }
+    context = activityContext(activity);
+  } else {
+    context =
+      "자유 질문 모드: 학생이 특정 활동 없이 수학 학습 전반에 대해 질문한다. " +
+      "수학 개념·문제 풀이·수학 공부 방법에 관한 질문이면 무엇이든 소크라테스식으로 대화하되, " +
+      "수학 학습과 무관한 주제는 여전히 답하지 않고 수학 학습으로 유도한다.";
   }
 
   // 학생이 고른 모델 검증 (활성 모델만 허용)
@@ -58,7 +68,7 @@ export async function POST(request: Request) {
     const reply = await askSocratic({
       provider: picked.provider,
       model: picked.model_id,
-      activityContext: activityContext(activity),
+      activityContext: context,
       messages,
     });
     return NextResponse.json({ reply, remaining });

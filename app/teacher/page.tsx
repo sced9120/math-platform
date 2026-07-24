@@ -16,7 +16,7 @@ export default async function TeacherPage() {
         >
           <h3 className="mb-1 font-semibold text-zinc-900">학생 관리</h3>
           <p className="text-sm text-zinc-500">
-            명단(학년,반,번호,이름)으로 계정 일괄 생성 · 초기비밀번호 배포
+            명단(학년,반,번호,이름,비밀번호)으로 계정 일괄 생성 · 비밀번호 재설정
           </p>
         </Link>
 

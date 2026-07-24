@@ -36,6 +36,7 @@ const VERDICT_STYLES: Record<
 
 const MAX_IMAGES = 5;
 
+// activityId가 null이면 자유 문제 모드 — 학생이 문제를 직접 입력(또는 사진에 포함)
 export default function FeedbackPanel({
   activityId,
   consented,
@@ -43,7 +44,7 @@ export default function FeedbackPanel({
   models,
   dailyLimit,
 }: {
-  activityId: string;
+  activityId: string | null;
   consented: boolean;
   onConsent: () => void;
   models: AiModelOption[];
@@ -52,15 +53,19 @@ export default function FeedbackPanel({
   const [model, setModel] = useState(models[0]?.model_id ?? "");
   const [mode, setMode] = useState<FeedbackMode>("correction");
   const [inputType, setInputType] = useState<"text" | "image">("text");
+  const [question, setQuestion] = useState(""); // 자유 모드 전용: 문제 내용
   const [solution, setSolution] = useState("");
   const [images, setImages] = useState<string[]>([]); // 미리보기 겸 전송용 data URL
   const [preparing, setPreparing] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CorrectionResult | SocraticResult | null>(null);
   const [resultMode, setResultMode] = useState<FeedbackMode>("correction");
   const [remaining, setRemaining] = useState<number | null>(null);
   const [fromCache, setFromCache] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const freeMode = activityId === null;
 
   if (!consented) {
     return <AiConsent onConsent={onConsent} />;
@@ -94,7 +99,9 @@ export default function FeedbackPanel({
   const canSubmit =
     !loading &&
     !preparing &&
-    (inputType === "text" ? solution.trim().length >= 5 : images.length > 0);
+    (inputType === "text" ? solution.trim().length >= 5 : images.length > 0) &&
+    // 자유 모드에서 텍스트 풀이만 있으면 문제 내용도 필요 (사진이면 사진 속 문제 인식)
+    (!freeMode || inputType === "image" || question.trim().length >= 2);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -102,10 +109,9 @@ export default function FeedbackPanel({
     setError(null);
     setResult(null);
 
+    const base = freeMode ? { question, mode, model } : { activityId, mode, model };
     const payload =
-      inputType === "text"
-        ? { activityId, mode, solution, model }
-        : { activityId, mode, images, model };
+      inputType === "text" ? { ...base, solution } : { ...base, images };
 
     const res = await fetch("/api/ai/feedback", {
       method: "POST",
@@ -160,7 +166,39 @@ export default function FeedbackPanel({
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-3"
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          if (e.dataTransfer.files?.length) {
+            setInputType("image");
+            handleFiles(e.dataTransfer.files);
+          }
+        }}
+      >
+        {freeMode && (
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-zinc-700">문제 내용</label>
+            <textarea
+              rows={3}
+              maxLength={2000}
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder={
+                "첨삭 받을 문제를 적어 주세요.\n사진으로 올릴 때는 문제가 같이 보이게 찍으면 비워 둬도 됩니다."
+              }
+              className="rounded-md border border-zinc-300 p-3 text-sm leading-relaxed focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+        )}
+
         {inputType === "text" ? (
           <textarea
             rows={6}
@@ -171,7 +209,11 @@ export default function FeedbackPanel({
             className="rounded-md border border-zinc-300 p-3 text-sm leading-relaxed focus:border-blue-500 focus:outline-none"
           />
         ) : (
-          <div className="flex flex-col gap-3 rounded-lg border border-dashed border-zinc-300 p-4">
+          <div
+            className={`flex flex-col gap-3 rounded-lg border border-dashed p-4 transition-colors ${
+              dragOver ? "border-blue-500 bg-blue-50" : "border-zinc-300"
+            }`}
+          >
             <label className="cursor-pointer text-sm text-blue-600 hover:underline">
               사진 촬영 / 파일 선택 (이미지 또는 PDF, 최대 {MAX_IMAGES}장)
               <input
@@ -184,7 +226,8 @@ export default function FeedbackPanel({
               />
             </label>
             <p className="text-xs text-zinc-400">
-              손으로 푼 풀이를 찍어 올리세요. PDF는 앞 {MAX_PAGES}페이지까지 읽습니다.
+              손으로 푼 풀이를 찍어 올리거나, 파일을 이 상자로 끌어다 놓으세요.
+              PDF는 앞 {MAX_PAGES}페이지까지 읽습니다.
             </p>
             {preparing && <p className="text-sm text-zinc-500">이미지 처리 중...</p>}
             {images.length > 0 && (

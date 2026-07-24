@@ -17,9 +17,12 @@ type StudentProfile = StudentRow & {
   must_change_password: boolean;
 };
 
-// 붙여넣은 명단 파싱: 줄마다 "학년,반,번호,이름" (쉼표/탭/공백 구분 모두 허용)
-function parseRoster(text: string): { rows: StudentRow[]; errors: string[] } {
-  const rows: StudentRow[] = [];
+type RosterRow = StudentRow & { password?: string };
+
+// 붙여넣은 명단 파싱: 줄마다 "학년,반,번호,이름[,비밀번호]" (쉼표/탭/공백 구분 모두 허용)
+// 비밀번호 열이 비어 있으면 학번이 초기비밀번호가 된다.
+function parseRoster(text: string): { rows: RosterRow[]; errors: string[] } {
+  const rows: RosterRow[] = [];
   const errors: string[] = [];
 
   text
@@ -28,8 +31,8 @@ function parseRoster(text: string): { rows: StudentRow[]; errors: string[] } {
     .filter(Boolean)
     .forEach((line, i) => {
       const parts = line.split(/[\t,]+|\s{2,}/).map((p) => p.trim()).filter(Boolean);
-      // 헤더 행(예: 학년,반,번호,이름)은 건너뛴다
-      if (i === 0 && parts.some((p) => isNaN(Number(p)) && p.length <= 2)) {
+      // 헤더 행(예: 학년,반,번호,이름,비밀번호)은 건너뛴다
+      if (i === 0 && parts.some((p) => isNaN(Number(p)) && p.length <= 4)) {
         if (parts.every((p) => isNaN(Number(p)))) return;
       }
       if (parts.length < 4) {
@@ -37,12 +40,13 @@ function parseRoster(text: string): { rows: StudentRow[]; errors: string[] } {
         return;
       }
       const [grade, class_no, student_no] = parts.slice(0, 3).map(Number);
-      const name = parts.slice(3).join(" ");
+      const name = parts[3];
+      const password = parts[4]; // 없으면 undefined → 학번 사용
       if (!grade || !class_no || !student_no || !name) {
         errors.push(`${i + 1}행: 형식 오류 (${line})`);
         return;
       }
-      rows.push({ grade, class_no, student_no, name });
+      rows.push({ grade, class_no, student_no, name, password });
     });
 
   return { rows, errors };
@@ -54,7 +58,7 @@ export default function StudentsManager({
   initialStudents: StudentProfile[];
 }) {
   const [text, setText] = useState("");
-  const [parsed, setParsed] = useState<StudentRow[]>([]);
+  const [parsed, setParsed] = useState<RosterRow[]>([]);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
   const [results, setResults] = useState<CreateResult[] | null>(null);
@@ -124,6 +128,30 @@ export default function StudentsManager({
     URL.revokeObjectURL(a.href);
   }
 
+  // 비밀번호 분실 대응: 새 비밀번호 입력(비우면 학번으로 초기화)
+  async function handleResetPassword(s: StudentProfile) {
+    const input = prompt(
+      `${toStudentId(s)} ${s.name} 학생의 새 비밀번호를 입력하세요.\n` +
+        `비워 두고 확인을 누르면 학번(${toStudentId(s)})으로 초기화됩니다.`
+    );
+    if (input === null) return; // 취소
+    const res = await fetch("/api/teacher/students", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: s.id, password: input.trim() }),
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      alert(data?.error ?? "재설정에 실패했습니다.");
+      return;
+    }
+    alert(
+      `비밀번호를 재설정했습니다.\n새 비밀번호: ${data.password}\n` +
+        `학생이 로그인하면 비밀번호 변경이 다시 요구됩니다.`
+    );
+    await loadStudents();
+  }
+
   async function handleDelete(s: StudentProfile) {
     if (!confirm(`${toStudentId(s)} ${s.name} 계정을 삭제할까요?\n진행기록도 함께 삭제됩니다.`)) return;
     const res = await fetch("/api/teacher/students", {
@@ -145,15 +173,16 @@ export default function StudentsManager({
       <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm print:hidden">
         <h2 className="mb-1 text-lg font-semibold text-zinc-900">학생 계정 일괄 생성</h2>
         <p className="mb-4 text-sm text-zinc-500">
-          한 줄에 한 명씩 <b>학년, 반, 번호, 이름</b> 순서로 입력하세요. 엑셀에서 4개
-          열을 복사해 붙여넣거나 CSV 파일을 올려도 됩니다.
+          한 줄에 한 명씩 <b>학년, 반, 번호, 이름, 비밀번호</b> 순서로 입력하세요.
+          비밀번호를 비우면 <b>학번이 초기비밀번호</b>가 됩니다. 엑셀에서 열을
+          복사해 붙여넣거나 CSV 파일을 올려도 됩니다.
         </p>
 
         <textarea
           value={text}
           onChange={(e) => handleParse(e.target.value)}
           rows={6}
-          placeholder={"예)\n1,3,15,김하늘\n1,3,16,이준서"}
+          placeholder={"예)\n1,3,15,김하늘,star1234\n1,3,16,이준서"}
           className="w-full rounded-md border border-zinc-300 p-3 font-mono text-sm focus:border-blue-500 focus:outline-none"
         />
 
@@ -189,7 +218,8 @@ export default function StudentsManager({
                   <th className="py-1 pr-4">학년</th>
                   <th className="py-1 pr-4">반</th>
                   <th className="py-1 pr-4">번호</th>
-                  <th className="py-1">이름</th>
+                  <th className="py-1 pr-4">이름</th>
+                  <th className="py-1">초기비밀번호</th>
                 </tr>
               </thead>
               <tbody>
@@ -199,7 +229,12 @@ export default function StudentsManager({
                     <td className="py-1 pr-4">{s.grade}</td>
                     <td className="py-1 pr-4">{s.class_no}</td>
                     <td className="py-1 pr-4">{s.student_no}</td>
-                    <td className="py-1">{s.name}</td>
+                    <td className="py-1 pr-4">{s.name}</td>
+                    <td className="py-1 font-mono">
+                      {s.password || (
+                        <span className="text-zinc-400">{toStudentId(s)} (학번)</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -294,6 +329,12 @@ export default function StudentsManager({
                     )}
                   </td>
                   <td className="py-1.5 text-right">
+                    <button
+                      onClick={() => handleResetPassword(s)}
+                      className="mr-3 text-xs text-blue-600 hover:underline"
+                    >
+                      비밀번호 재설정
+                    </button>
                     <button
                       onClick={() => handleDelete(s)}
                       className="text-xs text-red-500 hover:underline"

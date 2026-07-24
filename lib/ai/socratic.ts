@@ -34,7 +34,7 @@ export async function askSocratic(params: {
   const base = await getSystemPrompt("chat_socratic");
   const system = `${base}
 
-[지금 학생이 학습 중인 활동]
+[지금 대화의 맥락]
 ${params.activityContext}`;
 
   return callChat(

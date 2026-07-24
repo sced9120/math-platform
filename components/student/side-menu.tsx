@@ -5,19 +5,12 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 // 학생 사이드메뉴 (햄버거로 열고 닫음)
-// 구성: 활동(단원 목록) / 소크라테스식 문답 / 문제풀이 첨삭
-// 데이터는 처음 열 때 한 번만 불러온다 (페이지 이동 속도에 영향 없음)
+// 구성: 활동(단원 목록) + AI 자유 모드 두 개(소크라테스식 문답 / 문제풀이 첨삭)
+// AI 항목은 활동과 무관하게 바로 쓰는 자유 모드 페이지로 이동한다.
+// 단원 목록은 처음 열 때 한 번만 불러온다 (페이지 이동 속도에 영향 없음)
 
 type MenuUnit = { id: string; title: string; grade: number; order_index: number };
-type MenuActivity = {
-  id: string;
-  unit_id: string;
-  type: string;
-  title: string;
-  order_index: number;
-};
-
-type Section = "units" | "socratic" | "feedback";
+type MenuActivity = { id: string; unit_id: string };
 
 export default function SideMenu({ grade }: { grade: number | null }) {
   const [open, setOpen] = useState(false);
@@ -25,7 +18,6 @@ export default function SideMenu({ grade }: { grade: number | null }) {
     units: MenuUnit[];
     activities: MenuActivity[];
   } | null>(null);
-  const [section, setSection] = useState<Section>("units");
 
   async function handleOpen() {
     setOpen(true);
@@ -53,22 +45,16 @@ export default function SideMenu({ grade }: { grade: number | null }) {
     data?.units.filter((u) =>
       data.activities.some((a) => a.unit_id === u.id)
     ) ?? [];
-  const problemActivities =
-    data?.activities.filter((a) => a.type === "problem") ?? [];
-  const unitTitle = (id: string) =>
-    data?.units.find((u) => u.id === id)?.title ?? "";
 
-  const sectionBtn = (key: Section, label: string) => (
-    <button
-      onClick={() => setSection(key)}
-      className={`w-full rounded-md px-3 py-2 text-left text-sm font-medium ${
-        section === key
-          ? "bg-blue-50 text-blue-700"
-          : "text-zinc-700 hover:bg-zinc-100"
-      }`}
+  const aiLink = (href: string, label: string, desc: string) => (
+    <Link
+      href={href}
+      onClick={close}
+      className="block rounded-md px-3 py-2 hover:bg-blue-50"
     >
-      {label}
-    </button>
+      <span className="block text-sm font-medium text-zinc-800">{label}</span>
+      <span className="block text-xs text-zinc-400">{desc}</span>
+    </Link>
   );
 
   return (
@@ -100,102 +86,36 @@ export default function SideMenu({ grade }: { grade: number | null }) {
               </button>
             </div>
 
-            {/* 상위 메뉴 */}
+            {/* AI 자유 모드 — 활동과 무관하게 바로 사용 */}
             <div className="flex flex-col gap-1 border-b border-zinc-200 p-2">
-              {sectionBtn("units", "📚 활동")}
-              {sectionBtn("socratic", "💬 소크라테스식 문답")}
-              {sectionBtn("feedback", "✏️ 문제풀이 첨삭")}
+              <p className="px-3 pt-1 text-xs font-medium text-zinc-400">AI 도우미</p>
+              {aiLink("/socratic", "💬 소크라테스식 문답", "무엇이든 수학 질문하기")}
+              {aiLink("/feedback", "✏️ 문제풀이 첨삭", "내 문제·풀이로 첨삭 받기")}
             </div>
 
-            {/* 하위 목록 */}
+            {/* 활동(단원) 목록 */}
             <div className="flex-1 overflow-y-auto p-3">
+              <p className="mb-2 text-xs font-medium text-zinc-400">
+                📚 활동{grade ? ` · ${grade}학년` : ""}
+              </p>
               {data === null ? (
                 <p className="text-sm text-zinc-400">불러오는 중...</p>
+              ) : visibleUnits.length === 0 ? (
+                <p className="text-sm text-zinc-400">공개된 활동이 없습니다.</p>
               ) : (
-                <>
-                  {section === "units" && (
-                    <div>
-                      {grade && (
-                        <p className="mb-2 text-xs font-medium text-zinc-400">
-                          {grade}학년
-                        </p>
-                      )}
-                      {visibleUnits.length === 0 ? (
-                        <p className="text-sm text-zinc-400">
-                          공개된 활동이 없습니다.
-                        </p>
-                      ) : (
-                        <ul className="flex flex-col gap-1">
-                          {visibleUnits.map((u, i) => (
-                            <li key={u.id}>
-                              <Link
-                                href={`/unit/${u.id}`}
-                                onClick={close}
-                                className="block rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-blue-50 hover:text-blue-700"
-                              >
-                                활동{i + 1} {u.title}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  )}
-
-                  {section === "socratic" && (
-                    <div>
-                      <p className="mb-2 text-xs text-zinc-400">
-                        활동을 고르면 AI 튜터와 바로 문답을 시작합니다.
-                      </p>
-                      <ul className="flex flex-col gap-1">
-                        {(data.activities ?? []).map((a) => (
-                          <li key={a.id}>
-                            <Link
-                              href={`/activity/${a.id}?tab=socratic`}
-                              onClick={close}
-                              className="block rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-blue-50 hover:text-blue-700"
-                            >
-                              <span className="block text-xs text-zinc-400">
-                                {unitTitle(a.unit_id)}
-                              </span>
-                              {a.title}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {section === "feedback" && (
-                    <div>
-                      <p className="mb-2 text-xs text-zinc-400">
-                        문제를 고르면 내 풀이를 적고 AI 첨삭을 받을 수 있습니다.
-                      </p>
-                      {problemActivities.length === 0 ? (
-                        <p className="text-sm text-zinc-400">
-                          공개된 문제 활동이 없습니다.
-                        </p>
-                      ) : (
-                        <ul className="flex flex-col gap-1">
-                          {problemActivities.map((a) => (
-                            <li key={a.id}>
-                              <Link
-                                href={`/activity/${a.id}?tab=feedback`}
-                                onClick={close}
-                                className="block rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-blue-50 hover:text-blue-700"
-                              >
-                                <span className="block text-xs text-zinc-400">
-                                  {unitTitle(a.unit_id)}
-                                </span>
-                                {a.title}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  )}
-                </>
+                <ul className="flex flex-col gap-1">
+                  {visibleUnits.map((u, i) => (
+                    <li key={u.id}>
+                      <Link
+                        href={`/unit/${u.id}`}
+                        onClick={close}
+                        className="block rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-blue-50 hover:text-blue-700"
+                      >
+                        활동{i + 1} {u.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
           </aside>

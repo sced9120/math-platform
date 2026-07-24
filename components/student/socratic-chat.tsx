@@ -16,7 +16,8 @@ type SavedConversation = {
   messages: ChatMessage[];
 };
 
-// 소크라테스 챗봇. 대화는 화면(메모리)에만 유지되고 DB에 저장되지 않는다.
+// 소크라테스 챗봇. activityId가 null이면 자유 질문 모드(수학 학습 전반).
+// 대화는 화면(메모리)에만 유지되고, 학생이 원할 때만 저장한다.
 export default function SocraticChat({
   activityId,
   consented,
@@ -24,7 +25,7 @@ export default function SocraticChat({
   models,
   dailyLimit,
 }: {
-  activityId: string;
+  activityId: string | null;
   consented: boolean;
   onConsent: () => void;
   models: AiModelOption[];
@@ -138,8 +139,9 @@ export default function SocraticChat({
         <div className="max-h-96 min-h-40 overflow-y-auto p-4">
           {messages.length === 0 ? (
             <p className="text-sm text-zinc-500">
-              문제를 풀다 막힌 지점을 이야기해 보세요. AI 튜터가 정답 대신,
-              스스로 풀 수 있도록 질문으로 도와줍니다.
+              {activityId
+                ? "문제를 풀다 막힌 지점을 이야기해 보세요. AI 튜터가 정답 대신, 스스로 풀 수 있도록 질문으로 도와줍니다."
+                : "수학 공부를 하다 궁금한 것, 막힌 문제, 헷갈리는 개념을 무엇이든 이야기해 보세요. AI 튜터가 정답 대신, 스스로 이해할 수 있도록 질문으로 도와줍니다."}
             </p>
           ) : (
             <div className="flex flex-col gap-3">

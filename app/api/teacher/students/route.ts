@@ -164,7 +164,19 @@ export async function PATCH(request: Request) {
 
   const { error } = await admin.auth.admin.updateUserById(userId, { password });
   if (error) {
-    return NextResponse.json({ error: "재설정에 실패했습니다." }, { status: 500 });
+    // Supabase는 비밀번호 "변경" 시 최소 6자를 강제한다 (생성 시엔 5자리 학번 허용).
+    // 학번(5자리) 초기화가 막힌 경우 해결 방법을 함께 안내한다.
+    const weak = error.message?.toLowerCase().includes("password");
+    return NextResponse.json(
+      {
+        error: weak
+          ? "학번(5자리)으로는 초기화할 수 없습니다 — Supabase 최소 비밀번호 길이(6자) 때문입니다. " +
+            "6자 이상 비밀번호를 입력하거나, Supabase 대시보드 → Authentication → " +
+            "Sign In / Providers → Email에서 Minimum password length를 5로 낮추면 학번 초기화가 됩니다."
+          : "재설정에 실패했습니다.",
+      },
+      { status: 500 }
+    );
   }
   await admin
     .from("profiles")

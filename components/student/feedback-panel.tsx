@@ -41,11 +41,13 @@ export default function FeedbackPanel({
   consented,
   onConsent,
   models,
+  dailyLimit,
 }: {
   activityId: string;
   consented: boolean;
   onConsent: () => void;
   models: AiModelOption[];
+  dailyLimit: number;
 }) {
   const [model, setModel] = useState(models[0]?.model_id ?? "");
   const [mode, setMode] = useState<FeedbackMode>("correction");
@@ -222,7 +224,7 @@ export default function FeedbackPanel({
                 : "힌트 받기"}
           </button>
           <span className="text-xs text-zinc-400">
-            {remaining !== null ? `오늘 남은 횟수: ${remaining}회` : "일일 한도: 10회"}
+            {remaining !== null ? `오늘 남은 횟수: ${remaining}회` : `일일 한도: ${dailyLimit}회`}
           </span>
           <ModelPicker models={models} value={model} onChange={setModel} />
         </div>

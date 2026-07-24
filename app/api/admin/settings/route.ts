@@ -6,6 +6,7 @@ import {
   PROVIDERS,
   type Provider,
 } from "@/lib/ai/models";
+import { getAiLimits, DEFAULT_AI_LIMITS } from "@/lib/ai/server";
 
 // AI 설정 (관리자 전용): 제공자별 API 키 등록/삭제 + 학생용 모델 목록 관리
 // 저장된 API 키는 어떤 응답에도 원문을 담지 않는다 (등록 여부 + 끝 4자리만).
@@ -40,12 +41,13 @@ export async function GET() {
     return NextResponse.json({ error: "관리자만 사용할 수 있습니다." }, { status: 403 });
   }
   const admin = createAdminClient();
-  const [{ data: secrets }, { data: models }] = await Promise.all([
+  const [{ data: secrets }, { data: models }, limits] = await Promise.all([
     admin.from("ai_secrets").select("provider, api_key"),
     admin
       .from("ai_models")
       .select("id, provider, model_id, label, enabled, sort_order")
       .order("sort_order"),
+    getAiLimits(),
   ]);
 
   const keyMap = new Map(
@@ -66,10 +68,16 @@ export async function GET() {
     };
   });
 
-  return NextResponse.json({ providers, models: models ?? [] });
+  return NextResponse.json({
+    providers,
+    models: models ?? [],
+    limits,
+    defaultLimits: DEFAULT_AI_LIMITS,
+  });
 }
 
 // POST: 키 저장 { kind:"key", provider, apiKey } / 모델 추가 { kind:"model", provider, modelId, label }
+//       / 한도 저장 { kind:"limits", socratic, feedback }
 export async function POST(request: Request) {
   if (!(await requireAdmin())) {
     return NextResponse.json({ error: "관리자만 사용할 수 있습니다." }, { status: 403 });
@@ -122,6 +130,31 @@ export async function POST(request: Request) {
       sort_order: ((last?.sort_order as number | undefined) ?? -1) + 1,
     });
     if (error) return NextResponse.json({ error: "추가에 실패했습니다." }, { status: 500 });
+    return NextResponse.json({ ok: true });
+  }
+
+  if (body?.kind === "limits") {
+    const socratic = Number(body?.socratic);
+    const feedback = Number(body?.feedback);
+    for (const v of [socratic, feedback]) {
+      if (!Number.isInteger(v) || v < 1 || v > 500) {
+        return NextResponse.json(
+          { error: "한도는 1~500 사이의 정수로 입력하세요." },
+          { status: 400 }
+        );
+      }
+    }
+    const now = new Date().toISOString();
+    const { error } = await admin.from("ai_limits").upsert([
+      { feature: "socratic", daily_limit: socratic, updated_at: now },
+      { feature: "feedback", daily_limit: feedback, updated_at: now },
+    ]);
+    if (error) {
+      return NextResponse.json(
+        { error: "저장에 실패했습니다. (DB에 0009_ai_limits.sql을 실행했는지 확인)" },
+        { status: 500 }
+      );
+    }
     return NextResponse.json({ ok: true });
   }
 

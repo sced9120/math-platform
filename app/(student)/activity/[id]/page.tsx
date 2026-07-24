@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ActivityRunner from "@/components/student/activity-runner";
 import { getEnabledModels } from "@/lib/ai/models";
+import { getAiLimits } from "@/lib/ai/server";
 import type { Activity } from "@/lib/types";
 
 type ProgressRow = {
@@ -34,7 +35,7 @@ export default async function StudentActivityPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: unit }, { data: progress }, { data: me }, allModels] =
+  const [{ data: unit }, { data: progress }, { data: me }, allModels, limits] =
     await Promise.all([
       supabase.from("units").select("id, title").eq("id", activity.unit_id).single(),
       supabase
@@ -48,6 +49,7 @@ export default async function StudentActivityPage({
         .eq("id", user!.id)
         .single<{ ai_consent_at: string | null }>(),
       getEnabledModels(),
+      getAiLimits(),
     ]);
 
   // 학생 선택지로 쓸 최소 정보만 (provider는 서버가 검증하므로 노출 불필요)
@@ -71,6 +73,7 @@ export default async function StudentActivityPage({
         aiConsented={!!me?.ai_consent_at}
         initialTab={tab}
         models={models}
+        limits={limits}
       />
     </div>
   );

@@ -23,9 +23,13 @@ type ModelRow = {
   sort_order: number;
 };
 
+type Limits = { socratic: number; feedback: number };
+
 export default function SettingsManager() {
   const [providers, setProviders] = useState<ProviderInfo[] | null>(null);
   const [models, setModels] = useState<ModelRow[]>([]);
+  const [limits, setLimits] = useState<Limits | null>(null);
+  const [defaultLimits, setDefaultLimits] = useState<Limits>({ socratic: 20, feedback: 10 });
   const [error, setError] = useState<string | null>(null);
   const [help, setHelp] = useState<string | null>(null); // 펼친 도움말 provider
 
@@ -38,6 +42,8 @@ export default function SettingsManager() {
     }
     setProviders(data.providers);
     setModels(data.models);
+    if (data.limits) setLimits(data.limits);
+    if (data.defaultLimits) setDefaultLimits(data.defaultLimits);
   }
 
   useEffect(() => {
@@ -90,6 +96,90 @@ export default function SettingsManager() {
           onError={setError}
         />
       </section>
+
+      {/* 일일 한도 */}
+      <section className="flex flex-col gap-4">
+        <h3 className="font-semibold text-zinc-900">3. 학생 일일 사용 한도</h3>
+        <p className="text-sm text-zinc-500">
+          학생 1명이 하루에 쓸 수 있는 AI 횟수입니다. 비용 통제를 위한 안전장치이니
+          필요한 만큼만 올리세요. (기본값: 질문 {defaultLimits.socratic}회 · 첨삭{" "}
+          {defaultLimits.feedback}회)
+        </p>
+        {limits && (
+          <LimitsEditor limits={limits} onChanged={load} onError={setError} />
+        )}
+      </section>
+    </div>
+  );
+}
+
+function LimitsEditor({
+  limits,
+  onChanged,
+  onError,
+}: {
+  limits: Limits;
+  onChanged: () => void;
+  onError: (m: string) => void;
+}) {
+  const [socratic, setSocratic] = useState(String(limits.socratic));
+  const [feedback, setFeedback] = useState(String(limits.feedback));
+  const [busy, setBusy] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  async function save() {
+    setBusy(true);
+    onError("");
+    setSaved(false);
+    const res = await fetch("/api/admin/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        kind: "limits",
+        socratic: Number(socratic),
+        feedback: Number(feedback),
+      }),
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) onError(data?.error ?? "저장에 실패했습니다.");
+    else {
+      setSaved(true);
+      onChanged();
+    }
+    setBusy(false);
+  }
+
+  const field = (
+    label: string,
+    value: string,
+    set: (v: string) => void
+  ) => (
+    <label className="flex items-center gap-2 text-sm text-zinc-700">
+      {label}
+      <input
+        type="number"
+        min={1}
+        max={500}
+        value={value}
+        onChange={(e) => set(e.target.value)}
+        className="w-24 rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+      />
+      회
+    </label>
+  );
+
+  return (
+    <div className="flex flex-wrap items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+      {field("소크라테스식 질문", socratic, setSocratic)}
+      {field("문제풀이 첨삭", feedback, setFeedback)}
+      <button
+        onClick={save}
+        disabled={busy}
+        className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+      >
+        {busy ? "저장 중..." : "한도 저장"}
+      </button>
+      {saved && <span className="text-sm text-green-600">저장됨 — 즉시 적용</span>}
     </div>
   );
 }

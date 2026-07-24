@@ -12,11 +12,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* 이 사이트는 흰 배경 기준으로 설계되어 있어 라이트 테마로 고정한다.
+   (OS 다크 모드에서 입력란 글자가 연회색으로 보이던 문제의 원인 제거) */
+
+input,
+textarea,
+select {
+  color: #171717;
 }
 
 body {

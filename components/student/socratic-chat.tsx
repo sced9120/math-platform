@@ -22,11 +22,13 @@ export default function SocraticChat({
   consented,
   onConsent,
   models,
+  dailyLimit,
 }: {
   activityId: string;
   consented: boolean;
   onConsent: () => void;
   models: AiModelOption[];
+  dailyLimit: number;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -189,7 +191,7 @@ export default function SocraticChat({
           <p className="text-xs text-zinc-400">
             {remaining !== null
               ? `오늘 남은 질문 횟수: ${remaining}회`
-              : "일일 한도: 20회"}
+              : `일일 한도: ${dailyLimit}회`}
           </p>
           <ModelPicker models={models} value={model} onChange={setModel} />
         </div>

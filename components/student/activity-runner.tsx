@@ -16,6 +16,7 @@ type ProgressState = {
 
 type Tab = "run" | "socratic" | "feedback";
 export type AiModelOption = { model_id: string; label: string };
+export type AiLimits = { socratic: number; feedback: number };
 
 export default function ActivityRunner({
   activity,
@@ -23,12 +24,14 @@ export default function ActivityRunner({
   aiConsented,
   initialTab,
   models,
+  limits,
 }: {
   activity: Activity;
   initialProgress: ProgressState | null;
   aiConsented: boolean;
   initialTab?: string;
   models: AiModelOption[];
+  limits: AiLimits;
 }) {
   // 사이드메뉴에서 ?tab=socratic / ?tab=feedback 으로 진입 시 해당 탭을 바로 연다
   const startTab: Tab =
@@ -113,6 +116,7 @@ export default function ActivityRunner({
           consented={consented}
           onConsent={() => setConsented(true)}
           models={models}
+          dailyLimit={limits.socratic}
         />
       )}
 
@@ -122,6 +126,7 @@ export default function ActivityRunner({
           consented={consented}
           onConsent={() => setConsented(true)}
           models={models}
+          dailyLimit={limits.feedback}
         />
       )}
 

@@ -41,3 +41,10 @@ export function toStudentId(s: StudentRow): string {
     s.student_no
   ).padStart(2, "0")}`;
 }
+
+// 초기/재설정 비밀번호: 학번 앞에 고정 문자 접두를 붙인다.
+// (학번은 5자리라 Supabase 최소 비밀번호 길이 6자를 못 넘기므로 접두로 6자 이상 보장)
+export const INITIAL_PW_PREFIX = "s";
+export function defaultPassword(studentId: string): string {
+  return INITIAL_PW_PREFIX + studentId;
+}

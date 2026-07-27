@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { toStudentId, type StudentRow } from "@/lib/types";
+import { toStudentId, defaultPassword, type StudentRow } from "@/lib/types";
 
 type CreateResult = {
   studentId: string;
@@ -131,8 +131,8 @@ export default function StudentsManager({
   // 비밀번호 분실 대응: 새 비밀번호 입력(비우면 학번으로 초기화)
   async function handleResetPassword(s: StudentProfile) {
     const input = prompt(
-      `${toStudentId(s)} ${s.name} 학생의 새 비밀번호를 입력하세요.\n` +
-        `비워 두고 확인을 누르면 학번(${toStudentId(s)})으로 초기화됩니다.`
+      `${toStudentId(s)} ${s.name} 학생의 새 비밀번호를 입력하세요. (6자 이상)\n` +
+        `비워 두고 확인을 누르면 학번 기반(${defaultPassword(toStudentId(s))})으로 초기화됩니다.`
     );
     if (input === null) return; // 취소
     const res = await fetch("/api/teacher/students", {
@@ -174,8 +174,9 @@ export default function StudentsManager({
         <h2 className="mb-1 text-lg font-semibold text-zinc-900">학생 계정 일괄 생성</h2>
         <p className="mb-4 text-sm text-zinc-500">
           한 줄에 한 명씩 <b>학년, 반, 번호, 이름, 비밀번호</b> 순서로 입력하세요.
-          비밀번호를 비우면 <b>학번이 초기비밀번호</b>가 됩니다. 엑셀에서 열을
-          복사해 붙여넣거나 CSV 파일을 올려도 됩니다.
+          비밀번호를 비우면 <b>학번 앞에 s를 붙인 값</b>(예: 10101 → s10101)이
+          초기비밀번호가 됩니다. 직접 지정할 땐 6자 이상. 엑셀에서 열을 복사해
+          붙여넣거나 CSV 파일을 올려도 됩니다.
         </p>
 
         <textarea
@@ -232,7 +233,9 @@ export default function StudentsManager({
                     <td className="py-1 pr-4">{s.name}</td>
                     <td className="py-1 font-mono">
                       {s.password || (
-                        <span className="text-zinc-400">{toStudentId(s)} (학번)</span>
+                        <span className="text-zinc-400">
+                          {defaultPassword(toStudentId(s))} (학번 기반)
+                        </span>
                       )}
                     </td>
                   </tr>

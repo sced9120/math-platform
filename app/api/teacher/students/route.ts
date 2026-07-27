@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { toStudentId, type StudentRow } from "@/lib/types";
+import { toStudentId, defaultPassword, type StudentRow } from "@/lib/types";
 
 // 학생 계정 일괄 생성 (교사 전용).
 // service role key는 이 서버 코드에서만 사용된다 — 클라이언트 노출 금지.
@@ -66,20 +66,20 @@ export async function POST(request: Request) {
     }
 
     const studentId = toStudentId(row);
-    // 명단에 비밀번호가 있으면 그것을, 없으면 학번을 초기비밀번호로 사용
+    // 명단에 비밀번호가 있으면 그것을, 없으면 학번 기반 기본값(s+학번)을 사용
     const givenPw = String(
       (s as { password?: unknown }).password ?? ""
     ).trim();
-    if (givenPw && (givenPw.length < 4 || givenPw.length > 72)) {
+    if (givenPw && (givenPw.length < 6 || givenPw.length > 72)) {
       results.push({
         studentId,
         name: row.name,
         ok: false,
-        error: "비밀번호는 4~72자여야 합니다",
+        error: "비밀번호는 6~72자여야 합니다",
       });
       continue;
     }
-    const password = givenPw || studentId;
+    const password = givenPw || defaultPassword(studentId);
 
     const { data: created, error: authError } = await admin.auth.admin.createUser({
       email: `${studentId}@school.local`,
@@ -131,9 +131,9 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "userId가 필요합니다." }, { status: 400 });
   }
   const givenPw = String(body?.password ?? "").trim();
-  if (givenPw && (givenPw.length < 4 || givenPw.length > 72)) {
+  if (givenPw && (givenPw.length < 6 || givenPw.length > 72)) {
     return NextResponse.json(
-      { error: "비밀번호는 4~72자로 입력하세요." },
+      { error: "비밀번호는 6~72자로 입력하세요." },
       { status: 400 }
     );
   }
@@ -153,30 +153,18 @@ export async function PATCH(request: Request) {
     );
   }
 
-  const password =
-    givenPw ||
-    toStudentId({
-      grade: target.grade as number,
-      class_no: target.class_no as number,
-      student_no: target.student_no as number,
-      name: "",
-    });
+  // 미지정 시 학번 기반 기본값(s+학번)으로 초기화 — 6자 이상 보장
+  const studentId = toStudentId({
+    grade: target.grade as number,
+    class_no: target.class_no as number,
+    student_no: target.student_no as number,
+    name: "",
+  });
+  const password = givenPw || defaultPassword(studentId);
 
   const { error } = await admin.auth.admin.updateUserById(userId, { password });
   if (error) {
-    // Supabase는 비밀번호 "변경" 시 최소 6자를 강제한다 (생성 시엔 5자리 학번 허용).
-    // 학번(5자리) 초기화가 막힌 경우 해결 방법을 함께 안내한다.
-    const weak = error.message?.toLowerCase().includes("password");
-    return NextResponse.json(
-      {
-        error: weak
-          ? "학번(5자리)으로는 초기화할 수 없습니다 — Supabase 최소 비밀번호 길이(6자) 때문입니다. " +
-            "6자 이상 비밀번호를 입력하거나, Supabase 대시보드 → Authentication → " +
-            "Sign In / Providers → Email에서 Minimum password length를 5로 낮추면 학번 초기화가 됩니다."
-          : "재설정에 실패했습니다.",
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "재설정에 실패했습니다." }, { status: 500 });
   }
   await admin
     .from("profiles")

@@ -76,48 +76,41 @@
   </section>
 
   <section class="screen">
-    <div class="kicker">접선</div>
-    <h1>기울기가 주어진 접선</h1>
-    <p>원점이 중심이고 반지름 r 인 원에, 기울기 m 으로 <b>접하는 직선</b>은 항상 <b>두 개</b> 있습니다
-       (위·아래로 나란히). 슬라이더로 확인해 보세요.</p>
-    <div class="lab">
-      <svg id="s2" viewBox="0 0 400 400"></svg>
-      <div class="controls">
-        <div class="slider"><label>반지름 r <span><b id="s2r">3</b></span></label><input id="s2rr" type="range" min="1" max="5" step="0.5" value="3"></div>
-        <div class="slider"><label>기울기 m <span><b id="s2m">1</b></span></label><input id="s2mr" type="range" min="-3" max="3" step="0.25" value="1"></div>
-        <div class="readout" id="s2read"></div>
-      </div>
-    </div>
-    <div class="formula">y = m x ± r <span class="sqrt">m² + 1</span></div>
-  </section>
-
-  <section class="screen">
-    <div class="kicker">접선 정리</div>
-    <h1>세 가지 접선 공식</h1>
+    <div class="kicker">두 가지 방법</div>
+    <h1>거리로 볼까, 판별식으로 볼까</h1>
+    <p>같은 문제를 <b>기하(거리)</b>로도, <b>대수(판별식)</b>로도 풀 수 있습니다. 두 방법은 언제나 같은 답을 줘요.</p>
     <table>
-      <tr><th>상황</th><th>접선의 방정식</th></tr>
-      <tr><td>기울기 m, 원 x²+y²=r²</td><td>y = mx ± r√(m²+1)</td></tr>
-      <tr><td>원 위의 점 (x₁, y₁)</td><td>x₁x + y₁y = r²</td></tr>
-      <tr><td>원 밖의 점에서</td><td>그 점을 지나는 직선을 놓고 <b>d = r</b> 로 두 접선을 구함</td></tr>
+      <tr><th></th><th>기하적 방법</th><th>대수적 방법</th></tr>
+      <tr><td>하는 일</td><td>중심에서 직선까지 거리 d 를 구해 r 과 비교</td><td>직선을 원에 대입해 얻은 이차방정식의 판별식 D</td></tr>
+      <tr><td>두 점에서 만남</td><td>d &lt; r</td><td>D &gt; 0</td></tr>
+      <tr><td>접함</td><td>d = r</td><td>D = 0</td></tr>
+      <tr><td>만나지 않음</td><td>d &gt; r</td><td>D &lt; 0</td></tr>
+      <tr><td>편한 때</td><td>교점의 <b>개수</b>만 알면 될 때 (계산이 짧음)</td><td>교점의 <b>좌표</b>까지 필요할 때</td></tr>
     </table>
-    <div class="card"><b>증명 아이디어</b> — 접한다 ⟺ 중심과 직선 사이 거리 d 가 r 과 같다.
-      직선 y = mx + k (즉 mx − y + k = 0) 에서 d = |k|/√(m²+1) = r → k = ±r√(m²+1).
-      그래서 접선이 <b>두 개</b> 나오는 것입니다.</div>
+    <div class="callout"><b>왜 둘이 같을까?</b> 직선 y = mx + k 를 x² + y² = r² 에 대입해 정리하면
+      D = 4(1+m²)(r²(1+m²) − k²) 꼴이 나오고, 여기서 r² − d² 가 그대로 나타납니다.
+      즉 <b>D 의 부호 = r² − d² 의 부호</b> — 기하와 대수가 한 식에서 만납니다.</div>
   </section>
 
   <section class="screen">
     <div class="kicker">정리 · 연습</div>
     <h1>스스로 확인</h1>
     <div class="card">
-      <b>연습 1.</b> 원 x²+y²=9 와 직선 y = x + k 가 접할 때 k 의 값은?<br>
-      <span class="hint">힌트: d = |k|/√2 = 3 → k = ±3√2</span>
+      <b>연습 1.</b> 원 x² + y² = 9 와 직선 y = x + k 가 <b>서로 다른 두 점에서 만나도록</b> 하는 k 의 범위는?<br>
+      <span class="hint">힌트: d = |k|/√2 &lt; 3 → |k| &lt; 3√2 → −3√2 &lt; k &lt; 3√2</span>
     </div>
     <div class="card">
-      <b>연습 2.</b> 원 x²+y²=5 위의 점 (1, 2) 에서의 접선의 방정식은?<br>
-      <span class="hint">힌트: x₁x + y₁y = r² → 1·x + 2·y = 5 → x + 2y = 5</span>
+      <b>연습 2.</b> 원 (x−1)² + (y−2)² = 4 와 직선 3x − 4y + 1 = 0 의 위치 관계는?<br>
+      <span class="hint">힌트: d = |3·1 − 4·2 + 1| / 5 = 4/5 = 0.8, r = 2 → d &lt; r → 두 점에서 만남</span>
     </div>
-    <p class="q">아래 ‘내 생각 적기’ 칸에, d 와 r 의 대소로 세 위치 관계를 정리하고, 접선이 왜 두 개인지 설명해 보세요.</p>
+    <div class="callout"><b>다음 활동 예고</b> — 세 경우 중 <b>‘접함’</b>만 따로 떼어 깊이 파고들면
+      <b>접선의 방정식</b>이 나옵니다. 기울기가 주어졌을 때, 접점이 주어졌을 때, 원 밖의 점에서 그을 때 —
+      세 유형을 다음 활동에서 다룹니다!</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, d 와 r 의 대소로 세 위치 관계를 정리하고,
+      기하적 방법과 대수적 방법 중 어떤 상황에서 어느 쪽이 편한지 자신의 생각을 적어 보세요.</p>
   </section>
+
+  
 
   <!-- EXT:START -->
   <section class="screen">
@@ -193,19 +186,7 @@
     document.getElementById("s0kr").oninput=function(){k=parseFloat(this.value);draw();};draw();
   })();
 
-  // 화면2: 접선
-  (function(){
-    var P=Plane(document.getElementById("s2"),-6,6),r=3,m=1;
-    function draw(){P.clear();P.grid();P.circle(0,0,r,"#2563eb",2.5);P.dot(0,0,"#2563eb","O",4);
-      var k=r*Math.sqrt(m*m+1);
-      P.line(m,k,"#059669",2.5);P.line(m,-k,"#059669",2.5);
-      // 접점: (-mk/(1+m²), ...) for each
-      [k,-k].forEach(function(kk){var x0=-m*kk/(1+m*m);P.dot(x0,m*x0+kk,"#d97706",null,4);});
-      document.getElementById("s2r").textContent=r;document.getElementById("s2m").textContent=m;
-      document.getElementById("s2read").innerHTML="접선 두 개:<br>y = "+m+"x + <b>"+fmt(k)+"</b><br>y = "+m+"x − <b>"+fmt(k)+"</b><br><span class='hint'>k = r√(m²+1) = "+r+"·√"+fmt(m*m+1)+"</span>";}
-    document.getElementById("s2rr").oninput=function(){r=parseFloat(this.value);draw();};
-    document.getElementById("s2mr").oninput=function(){m=parseFloat(this.value);draw();};draw();
-  })();
+  // (접선 관련 화면은 별도 활동 "원의 접선의 방정식" 으로 옮겼다)
 
   go(0);
 })();

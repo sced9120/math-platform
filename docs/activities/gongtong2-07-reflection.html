@@ -121,6 +121,8 @@
       같은 규칙을 따르는 이유를 설명해 보세요.</p>
   </section>
 
+  
+
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
@@ -138,7 +140,27 @@
       </div>
     </div>
     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
-      <b>🧗 도전 질문</b><br>직선 y = x 에 대해 대칭이동한 뒤, 이어서 원점에 대해 대칭이동하면 결과는 어떤 한 번의 이동과 같을까요? 점 (3, 1)로 직접 확인해 보세요.
+      <b>🧗 도전 질문</b><br>직선 y = x 에 대해 대칭이동한 뒤, 이어서 원점에 대해 대칭이동하면 결과는 <b>어떤 한 번의 이동</b>과 같을까요? 아래에서 두 대칭을 골라 직접 합성해 보세요.
+    </div>
+    <div style="margin:14px 0 4px"><b>🔁 직접 해보기 — 대칭을 두 번 하면?</b></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;font-size:13px">
+      <span style="color:#52525b">1차</span>
+      <select id="extF1" style="border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit;font-size:13px">
+        <option value="x">x축</option><option value="y">y축</option>
+        <option value="o">원점</option><option value="d">y=x</option>
+      </select>
+      <span style="color:#52525b">→ 2차</span>
+      <select id="extF2" style="border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit;font-size:13px">
+        <option value="x">x축</option><option value="y" selected>y축</option>
+        <option value="o">원점</option><option value="d">y=x</option>
+      </select>
+    </div>
+    <div class="lab">
+      <svg id="extRefl" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="extReflRead"></div>
+        <div class="hint">회색=원래, 연한 파랑=1차 대칭 후, 진한 파랑=2차까지 마친 결과.</div>
+      </div>
     </div>
     <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
   </section>
@@ -217,6 +239,59 @@
     [].slice.call(document.querySelectorAll(".modebtn")).forEach(function(b){b.onclick=function(){mode=b.getAttribute("data-m");[].slice.call(document.querySelectorAll(".modebtn")).forEach(function(x){x.classList.toggle("on",x===b);});draw();};});
     draw();
   })();
+
+  /* EXTJS:START */
+  // 확장: 두 대칭의 합성
+  (function () {
+    var svg = document.getElementById("extRefl");
+    if (!svg) return;
+    var P = Plane(svg, -6, 6);
+    var shape = [{x:1,y:1},{x:1,y:4},{x:3,y:4},{x:3,y:3},{x:2,y:3},{x:2,y:1}];
+    var ops = {
+      x: { n: "x축", f: function (p) { return { x: p.x, y: -p.y }; } },
+      y: { n: "y축", f: function (p) { return { x: -p.x, y: p.y }; } },
+      o: { n: "원점", f: function (p) { return { x: -p.x, y: -p.y }; } },
+      d: { n: "y=x", f: function (p) { return { x: p.y, y: p.x }; } }
+    };
+    var known = [
+      { n: "제자리(항등)", f: function (p) { return { x: p.x, y: p.y }; } },
+      { n: "x축 대칭", f: ops.x.f }, { n: "y축 대칭", f: ops.y.f },
+      { n: "원점 대칭", f: ops.o.f }, { n: "y=x 대칭", f: ops.d.f },
+      { n: "y=−x 대칭", f: function (p) { return { x: -p.y, y: -p.x }; } },
+      { n: "원점 중심 90° 회전(반시계)", f: function (p) { return { x: -p.y, y: p.x }; } },
+      { n: "원점 중심 90° 회전(시계)", f: function (p) { return { x: p.y, y: -p.x }; } }
+    ];
+    function identify(g) {
+      var probes = [{x:2,y:3},{x:1,y:5},{x:-4,y:2}];
+      for (var i = 0; i < known.length; i++) {
+        var ok = true;
+        for (var j = 0; j < probes.length; j++) {
+          var a = g(probes[j]), b = known[i].f(probes[j]);
+          if (Math.abs(a.x - b.x) > 1e-9 || Math.abs(a.y - b.y) > 1e-9) { ok = false; break; }
+        }
+        if (ok) return known[i].n;
+      }
+      return "(네 가지 대칭으로는 표현되지 않는 이동)";
+    }
+    var sel1 = document.getElementById("extF1"), sel2 = document.getElementById("extF2");
+    function draw() {
+      var k1 = sel1.value, k2 = sel2.value;
+      var f1 = ops[k1].f, f2 = ops[k2].f;
+      var g = function (p) { return f2(f1(p)); };
+      P.clear(); P.grid();
+      P.seg(-6, -6, 6, 6, "#e5e7eb", 1.5, "5 5");
+      P.poly(shape, "#94a3b8", 2, "rgba(148,163,184,0.10)");
+      P.poly(shape.map(f1), "#93c5fd", 2, "rgba(147,197,253,0.12)");
+      P.poly(shape.map(g), "#2563eb", 2.8, "rgba(37,99,235,0.10)");
+      document.getElementById("extReflRead").innerHTML =
+        "<b>" + ops[k1].n + "</b> 대칭 → <b>" + ops[k2].n + "</b> 대칭<br>" +
+        "= <b style='color:#2563eb'>" + identify(g) + "</b><br>" +
+        "<span class='hint'>두 대칭을 이으면 <b>회전</b>이 나오기도 합니다!</span>";
+    }
+    sel1.onchange = draw; sel2.onchange = draw;
+    draw();
+  })();
+  /* EXTJS:END */
 
   go(0);
 })();

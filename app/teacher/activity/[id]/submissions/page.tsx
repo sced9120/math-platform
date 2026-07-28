@@ -32,7 +32,7 @@ export default async function SubmissionsPage({
 
   const { data: activity } = await supabase
     .from("activities")
-    .select("id, title, type, unit_id, assigned_classes, units(title, grade)")
+    .select("id, title, type, unit_id, assigned_classes, content, units(title, grade)")
     .eq("id", id)
     .single<{
       id: string;
@@ -40,6 +40,7 @@ export default async function SubmissionsPage({
       type: string;
       unit_id: string;
       assigned_classes: number[] | null;
+      content: { response_prompt?: string } | null;
       units: { title: string; grade: number };
     }>();
   if (!activity) notFound();
@@ -87,6 +88,7 @@ export default async function SubmissionsPage({
       unitTitle={activity.units.title}
       activityTitle={activity.title}
       rows={rows}
+      responsePrompt={activity.content?.response_prompt}
     />
   );
 }

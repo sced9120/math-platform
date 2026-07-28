@@ -124,6 +124,8 @@
       자신의 말로 설명하고, 세 점 A(0,0), B(4,0), C(0,3) 으로 만든 삼각형의 세 변의 길이를 구해 보세요.</p>
   </section>
 
+  
+
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
@@ -141,7 +143,19 @@
       </div>
     </div>
     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
-      <b>🧗 도전 질문</b><br>유클리드 거리에서 ‘한 점에서 거리가 3인 점의 모임’은 원입니다. 그렇다면 <b>택시 거리</b>에서 같은 모임은 어떤 모양일까요? (직접 격자에 점을 찍어 보세요 — 놀랍게도 <b>마름모</b>가 됩니다!)
+      <b>🧗 도전 질문</b><br>유클리드 거리에서 ‘한 점에서 거리가 3인 점의 모임’은 원입니다. 그렇다면 <b>택시 거리</b>에서 같은 모임은 어떤 모양일까요? 아래에서 직접 확인해 보세요!
+    </div>
+    <div style="margin:14px 0 4px"><b>🚕 직접 해보기 — 택시 기하학</b></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="modebtn on" id="extTaxiCmp" style="border:1px solid var(--line);background:var(--blue);color:#fff;font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600">두 거리 비교</button>
+      <button class="modebtn" id="extTaxiCir" style="border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600">거리가 3인 점들 = ‘원’</button>
+    </div>
+    <div class="lab">
+      <svg id="extTaxi" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="extTaxiRead"></div>
+        <div class="hint">파란 점 A, B 를 드래그해 보세요. 주황은 <b>도로를 따라간 길(택시)</b>, 파랑은 <b>직선거리</b>입니다.</div>
+      </div>
     </div>
     <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
   </section>
@@ -269,6 +283,57 @@
         (close?'<span class="badge ok">PA ≈ PB — 자취 등장!</span>':'<span class="badge no">아직 달라요</span>');}
     P.onDrag(function(n,pt){Pt=pt;draw();});draw();
   })();
+
+  /* EXTJS:START */
+  // 확장: 택시 기하학
+  (function () {
+    var svg = document.getElementById("extTaxi");
+    if (!svg) return;
+    var P = Plane(svg, -6, 6);
+    var mode = "cmp", A = { x: -3, y: -2 }, B = { x: 2, y: 3 };
+    function draw() {
+      P.clear(); P.grid();
+      if (mode === "cmp") {
+        P.seg(A.x, A.y, B.x, A.y, "#f59e0b", 3.5);
+        P.seg(B.x, A.y, B.x, B.y, "#f59e0b", 3.5);
+        P.seg(A.x, A.y, B.x, B.y, "#2563eb", 3);
+        P.handle(A.x, A.y, "#2563eb", "A"); P.handle(B.x, B.y, "#2563eb", "B");
+        P.dot(A.x, A.y, "#2563eb", "A", 4); P.dot(B.x, B.y, "#2563eb", "B", 4);
+        var dx = Math.abs(B.x - A.x), dy = Math.abs(B.y - A.y);
+        document.getElementById("extTaxiRead").innerHTML =
+          "<span style='color:#2563eb'><b>유클리드</b></span> √(" + dx + "² + " + dy + "²) = <b>" + fmt(Math.hypot(dx, dy)) + "</b><br>" +
+          "<span style='color:#d97706'><b>택시</b></span> " + dx + " + " + dy + " = <b>" + (dx + dy) + "</b><br>" +
+          "<span class='hint'>택시 거리는 어떤 계단 경로로 가도 <b>항상 같습니다</b>.</span>";
+      } else {
+        var circle = [];
+        for (var i = 0; i < 120; i++) {
+          var t = i / 120 * 2 * Math.PI;
+          circle.push({ x: 3 * Math.cos(t), y: 3 * Math.sin(t) });
+        }
+        P.poly(circle, "#2563eb");
+        P.poly([{ x: 3, y: 0 }, { x: 0, y: 3 }, { x: -3, y: 0 }, { x: 0, y: -3 }], "#f59e0b");
+        P.dot(0, 0, "#27272a", null, 4);
+        document.getElementById("extTaxiRead").innerHTML =
+          "원점에서 거리가 <b>3</b>인 점들<br>" +
+          "<span style='color:#2563eb'><b>유클리드 → 원</b></span><br>" +
+          "<span style='color:#d97706'><b>택시 → 마름모!</b></span><br>" +
+          "<span class='hint'>‘거리’의 정의가 바뀌면 ‘원’의 모양도 바뀝니다.</span>";
+      }
+    }
+    P.onDrag(function (n, pt) { if (n === "A") A = pt; else B = pt; draw(); });
+    var bC = document.getElementById("extTaxiCmp"), bR = document.getElementById("extTaxiCir");
+    function pick(m) {
+      mode = m;
+      var on = m === "cmp" ? bC : bR, off = m === "cmp" ? bR : bC;
+      on.style.background = "#2563eb"; on.style.color = "#fff";
+      off.style.background = "#fff"; off.style.color = "#27272a";
+      draw();
+    }
+    bC.onclick = function () { pick("cmp"); };
+    bR.onclick = function () { pick("cir"); };
+    draw();
+  })();
+  /* EXTJS:END */
 
   go(0);
 })();

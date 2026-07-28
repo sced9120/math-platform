@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
 export type SubmissionRow = {
@@ -23,13 +24,21 @@ export default function SubmissionsTable({
   unitTitle,
   activityTitle,
   rows,
+  responsePrompt,
 }: {
   unitId: string;
   unitTitle: string;
   activityTitle: string;
   rows: SubmissionRow[];
+  responsePrompt?: string;
 }) {
   const doneCount = rows.filter((r) => r.completed).length;
+  // 표 보기 / 서술 읽기(카드) 전환
+  const [view, setView] = useState<"table" | "cards">("table");
+  const [onlyWritten, setOnlyWritten] = useState(true);
+
+  const written = rows.filter((r) => r.responseText.trim().length > 0);
+  const cardRows = onlyWritten ? written : rows;
 
   function downloadCsv() {
     const header = ["학번", "이름", "완료", "점수", "정답 제출", "작성글", "수정시각"];
@@ -82,6 +91,94 @@ export default function SubmissionsTable({
         </div>
       </div>
 
+      {/* 보기 전환 */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex overflow-hidden rounded-lg border border-zinc-300">
+          <button
+            onClick={() => setView("table")}
+            className={`px-3 py-1.5 text-sm font-medium ${
+              view === "table" ? "bg-blue-600 text-white" : "bg-white text-zinc-700"
+            }`}
+          >
+            표 보기
+          </button>
+          <button
+            onClick={() => setView("cards")}
+            className={`px-3 py-1.5 text-sm font-medium ${
+              view === "cards" ? "bg-blue-600 text-white" : "bg-white text-zinc-700"
+            }`}
+          >
+            서술 읽기
+          </button>
+        </div>
+        <span className="text-sm text-zinc-500">
+          서술 작성 {written.length} / {rows.length}명
+        </span>
+        {view === "cards" && (
+          <label className="ml-auto flex items-center gap-2 text-sm text-zinc-600">
+            <input
+              type="checkbox"
+              checked={onlyWritten}
+              onChange={(e) => setOnlyWritten(e.target.checked)}
+            />
+            작성한 학생만 보기
+          </label>
+        )}
+      </div>
+
+      {view === "cards" ? (
+        <div className="flex flex-col gap-3">
+          {responsePrompt && (
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+              <b>✏️ 서술 문항</b>
+              <p className="mt-1 whitespace-pre-wrap">{responsePrompt}</p>
+            </div>
+          )}
+          {cardRows.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-zinc-300 bg-white p-8 text-center text-sm text-zinc-500">
+              아직 작성한 학생이 없습니다.
+            </p>
+          ) : (
+            cardRows.map((r) => (
+              <div
+                key={r.studentId}
+                className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
+              >
+                <div className="mb-2 flex flex-wrap items-center gap-2 text-sm">
+                  <span className="font-mono text-zinc-500">{r.studentId}</span>
+                  <span className="font-semibold text-zinc-900">{r.name}</span>
+                  {r.completed ? (
+                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                      완료
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-500">
+                      미완료
+                    </span>
+                  )}
+                  {r.updatedAt && (
+                    <span className="ml-auto text-xs text-zinc-400">
+                      {new Date(r.updatedAt).toLocaleString("ko-KR", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  )}
+                </div>
+                {r.responseText.trim() ? (
+                  <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-zinc-800">
+                    {r.responseText}
+                  </p>
+                ) : (
+                  <p className="text-sm text-zinc-400">— 미작성 —</p>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
       <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
         {rows.length === 0 ? (
           <p className="text-sm text-zinc-500">해당 학년 학생이 없습니다.</p>
@@ -131,6 +228,7 @@ export default function SubmissionsTable({
           </table>
         )}
       </div>
+      )}
     </div>
   );
 }

@@ -31,6 +31,26 @@ export default async function TeacherPage() {
         </Link>
 
         <Link
+          href="/teacher/progress"
+          className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-blue-400"
+        >
+          <h3 className="mb-1 font-semibold text-zinc-900">진도 현황</h3>
+          <p className="text-sm text-zinc-500">
+            반별·활동별 완료율을 한눈에 보고, 막힌 지점 찾기
+          </p>
+        </Link>
+
+        <Link
+          href="/teacher/subjects"
+          className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-blue-400"
+        >
+          <h3 className="mb-1 font-semibold text-zinc-900">교과 관리</h3>
+          <p className="text-sm text-zinc-500">
+            교과(공통수학2 등) 만들기 · 단원을 교과에 배치 · 공개 설정
+          </p>
+        </Link>
+
+        <Link
           href="/teacher/export"
           className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-blue-400"
         >

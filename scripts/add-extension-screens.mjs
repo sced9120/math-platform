@@ -13,13 +13,75 @@ const dir = join(__dirname, "..", "docs", "activities");
 
 const MARK_START = "<!-- EXT:START -->";
 const MARK_END = "<!-- EXT:END -->";
+const JS_START = "/* EXTJS:START */";
+const JS_END = "/* EXTJS:END */";
 
 // h: 수평 확장, v: 수직 확장, q: 도전 질문, extra: 화면에 덧붙일 HTML(선택)
 const EXT = {
   "gongtong2-00-distance-two-points.html": {
     h: "내비게이션이 알려 주는 거리는 직선거리가 아니라 <b>도로를 따라간 거리</b>입니다. 도시처럼 길이 격자로 난 곳에서는 <b>|Δx| + |Δy|</b>(택시 거리)가 더 현실적이에요. 배달 경로·지하철 환승 계산이 이 거리를 씁니다.",
     v: "거리를 3차원으로 늘리면 √(Δx² + Δy² + Δz²), n차원이면 제곱합의 제곱근으로 <b>그대로 일반화</b>됩니다. 수학에서는 ‘거리’를 ① 항상 0 이상 ② 같은 점끼리만 0 ③ 삼각부등식(돌아가면 멀다) 을 만족하는 것으로 <b>정의</b>하고, 이 조건만 지키면 무엇이든 거리로 인정합니다.",
-    q: "유클리드 거리에서 ‘한 점에서 거리가 3인 점의 모임’은 원입니다. 그렇다면 <b>택시 거리</b>에서 같은 모임은 어떤 모양일까요? (직접 격자에 점을 찍어 보세요 — 놀랍게도 <b>마름모</b>가 됩니다!)",
+    q: "유클리드 거리에서 ‘한 점에서 거리가 3인 점의 모임’은 원입니다. 그렇다면 <b>택시 거리</b>에서 같은 모임은 어떤 모양일까요? 아래에서 직접 확인해 보세요!",
+    extra: `    <div style="margin:14px 0 4px"><b>🚕 직접 해보기 — 택시 기하학</b></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="modebtn on" id="extTaxiCmp" style="border:1px solid var(--line);background:var(--blue);color:#fff;font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600">두 거리 비교</button>
+      <button class="modebtn" id="extTaxiCir" style="border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600">거리가 3인 점들 = ‘원’</button>
+    </div>
+    <div class="lab">
+      <svg id="extTaxi" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="extTaxiRead"></div>
+        <div class="hint">파란 점 A, B 를 드래그해 보세요. 주황은 <b>도로를 따라간 길(택시)</b>, 파랑은 <b>직선거리</b>입니다.</div>
+      </div>
+    </div>`,
+    js: `  // 확장: 택시 기하학
+  (function () {
+    var svg = document.getElementById("extTaxi");
+    if (!svg) return;
+    var P = Plane(svg, -6, 6);
+    var mode = "cmp", A = { x: -3, y: -2 }, B = { x: 2, y: 3 };
+    function draw() {
+      P.clear(); P.grid();
+      if (mode === "cmp") {
+        P.seg(A.x, A.y, B.x, A.y, "#f59e0b", 3.5);
+        P.seg(B.x, A.y, B.x, B.y, "#f59e0b", 3.5);
+        P.seg(A.x, A.y, B.x, B.y, "#2563eb", 3);
+        P.handle(A.x, A.y, "#2563eb", "A"); P.handle(B.x, B.y, "#2563eb", "B");
+        P.dot(A.x, A.y, "#2563eb", "A", 4); P.dot(B.x, B.y, "#2563eb", "B", 4);
+        var dx = Math.abs(B.x - A.x), dy = Math.abs(B.y - A.y);
+        document.getElementById("extTaxiRead").innerHTML =
+          "<span style='color:#2563eb'><b>유클리드</b></span> √(" + dx + "² + " + dy + "²) = <b>" + fmt(Math.hypot(dx, dy)) + "</b><br>" +
+          "<span style='color:#d97706'><b>택시</b></span> " + dx + " + " + dy + " = <b>" + (dx + dy) + "</b><br>" +
+          "<span class='hint'>택시 거리는 어떤 계단 경로로 가도 <b>항상 같습니다</b>.</span>";
+      } else {
+        var circle = [];
+        for (var i = 0; i < 120; i++) {
+          var t = i / 120 * 2 * Math.PI;
+          circle.push({ x: 3 * Math.cos(t), y: 3 * Math.sin(t) });
+        }
+        P.poly(circle, "#2563eb");
+        P.poly([{ x: 3, y: 0 }, { x: 0, y: 3 }, { x: -3, y: 0 }, { x: 0, y: -3 }], "#f59e0b");
+        P.dot(0, 0, "#27272a", null, 4);
+        document.getElementById("extTaxiRead").innerHTML =
+          "원점에서 거리가 <b>3</b>인 점들<br>" +
+          "<span style='color:#2563eb'><b>유클리드 → 원</b></span><br>" +
+          "<span style='color:#d97706'><b>택시 → 마름모!</b></span><br>" +
+          "<span class='hint'>‘거리’의 정의가 바뀌면 ‘원’의 모양도 바뀝니다.</span>";
+      }
+    }
+    P.onDrag(function (n, pt) { if (n === "A") A = pt; else B = pt; draw(); });
+    var bC = document.getElementById("extTaxiCmp"), bR = document.getElementById("extTaxiCir");
+    function pick(m) {
+      mode = m;
+      var on = m === "cmp" ? bC : bR, off = m === "cmp" ? bR : bC;
+      on.style.background = "#2563eb"; on.style.color = "#fff";
+      off.style.background = "#fff"; off.style.color = "#27272a";
+      draw();
+    }
+    bC.onclick = function () { pick("cmp"); };
+    bR.onclick = function () { pick("cir"); };
+    draw();
+  })();`,
   },
   "gongtong2-01-segment-division.html": {
     h: "컴퓨터 그래픽에서 두 색을 섞는 <b>그라데이션</b>, 애니메이션에서 두 자세 사이를 채우는 <b>트위닝</b>은 모두 내분입니다. 색 A와 색 B를 m:n으로 내분하면 중간 색이 나오죠. 게임·영상의 부드러운 움직임이 여기서 나옵니다.",
@@ -64,7 +126,77 @@ const EXT = {
   "gongtong2-07-reflection.html": {
     h: "이슬람 건축의 문양, 에셔의 판화, 나비의 날개, 사람 얼굴 — 아름답다고 느끼는 많은 것에 대칭이 있습니다. 거울·반사 조명, 이미지 편집의 ‘좌우 뒤집기’도 대칭이동이에요.",
     v: "대칭이동을 <b>두 번</b> 하면 제자리로 돌아옵니다(자기 자신이 역원). 또 서로 다른 두 대칭을 이어서 하면 <b>회전이나 평행이동</b>이 나와요. 이렇게 이동들을 ‘합성’해 분류하는 것이 <b>변환군</b>이고, 결정 구조·타일링 분류의 언어가 됩니다.",
-    q: "직선 y = x 에 대해 대칭이동한 뒤, 이어서 원점에 대해 대칭이동하면 결과는 어떤 한 번의 이동과 같을까요? 점 (3, 1)로 직접 확인해 보세요.",
+    q: "직선 y = x 에 대해 대칭이동한 뒤, 이어서 원점에 대해 대칭이동하면 결과는 <b>어떤 한 번의 이동</b>과 같을까요? 아래에서 두 대칭을 골라 직접 합성해 보세요.",
+    extra: `    <div style="margin:14px 0 4px"><b>🔁 직접 해보기 — 대칭을 두 번 하면?</b></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;font-size:13px">
+      <span style="color:#52525b">1차</span>
+      <select id="extF1" style="border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit;font-size:13px">
+        <option value="x">x축</option><option value="y">y축</option>
+        <option value="o">원점</option><option value="d">y=x</option>
+      </select>
+      <span style="color:#52525b">→ 2차</span>
+      <select id="extF2" style="border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit;font-size:13px">
+        <option value="x">x축</option><option value="y" selected>y축</option>
+        <option value="o">원점</option><option value="d">y=x</option>
+      </select>
+    </div>
+    <div class="lab">
+      <svg id="extRefl" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="extReflRead"></div>
+        <div class="hint">회색=원래, 연한 파랑=1차 대칭 후, 진한 파랑=2차까지 마친 결과.</div>
+      </div>
+    </div>`,
+    js: `  // 확장: 두 대칭의 합성
+  (function () {
+    var svg = document.getElementById("extRefl");
+    if (!svg) return;
+    var P = Plane(svg, -6, 6);
+    var shape = [{x:1,y:1},{x:1,y:4},{x:3,y:4},{x:3,y:3},{x:2,y:3},{x:2,y:1}];
+    var ops = {
+      x: { n: "x축", f: function (p) { return { x: p.x, y: -p.y }; } },
+      y: { n: "y축", f: function (p) { return { x: -p.x, y: p.y }; } },
+      o: { n: "원점", f: function (p) { return { x: -p.x, y: -p.y }; } },
+      d: { n: "y=x", f: function (p) { return { x: p.y, y: p.x }; } }
+    };
+    var known = [
+      { n: "제자리(항등)", f: function (p) { return { x: p.x, y: p.y }; } },
+      { n: "x축 대칭", f: ops.x.f }, { n: "y축 대칭", f: ops.y.f },
+      { n: "원점 대칭", f: ops.o.f }, { n: "y=x 대칭", f: ops.d.f },
+      { n: "y=−x 대칭", f: function (p) { return { x: -p.y, y: -p.x }; } },
+      { n: "원점 중심 90° 회전(반시계)", f: function (p) { return { x: -p.y, y: p.x }; } },
+      { n: "원점 중심 90° 회전(시계)", f: function (p) { return { x: p.y, y: -p.x }; } }
+    ];
+    function identify(g) {
+      var probes = [{x:2,y:3},{x:1,y:5},{x:-4,y:2}];
+      for (var i = 0; i < known.length; i++) {
+        var ok = true;
+        for (var j = 0; j < probes.length; j++) {
+          var a = g(probes[j]), b = known[i].f(probes[j]);
+          if (Math.abs(a.x - b.x) > 1e-9 || Math.abs(a.y - b.y) > 1e-9) { ok = false; break; }
+        }
+        if (ok) return known[i].n;
+      }
+      return "(네 가지 대칭으로는 표현되지 않는 이동)";
+    }
+    var sel1 = document.getElementById("extF1"), sel2 = document.getElementById("extF2");
+    function draw() {
+      var k1 = sel1.value, k2 = sel2.value;
+      var f1 = ops[k1].f, f2 = ops[k2].f;
+      var g = function (p) { return f2(f1(p)); };
+      P.clear(); P.grid();
+      P.seg(-6, -6, 6, 6, "#e5e7eb", 1.5, "5 5");
+      P.poly(shape, "#94a3b8", 2, "rgba(148,163,184,0.10)");
+      P.poly(shape.map(f1), "#93c5fd", 2, "rgba(147,197,253,0.12)");
+      P.poly(shape.map(g), "#2563eb", 2.8, "rgba(37,99,235,0.10)");
+      document.getElementById("extReflRead").innerHTML =
+        "<b>" + ops[k1].n + "</b> 대칭 → <b>" + ops[k2].n + "</b> 대칭<br>" +
+        "= <b style='color:#2563eb'>" + identify(g) + "</b><br>" +
+        "<span class='hint'>두 대칭을 이으면 <b>회전</b>이 나오기도 합니다!</span>";
+    }
+    sel1.onchange = draw; sel2.onchange = draw;
+    draw();
+  })();`,
   },
   "gongtong2-08-sets-subset.html": {
     h: "검색창에 태그를 걸어 좁혀 가는 일, 데이터베이스의 조건 검색, 생물의 분류 체계(종 ⊂ 속 ⊂ 과)가 모두 집합과 포함관계입니다. 파일 폴더 구조도 포함관계의 그림이죠.",
@@ -147,7 +279,7 @@ function buildSection(e) {
     </div>
     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
       <b>🧗 도전 질문</b><br>${e.q}
-    </div>
+    </div>${e.extra ? "\n" + e.extra : ""}
     <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
   </section>
   ${MARK_END}`;
@@ -167,10 +299,26 @@ for (const [file, e] of Object.entries(EXT)) {
     html = html.slice(0, startIdx) + html.slice(endIdx + MARK_END.length);
   }
 
+  // 이미 넣은 확장 JS 도 걷어낸다
+  const jsStart = html.indexOf(JS_START);
+  if (jsStart !== -1) {
+    const jsEnd = html.indexOf(JS_END);
+    if (jsEnd === -1) { console.error(`✗ JS 마커 손상: ${file}`); continue; }
+    html = html.slice(0, jsStart) + html.slice(jsEnd + JS_END.length);
+  }
+
   // 네비게이션 바로 앞에 삽입 = 마지막 화면
   const navIdx = html.indexOf('<div class="nav">');
   if (navIdx === -1) { console.error(`✗ nav 를 찾지 못함: ${file}`); continue; }
   html = html.slice(0, navIdx) + buildSection(e) + "\n\n  " + html.slice(navIdx);
+
+  // 조작형이 있으면 활동 스크립트의 go(0) 직전에 끼워 넣는다
+  // (같은 IIFE 안이라 그 파일의 Plane/fmt 같은 헬퍼를 그대로 쓸 수 있다)
+  if (e.js) {
+    const goIdx = html.indexOf("go(0);");
+    if (goIdx === -1) { console.error(`✗ go(0) 를 찾지 못함: ${file}`); continue; }
+    html = html.slice(0, goIdx) + JS_START + "\n" + e.js + "\n  " + JS_END + "\n\n  " + html.slice(goIdx);
+  }
 
   writeFileSync(path, html, "utf8");
   console.log(`✔ 확장 탐구 추가: ${file}`);

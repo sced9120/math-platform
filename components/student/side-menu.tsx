@@ -38,10 +38,8 @@ export default function SideMenu({ grade }: { grade: number | null }) {
     const supabase = createClient();
     const [subjectsRes, unitsRes, activitiesRes] = await Promise.all([
       supabase.from("subjects").select("id, title, order_index").order("order_index"),
-      supabase
-        .from("units")
-        .select("id, title, grade, order_index, subject_id")
-        .order("order_index"),
+      // subject_id 는 마이그레이션 0010 이후에만 있으므로 컬럼을 나열하지 않는다
+      supabase.from("units").select("*").order("order_index"),
       supabase.rpc("student_activities"),
     ]);
     const subjects = (subjectsRes.data as MenuSubject[] | null) ?? [];

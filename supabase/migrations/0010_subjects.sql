@@ -4,7 +4,8 @@
 -- 기존 단원은 subject_id 가 null 이어도 그대로 동작한다(교과 미지정 단원).
 
 -- 1) 교과 테이블 -------------------------------------------------------------
-create table public.subjects (
+-- 중간에 실패해도 다시 실행할 수 있도록 전부 멱등하게 작성한다.
+create table if not exists public.subjects (
   id           uuid primary key default gen_random_uuid(),
   title        text not null,
   grade        int not null,
@@ -16,10 +17,12 @@ create table public.subjects (
 alter table public.subjects enable row level security;
 
 -- 학생은 자기 학년의 공개 교과만, 교사는 전부
+drop policy if exists "subjects_student_read_published" on public.subjects;
 create policy "subjects_student_read_published"
   on public.subjects for select
   using (is_published and grade = public.my_grade());
 
+drop policy if exists "subjects_teacher_all" on public.subjects;
 create policy "subjects_teacher_all"
   on public.subjects for all
   using (public.is_teacher())
@@ -27,9 +30,9 @@ create policy "subjects_teacher_all"
 
 -- 2) 단원에 교과 연결 --------------------------------------------------------
 alter table public.units
-  add column subject_id uuid references public.subjects (id) on delete set null;
+  add column if not exists subject_id uuid references public.subjects (id) on delete set null;
 
-create index units_subject_id_idx on public.units (subject_id);
+create index if not exists units_subject_id_idx on public.units (subject_id);
 
 -- 3) 공통 가시성 헬퍼 --------------------------------------------------------
 -- 단원이 나에게 보이는가? (공개 + 내 학년 + 교과가 있으면 그 교과도 공개)
@@ -55,7 +58,7 @@ revoke all on function public.unit_visible_to_me(uuid) from public;
 grant execute on function public.unit_visible_to_me(uuid) to authenticated;
 
 -- 4) 단원/활동 읽기 정책에 교과 조건 반영 ------------------------------------
-drop policy "units_student_read_published" on public.units;
+drop policy if exists "units_student_read_published" on public.units;
 create policy "units_student_read_published"
   on public.units for select
   using (
@@ -72,10 +75,10 @@ create policy "units_student_read_published"
     )
   );
 
-drop policy "activities_student_read_published" on public.activities;
-create policy "activities_student_read_published"
-  on public.activities for select
-  using (is_published and public.unit_visible_to_me(unit_id));
+-- activities 에는 학생용 SELECT 정책을 두지 않는다(0002 에서 의도적으로 제거함).
+-- 학생이 activities 를 직접 읽으면 problem 유형의 정답(answer/tolerance)이 노출되므로,
+-- 반드시 정답을 걷어낸 student_activities() RPC 로만 조회하게 한다.
+-- (아래 5)에서 그 RPC 에 교과 조건을 추가한다.)
 
 -- 5) 학생용 활동 조회 RPC: 교과 조건 + subject_id 반환 -----------------------
 -- 반환 타입이 바뀌므로 drop 후 재생성한다.

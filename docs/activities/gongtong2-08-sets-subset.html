@@ -1,0 +1,230 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  svg{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .qrow{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;background:#fff}
+  .qrow .lab{font-size:15px}
+  .qbtns{display:flex;gap:6px;flex:none}
+  .qb{border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;padding:5px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+  .qb.pick{background:var(--blue);border-color:var(--blue);color:#fff}
+  .qb.right{background:#dcfce7;border-color:#86efac;color:var(--emerald)}
+  .qb.wrong{background:#fee2e2;border-color:#fca5a5;color:var(--rose)}
+  .fb{font-size:13px;margin-top:4px}
+  .chips{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+  .chip{width:52px;height:52px;border-radius:12px;border:2px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;cursor:pointer;color:var(--muted);transition:all .12s}
+  .chip.in{background:var(--blue);border-color:var(--blue);color:#fff;transform:translateY(-2px)}
+  .big{font-size:22px;font-weight:800;color:var(--blue)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 집합</div>
+    <h1>집합이 되려면?</h1>
+    <p>다음 ‘모임’이 <b>집합</b>인지 아닌지 판단해 보세요. 기준이 <b>명확</b>해서 어떤 대상이 속하는지
+       <b>누구나 똑같이</b> 판정할 수 있으면 집합입니다.</p>
+    <div id="quiz"></div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">표현</div>
+    <h1>집합을 나타내는 방법</h1>
+    <div class="card">
+      <b>① 원소나열법</b> — 원소를 { } 안에 죽 나열<br>
+      <code>A = {1, 2, 3, 6}</code>, &nbsp; <code>B = {2, 4, 6, 8, ⋯}</code>
+    </div>
+    <div class="card">
+      <b>② 조건제시법</b> — 원소가 만족하는 조건 제시<br>
+      <code>A = { x | x 는 6의 약수 }</code>, &nbsp; <code>B = { x | x 는 양의 짝수 }</code>
+    </div>
+    <div class="card">
+      <b>③ 벤 다이어그램</b> — 원 안에 원소를 그려 넣기 (다음 화면)
+    </div>
+    <ul style="margin:6px 0;padding-left:20px">
+      <li><b>유한집합</b>: 원소가 유한개 &nbsp; / &nbsp; <b>무한집합</b>: 원소가 무수히 많음</li>
+      <li><b>공집합 ∅</b>: 원소가 하나도 없는 집합. 예) { x | x 는 x²=−1 인 실수 } = ∅</li>
+      <li><b>n(A)</b>: 집합 A 의 원소의 개수. A={2,3,5} → n(A)=3, &nbsp; n(∅)=0</li>
+    </ul>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">포함관계</div>
+    <h1>부분집합 A ⊂ B</h1>
+    <p>집합 A 의 <b>모든 원소</b>가 집합 B 에 속하면, A 는 B 의 <b>부분집합</b>: <b>A ⊂ B</b>.</p>
+    <svg id="venn" viewBox="0 0 400 240"></svg>
+    <div class="callout">
+      <b>∈ 와 ⊂ 는 다릅니다!</b> <code>1 ∈ {1,2,3}</code> (원소), &nbsp; <code>{1} ⊂ {1,2,3}</code> (부분집합).<br>
+      <b>∅ ⊂ A</b> (공집합은 모든 집합의 부분집합), &nbsp; <b>A ⊂ A</b> (자기 자신도 부분집합).<br>
+      <b>진부분집합</b>: 자기 자신을 뺀 부분집합. &nbsp; A=B ⟺ A⊂B 이고 B⊂A.
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">부분집합 만들기</div>
+    <h1>A = {1, 2, 3} 의 부분집합</h1>
+    <p>각 원소를 <b>클릭</b>해 넣거나 빼면서 부분집합을 만들어 보세요. 만들 수 있는 부분집합은 모두 <b>몇 개</b>일까요?</p>
+    <div class="chips" id="chips"></div>
+    <div class="card" id="subReadout"></div>
+    <p class="hint">각 원소마다 <b>‘넣는다 / 뺀다’</b> 두 가지 선택 → 2 × 2 × 2 = <b>2³ = 8</b>개.
+      아래 8개를 모두 만들어 보며 확인하세요.</p>
+    <div id="allSubs" style="font-size:14px"></div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">개수 공식</div>
+    <h1>부분집합의 개수</h1>
+    <p>원소가 <b>n 개</b>인 집합의 부분집합의 개수는 <b class="big">2ⁿ</b> 입니다.
+       (각 원소를 넣을지 뺄지 2가지씩 독립적으로 고르니까요.)</p>
+    <table>
+      <tr><th>조건</th><th>개수</th></tr>
+      <tr><td>부분집합 전체</td><td>2ⁿ</td></tr>
+      <tr><td>특정 원소 <b>1개</b>를 <b>반드시 포함</b></td><td>2ⁿ⁻¹</td></tr>
+      <tr><td>특정 원소 <b>1개</b>를 <b>포함하지 않음</b></td><td>2ⁿ⁻¹</td></tr>
+      <tr><td>진부분집합 (자기 자신 제외)</td><td>2ⁿ − 1</td></tr>
+    </table>
+    <div class="card"><b>생각 키우기</b> — A = {1, 2, 3, 4, 5} (n=5)<br>
+      (1) 부분집합의 개수 = 2⁵ = <b>32</b><br>
+      (2) 원소 3 을 포함하는 부분집합 = 3 은 고정, 나머지 4개를 자유 선택 = 2⁴ = <b>16</b></div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리 · 말장난</div>
+    <h1>헷갈리기 쉬운 것</h1>
+    <ul style="margin:6px 0;padding-left:20px">
+      <li>A = {∅} 의 원소의 개수 <b>n(A) = 1</b> — 원소가 ‘∅’ 하나 있는 집합!</li>
+      <li>∅ 과 {∅} 은 다릅니다. ∅ 은 원소가 없고, {∅} 은 원소가 1개.</li>
+      <li>0 ∈ ∅ 은 <b>거짓</b> (공집합엔 아무것도 없음), &nbsp; ∅ ⊂ ∅ 은 <b>참</b>.</li>
+    </ul>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, (1) 무엇이 집합이 되기 위한 조건인지, (2) 부분집합 개수가 2ⁿ 인 이유를
+      ‘각 원소를 넣거나 뺀다’로 설명해 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">검색창에 태그를 걸어 좁혀 가는 일, 데이터베이스의 조건 검색, 생물의 분류 체계(종 ⊂ 속 ⊂ 과)가 모두 집합과 포함관계입니다. 파일 폴더 구조도 포함관계의 그림이죠.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">집합 A의 모든 부분집합을 모은 것을 <b>멱집합</b> P(A)라 하고 원소는 2ⁿ개입니다. 칸토어는 <b>어떤 집합이든 자기 멱집합보다 작다</b>는 것을 증명했어요. 이 말은 ‘무한에도 더 큰 무한이 있다’는 뜻이고, 여기서 현대 집합론이 시작됩니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>원소가 3개인 집합의 부분집합은 8개입니다. 그렇다면 <b>부분집합들의 집합</b>(멱집합)의 부분집합은 몇 개일까요? 2^(2³) 을 계산해 보세요.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 6</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // 스테퍼
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+
+  // 화면0: 집합 판별 퀴즈
+  (function(){
+    var items=[
+      {t:"자연수의 모임", set:true, why:"자연수인지 아닌지 누구나 명확히 판정 가능."},
+      {t:"우리 반에서 안경 쓴 사람의 모임", set:true, why:"안경 착용 여부는 명확히 판정 가능."},
+      {t:"√2 보다 작은 수의 모임", set:true, why:"√2 미만인지 명확히 비교 가능."},
+      {t:"큰 수의 모임", set:false, why:"‘크다’의 기준이 사람마다 달라 명확하지 않음."},
+      {t:"우리 반에서 귀여운 사람의 모임", set:false, why:"‘귀엽다’는 주관적 기준."},
+      {t:"√2 에 가까운 수의 모임", set:false, why:"‘가깝다’의 기준이 모호함."}
+    ];
+    var box=document.getElementById("quiz");
+    items.forEach(function(it){
+      var row=document.createElement("div");row.className="qrow";
+      var lab=document.createElement("div");lab.className="lab";lab.textContent=it.t;
+      var btns=document.createElement("div");btns.className="qbtns";
+      var fb=document.createElement("div");fb.className="fb";
+      ["집합","아님"].forEach(function(txt,bi){
+        var b=document.createElement("button");b.className="qb";b.textContent=txt;
+        b.onclick=function(){
+          var chose=(bi===0);var ok=(chose===it.set);
+          [].slice.call(btns.children).forEach(function(x){x.className="qb";});
+          b.className="qb "+(ok?"right":"wrong");
+          fb.style.color=ok?"#059669":"#e11d48";
+          fb.innerHTML=(ok?"✓ 맞아요 — ":"✗ 다시 생각 — ")+it.why;
+        };
+        btns.appendChild(b);
+      });
+      var left=document.createElement("div");left.appendChild(lab);left.appendChild(fb);
+      row.appendChild(left);row.appendChild(btns);box.appendChild(row);
+    });
+  })();
+
+  // 화면2: 벤 (부분집합)
+  (function(){
+    var svg=document.getElementById("venn"),NS="http://www.w3.org/2000/svg";
+    function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+    svg.appendChild(e("ellipse",{cx:200,cy:120,rx:150,ry:95,fill:"rgba(37,99,235,0.06)",stroke:"#2563eb","stroke-width":2}));
+    svg.appendChild(e("ellipse",{cx:170,cy:130,rx:70,ry:55,fill:"rgba(225,29,72,0.08)",stroke:"#e11d48","stroke-width":2}));
+    function txt(x,y,s,c,fs){var t=e("text",{x:x,y:y,"font-size":fs||15,"font-weight":700,fill:c,"text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+    txt(330,40,"B",  "#2563eb",18); txt(170,80,"A","#e11d48",18);
+    txt(150,135,"1",  "#e11d48"); txt(190,135,"2","#e11d48");
+    txt(290,120,"3",  "#2563eb"); txt(300,170,"4","#2563eb");
+    txt(200,225,"A = {1, 2} ⊂ B = {1, 2, 3, 4}","#52525b",14);
+  })();
+
+  // 화면3: 부분집합 만들기
+  (function(){
+    var elems=[1,2,3],state=[false,false,false];
+    var chips=document.getElementById("chips");
+    elems.forEach(function(v,i){var c=document.createElement("div");c.className="chip";c.textContent=v;c.onclick=function(){state[i]=!state[i];c.classList.toggle("in",state[i]);render();};chips.appendChild(c);});
+    function cur(){var s=elems.filter(function(v,i){return state[i];});return "{ "+s.join(", ")+" }";}
+    // 모든 부분집합
+    var all=[];for(var m=0;m<8;m++){var s=[];for(var i=0;i<3;i++)if(m&(1<<i))s.push(elems[i]);all.push("{ "+s.join(", ")+" }");}
+    document.getElementById("allSubs").innerHTML="<b>부분집합 8개:</b> "+all.map(function(x){return "<code>"+(x==="{  }"?"∅":x)+"</code>";}).join(" &nbsp; ");
+    function render(){var c=cur();document.getElementById("subReadout").innerHTML="현재 부분집합: <b style='color:#2563eb;font-size:17px'>"+(c==="{  }"?"∅ (공집합)":c)+"</b>";}
+    render();
+  })();
+
+  go(0);
+})();
+</script>

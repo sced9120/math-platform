@@ -1,0 +1,599 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --panel: #f8fafc;
+    --ink: #27272a;
+    --muted: #52525b;
+    --line: #e4e4e7;
+    --blue: #2563eb;
+    --blue-soft: #eff6ff;
+    --rose: #e11d48;
+    --emerald: #059669;
+    --amber: #d97706;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI",
+      "Malgun Gothic", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 18px 20px 24px; }
+
+  /* 상단 진행 표시 */
+  .steps { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .dot {
+    width: 26px; height: 26px; border-radius: 999px; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--muted); background: #fff; cursor: pointer;
+    transition: all .15s;
+  }
+  .dot.active { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 700; }
+  .dot.done { border-color: var(--blue); color: var(--blue); }
+
+  .screen { display: none; animation: fade .2s ease; }
+  .screen.on { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .kicker { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--blue); text-transform: uppercase; }
+  h1 { font-size: 22px; margin: 4px 0 10px; }
+  h2 { font-size: 18px; margin: 18px 0 8px; }
+  p { margin: 8px 0; color: var(--ink); }
+  .muted { color: var(--muted); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 12px 0; }
+  .callout { background: var(--blue-soft); border: 1px solid #bfdbfe; border-radius: 12px; padding: 12px 16px; margin: 12px 0; }
+  .def { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; }
+  .def dt { font-weight: 700; color: var(--blue); white-space: nowrap; }
+  .def dd { margin: 0; color: var(--muted); }
+
+  .formula {
+    font-size: 17px; text-align: center; padding: 10px; margin: 10px 0;
+    background: #fff; border: 1px dashed var(--line); border-radius: 10px; letter-spacing: .3px;
+  }
+  .frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 2px; }
+  .frac .num { border-bottom: 1.5px solid currentColor; padding: 0 6px; }
+  .frac .den { padding: 0 6px; }
+
+  /* 인터랙티브 그래프 레이아웃 */
+  .lab { display: grid; grid-template-columns: 1fr 260px; gap: 16px; align-items: start; }
+  @media (max-width: 680px) { .lab { grid-template-columns: 1fr; } }
+  svg { width: 100%; height: auto; touch-action: none; user-select: none; display: block;
+        background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+  .handle { cursor: grab; }
+  .handle:active { cursor: grabbing; }
+
+  .controls { display: flex; flex-direction: column; gap: 12px; }
+  .slider label { font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; }
+  .slider input[type=range] { width: 100%; accent-color: var(--blue); }
+  .readout { font-size: 14px; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .readout b { color: var(--blue); }
+  .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .chip.a { background: #fee2e2; color: var(--rose); }
+  .chip.b { background: #dcfce7; color: var(--emerald); }
+  .chip.p { background: var(--blue-soft); color: var(--blue); }
+  .hint { font-size: 12px; color: var(--muted); }
+
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 18px;
+         padding-top: 14px; border-top: 1px solid var(--line); }
+  button.btn {
+    border: 1px solid var(--line); background: #fff; color: var(--ink); font: inherit;
+    padding: 8px 16px; border-radius: 10px; cursor: pointer; font-weight: 600;
+  }
+  button.btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  button.btn:disabled { opacity: .4; cursor: default; }
+  .q { font-weight: 600; margin-top: 10px; }
+  ul.tight { margin: 6px 0; padding-left: 20px; }
+  ul.tight li { margin: 3px 0; }
+  .tag { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+  .link { color: var(--blue); text-decoration: underline; }
+  .beyond { display:inline-block; vertical-align:middle; margin-left:6px; padding:2px 9px; border-radius:999px;
+            font-size:12px; font-weight:700; background:#f3e8ff; color:#7c3aed; }
+  .note-beyond { background:#faf5ff; border:1px solid #e9d5ff; border-radius:12px; padding:10px 14px;
+                 margin:10px 0; font-size:13.5px; color:#5b21b6; }
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <!-- 0. 도입 -->
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 도형의 방정식</div>
+    <h1>선분의 내분</h1>
+    <p>한 선분 위의 점 하나가 그 선분을 <b>두 조각</b>으로 나눕니다. 이 조각들의 길이 비율을
+       우리가 원하는 대로 <b>정확히</b> 맞추려면 어디에 점을 찍어야 할까요?</p>
+    <div class="card">
+      <dl class="def">
+        <dt>내분(內分)</dt><dd>선분을 그 위의 점을 경계로 하여 두 부분으로 나누는 일</dd>
+        <dt>등분(等分)</dt><dd>몫을 똑같이 나눔 (내분의 특별한 경우, 1 : 1)</dd>
+      </dl>
+    </div>
+    <p class="q">🔑 생각해보기 &mdash; “똑같이 나눈다”는 아이디어를 “<b>m : n</b> 으로 나눈다”로 넓히면,
+       점의 위치를 어떻게 정할 수 있을까요? 오른쪽 &raquo; 로 넘기며 직접 움직여 봅시다.</p>
+  </section>
+
+  <!-- 1. 1차원 수직선 내분 -->
+  <section class="screen">
+    <div class="kicker">1차원 · 수직선</div>
+    <h1>수직선 위에서 내분</h1>
+    <p>수직선 위 두 점 <span class="chip a">A(a)</span> <span class="chip b">B(b)</span> 사이를
+       <b>m : n</b> 으로 내분하는 점 <span class="chip p">C</span> 를 찾아봅시다.
+       슬라이더를 움직이며 규칙을 발견해 보세요.</p>
+
+    <svg id="line-svg" viewBox="0 0 640 150" role="img" aria-label="수직선 내분"></svg>
+
+    <div class="controls" style="margin-top:12px">
+      <div class="slider">
+        <label>내분비 &nbsp;<span>m : n = <b id="l-m">2</b> : <b id="l-n">1</b></span></label>
+        <input id="l-mn" type="range" min="1" max="9" step="1" value="2" />
+        <div class="hint">m 을 키우면 점 C 가 B 쪽으로, n 을 키우면 A 쪽으로 다가갑니다. (여기선 n = 1 고정, m 조절)</div>
+      </div>
+      <div class="readout" id="l-read"></div>
+    </div>
+
+    <p class="q">C 의 좌표를 <b>a, b, m, n</b> 으로 나타내면? 값을 바꿔 보며 규칙을 예상해 보세요.</p>
+  </section>
+
+  <!-- 2. 2차원 좌표평면 내분 (핵심 인터랙티브) -->
+  <section class="screen">
+    <div class="kicker">2차원 · 좌표평면</div>
+    <h1>좌표평면 위에서 내분</h1>
+    <p><span class="chip a">A</span> 와 <span class="chip b">B</span> 를 직접 <b>드래그</b>하고,
+       슬라이더로 <b>m : n</b> 을 바꿔 보세요. 내분점 <span class="chip p">P</span> 와 공식이 실시간으로 바뀝니다.</p>
+
+    <div class="lab">
+      <svg id="plane-svg" viewBox="0 0 400 400" role="img" aria-label="좌표평면 내분"></svg>
+      <div class="controls">
+        <div class="slider">
+          <label>m (A→B 쪽 비중) <span><b id="p-m">2</b></span></label>
+          <input id="p-mrange" type="range" min="1" max="8" step="1" value="2" />
+        </div>
+        <div class="slider">
+          <label>n (B→A 쪽 비중) <span><b id="p-n">1</b></span></label>
+          <input id="p-nrange" type="range" min="1" max="8" step="1" value="1" />
+        </div>
+        <div class="readout" id="p-read"></div>
+        <div class="hint">AP : PB = m : n. 회색 점은 A, B 를 잡아 끌어 옮길 수 있어요.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 공식 정리 -->
+  <section class="screen">
+    <div class="kicker">일반화</div>
+    <h1>내분점 공식</h1>
+    <p>두 점 <b>A(x&#8321;, y&#8321;)</b>, <b>B(x&#8322;, y&#8322;)</b> 를 잇는 선분 AB 를
+       <b>m : n</b> 으로 내분하는 점 P 는 다음과 같습니다.</p>
+    <div class="formula">
+      P&nbsp;=&nbsp;(&nbsp;
+      <span class="frac"><span class="num">m x&#8322; + n x&#8321;</span><span class="den">m + n</span></span>,&nbsp;
+      <span class="frac"><span class="num">m y&#8322; + n y&#8321;</span><span class="den">m + n</span></span>
+      &nbsp;)
+    </div>
+    <div class="card">
+      <p style="margin-top:0"><b>왜 이렇게 될까?</b> 한 점의 좌표는 “양 끝 좌표의 <b>가중평균</b>”입니다.
+         B 쪽 비중이 m, A 쪽 비중이 n 이므로, 각 좌표에 상대편 비율을 곱해 더한 뒤 (m+n) 으로 나눕니다.</p>
+      <ul class="tight">
+        <li><b>중점</b>은 m : n = 1 : 1 인 경우 → P = ( (x&#8321;+x&#8322;)/2 , (y&#8321;+y&#8322;)/2 )</li>
+        <li>m 이 클수록 P 는 <b>B 에 가깝고</b>, n 이 클수록 <b>A 에 가깝습니다.</b></li>
+      </ul>
+    </div>
+    <p class="q">앞 화면으로 돌아가 슬라이더를 움직이며, 화면에 뜬 P 값이 이 공식과 일치하는지 확인해 보세요.</p>
+  </section>
+
+  <!-- 4. 외분 -->
+  <section class="screen">
+    <div class="kicker">추가 탐구 · 외분</div>
+    <h1>선분의 연장선 위: 외분 <span class="beyond">교육과정 외 · 심화</span></h1>
+    <div class="note-beyond"><b>잠깐!</b> ‘선분의 외분’은 2022 개정 교육과정에서 <b>빠진 내용</b>입니다.
+      시험 범위가 아니라 <b>내분을 더 깊이 이해하기 위한 확장</b>으로 살펴봅니다. 부담 없이 구경하세요!</div>
+    <p>점이 선분 <b>바깥</b>(연장선 위)에 있어도 “A 로부터의 거리 : B 로부터의 거리”를 m : n 으로 맞출 수 있습니다.
+       이것을 <b>외분</b>이라 합니다.</p>
+
+    <div class="lab">
+      <svg id="ext-svg" viewBox="0 0 400 400" role="img" aria-label="외분"></svg>
+      <div class="controls">
+        <div class="slider">
+          <label>m <span><b id="e-m">3</b></span></label>
+          <input id="e-mrange" type="range" min="1" max="6" step="1" value="3" />
+        </div>
+        <div class="slider">
+          <label>n <span><b id="e-n">1</b></span></label>
+          <input id="e-nrange" type="range" min="1" max="6" step="1" value="1" />
+        </div>
+        <div class="readout" id="e-read"></div>
+        <div class="hint">m = n 이면 외분점이 무한히 멀어져 정의되지 않아요.</div>
+      </div>
+    </div>
+    <div class="formula">
+      Q&nbsp;=&nbsp;(&nbsp;
+      <span class="frac"><span class="num">m x&#8322; &minus; n x&#8321;</span><span class="den">m &minus; n</span></span>,&nbsp;
+      <span class="frac"><span class="num">m y&#8322; &minus; n y&#8321;</span><span class="den">m &minus; n</span></span>
+      &nbsp;)
+    </div>
+    <p class="hint">내분 공식에서 <b>n → &minus;n</b> 으로 바꾼 꼴입니다. 부호 하나 차이!</p>
+  </section>
+
+  <!-- 5. 지레의 원리 -->
+  <section class="screen">
+    <div class="kicker">실생활 연결 · 물리</div>
+    <h1>지레의 원리 = 내분</h1>
+    <p>막대 양 끝에 공을 올리면, 평형(균형)을 이루는 <b>받침점</b>은 두 공을 잇는 선분을 어떤 비율로 내분할까요?
+       무게를 바꿔 보세요.</p>
+
+    <svg id="lever-svg" viewBox="0 0 640 220" role="img" aria-label="지레 평형"></svg>
+
+    <div class="controls" style="margin-top:12px">
+      <div class="slider">
+        <label>왼쪽(A) 무게 <span><b id="lv-a">5</b> kg</span></label>
+        <input id="lv-arange" type="range" min="1" max="20" step="1" value="5" />
+      </div>
+      <div class="slider">
+        <label>오른쪽(B) 무게 <span><b id="lv-b">5</b> kg</span></label>
+        <input id="lv-brange" type="range" min="1" max="20" step="1" value="5" />
+      </div>
+      <div class="readout" id="lv-read"></div>
+    </div>
+    <div class="callout">
+      <b>핵심 발견:</b> 받침점은 무거운 쪽에 가깝습니다. 무게가 w<sub>A</sub> : w<sub>B</sub> 일 때,
+      받침점은 AB 를 <b>w<sub>B</sub> : w<sub>A</sub></b> (무게의 <b>반대</b> 비율)로 내분합니다.
+      5 kg 과 20 kg → 받침점은 A 로부터 <b>4 : 1</b> 지점!
+    </div>
+  </section>
+
+  <!-- 6. 심화: 삼각형 무게중심 -->
+  <section class="screen">
+    <div class="kicker">심화 탐구</div>
+    <h1>여러 무게의 무게중심</h1>
+    <p>세 꼭짓점에 서로 다른 구슬을 올리면 전체 무게중심 G 는 어디일까요? 각 점의 좌표를
+       무게로 <b>가중평균</b> 하면 됩니다.</p>
+    <div class="formula">
+      G&nbsp;=&nbsp;(&nbsp;
+      <span class="frac"><span class="num">w&#8321;x&#8321; + w&#8322;x&#8322; + w&#8323;x&#8323;</span><span class="den">w&#8321; + w&#8322; + w&#8323;</span></span>,&nbsp;
+      <span class="frac"><span class="num">w&#8321;y&#8321; + w&#8322;y&#8322; + w&#8323;y&#8323;</span><span class="den">w&#8321; + w&#8322; + w&#8323;</span></span>
+      &nbsp;)
+    </div>
+    <div class="card">
+      <p style="margin-top:0"><b>심화 과제</b> &mdash; 아래 삼각형에서 전체 무게중심 G 를 구해 봅시다.</p>
+      <ul class="tight">
+        <li>A(0, 0) 에 <b>200 g</b>, &nbsp; B(6, 0) 에 <b>300 g</b>, &nbsp; C(0, 8) 에 <b>400 g</b></li>
+      </ul>
+      <svg id="tri-svg" viewBox="0 0 360 360" role="img" aria-label="삼각형 무게중심" style="max-width:320px"></svg>
+      <p class="hint">아래 <b>‘내 생각 적기’</b> 칸에 풀이 과정과, 무게가 클수록 G 가 어느 쪽으로 끌리는지 서술하세요.
+        (스스로 먼저 계산해 본 뒤, 필요하면 ‘AI 질문’ 탭에서 힌트를 받아도 좋아요.)</p>
+    </div>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">컴퓨터 그래픽에서 두 색을 섞는 <b>그라데이션</b>, 애니메이션에서 두 자세 사이를 채우는 <b>트위닝</b>은 모두 내분입니다. 색 A와 색 B를 m:n으로 내분하면 중간 색이 나오죠. 게임·영상의 부드러운 움직임이 여기서 나옵니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">내분점 공식 P = (n·A + m·B)/(m+n) 은 <b>가중평균</b>입니다. 점을 3개로 늘리면 삼각형 안의 모든 점을 (αA + βB + γC), α+β+γ=1 로 나타낼 수 있어요(무게중심 좌표). 이 아이디어가 3D 그래픽의 <b>삼각형 색칠·질감 입히기</b>의 핵심입니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>사진 편집의 ‘크로스페이드’(A가 서서히 B로 바뀜)를 내분으로 설명해 보세요. 시간 t가 0→1로 갈 때 화면은 A와 B를 어떤 비로 내분한 것일까요?
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 7</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var screens = Array.prototype.slice.call(document.querySelectorAll(".screen"));
+  var N = screens.length;
+  var idx = 0;
+  var stepsEl = document.getElementById("steps");
+  var counter = document.getElementById("counter");
+  var prevBtn = document.getElementById("prev");
+  var nextBtn = document.getElementById("next");
+
+  for (var i = 0; i < N; i++) {
+    (function (k) {
+      var d = document.createElement("div");
+      d.className = "dot";
+      d.textContent = String(k + 1);
+      d.addEventListener("click", function () { go(k); });
+      stepsEl.appendChild(d);
+    })(i);
+  }
+  var dots = Array.prototype.slice.call(stepsEl.children);
+
+  function go(k) {
+    idx = Math.max(0, Math.min(N - 1, k));
+    for (var i = 0; i < N; i++) {
+      screens[i].classList.toggle("on", i === idx);
+      dots[i].classList.toggle("active", i === idx);
+      dots[i].classList.toggle("done", i < idx);
+    }
+    counter.textContent = (idx + 1) + " / " + N;
+    prevBtn.disabled = idx === 0;
+    nextBtn.textContent = idx === N - 1 ? "완료 ✓" : "다음 »";
+  }
+  prevBtn.addEventListener("click", function () { go(idx - 1); });
+  nextBtn.addEventListener("click", function () { if (idx < N - 1) go(idx + 1); });
+
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function el(name, attrs) {
+    var e = document.createElementNS(SVGNS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function fmt(v) { return Math.round(v * 100) / 100; }
+
+  /* ---------- 화면 2: 1차원 수직선 ---------- */
+  (function () {
+    var svg = document.getElementById("line-svg");
+    var a = 1, b = 8, n = 1;             // A(1), B(8), n 고정
+    var m = 2;
+    var x0 = 60, x1 = 580, y = 80;       // 픽셀 좌표
+    var lo = 0, hi = 9;
+    function px(val) { return x0 + (val - lo) / (hi - lo) * (x1 - x0); }
+    var lm = document.getElementById("l-m"), ln = document.getElementById("l-n");
+    var read = document.getElementById("l-read");
+    var range = document.getElementById("l-mn");
+
+    function draw() {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      svg.appendChild(el("line", { x1: x0 - 20, y1: y, x2: x1 + 20, y2: y, stroke: "#a1a1aa", "stroke-width": 2 }));
+      for (var t = lo; t <= hi; t++) {
+        svg.appendChild(el("line", { x1: px(t), y1: y - 5, x2: px(t), y2: y + 5, stroke: "#d4d4d8", "stroke-width": 1 }));
+        var lab = el("text", { x: px(t), y: y + 22, "text-anchor": "middle", "font-size": 11, fill: "#a1a1aa" });
+        lab.textContent = t; svg.appendChild(lab);
+      }
+      var c = (m * b + n * a) / (m + n);
+      // AC, CB 굵은 선
+      svg.appendChild(el("line", { x1: px(a), y1: y, x2: px(c), y2: y, stroke: "#e11d48", "stroke-width": 5, "stroke-linecap": "round" }));
+      svg.appendChild(el("line", { x1: px(c), y1: y, x2: px(b), y2: y, stroke: "#059669", "stroke-width": 5, "stroke-linecap": "round" }));
+      point(px(a), y, "#e11d48", "A", a);
+      point(px(b), y, "#059669", "B", b);
+      point(px(c), y, "#2563eb", "C", fmt(c));
+      lm.textContent = m; ln.textContent = n;
+      read.innerHTML = "C = <b>(" + fmt(c) + ")</b> &nbsp;=&nbsp; (m·b + n·a)/(m+n) = (" +
+        m + "·" + b + " + " + n + "·" + a + ") / " + (m + n);
+    }
+    function point(x, yy, color, name, val) {
+      svg.appendChild(el("circle", { cx: x, cy: yy, r: 6, fill: color }));
+      var t1 = el("text", { x: x, y: yy - 14, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: color });
+      t1.textContent = name; svg.appendChild(t1);
+      var t2 = el("text", { x: x, y: yy - 30, "text-anchor": "middle", "font-size": 11, fill: "#71717a" });
+      t2.textContent = "(" + val + ")"; svg.appendChild(t2);
+    }
+    range.addEventListener("input", function () { m = parseInt(range.value, 10); draw(); });
+    draw();
+  })();
+
+  /* ---------- 화면 3 & 5: 좌표평면 (내분 / 외분) ---------- */
+  function makePlane(opts) {
+    var svg = document.getElementById(opts.svgId);
+    var S = 400, pad = 34;
+    var lo = (opts.lo != null ? opts.lo : -1), hi = (opts.hi != null ? opts.hi : 9);
+    function px(x) { return pad + (x - lo) / (hi - lo) * (S - 2 * pad); }
+    function py(y) { return (S - pad) - (y - lo) / (hi - lo) * (S - 2 * pad); }
+    var A = opts.A0 ? { x: opts.A0.x, y: opts.A0.y } : { x: 1, y: 1 };
+    var B = opts.B0 ? { x: opts.B0.x, y: opts.B0.y } : { x: 7, y: 6 };
+    var m = opts.m0, n = opts.n0;
+
+    function compute() {
+      if (opts.external) {
+        var d = m - n;
+        if (d === 0) return null;
+        return { x: (m * B.x - n * A.x) / d, y: (m * B.y - n * A.y) / d };
+      }
+      return { x: (m * B.x + n * A.x) / (m + n), y: (m * B.y + n * A.y) / (m + n) };
+    }
+
+    function grid() {
+      for (var g = lo + 1; g < hi; g++) {
+        svg.appendChild(el("line", { x1: px(g), y1: py(lo), x2: px(g), y2: py(hi), stroke: "#f1f5f9", "stroke-width": 1 }));
+        svg.appendChild(el("line", { x1: px(lo), y1: py(g), x2: px(hi), y2: py(g), stroke: "#f1f5f9", "stroke-width": 1 }));
+      }
+      svg.appendChild(el("line", { x1: px(lo), y1: py(0), x2: px(hi), y2: py(0), stroke: "#cbd5e1", "stroke-width": 1.5 }));
+      svg.appendChild(el("line", { x1: px(0), y1: py(lo), x2: px(0), y2: py(hi), stroke: "#cbd5e1", "stroke-width": 1.5 }));
+    }
+    function dot(p, color, label, r) {
+      svg.appendChild(el("circle", { cx: px(p.x), cy: py(p.y), r: r || 7, fill: color }));
+      var t = el("text", { x: px(p.x) + 10, y: py(p.y) - 8, "font-size": 13, "font-weight": 700, fill: color });
+      t.textContent = label + " (" + fmt(p.x) + ", " + fmt(p.y) + ")";
+      svg.appendChild(t);
+    }
+    function handle(p, color, name) {
+      var c = el("circle", { cx: px(p.x), cy: py(p.y), r: 11, fill: color, "fill-opacity": .18, stroke: color, "stroke-width": 2, class: "handle" });
+      c.setAttribute("data-name", name);
+      svg.appendChild(c);
+    }
+
+    function draw() {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      grid();
+      var P = compute();
+      // 선분 AB 와 (외분이면) 연장선
+      if (opts.external && P) {
+        svg.appendChild(el("line", { x1: px(A.x), y1: py(A.y), x2: px(P.x), y2: py(P.y),
+          stroke: "#93c5fd", "stroke-width": 2, "stroke-dasharray": "5 5" }));
+      }
+      svg.appendChild(el("line", { x1: px(A.x), y1: py(A.y), x2: px(B.x), y2: py(B.y), stroke: "#334155", "stroke-width": 2.5 }));
+      if (P) {
+        // AP, PB 강조
+        svg.appendChild(el("line", { x1: px(A.x), y1: py(A.y), x2: px(P.x), y2: py(P.y), stroke: "#e11d48", "stroke-width": 4, "stroke-opacity": .5 }));
+        svg.appendChild(el("line", { x1: px(B.x), y1: py(B.y), x2: px(P.x), y2: py(P.y), stroke: "#059669", "stroke-width": 4, "stroke-opacity": .5 }));
+        dot(P, "#2563eb", opts.external ? "Q" : "P");
+      }
+      handle(A, "#e11d48", "A");
+      handle(B, "#059669", "B");
+      // A,B 라벨
+      var ta = el("text", { x: px(A.x) - 6, y: py(A.y) + 22, "font-size": 12, "font-weight": 700, fill: "#e11d48", "text-anchor": "end" });
+      ta.textContent = "A(" + fmt(A.x) + "," + fmt(A.y) + ")"; svg.appendChild(ta);
+      var tb = el("text", { x: px(B.x) + 6, y: py(B.y) + 22, "font-size": 12, "font-weight": 700, fill: "#059669" });
+      tb.textContent = "B(" + fmt(B.x) + "," + fmt(B.y) + ")"; svg.appendChild(tb);
+      opts.onDraw(P, A, B, m, n);
+    }
+
+    // 드래그
+    var dragging = null;
+    function toData(evt) {
+      var r = svg.getBoundingClientRect();
+      var sx = (evt.clientX - r.left) / r.width * S;
+      var sy = (evt.clientY - r.top) / r.height * S;
+      var x = lo + (sx - pad) / (S - 2 * pad) * (hi - lo);
+      var y = lo + ((S - pad) - sy) / (S - 2 * pad) * (hi - lo);
+      x = Math.max(lo, Math.min(hi, Math.round(x)));
+      y = Math.max(lo, Math.min(hi, Math.round(y)));
+      return { x: x, y: y };
+    }
+    svg.addEventListener("pointerdown", function (e) {
+      var t = e.target;
+      if (t && t.getAttribute && t.getAttribute("class") === "handle") {
+        dragging = t.getAttribute("data-name");
+        svg.setPointerCapture(e.pointerId);
+      }
+    });
+    svg.addEventListener("pointermove", function (e) {
+      if (!dragging) return;
+      var d = toData(e);
+      if (dragging === "A") { A.x = d.x; A.y = d.y; } else { B.x = d.x; B.y = d.y; }
+      draw();
+    });
+    svg.addEventListener("pointerup", function () { dragging = null; });
+    svg.addEventListener("pointerleave", function () { dragging = null; });
+
+    return {
+      setM: function (v) { m = v; draw(); },
+      setN: function (v) { n = v; draw(); },
+      draw: draw
+    };
+  }
+
+  // 내분 평면
+  (function () {
+    var mEl = document.getElementById("p-m"), nEl = document.getElementById("p-n"), read = document.getElementById("p-read");
+    var plane = makePlane({
+      svgId: "plane-svg", m0: 2, n0: 1, external: false,
+      onDraw: function (P, A, B, m, n) {
+        mEl.textContent = m; nEl.textContent = n;
+        read.innerHTML = "AP : PB = <b>" + m + " : " + n + "</b><br>" +
+          "P = ( (m·x&#8322;+n·x&#8321;)/(m+n) , (m·y&#8322;+n·y&#8321;)/(m+n) )<br>" +
+          "&nbsp;&nbsp;= <b>(" + fmt(P.x) + ", " + fmt(P.y) + ")</b>";
+      }
+    });
+    document.getElementById("p-mrange").addEventListener("input", function () { plane.setM(parseInt(this.value, 10)); });
+    document.getElementById("p-nrange").addEventListener("input", function () { plane.setN(parseInt(this.value, 10)); });
+    plane.draw();
+  })();
+
+  // 외분 평면
+  (function () {
+    var mEl = document.getElementById("e-m"), nEl = document.getElementById("e-n"), read = document.getElementById("e-read");
+    var plane = makePlane({
+      svgId: "ext-svg", m0: 3, n0: 1, external: true,
+      lo: -2, hi: 12, A0: { x: 1, y: 2 }, B0: { x: 5, y: 5 },
+      onDraw: function (Q, A, B, m, n) {
+        mEl.textContent = m; nEl.textContent = n;
+        if (!Q) { read.innerHTML = "m = n 이면 외분점이 <b>정의되지 않습니다.</b>"; return; }
+        read.innerHTML = "AQ : BQ = <b>" + m + " : " + n + "</b> (연장선 위)<br>" +
+          "Q = <b>(" + fmt(Q.x) + ", " + fmt(Q.y) + ")</b>";
+      }
+    });
+    document.getElementById("e-mrange").addEventListener("input", function () { plane.setM(parseInt(this.value, 10)); });
+    document.getElementById("e-nrange").addEventListener("input", function () { plane.setN(parseInt(this.value, 10)); });
+    plane.draw();
+  })();
+
+  /* ---------- 화면 6: 지레 ---------- */
+  (function () {
+    var svg = document.getElementById("lever-svg");
+    var wa = 5, wb = 5;
+    var x0 = 70, x1 = 570, ybar = 120;
+    var aEl = document.getElementById("lv-a"), bEl = document.getElementById("lv-b"), read = document.getElementById("lv-read");
+    var ar = document.getElementById("lv-arange"), br = document.getElementById("lv-brange");
+
+    function draw() {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      // 받침점 위치: A로부터 wb/(wa+wb)
+      var t = wb / (wa + wb);
+      var fx = x0 + t * (x1 - x0);
+      // 받침대 삼각형
+      svg.appendChild(el("polygon", { points: fx + "," + (ybar + 4) + " " + (fx - 16) + "," + (ybar + 44) + " " + (fx + 16) + "," + (ybar + 44), fill: "#94a3b8" }));
+      // 막대 (평형이므로 수평)
+      svg.appendChild(el("line", { x1: x0, y1: ybar, x2: x1, y2: ybar, stroke: "#475569", "stroke-width": 6, "stroke-linecap": "round" }));
+      // 공
+      ball(x0, ybar, wa, "#e11d48", "A");
+      ball(x1, ybar, wb, "#059669", "B");
+      // 받침점 라벨
+      var tf = el("text", { x: fx, y: ybar + 62, "text-anchor": "middle", "font-size": 12, "font-weight": 700, fill: "#2563eb" });
+      tf.textContent = "받침점"; svg.appendChild(tf);
+      aEl.textContent = wa; bEl.textContent = wb;
+      var g = gcd(wb, wa);
+      read.innerHTML = "받침점은 AB 를 <b>w<sub>B</sub> : w<sub>A</sub> = " + wb + " : " + wa +
+        "</b> ( = " + (wb / g) + " : " + (wa / g) + " ) 로 내분합니다.<br>" +
+        "A 로부터 전체의 <b>" + fmt(t * 100) + "%</b> 지점.";
+    }
+    function ball(x, yy, w, color, name) {
+      var r = 10 + w * 1.1;
+      svg.appendChild(el("line", { x1: x, y1: yy, x2: x, y2: yy - r - 8, stroke: "#cbd5e1", "stroke-width": 2 }));
+      svg.appendChild(el("circle", { cx: x, cy: yy - r - 8 - r, r: r, fill: color, "fill-opacity": .85 }));
+      var t = el("text", { x: x, y: yy - r - 8 - r + 4, "text-anchor": "middle", "font-size": 12, "font-weight": 700, fill: "#fff" });
+      t.textContent = w; svg.appendChild(t);
+      var nlab = el("text", { x: x, y: yy + 28, "text-anchor": "middle", "font-size": 12, "font-weight": 700, fill: color });
+      nlab.textContent = name + " (" + w + "kg)"; svg.appendChild(nlab);
+    }
+    function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+    ar.addEventListener("input", function () { wa = parseInt(ar.value, 10); draw(); });
+    br.addEventListener("input", function () { wb = parseInt(br.value, 10); draw(); });
+    draw();
+  })();
+
+  /* ---------- 화면 7: 삼각형 무게중심 (정적 그림) ---------- */
+  (function () {
+    var svg = document.getElementById("tri-svg");
+    var S = 360, pad = 40, lo = -1, hi = 9;
+    function px(x) { return pad + (x - lo) / (hi - lo) * (S - 2 * pad); }
+    function py(y) { return (S - pad) - (y - lo) / (hi - lo) * (S - 2 * pad); }
+    var pts = [
+      { x: 0, y: 0, w: 200, name: "A", c: "#e11d48" },
+      { x: 6, y: 0, w: 300, name: "B", c: "#059669" },
+      { x: 0, y: 8, w: 400, name: "C", c: "#d97706" }
+    ];
+    // 축
+    svg.appendChild(el("line", { x1: px(lo), y1: py(0), x2: px(hi), y2: py(0), stroke: "#cbd5e1", "stroke-width": 1.5 }));
+    svg.appendChild(el("line", { x1: px(0), y1: py(lo), x2: px(0), y2: py(hi), stroke: "#cbd5e1", "stroke-width": 1.5 }));
+    // 삼각형
+    svg.appendChild(el("polygon", { points: pts.map(function (p) { return px(p.x) + "," + py(p.y); }).join(" "),
+      fill: "#dbeafe", "fill-opacity": .5, stroke: "#60a5fa", "stroke-width": 2 }));
+    // 꼭짓점 + 무게
+    pts.forEach(function (p) {
+      var r = 6 + p.w / 60;
+      svg.appendChild(el("circle", { cx: px(p.x), cy: py(p.y), r: r, fill: p.c, "fill-opacity": .85 }));
+      var t = el("text", { x: px(p.x) + (p.x === 0 ? -10 : 12), y: py(p.y) + (p.y === 0 ? 20 : 0),
+        "font-size": 12, "font-weight": 700, fill: p.c, "text-anchor": p.x === 0 ? "end" : "start" });
+      t.textContent = p.name + "(" + p.x + "," + p.y + ") " + p.w + "g"; svg.appendChild(t);
+    });
+    // 무게중심 (숨김 힌트: 물음표로 표시하여 학생이 계산하도록)
+    var t = el("text", { x: px(2.4), y: py(3.2), "font-size": 22, "font-weight": 800, fill: "#2563eb" });
+    t.textContent = "G = ?"; svg.appendChild(t);
+  })();
+
+  go(0);
+})();
+</script>

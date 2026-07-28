@@ -1,0 +1,244 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .modebtn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+  .modebtn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .formula{font-size:17px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  ul.tight{margin:6px 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 유리함수와 무리함수</div>
+    <h1>무리식과 무리함수</h1>
+    <p>근호 안에 문자가 들어 있고 유리식으로 나타낼 수 없는 식을 <b>무리식</b>,
+       f(x) 가 무리식일 때 y = f(x) 를 <b>무리함수</b>라 합니다.</p>
+    <div class="card">
+      <b>무리식의 예</b> &nbsp; <code>√x</code>, <code>√(2x−3)</code>, <code>√(4−x²)</code>, <code>1/√(x−2)</code>
+    </div>
+    <div class="callout"><b>정의역 주의!</b> 실수 범위에서 <b>근호 안 ≥ 0</b> 이어야 합니다.
+      예) y = √(5x+3) 의 정의역은 5x+3 ≥ 0, 즉 <b>{x | x ≥ −3/5}</b>.</div>
+    <div class="card">
+      <b>실생활 —</b> 지진 해일의 전파 속력 v(m/s)와 수심 h(m) 사이에는 h = v²/9.8 이 성립합니다.
+      수심 x 에서의 속력을 v 로 나타내면 <b>v = √(9.8x)</b> — 무리함수네요!
+      <span class="hint">깊은 바다일수록 해일이 빨라지는 이유입니다.</span>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">기본형</div>
+    <h1>y = ±√(ax) — 네 가지 방향</h1>
+    <p>a 의 <b>부호</b>와 앞의 <b>± 부호</b>에 따라 뻗는 방향이 네 가지로 갈립니다. 버튼과 슬라이더로 확인하세요.</p>
+    <div class="btns">
+      <button class="modebtn on" data-s="+">y = +√(ax)</button>
+      <button class="modebtn" data-s="-">y = −√(ax)</button>
+    </div>
+    <div class="lab">
+      <svg id="s1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>a <span><b id="s1a">2</b></span></label><input id="s1ar" type="range" min="-6" max="6" step="1" value="2"></div>
+        <div class="readout" id="r1"></div>
+        <div class="hint"><b>a &gt; 0</b> → 오른쪽(x≥0), <b>a &lt; 0</b> → 왼쪽(x≤0).
+          <b>−</b> 를 붙이면 x축 아래로 뒤집힙니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">일반형</div>
+    <h1>y = √(ax + b) + c</h1>
+    <p>근호 안이 0 이 되는 점이 <b>시작점</b>입니다: ax + b = 0 → <b>x = −b/a</b>.
+       거기서부터 a 의 부호 방향으로 뻗어 나가요.</p>
+    <div class="lab">
+      <svg id="s2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>a <span><b id="s2a">1</b></span></label><input id="s2ar" type="range" min="-4" max="4" step="1" value="1"></div>
+        <div class="slider"><label>b <span><b id="s2b">2</b></span></label><input id="s2br" type="range" min="-6" max="6" step="1" value="2"></div>
+        <div class="slider"><label>c <span><b id="s2c">-1</b></span></label><input id="s2cr" type="range" min="-4" max="4" step="1" value="-1"></div>
+        <div class="readout" id="r2"></div>
+      </div>
+    </div>
+    <div class="card">√(ax+b) + c = √( a(x + b/a) ) + c &nbsp;→&nbsp; y = √(ax) 를
+      x축으로 <b>−b/a</b>, y축으로 <b>c</b> 만큼 <b>평행이동</b>한 것!</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">연결 · 역함수</div>
+    <h1>√ 는 제곱의 역함수</h1>
+    <p>y = √x 와 y = x² (단, x ≥ 0) 는 서로 <b>역함수</b>입니다. 그래서 두 그래프는
+       직선 <b>y = x</b> 에 대해 거울처럼 대칭이에요.</p>
+    <div class="lab">
+      <svg id="s3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout">
+          y = x² (x ≥ 0) &nbsp;<span style="color:#94a3b8">회색</span><br>
+          y = √x &nbsp;<span style="color:#059669">초록</span><br>
+          y = x &nbsp;<span style="color:#f59e0b">주황 점선</span>
+        </div>
+        <div class="hint">점 (2, 4) ↔ (4, 2) 처럼 좌표가 서로 뒤바뀝니다.</div>
+      </div>
+    </div>
+    <div class="callout">그래서 무리함수의 그래프는 “<b>이차함수의 반쪽을 눕힌 모양</b>”입니다.
+      정의역·치역도 서로 뒤바뀌죠 — 앞서 배운 <b>역함수</b> 단원과 이어집니다!</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>정리</h1>
+    <div class="formula">y = √(a x + b) + c &nbsp;&nbsp;(a ≠ 0)</div>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>시작점</td><td>(−b/a, c)</td></tr>
+      <tr><td>정의역</td><td>a&gt;0 → x ≥ −b/a &nbsp;/&nbsp; a&lt;0 → x ≤ −b/a</td></tr>
+      <tr><td>치역</td><td>y ≥ c &nbsp;(앞에 −가 붙으면 y ≤ c)</td></tr>
+      <tr><td>모양</td><td>이차함수의 반쪽을 눕힌 곡선(점근선 없음)</td></tr>
+    </table>
+    <div class="callout"><b>유리함수와 비교</b> — 유리함수는 <b>점근선</b>이 핵심,
+      무리함수는 <b>시작점과 정의역</b>이 핵심입니다.</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, y = √(ax+b) + c 의 정의역·치역이 a 의 부호에 따라 어떻게 달라지는지
+      그래프를 움직여 관찰한 내용을 바탕으로 정리해 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">진자의 주기 T = 2π√(L/g), 높이 h 에서 볼 수 있는 최대 거리 d = 3.6√h, 지진 해일의 속도 v = √(9.8h), 자유낙하 시간 — 자연에는 <b>제곱근 관계</b>가 가득합니다. 높이 두 배로 올라도 시야는 √2배만 넓어지죠.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">√x 는 사실 <b>x의 1/2제곱</b>입니다. 지수를 정수에서 분수로 넓히면 무리함수는 거듭제곱함수 y = x^(1/2) 의 한 경우가 되고, 지수함수·로그함수로 자연스럽게 이어집니다. ‘역함수 관점’으로 보면 제곱의 되돌리기이기도 하죠.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>y = √x 의 그래프는 오른쪽으로 갈수록 <b>완만</b>해집니다. x가 1→4로 4배 커질 때 y는 몇 배가 되나요? 4→9 일 때는요? 이 ‘점점 둔해지는’ 성질이 왜 생기는지 설명해 보세요.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 5</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+  function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
+  function Plane(svg,lo,hi){
+    var S=400,pad=28,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,lo:lo,hi:hi,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){for(var g=Math.ceil(lo);g<=hi;g++){svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));}
+        svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));},
+      line:function(m,b,color,w,dash){var o={x1:px(lo),y1:py(m*lo+b),x2:px(hi),y2:py(m*hi+b),stroke:color,"stroke-width":w||2,"stroke-linecap":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(e("line",o));},
+      seg:function(x1,y1,x2,y2,color,w,dash){var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(e("line",o));},
+      dot:function(x,y,color,label,r){svg.appendChild(e("circle",{cx:px(x),cy:py(y),r:r||5,fill:color}));if(label){var t=e("text",{x:px(x)+9,y:py(y)-8,"font-size":12,"font-weight":700,fill:color});t.textContent=label;svg.appendChild(t);}},
+      plotSeg:function(fn,color,w,dash){var segs=[],cur=[];for(var i=0;i<=520;i++){var x=lo+(hi-lo)*i/520;var y=fn(x);
+          if(isFinite(y)&&y>=lo-2&&y<=hi+2){cur.push(px(x)+","+py(y));}else{if(cur.length>1)segs.push(cur.slice());cur=[];}}
+        if(cur.length>1)segs.push(cur);
+        segs.forEach(function(s){var o={points:s.join(" "),fill:"none",stroke:color,"stroke-width":w||2.8,"stroke-linejoin":"round","stroke-linecap":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(e("polyline",o));});}
+    };
+  }
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  function sgn(v){return (v<0?"− ":"+ ")+Math.abs(v);}
+
+  // 화면1: y=±√(ax)
+  (function(){
+    var P=Plane(document.getElementById("s1"),-8,8),a=2,sign=1;
+    function draw(){P.clear();P.grid();
+      P.plotSeg(function(x){var t=a*x;return t>=0?sign*Math.sqrt(t):NaN;},"#2563eb",3);
+      P.dot(0,0,"#e11d48",null,5);
+      document.getElementById("s1a").textContent=a;
+      var dom=a>0?"x ≥ 0":"x ≤ 0", ran=sign>0?"y ≥ 0":"y ≤ 0";
+      document.getElementById("r1").innerHTML="y = "+(sign>0?"":"−")+"√("+a+"x)<br>정의역 <b>"+dom+"</b><br>치역 <b>"+ran+"</b><br><span class='hint'>|a| 가 클수록 x축에서 빨리 멀어짐</span>";}
+    document.getElementById("s1ar").oninput=function(){var v=+this.value;a=(v===0?1:v);draw();};
+    [].slice.call(screens[1].querySelectorAll("[data-s]")).forEach(function(b){b.onclick=function(){
+      sign=(b.getAttribute("data-s")==="+")?1:-1;
+      [].slice.call(screens[1].querySelectorAll("[data-s]")).forEach(function(x){x.classList.toggle("on",x===b);});draw();};});
+    draw();
+  })();
+
+  // 화면2: y=√(ax+b)+c
+  (function(){
+    var P=Plane(document.getElementById("s2"),-8,8),a=1,b=2,c=-1;
+    function draw(){P.clear();P.grid();
+      var start=-b/a;
+      P.plotSeg(function(x){var t=a*x+b;return t>=0?Math.sqrt(t)+c:NaN;},"#059669",3);
+      P.dot(start,c,"#e11d48","시작점("+fmt(start)+", "+c+")",5);
+      document.getElementById("s2a").textContent=a;document.getElementById("s2b").textContent=b;document.getElementById("s2c").textContent=c;
+      var dom=a>0?("x ≥ "+fmt(start)):("x ≤ "+fmt(start));
+      document.getElementById("r2").innerHTML="y = √("+a+"x "+sgn(b)+") "+sgn(c)+"<br>시작점 <b>("+fmt(start)+", "+c+")</b><br>정의역 <b>"+dom+"</b>, 치역 <b>y ≥ "+c+"</b>";}
+    document.getElementById("s2ar").oninput=function(){var v=+this.value;a=(v===0?1:v);draw();};
+    document.getElementById("s2br").oninput=function(){b=+this.value;draw();};
+    document.getElementById("s2cr").oninput=function(){c=+this.value;draw();};draw();
+  })();
+
+  // 화면3: 역함수 관계
+  (function(){
+    var P=Plane(document.getElementById("s3"),-1,8);
+    P.grid();
+    P.line(1,0,"#f59e0b",2,"5 5");
+    P.plotSeg(function(x){return x>=0?x*x:NaN;},"#94a3b8",2.5,"6 4");
+    P.plotSeg(function(x){return x>=0?Math.sqrt(x):NaN;},"#059669",3);
+    P.dot(2,4,"#94a3b8","(2, 4)",5);
+    P.dot(4,2,"#059669","(4, 2)",5);
+    P.seg(2,4,4,2,"#f59e0b",1.5,"4 4");
+  })();
+
+  go(0);
+})();
+</script>

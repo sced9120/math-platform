@@ -1,0 +1,272 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:12px}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .modebtn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+  .modebtn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .formula{font-size:17px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 집합</div>
+    <h1>교집합과 합집합</h1>
+    <p>버튼을 눌러 영역을 강조해 보세요. <b>교집합 A∩B</b> 는 양쪽 모두에, <b>합집합 A∪B</b> 는 어느 한쪽에라도 속하는 원소입니다.</p>
+    <div class="btns" style="margin-bottom:10px">
+      <button class="modebtn on" data-m="inter">A ∩ B (교집합)</button>
+      <button class="modebtn" data-m="union">A ∪ B (합집합)</button>
+      <button class="modebtn" data-m="A">A</button>
+      <button class="modebtn" data-m="B">B</button>
+    </div>
+    <div class="lab">
+      <svg id="venn" viewBox="0 0 400 260"></svg>
+      <div class="controls">
+        <div class="readout" id="vread"></div>
+        <div class="hint">U = {1~10}, A = {1,2,3,4,6}, B = {2,4,6,8,10}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정의</div>
+    <h1>정의 정리</h1>
+    <table>
+      <tr><th>기호</th><th>뜻</th><th>조건제시법</th></tr>
+      <tr><td>A ∩ B</td><td>교집합 — 둘 다 속함</td><td>{ x | x∈A <b>그리고</b> x∈B }</td></tr>
+      <tr><td>A ∪ B</td><td>합집합 — 하나라도 속함</td><td>{ x | x∈A <b>또는</b> x∈B }</td></tr>
+    </table>
+    <div class="callout"><b>서로소</b> — 두 집합이 공통 원소가 하나도 없을 때, 즉 <b>A ∩ B = ∅</b> 이면
+      A 와 B 는 서로소입니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">연산 법칙</div>
+    <h1>교환 · 결합 · 분배법칙</h1>
+    <table>
+      <tr><th>법칙</th><th>교집합/합집합</th></tr>
+      <tr><td>교환법칙</td><td>A∩B = B∩A, &nbsp; A∪B = B∪A</td></tr>
+      <tr><td>결합법칙</td><td>(A∩B)∩C = A∩(B∩C), &nbsp; (A∪B)∪C = A∪(B∪C)</td></tr>
+      <tr><td>분배법칙</td><td>A∩(B∪C) = (A∩B)∪(A∩C)<br>A∪(B∩C) = (A∪B)∩(A∪C)</td></tr>
+    </table>
+    <div class="card">덧셈·곱셈의 교환·결합·분배법칙과 똑같은 구조예요. ∩ 을 ×, ∪ 를 + 처럼 생각하면
+      기억하기 쉽습니다 (단, 집합은 <b>양방향 분배</b>가 모두 성립!).</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">벤 다이어그램으로 확인</div>
+    <h1>분배법칙, 눈으로 확인하기</h1>
+    <p>법칙은 외우는 게 아니라 <b>확인하는 것</b>입니다. 왼쪽 식과 오른쪽 식 버튼을 번갈아 눌러 보세요 —
+       <b>칠해지는 영역이 완전히 같습니다.</b></p>
+    <div class="btns" style="margin-bottom:10px">
+      <button class="modebtn on" data-d="L1">A ∩ (B ∪ C)</button>
+      <button class="modebtn" data-d="R1">(A∩B) ∪ (A∩C)</button>
+      <span style="width:14px"></span>
+      <button class="modebtn" data-d="L2">A ∪ (B ∩ C)</button>
+      <button class="modebtn" data-d="R2">(A∪B) ∩ (A∪C)</button>
+    </div>
+    <div class="lab">
+      <svg id="dist" viewBox="0 0 400 300"></svg>
+      <div class="controls">
+        <div class="readout" id="dread"></div>
+        <div class="hint">두 식이 서로 <b>짝</b>입니다. 짝끼리 눌러 비교하면 같은 그림이 나와요.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">원소의 개수</div>
+    <h1>n(A ∪ B) 세기</h1>
+    <p>세 영역의 원소 개수를 바꿔 보세요. <b>겹치는 부분(A∩B)을 두 번 세지 않도록</b> 빼 주는 것이 핵심입니다.</p>
+    <div class="lab">
+      <svg id="cnt" viewBox="0 0 400 260"></svg>
+      <div class="controls">
+        <div class="slider"><label>A만 <span><b id="ca">4</b></span></label><input id="car" type="range" min="0" max="8" step="1" value="4"></div>
+        <div class="slider"><label>A∩B (겹침) <span><b id="ci">3</b></span></label><input id="cir" type="range" min="0" max="8" step="1" value="3"></div>
+        <div class="slider"><label>B만 <span><b id="cb">2</b></span></label><input id="cbr" type="range" min="0" max="8" step="1" value="2"></div>
+        <div class="readout" id="cread"></div>
+      </div>
+    </div>
+    <div class="formula">n(A∪B) = n(A) + n(B) − n(A∩B)</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>정리</h1>
+    <ul style="margin:6px 0;padding-left:20px">
+      <li><b>A∩B</b>: 둘 다 속하는 원소 &nbsp; / &nbsp; <b>A∪B</b>: 하나라도 속하는 원소</li>
+      <li>교환·결합·분배법칙 성립, 서로소 ⟺ A∩B=∅</li>
+      <li><b>n(A∪B) = n(A) + n(B) − n(A∩B)</b></li>
+      <li>세 집합: n(A∪B∪C) = n(A)+n(B)+n(C) − n(A∩B) − n(B∩C) − n(C∩A) + n(A∩B∩C)</li>
+    </ul>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, n(A∪B) 공식에서 <b>왜 n(A∩B) 를 빼는지</b>를
+      ‘겹치는 부분을 두 번 세지 않기’로 설명해 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">검색엔진의 AND/OR 조건, 쇼핑몰의 다중 필터, ‘축구도 하고 농구도 하는 학생 수’ 조사가 모두 교집합·합집합입니다. 유전 형질 분석에서 두 형질을 함께 가진 개체를 세는 일도 같은 계산이에요.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">n(A∪B) = n(A)+n(B)−n(A∩B) 를 3개로 늘리면 −(쌍의 교집합) +(셋의 교집합) 이 되고, n개로 가면 <b>더하고 빼기를 번갈아</b> 하는 규칙이 됩니다(포함·배제 원리). 확률·경우의 수·정수론에서 두루 쓰이는 강력한 도구예요.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>1부터 100까지의 자연수 중 <b>2의 배수 또는 3의 배수</b>는 몇 개일까요? 포함·배제로 계산해 보세요. (2의 배수 50, 3의 배수 33, 6의 배수 16)
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 5</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+
+  var Ac={x:160,y:120,r:88}, Bc={x:250,y:120,r:88};
+
+  // 화면0: 강조 벤
+  (function(){
+    var svg=document.getElementById("venn"),mode="inter";
+    var A=[1,2,3,4,6],B=[2,4,6,8,10];
+    var inter=A.filter(function(x){return B.indexOf(x)>=0;});
+    var union=A.concat(B.filter(function(x){return A.indexOf(x)<0;}));
+    function draw(){while(svg.firstChild)svg.removeChild(svg.firstChild);
+      var defs=e("defs",{});
+      var cpB=e("clipPath",{id:"cB"});cpB.appendChild(e("circle",{cx:Bc.x,cy:Bc.y,r:Bc.r}));defs.appendChild(cpB);
+      var cpA=e("clipPath",{id:"cA"});cpA.appendChild(e("circle",{cx:Ac.x,cy:Ac.y,r:Ac.r}));defs.appendChild(cpA);
+      svg.appendChild(defs);
+      // 강조 채우기
+      var HL="rgba(37,99,235,0.22)";
+      if(mode==="union"){svg.appendChild(e("circle",{cx:Ac.x,cy:Ac.y,r:Ac.r,fill:HL}));svg.appendChild(e("circle",{cx:Bc.x,cy:Bc.y,r:Bc.r,fill:HL}));}
+      else if(mode==="A"){svg.appendChild(e("circle",{cx:Ac.x,cy:Ac.y,r:Ac.r,fill:HL}));}
+      else if(mode==="B"){svg.appendChild(e("circle",{cx:Bc.x,cy:Bc.y,r:Bc.r,fill:HL}));}
+      else{var g=e("g",{"clip-path":"url(#cB)"});g.appendChild(e("circle",{cx:Ac.x,cy:Ac.y,r:Ac.r,fill:"rgba(225,29,72,0.28)"}));svg.appendChild(g);}
+      // 원 테두리
+      svg.appendChild(e("circle",{cx:Ac.x,cy:Ac.y,r:Ac.r,fill:"none",stroke:"#e11d48","stroke-width":2}));
+      svg.appendChild(e("circle",{cx:Bc.x,cy:Bc.y,r:Bc.r,fill:"none",stroke:"#2563eb","stroke-width":2}));
+      lab(95,45,"A","#e11d48");lab(315,45,"B","#2563eb");
+      // 원소 배치
+      num(120,120,"1");num(140,150,"3");
+      num(205,100,"2");num(205,140,"4");num(205,170,"6");
+      num(290,110,"8");num(290,150,"10");
+      var res = mode==="inter"?("A∩B = {"+inter.join(", ")+"}") : mode==="union"?("A∪B = {"+union.sort(function(a,b){return a-b;}).join(", ")+"}") : mode==="A"?("A = {"+A.join(", ")+"}"):("B = {"+B.join(", ")+"}");
+      document.getElementById("vread").innerHTML="<b>"+res+"</b>";
+    }
+    function lab(x,y,s,c){var t=e("text",{x:x,y:y,"font-size":18,"font-weight":800,fill:c,"text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+    function num(x,y,s){var t=e("text",{x:x,y:y+5,"font-size":15,"font-weight":700,fill:"#27272a","text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+    [].slice.call(document.querySelectorAll("[data-m]")).forEach(function(b){b.onclick=function(){mode=b.getAttribute("data-m");[].slice.call(document.querySelectorAll("[data-m]")).forEach(function(x){x.classList.toggle("on",x===b);});draw();};});
+    draw();
+  })();
+
+  // 화면3: 개수 세기
+  (function(){
+    var svg=document.getElementById("cnt"),a=4,i=3,b=2;
+    function draw(){while(svg.firstChild)svg.removeChild(svg.firstChild);
+      svg.appendChild(e("circle",{cx:Ac.x,cy:Ac.y,r:Ac.r,fill:"rgba(225,29,72,0.08)",stroke:"#e11d48","stroke-width":2}));
+      svg.appendChild(e("circle",{cx:Bc.x,cy:Bc.y,r:Bc.r,fill:"rgba(37,99,235,0.08)",stroke:"#2563eb","stroke-width":2}));
+      big(120,125,a,"#e11d48");big(205,125,i,"#7c3aed");big(292,125,b,"#2563eb");
+      lab(95,45,"A","#e11d48");lab(315,45,"B","#2563eb");
+      var nA=a+i,nB=b+i,nU=a+i+b;
+      document.getElementById("ca").textContent=a;document.getElementById("ci").textContent=i;document.getElementById("cb").textContent=b;
+      document.getElementById("cread").innerHTML="n(A)="+nA+", n(B)="+nB+", n(A∩B)="+i+"<br>n(A∪B) = "+nA+" + "+nB+" − "+i+" = <b>"+nU+"</b>";
+    }
+    function big(x,y,s,c){var t=e("text",{x:x,y:y+7,"font-size":22,"font-weight":800,fill:c,"text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+    function lab(x,y,s,c){var t=e("text",{x:x,y:y,"font-size":18,"font-weight":800,fill:c,"text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+    document.getElementById("car").oninput=function(){a=+this.value;draw();};
+    document.getElementById("cir").oninput=function(){i=+this.value;draw();};
+    document.getElementById("cbr").oninput=function(){b=+this.value;draw();};draw();
+  })();
+
+  // 분배법칙 벤 확인 (3집합)
+  (function(){
+    var svg=document.getElementById("dist"),mode="L1",uid=0;
+    var cA={x:160,y:120,r:76},cB={x:250,y:120,r:76},cC={x:205,y:195,r:76};
+    var note={
+      L1:"A ∩ (B ∪ C) — A 안에서 B나 C에 걸치는 부분",
+      R1:"(A∩B) ∪ (A∩C) — <b>왼쪽과 똑같죠? ✓</b>",
+      L2:"A ∪ (B ∩ C) — A 전체 + B와 C가 겹치는 부분",
+      R2:"(A∪B) ∩ (A∪C) — <b>왼쪽과 똑같죠? ✓</b>"
+    };
+    function circ(c,attrs){var o={cx:c.x,cy:c.y,r:c.r};for(var k in attrs)o[k]=attrs[k];return e("circle",o);}
+    function clip(list){var id="cl"+(uid++);var cp=e("clipPath",{id:id});list.forEach(function(c){cp.appendChild(circ(c,{}));});svg.appendChild(cp);return id;}
+    function draw(){
+      while(svg.firstChild)svg.removeChild(svg.firstChild);
+      var HL="rgba(37,99,235,0.30)";
+      if(mode==="L1"){var id=clip([cA]);var g=e("g",{"clip-path":"url(#"+id+")"});g.appendChild(circ(cB,{fill:HL}));g.appendChild(circ(cC,{fill:HL}));svg.appendChild(g);}
+      else if(mode==="R1"){[cB,cC].forEach(function(c){var id=clip([cA]);var g=e("g",{"clip-path":"url(#"+id+")"});g.appendChild(circ(c,{fill:HL}));svg.appendChild(g);});}
+      else if(mode==="L2"){svg.appendChild(circ(cA,{fill:HL}));var id=clip([cB]);var g=e("g",{"clip-path":"url(#"+id+")"});g.appendChild(circ(cC,{fill:HL}));svg.appendChild(g);}
+      else {var id2=clip([cA,cB]);var g2=e("g",{"clip-path":"url(#"+id2+")"});g2.appendChild(circ(cA,{fill:HL}));g2.appendChild(circ(cC,{fill:HL}));svg.appendChild(g2);}
+      svg.appendChild(circ(cA,{fill:"none",stroke:"#e11d48","stroke-width":2}));
+      svg.appendChild(circ(cB,{fill:"none",stroke:"#2563eb","stroke-width":2}));
+      svg.appendChild(circ(cC,{fill:"none",stroke:"#059669","stroke-width":2}));
+      function lb(x,y,s,c){var t=e("text",{x:x,y:y,"font-size":17,"font-weight":800,fill:c,"text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+      lb(96,66,"A","#e11d48");lb(314,66,"B","#2563eb");lb(205,288,"C","#059669");
+      document.getElementById("dread").innerHTML=note[mode];
+    }
+    [].slice.call(document.querySelectorAll("[data-d]")).forEach(function(b){b.onclick=function(){
+      mode=b.getAttribute("data-d");
+      [].slice.call(document.querySelectorAll("[data-d]")).forEach(function(x){x.classList.toggle("on",x===b);});
+      draw();};});
+    draw();
+  })();
+
+  go(0);
+})();
+</script>

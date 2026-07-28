@@ -1,0 +1,283 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .handle{cursor:grab}.handle:active{cursor:grabbing}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .formula{font-size:17px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px}
+  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700}
+  .badge.ok{background:#dcfce7;color:var(--emerald)}.badge.no{background:#fee2e2;color:var(--rose)}
+  .badge.warn{background:#fef3c7;color:var(--amber)}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  ol.tight{margin:6px 0;padding-left:22px}ol.tight li{margin:4px 0}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 원의 방정식</div>
+    <h1>접선이란?</h1>
+    <p>원과 <b>한 점에서만</b> 만나는 직선을 <b>접선</b>, 그 점을 <b>접점</b>이라 합니다.
+       직선을 위아래로 움직여 접하는 순간을 찾아보세요.</p>
+    <div class="lab">
+      <svg id="s0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>직선 위치 k <span><b id="s0k">-4</b></span></label><input id="s0kr" type="range" min="-6" max="6" step="0.25" value="-4"></div>
+        <div class="readout" id="r0"></div>
+        <div class="hint">중심에서 직선까지 거리 <b>d</b> 와 반지름 <b>r</b> 이 같아지는 순간!</div>
+      </div>
+    </div>
+    <div class="callout"><b>접선의 핵심 성질</b> — 접점에서 <b>반지름과 접선은 수직</b>입니다(주황 직각 표시).
+      이 성질에서 모든 접선 공식이 나옵니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">유형 ① 기울기가 주어질 때</div>
+    <h1>기울기 m 인 접선</h1>
+    <p>원 x² + y² = r² 에 기울기가 m 으로 접하는 직선은 <b>언제나 두 개</b>입니다(위·아래로 나란히).</p>
+    <div class="lab">
+      <svg id="s1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>반지름 r <span><b id="s1r">3</b></span></label><input id="s1rr" type="range" min="1" max="5" step="0.5" value="3"></div>
+        <div class="slider"><label>기울기 m <span><b id="s1m">1</b></span></label><input id="s1mr" type="range" min="-3" max="3" step="0.25" value="1"></div>
+        <div class="readout" id="r1"></div>
+      </div>
+    </div>
+    <div class="formula">y = m x ± r <span class="sqrt">m² + 1</span></div>
+    <div class="card"><b>유도</b> — 접선을 y = mx + k, 즉 mx − y + k = 0 이라 두면
+      중심 (0,0) 과의 거리 d = |k| / √(m²+1) 이고, 접할 조건은 d = r.
+      따라서 |k| = r√(m²+1) → <b>k = ± r√(m²+1)</b> → 부호 때문에 접선이 <b>두 개</b>!</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">유형 ② 접점이 주어질 때</div>
+    <h1>원 위의 점에서의 접선</h1>
+    <p>원 x² + y² = r² 위의 점 (x₁, y₁) 에서의 접선입니다. 접점을 <b>드래그</b> 해서
+       원 둘레를 돌려 보세요.</p>
+    <div class="lab">
+      <svg id="s2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>접점 각도 <span><b id="s2t">40</b>°</span></label><input id="s2tr" type="range" min="0" max="359" step="1" value="40"></div>
+        <div class="readout" id="r2"></div>
+        <div class="hint">반지름(회색)과 접선(파랑)이 항상 <b>수직</b>입니다.</div>
+      </div>
+    </div>
+    <div class="formula"><b>x₁ x + y₁ y = r²</b></div>
+    <div class="card"><b>유도</b> — 반지름 OP 의 기울기는 y₁/x₁ 이고, 접선은 이와 수직이므로
+      기울기가 <b>−x₁/y₁</b>. 점 (x₁,y₁) 을 지나므로
+      y − y₁ = −(x₁/y₁)(x − x₁) → 정리하면 x₁x + y₁y = x₁² + y₁² = <b>r²</b>.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">유형 ③ 원 밖의 점에서</div>
+    <h1>원 밖의 점에서 그은 접선</h1>
+    <p>원 밖의 점 P 를 <b>드래그</b> 해 보세요. 그 점에서 원에 그을 수 있는 접선은
+       <b>두 개</b>입니다(안에 있으면 0개, 원 위면 1개).</p>
+    <div class="lab">
+      <svg id="s3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="r3"></div>
+        <div class="hint">두 접점을 이은 선을 ‘극선’이라 해요(고등 과정 밖, 참고).</div>
+      </div>
+    </div>
+    <div class="card"><b>푸는 방법</b>
+      <ol class="tight">
+        <li>접선을 <b>y − q = m(x − p)</b> 로 놓는다 (P(p,q) 를 지남).</li>
+        <li>중심에서 이 직선까지의 <b>거리 = r</b> 로 두고 m 에 대한 방정식을 푼다.</li>
+        <li>m 이 보통 두 개 나옴 → 접선 두 개. (세로 접선이 답일 땐 x = p 도 확인!)</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>세 가지 접선 공식 정리</h1>
+    <table>
+      <tr><th>주어진 조건</th><th>접선의 방정식</th><th>개수</th></tr>
+      <tr><td>기울기 m (원 x²+y²=r²)</td><td>y = mx ± r√(m²+1)</td><td>2</td></tr>
+      <tr><td>원 위의 점 (x₁,y₁)</td><td>x₁x + y₁y = r²</td><td>1</td></tr>
+      <tr><td>원 밖의 점 P</td><td>y−q=m(x−p) 로 놓고 d = r</td><td>2</td></tr>
+    </table>
+    <div class="callout"><b>모든 공식의 뿌리는 하나</b> — “<b>중심에서 접선까지의 거리 = 반지름</b>”,
+      그리고 “<b>접점에서 반지름 ⟂ 접선</b>”. 공식을 외우기보다 이 두 문장에서 매번 만들어 보세요.</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, 원 x² + y² = 5 위의 점 (1, 2) 에서의 접선의 방정식을 구하고,
+      그 접선이 반지름과 수직임을 기울기의 곱으로 확인해 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">고속도로의 곡선 구간은 직선 구간과 <b>접하도록</b> 설계해야 차가 급격히 꺾이지 않습니다. 렌즈의 빛 반사, 위성이 지구를 스치는 궤도, 톱니바퀴의 맞물림도 접선 개념 위에 있습니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">접선은 ‘한 점에서만 만나는 직선’이지만, 더 근본적으로는 <b>그 점에서 곡선이 향하는 방향</b>입니다. 이 관점을 일반 곡선으로 넓힌 것이 미분(순간변화율)이고, y = f(x) 의 접선 기울기가 곧 f′(x) 예요. 지금 배운 원의 접선은 <b>미적분의 예고편</b>입니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>타원 x²/a² + y²/b² = 1 위의 점 (x₁, y₁) 에서의 접선은 <b>x₁x/a² + y₁y/b² = 1</b> 입니다. 원의 접선 x₁x + y₁y = r² 과 모양이 닮았죠? 왜 이런 규칙성이 생길지 추측해 보세요.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 5</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+  function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
+  function Plane(svg,lo,hi){
+    var S=400,pad=28,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,lo:lo,hi:hi,sc:sc,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){for(var g=Math.ceil(lo);g<=hi;g++){svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));}
+        svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));},
+      line:function(m,b,color,w){svg.appendChild(e("line",{x1:px(lo),y1:py(m*lo+b),x2:px(hi),y2:py(m*hi+b),stroke:color,"stroke-width":w||2.6,"stroke-linecap":"round"}));},
+      lineAB:function(A,B,color,w){ // 두 점을 지나는 직선을 화면 끝까지
+        var dx=B.x-A.x,dy=B.y-A.y;
+        if(Math.abs(dx)<1e-9){svg.appendChild(e("line",{x1:px(A.x),y1:py(lo),x2:px(A.x),y2:py(hi),stroke:color,"stroke-width":w||2.6}));return;}
+        var m=dy/dx,b=A.y-m*A.x;
+        svg.appendChild(e("line",{x1:px(lo),y1:py(m*lo+b),x2:px(hi),y2:py(m*hi+b),stroke:color,"stroke-width":w||2.6,"stroke-linecap":"round"}));},
+      seg:function(x1,y1,x2,y2,color,w,dash){var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(e("line",o));},
+      circle:function(cx,cy,r,color,w){svg.appendChild(e("circle",{cx:px(cx),cy:py(cy),r:r*sc,fill:"none",stroke:color,"stroke-width":w||2.5}));},
+      dot:function(x,y,color,label,r){svg.appendChild(e("circle",{cx:px(x),cy:py(y),r:r||5,fill:color}));if(label){var t=e("text",{x:px(x)+9,y:py(y)-8,"font-size":12.5,"font-weight":700,fill:color});t.textContent=label;svg.appendChild(t);}},
+      handle:function(x,y,color,name){var c=e("circle",{cx:px(x),cy:py(y),r:11,fill:color,"fill-opacity":.18,stroke:color,"stroke-width":2,class:"handle"});c.setAttribute("data-name",name);svg.appendChild(c);},
+      rightAngle:function(P0,d1,d2,color){ // P0에서 방향 d1,d2 로 작은 직각 표시
+        var s=0.42;
+        var a={x:P0.x+d1.x*s,y:P0.y+d1.y*s},b={x:P0.x+d2.x*s,y:P0.y+d2.y*s};
+        var c={x:a.x+d2.x*s,y:a.y+d2.y*s};
+        this.seg(a.x,a.y,c.x,c.y,color||"#f59e0b",1.6);this.seg(c.x,c.y,b.x,b.y,color||"#f59e0b",1.6);},
+      onDrag:function(cb){var dragging=null;function toData(ev){var r=svg.getBoundingClientRect();var sx=(ev.clientX-r.left)/r.width*S,sy=(ev.clientY-r.top)/r.height*S;var x=lo+(sx-pad)/sc,y=lo+((S-pad)-sy)/sc;return{x:Math.max(lo,Math.min(hi,Math.round(x))),y:Math.max(lo,Math.min(hi,Math.round(y)))};}
+        svg.addEventListener("pointerdown",function(ev){var t=ev.target;if(t&&t.getAttribute&&t.getAttribute("class")==="handle"){dragging=t.getAttribute("data-name");svg.setPointerCapture(ev.pointerId);}});
+        svg.addEventListener("pointermove",function(ev){if(dragging)cb(dragging,toData(ev));});
+        svg.addEventListener("pointerup",function(){dragging=null;});svg.addEventListener("pointerleave",function(){dragging=null;});}
+    };
+  }
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+
+  // 화면0: 접함의 순간
+  (function(){
+    var P=Plane(document.getElementById("s0"),-7,7),r=3,m=0.5,k=-4;
+    function draw(){P.clear();P.grid();P.circle(0,0,r,"#2563eb",2.5);P.dot(0,0,"#2563eb","O",4);
+      P.line(m,k,"#334155",2.6);
+      var d=Math.abs(k)/Math.hypot(m,-1);
+      var badge;
+      if(Math.abs(d-r)<0.06){
+        var x0=-m*k/(1+m*m),y0=m*x0+k;
+        P.seg(0,0,x0,y0,"#f59e0b",2.5);P.dot(x0,y0,"#d97706","접점",5);
+        var L=Math.hypot(x0,y0);var u={x:x0/L,y:y0/L};var v={x:1/Math.hypot(1,m),y:m/Math.hypot(1,m)};
+        P.rightAngle({x:x0,y:y0},{x:-u.x,y:-u.y},v,"#f59e0b");
+        badge='<span class="badge warn">접한다! (d = r)</span>';
+      } else if(d<r){badge='<span class="badge ok">두 점에서 만남 (d &lt; r)</span>';}
+      else{badge='<span class="badge no">만나지 않음 (d &gt; r)</span>';}
+      document.getElementById("s0k").textContent=k;
+      document.getElementById("r0").innerHTML=badge+"<br>d = "+fmt(d)+", r = "+r;}
+    document.getElementById("s0kr").oninput=function(){k=parseFloat(this.value);draw();};draw();
+  })();
+
+  // 화면1: 기울기 접선
+  (function(){
+    var P=Plane(document.getElementById("s1"),-7,7),r=3,m=1;
+    function draw(){P.clear();P.grid();P.circle(0,0,r,"#2563eb",2.5);P.dot(0,0,"#2563eb","O",4);
+      var k=r*Math.sqrt(m*m+1);
+      [k,-k].forEach(function(kk){P.line(m,kk,"#059669",2.6);
+        var x0=-m*kk/(1+m*m);P.dot(x0,m*x0+kk,"#d97706",null,4);P.seg(0,0,x0,m*x0+kk,"#f59e0b",1.8,"4 3");});
+      document.getElementById("s1r").textContent=r;document.getElementById("s1m").textContent=m;
+      document.getElementById("r1").innerHTML="y = "+m+"x + <b>"+fmt(k)+"</b><br>y = "+m+"x − <b>"+fmt(k)+"</b><br><span class='hint'>r√(m²+1) = "+r+"·√"+fmt(m*m+1)+" = "+fmt(k)+"</span>";}
+    document.getElementById("s1rr").oninput=function(){r=parseFloat(this.value);draw();};
+    document.getElementById("s1mr").oninput=function(){m=parseFloat(this.value);draw();};draw();
+  })();
+
+  // 화면2: 원 위의 점에서의 접선
+  (function(){
+    var P=Plane(document.getElementById("s2"),-7,7),r=3,th=40;
+    function draw(){P.clear();P.grid();P.circle(0,0,r,"#2563eb",2.5);P.dot(0,0,"#2563eb","O",4);
+      var t=th*Math.PI/180,x1=r*Math.cos(t),y1=r*Math.sin(t);
+      // 접선: x1*x + y1*y = r^2
+      if(Math.abs(y1)>1e-6){var m=-x1/y1,b=r*r/y1;P.line(m,b,"#2563eb",2.8);}
+      else{P.seg(x1,-7,x1,7,"#2563eb",2.8);}
+      P.seg(0,0,x1,y1,"#94a3b8",2.5);
+      var u={x:x1/r,y:y1/r};var v={x:-u.y,y:u.x};
+      P.rightAngle({x:x1,y:y1},{x:-u.x,y:-u.y},v,"#f59e0b");
+      P.dot(x1,y1,"#d97706","P("+fmt(x1)+", "+fmt(y1)+")",5);
+      document.getElementById("s2t").textContent=th;
+      document.getElementById("r2").innerHTML="접점 ("+fmt(x1)+", "+fmt(y1)+")<br>접선: <b>"+fmt(x1)+"x + "+fmt(y1)+"y = "+fmt(r*r)+"</b><br><span class='hint'>x₁x + y₁y = r²</span>";}
+    document.getElementById("s2tr").oninput=function(){th=+this.value;draw();};draw();
+  })();
+
+  // 화면3: 원 밖의 점에서 두 접선
+  (function(){
+    var P=Plane(document.getElementById("s3"),-7,7),r=2.5,Pt={x:5,y:3};
+    function draw(){P.clear();P.grid();P.circle(0,0,r,"#2563eb",2.5);P.dot(0,0,"#2563eb","O",4);
+      var d=Math.hypot(Pt.x,Pt.y),msg;
+      if(d>r+1e-9){
+        // 접점: 원 위의 점 T 로서 OT ⟂ PT → T = (r²/d²)P ± (r√(d²-r²)/d²)·(-Py,Px)
+        var k1=r*r/(d*d), k2=r*Math.sqrt(d*d-r*r)/(d*d);
+        [1,-1].forEach(function(s){
+          var T={x:k1*Pt.x+s*k2*(-Pt.y), y:k1*Pt.y+s*k2*(Pt.x)};
+          P.lineAB(Pt,T,"#059669",2.4);
+          P.seg(0,0,T.x,T.y,"#94a3b8",1.8,"4 3");
+          P.dot(T.x,T.y,"#d97706",null,4.5);
+        });
+        msg='<span class="badge ok">접선 2개</span>';
+      } else if(Math.abs(d-r)<1e-9){msg='<span class="badge warn">점이 원 위 → 접선 1개</span>';}
+      else{msg='<span class="badge no">점이 원 안 → 접선 없음</span>';}
+      P.handle(Pt.x,Pt.y,"#e11d48","P");P.dot(Pt.x,Pt.y,"#e11d48","P("+Pt.x+","+Pt.y+")",4);
+      document.getElementById("r3").innerHTML="OP = <b>"+fmt(d)+"</b>, r = "+r+"<br>"+msg;}
+    P.onDrag(function(n,pt){Pt=pt;draw();});draw();
+  })();
+
+  go(0);
+})();
+</script>

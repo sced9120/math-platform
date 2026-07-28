@@ -1,0 +1,291 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .handle{cursor:grab}.handle:active{cursor:grabbing}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .modebtn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+  .modebtn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .formula{font-size:17px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  .frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 3px}
+  .frac .num{border-bottom:1.5px solid currentColor;padding:0 7px}.frac .den{padding:0 7px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 도형의 방정식</div>
+    <h1>직선 하나를 정하려면?</h1>
+    <p>종이 위에 자를 대고 직선을 그으려면 최소한 무엇이 있어야 할까요?
+       수학에서는 다음 <b>두 가지 중 하나</b>면 직선이 <b>딱 하나</b>로 정해집니다.</p>
+    <div class="card">
+      <b>① 한 점 + 기울기</b> — 지나갈 점 하나와, 기울어진 정도<br>
+      <b>② 서로 다른 두 점</b> — 두 점을 이으면 직선은 하나뿐
+    </div>
+    <div class="btns">
+      <button class="modebtn on" data-m="pm">① 한 점 + 기울기</button>
+      <button class="modebtn" data-m="pp">② 두 점</button>
+    </div>
+    <div class="lab">
+      <svg id="s0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider" id="mslider"><label>기울기 m <span><b id="s0m">1</b></span></label>
+          <input id="s0mr" type="range" min="-3" max="3" step="0.5" value="1"></div>
+        <div class="readout" id="r0"></div>
+        <div class="hint">점(파랑)을 드래그해 보세요. 조건이 정해지면 직선은 <b>하나</b>로 결정됩니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">점-기울기형</div>
+    <h1>한 점과 기울기로 세우는 식</h1>
+    <p>기울기가 m 이고 점 (x₁, y₁) 을 지나는 직선 위의 <b>임의의 점 (x, y)</b> 를 생각해 봅시다.
+       두 점으로 기울기를 계산하면 항상 m 이어야 하죠.</p>
+    <div class="formula">
+      <span class="frac"><span class="num">y − y₁</span><span class="den">x − x₁</span></span> = m
+      &nbsp;&nbsp;→&nbsp;&nbsp; <b>y − y₁ = m(x − x₁)</b>
+    </div>
+    <div class="lab">
+      <svg id="s1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>기울기 m <span><b id="s1m">2</b></span></label><input id="s1mr" type="range" min="-3" max="3" step="0.5" value="2"></div>
+        <div class="readout" id="r1"></div>
+        <div class="hint">파란 점을 드래그하면 식이 실시간으로 바뀝니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">두 점</div>
+    <h1>두 점을 지나는 직선</h1>
+    <p>두 점 A, B 를 <b>드래그</b> 해 보세요. 기울기를 먼저 구하고, 점-기울기형에 대입하면 끝입니다.</p>
+    <div class="lab">
+      <svg id="s2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="r2"></div>
+        <div class="hint">x₁ = x₂ 이면 기울기를 구할 수 없어요 → 세로선 <code>x = k</code></div>
+      </div>
+    </div>
+    <div class="formula">
+      y − y₁ = <span class="frac"><span class="num">y₂ − y₁</span><span class="den">x₂ − x₁</span></span> (x − x₁)
+      &nbsp;&nbsp;(단, x₁ ≠ x₂)
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">특별한 직선 · 일반형</div>
+    <h1>축에 평행한 직선과 일반형</h1>
+    <table>
+      <tr><th>직선</th><th>방정식</th><th>기울기</th></tr>
+      <tr><td>x축에 평행(가로)</td><td><b>y = k</b></td><td>0</td></tr>
+      <tr><td>y축에 평행(세로)</td><td><b>x = k</b></td><td>없음(정의 안 됨)</td></tr>
+    </table>
+    <div class="callout"><b>일반형 ax + by + c = 0</b> (a, b 중 적어도 하나 ≠ 0) 은
+      <b>모든 직선</b>을 한 가지 꼴로 표현합니다. b ≠ 0 이면 y = −(a/b)x − c/b 로 정리되어
+      기울기가 <b>−a/b</b>. b = 0 이면 x = −c/a 인 <b>세로선</b>이죠.</div>
+    <div class="lab">
+      <svg id="s3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>a <span><b id="s3a">1</b></span></label><input id="s3ar" type="range" min="-4" max="4" step="1" value="1"></div>
+        <div class="slider"><label>b <span><b id="s3b">2</b></span></label><input id="s3br" type="range" min="-4" max="4" step="1" value="2"></div>
+        <div class="slider"><label>c <span><b id="s3c">-2</b></span></label><input id="s3cr" type="range" min="-6" max="6" step="1" value="-2"></div>
+        <div class="readout" id="r3"></div>
+      </div>
+    </div>
+    <p class="hint">b 를 0 으로 만들어 보세요 — 기울기가 사라지고 <b>세로선</b>이 됩니다!</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>정리</h1>
+    <table>
+      <tr><th>주어진 조건</th><th>직선의 방정식</th></tr>
+      <tr><td>기울기 m, 점 (x₁, y₁)</td><td>y − y₁ = m(x − x₁)</td></tr>
+      <tr><td>기울기 m, y절편 n</td><td>y = mx + n</td></tr>
+      <tr><td>두 점 (x₁,y₁), (x₂,y₂), x₁≠x₂</td><td>y − y₁ = {(y₂−y₁)/(x₂−x₁)}(x − x₁)</td></tr>
+      <tr><td>두 점의 x좌표가 같을 때</td><td>x = x₁</td></tr>
+      <tr><td>모든 직선(일반형)</td><td>ax + by + c = 0</td></tr>
+    </table>
+    <div class="callout"><b>다음 시간 예고</b> — 이제 직선을 식으로 쓸 수 있으니,
+      <b>두 직선의 관계</b>(평행·수직)를 기울기로 판정해 봅시다!</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, 두 점 (1, 2), (3, 8) 을 지나는 직선의 방정식을
+      기울기부터 차례로 구해 보고, 왜 ‘한 점 + 기울기’ 만으로 직선이 하나로 정해지는지 설명해 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">데이터 점들이 흩어져 있을 때 ‘가장 잘 맞는 직선’을 긋는 것이 <b>회귀분석(추세선)</b>입니다. 키와 몸무게, 공부 시간과 성적처럼 두 양의 관계를 직선으로 요약하죠. 엑셀의 추세선, AI의 선형회귀가 모두 이것입니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">ax + by + c = 0 을 <b>(a, b)·(x, y) = −c</b> 로 보면, (a, b)는 그 직선에 <b>수직인 벡터(법선벡터)</b>입니다. 직선을 ‘기울기’가 아니라 ‘어느 방향에 수직인가’로 보는 관점이며, 3차원에서 평면 ax+by+cz+d=0 으로 그대로 이어집니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>세 점 A, B, C 가 <b>한 직선 위에 있을 조건</b>을 기울기로 써 보세요. 만약 두 점의 x좌표가 같다면 그 조건은 어떻게 바꿔야 할까요?
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 5</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+  function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
+  function sgn(v){return (v<0?"− ":"+ ")+Math.abs(v);}
+  // 항 표기: 0이면 생략, 아니면 " − 3" / " + 3"
+  function term(v){return v===0?"":" "+sgn(v);}
+  // 괄호 표기: 음수는 (−1)
+  function par(v){return v<0?"("+"−"+Math.abs(v)+")":String(v);}
+  function Plane(svg,lo,hi){
+    var S=400,pad=28,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,lo:lo,hi:hi,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){for(var g=Math.ceil(lo);g<=hi;g++){svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));}
+        svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));},
+      line:function(m,b,color,w){svg.appendChild(e("line",{x1:px(lo),y1:py(m*lo+b),x2:px(hi),y2:py(m*hi+b),stroke:color,"stroke-width":w||2.6,"stroke-linecap":"round"}));},
+      vline:function(x,color,w){svg.appendChild(e("line",{x1:px(x),y1:py(lo),x2:px(x),y2:py(hi),stroke:color,"stroke-width":w||2.6}));},
+      seg:function(x1,y1,x2,y2,color,w,dash){var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(e("line",o));},
+      dot:function(x,y,color,label,r){svg.appendChild(e("circle",{cx:px(x),cy:py(y),r:r||5,fill:color}));if(label){var t=e("text",{x:px(x)+9,y:py(y)-8,"font-size":12.5,"font-weight":700,fill:color});t.textContent=label;svg.appendChild(t);}},
+      handle:function(x,y,color,name){var c=e("circle",{cx:px(x),cy:py(y),r:11,fill:color,"fill-opacity":.18,stroke:color,"stroke-width":2,class:"handle"});c.setAttribute("data-name",name);svg.appendChild(c);},
+      onDrag:function(cb){var dragging=null;function toData(ev){var r=svg.getBoundingClientRect();var sx=(ev.clientX-r.left)/r.width*S,sy=(ev.clientY-r.top)/r.height*S;var x=lo+(sx-pad)/sc,y=lo+((S-pad)-sy)/sc;return{x:Math.max(lo,Math.min(hi,Math.round(x))),y:Math.max(lo,Math.min(hi,Math.round(y)))};}
+        svg.addEventListener("pointerdown",function(ev){var t=ev.target;if(t&&t.getAttribute&&t.getAttribute("class")==="handle"){dragging=t.getAttribute("data-name");svg.setPointerCapture(ev.pointerId);}});
+        svg.addEventListener("pointermove",function(ev){if(dragging)cb(dragging,toData(ev));});
+        svg.addEventListener("pointerup",function(){dragging=null;});svg.addEventListener("pointerleave",function(){dragging=null;});}
+    };
+  }
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+
+  // 화면0: 두 가지 결정 조건
+  (function(){
+    var P=Plane(document.getElementById("s0"),-7,7),mode="pm",m=1,A={x:-1,y:0},B={x:3,y:3};
+    function draw(){P.clear();P.grid();
+      if(mode==="pm"){
+        var b=A.y-m*A.x;P.line(m,b,"#2563eb",2.8);
+        P.handle(A.x,A.y,"#2563eb","A");P.dot(A.x,A.y,"#2563eb","("+A.x+","+A.y+")",4);
+        document.getElementById("mslider").style.display="";
+        document.getElementById("s0m").textContent=m;
+        document.getElementById("r0").innerHTML="점 ("+A.x+", "+A.y+") + 기울기 "+m+"<br>→ <b>y"+term(-A.y)+" = "+m+"(x"+term(-A.x)+")</b><br>즉 y = "+m+"x"+term(b);
+      } else {
+        document.getElementById("mslider").style.display="none";
+        if(A.x===B.x){P.vline(A.x,"#2563eb",2.8);
+          document.getElementById("r0").innerHTML="두 점의 x좌표가 같음<br>→ <b>x = "+A.x+"</b> (세로선)";}
+        else{var mm=(B.y-A.y)/(B.x-A.x),bb=A.y-mm*A.x;P.line(mm,bb,"#2563eb",2.8);
+          document.getElementById("r0").innerHTML="두 점 ("+A.x+","+A.y+"), ("+B.x+","+B.y+")<br>기울기 = <b>"+fmt(mm)+"</b><br>→ y = "+fmt(mm)+"x"+term(fmt(bb));}
+        P.handle(A.x,A.y,"#e11d48","A");P.handle(B.x,B.y,"#059669","B");
+        P.dot(A.x,A.y,"#e11d48","A",4);P.dot(B.x,B.y,"#059669","B",4);
+      }}
+    document.getElementById("s0mr").oninput=function(){m=parseFloat(this.value);draw();};
+    P.onDrag(function(n,pt){if(n==="A")A=pt;else B=pt;draw();});
+    [].slice.call(screens[0].querySelectorAll("[data-m]")).forEach(function(b){b.onclick=function(){
+      mode=b.getAttribute("data-m");
+      [].slice.call(screens[0].querySelectorAll("[data-m]")).forEach(function(x){x.classList.toggle("on",x===b);});draw();};});
+    draw();
+  })();
+
+  // 화면1: 점-기울기형
+  (function(){
+    var P=Plane(document.getElementById("s1"),-7,7),m=2,A={x:1,y:2};
+    function draw(){P.clear();P.grid();
+      var b=A.y-m*A.x;P.line(m,b,"#2563eb",2.8);
+      // 기울기 삼각형
+      P.seg(A.x,A.y,A.x+1,A.y,"#e11d48",2.5);P.seg(A.x+1,A.y,A.x+1,A.y+m,"#059669",2.5);
+      var t1=e("text",{x:P.px(A.x+0.5),y:P.py(A.y)+16,"font-size":11,fill:"#e11d48","text-anchor":"middle","font-weight":700});t1.textContent="1";P.px&&document.getElementById("s1").appendChild(t1);
+      var t2=e("text",{x:P.px(A.x+1)+8,y:P.py(A.y+m/2),"font-size":11,fill:"#059669","font-weight":700});t2.textContent="m="+m;document.getElementById("s1").appendChild(t2);
+      P.handle(A.x,A.y,"#2563eb","A");P.dot(A.x,A.y,"#2563eb","(x₁,y₁)=("+A.x+","+A.y+")",4);
+      document.getElementById("s1m").textContent=m;
+      document.getElementById("r1").innerHTML="<b>y"+term(-A.y)+" = "+m+"(x"+term(-A.x)+")</b><br>정리하면 y = "+m+"x"+term(fmt(b));}
+    document.getElementById("s1mr").oninput=function(){m=parseFloat(this.value);draw();};
+    P.onDrag(function(n,pt){A=pt;draw();});draw();
+  })();
+
+  // 화면2: 두 점
+  (function(){
+    var P=Plane(document.getElementById("s2"),-7,7),A={x:-2,y:-1},B={x:3,y:4};
+    function draw(){P.clear();P.grid();
+      if(A.x===B.x){P.vline(A.x,"#2563eb",2.8);
+        document.getElementById("r2").innerHTML="x₁ = x₂ = "+A.x+"<br>→ <b>x = "+A.x+"</b><br><span class='hint'>기울기를 정의할 수 없는 세로선</span>";}
+      else{var m=(B.y-A.y)/(B.x-A.x),b=A.y-m*A.x;P.line(m,b,"#2563eb",2.8);
+        P.seg(A.x,A.y,B.x,A.y,"#e11d48",2,"5 4");P.seg(B.x,A.y,B.x,B.y,"#059669",2,"5 4");
+        document.getElementById("r2").innerHTML="기울기 = ("+par(B.y)+" − "+par(A.y)+") / ("+par(B.x)+" − "+par(A.x)+") = <b>"+fmt(m)+"</b><br>y"+term(-A.y)+" = "+fmt(m)+"(x"+term(-A.x)+")<br>→ <b>y = "+fmt(m)+"x"+term(fmt(b))+"</b>";}
+      P.handle(A.x,A.y,"#e11d48","A");P.handle(B.x,B.y,"#059669","B");
+      P.dot(A.x,A.y,"#e11d48","A("+A.x+","+A.y+")",4);P.dot(B.x,B.y,"#059669","B("+B.x+","+B.y+")",4);}
+    P.onDrag(function(n,pt){if(n==="A")A=pt;else B=pt;draw();});draw();
+  })();
+
+  // 화면3: 일반형
+  (function(){
+    var P=Plane(document.getElementById("s3"),-7,7),a=1,b=2,c=-2;
+    function draw(){P.clear();P.grid();
+      var msg;
+      if(a===0&&b===0){msg="<b style='color:#e11d48'>a=b=0 이면 직선이 아닙니다</b>";}
+      else if(b===0){var x0=-c/a;P.vline(x0,"#2563eb",2.8);
+        msg="b = 0 → <b>세로선 x = "+fmt(x0)+"</b><br><span class='hint'>기울기를 정의할 수 없음</span>";}
+      else{var m=-a/b,n=-c/b;P.line(m,n,"#2563eb",2.8);
+        msg="기울기 = −a/b = <b>"+fmt(m)+"</b><br>y절편 = −c/b = <b>"+fmt(n)+"</b>"+(a===0?"<br><span class='hint'>a=0 → 가로선</span>":"");}
+      document.getElementById("s3a").textContent=a;document.getElementById("s3b").textContent=b;document.getElementById("s3c").textContent=c;
+      document.getElementById("r3").innerHTML=a+"x "+sgn(b)+"y "+sgn(c)+" = 0<br>"+msg;}
+    document.getElementById("s3ar").oninput=function(){a=+this.value;draw();};
+    document.getElementById("s3br").oninput=function(){b=+this.value;draw();};
+    document.getElementById("s3cr").oninput=function(){c=+this.value;draw();};draw();
+  })();
+
+  go(0);
+})();
+</script>

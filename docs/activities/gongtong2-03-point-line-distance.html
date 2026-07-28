@@ -1,0 +1,242 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .formula{font-size:18px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  .frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 3px}
+  .frac .num{border-bottom:1.5px solid currentColor;padding:0 8px}.frac .den{padding:0 8px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .handle{cursor:grab}.handle:active{cursor:grabbing}
+  .controls{display:flex;flex-direction:column;gap:12px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .prose{font-size:14.5px;color:#3f3f46}
+  ul.tight{margin:6px 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 도형의 방정식</div>
+    <h1>점과 직선 사이의 거리</h1>
+    <p>먼저 <b>점과 점</b> 사이 거리부터. 두 점 A, B 를 <b>드래그</b> 하면, 직각삼각형의 두 변으로부터
+       피타고라스 정리로 거리가 계산됩니다.</p>
+    <div class="lab">
+      <svg id="s0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="s0read"></div>
+        <div class="formula">AB = <span class="sqrt">(x₂−x₁)² + (y₂−y₁)²</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">핵심 아이디어</div>
+    <h1>점에서 직선까지 = 수선의 길이</h1>
+    <p>점 A 에서 직선 위의 여러 점까지 이어 보면, <b>수직으로 내린 선(수선)</b>이 가장 짧습니다.
+       점 A 를 <b>드래그</b> 하며 파란 수선과 회색 선들을 비교해 보세요.</p>
+    <div class="lab">
+      <svg id="s1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="s1read"></div>
+        <div class="hint">‘점과 직선 사이의 거리’ = 그 점에서 직선에 내린 <b>수선의 발</b>까지의 거리.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">쉬운 경우</div>
+    <h1>축에 평행한 직선까지의 거리</h1>
+    <p>직선이 축에 평행하면 거리는 눈으로 바로 보입니다.</p>
+    <ul class="tight">
+      <li>점 (x₀, y₀) 와 직선 <b>x = k</b> 사이 거리 = <b>|x₀ − k|</b></li>
+      <li>점 (x₀, y₀) 와 직선 <b>y = k</b> 사이 거리 = <b>|y₀ − k|</b></li>
+    </ul>
+    <div class="card">그렇다면 <b>비스듬한 직선</b>까지의 거리는? 수선의 발을 일일이 구하지 않고
+      한 번에 계산하는 <b>공식</b>이 필요합니다. → 다음 화면</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">거리 공식</div>
+    <h1>점과 직선 사이 거리 공식</h1>
+    <p>직선의 기울기 m 과 y절편 k 를 바꾸고(직선 <b>y = mx + k</b>, 즉 mx − y + k = 0),
+       점 P 를 드래그해 보세요. 파란 수선과 거리 d 가 공식과 함께 실시간 계산됩니다.</p>
+    <div class="lab">
+      <svg id="s3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>기울기 m <span><b id="s3m">1</b></span></label>
+          <input id="s3mr" type="range" min="-3" max="3" step="0.25" value="1"></div>
+        <div class="slider"><label>y절편 k <span><b id="s3k">-1</b></span></label>
+          <input id="s3kr" type="range" min="-5" max="5" step="1" value="-1"></div>
+        <div class="readout" id="s3read"></div>
+      </div>
+    </div>
+    <div class="formula">
+      d = <span class="frac"><span class="num">|a x₀ + b y₀ + c|</span><span class="den"><span class="sqrt">a² + b²</span></span></span>
+      &nbsp;(직선 ax + by + c = 0, 점 (x₀, y₀))
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>정리 &amp; 증명의 큰 흐름</h1>
+    <div class="card">
+      <b>거리 공식</b> — 직선 <b>ax + by + c = 0</b> 과 점 (x₀, y₀) 사이 거리:
+      <div class="formula" style="margin:8px 0">d = |a x₀ + b y₀ + c| / <span class="sqrt">a² + b²</span></div>
+    </div>
+    <p><b>증명 아이디어 (두 가지)</b></p>
+    <ul class="tight">
+      <li><b>① 수선의 발 직접 구하기:</b> 점에서 직선에 수직인 직선을 세워 교점(수선의 발) H 를 구하고, PH 의 길이를 계산 → 정리하면 위 공식.</li>
+      <li><b>② 넓이 이용:</b> 점과 직선 위 두 점으로 삼각형을 만들고, 넓이를 (밑변)×(높이)/2 로 두 번 계산해 높이(=거리)를 역산.</li>
+    </ul>
+    <p class="q">아래 ‘내 생각 적기’ 칸에서 점 (2, 3) 과 직선 3x − 4y + 1 = 0 사이 거리를 공식으로 구해보세요.
+      (참고: d = |3·2 − 4·3 + 1| / √(9+16) = |−5|/5 = 1)</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">읽을거리</div>
+    <h1>데카르트, 그리고 필즈 메달</h1>
+    <p class="prose">17세기 초 르네 데카르트는 “평면 위 한 점의 위치를 두 개의 수(좌표)로 나타내면,
+      기하학 문제를 대수 방정식으로 바꿀 수 있지 않을까?”라는 발상을 합니다. 이것이 바로
+      <b>좌표평면(데카르트 평면)</b>의 탄생입니다.</p>
+    <p class="prose">원·직선·포물선 같은 도형이 방정식이 되고, 방정식을 해석하면 도형의 성질이 드러납니다.
+      “대수 ↔ 기하”가 서로 번역 가능한 언어로 연결된 것이죠. 이 전환이 뉴턴·라이프니츠의 미적분학과
+      현대 해석기하학을 낳았습니다.</p>
+    <p class="prose">20세기 이후 이 연결은 <b>대수기하학</b>으로 정교해졌고, 들린·미르자하니 같은
+      필즈 메달 수상자들이 “좌표를 통한 기하 연구”의 최전선에 섰습니다. 오늘 우리가 쓴 거리 공식도,
+      400년 전 “공간과 수를 같은 언어로 보는” 사고 전환의 후손입니다.</p>
+    <div class="callout">오늘 배운 <b>거리 공식</b>이 바로 “기하(거리)를 대수(식)로 번역”한 대표적인 예입니다.</div>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">인공지능이 두 그룹을 가르는 경계선을 그을 때, <b>경계에서 가장 가까운 점까지의 거리(마진)</b>를 최대로 만듭니다(서포트 벡터 머신). 공장의 불량품 검출, 스팸 분류도 ‘선에서 얼마나 떨어졌나’로 판단해요.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">거리 공식은 사실 <b>벡터의 사영</b>입니다. 직선 위 한 점에서 목표점까지의 벡터를, 직선의 법선벡터 (a, b) 방향으로 사영한 길이가 곧 거리죠. 그래서 3차원에서 점과 평면 사이 거리는 |ax₀+by₀+cz₀+d| / √(a²+b²+c²) 로 똑같은 꼴이 됩니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>두 평행선 3x − 4y + 1 = 0 과 3x − 4y − 9 = 0 사이의 거리는 얼마일까요? (힌트: 한 직선 위의 아무 점이나 잡아 다른 직선까지의 거리를 재면 됩니다.)
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 6</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
+  function Plane(svg,lo,hi){
+    var S=400,pad=28;
+    function px(x){return pad+(x-lo)/(hi-lo)*(S-2*pad);}
+    function py(y){return (S-pad)-(y-lo)/(hi-lo)*(S-2*pad);}
+    return {px:px,py:py,lo:lo,hi:hi,svg:svg,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){for(var g=Math.ceil(lo);g<=hi;g++){svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));}
+        svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));},
+      line:function(m,b,color,w){svg.appendChild(el("line",{x1:px(lo),y1:py(m*lo+b),x2:px(hi),y2:py(m*hi+b),stroke:color,"stroke-width":w||2.5,"stroke-linecap":"round"}));},
+      seg:function(x1,y1,x2,y2,color,w,dash){var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2,"stroke-linecap":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));},
+      dot:function(x,y,color,label,r){svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||6,fill:color}));if(label){var t=el("text",{x:px(x)+9,y:py(y)-8,"font-size":13,"font-weight":700,fill:color});t.textContent=label;svg.appendChild(t);}},
+      handle:function(x,y,color,name){var c=el("circle",{cx:px(x),cy:py(y),r:11,fill:color,"fill-opacity":.18,stroke:color,"stroke-width":2,class:"handle"});c.setAttribute("data-name",name);svg.appendChild(c);},
+      onDrag:function(cb){var dragging=null;function toData(evt){var r=svg.getBoundingClientRect();var sx=(evt.clientX-r.left)/r.width*S,sy=(evt.clientY-r.top)/r.height*S;var x=lo+(sx-pad)/(S-2*pad)*(hi-lo),y=lo+((S-pad)-sy)/(S-2*pad)*(hi-lo);return{x:Math.max(lo,Math.min(hi,Math.round(x))),y:Math.max(lo,Math.min(hi,Math.round(y)))};}
+        svg.addEventListener("pointerdown",function(e){var t=e.target;if(t&&t.getAttribute&&t.getAttribute("class")==="handle"){dragging=t.getAttribute("data-name");svg.setPointerCapture(e.pointerId);}});
+        svg.addEventListener("pointermove",function(e){if(dragging)cb(dragging,toData(e));});
+        svg.addEventListener("pointerup",function(){dragging=null;});svg.addEventListener("pointerleave",function(){dragging=null;});}
+    };
+  }
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+
+  // 화면0: 두 점 거리
+  (function(){
+    var P=Plane(document.getElementById("s0"),-6,6),A={x:-2,y:-1},B={x:3,y:3};
+    function draw(){P.clear();P.grid();
+      P.seg(A.x,A.y,B.x,A.y,"#e11d48",2,"4 4");P.seg(B.x,A.y,B.x,B.y,"#059669",2,"4 4");
+      P.seg(A.x,A.y,B.x,B.y,"#2563eb",3);
+      P.handle(A.x,A.y,"#2563eb","A");P.handle(B.x,B.y,"#2563eb","B");
+      P.dot(A.x,A.y,"#2563eb","A",4);P.dot(B.x,B.y,"#2563eb","B",4);
+      var d=Math.hypot(B.x-A.x,B.y-A.y);
+      document.getElementById("s0read").innerHTML="A("+A.x+", "+A.y+"), B("+B.x+", "+B.y+")<br>가로 "+Math.abs(B.x-A.x)+", 세로 "+Math.abs(B.y-A.y)+"<br>AB = <b>"+fmt(d)+"</b>";}
+    P.onDrag(function(n,pt){if(n==="A")A=pt;else B=pt;draw();});draw();
+  })();
+
+  // 화면1: 수선이 최단
+  (function(){
+    var P=Plane(document.getElementById("s1"),-6,6),A={x:-2,y:3},m=0.5,k=-1; // 직선 y=0.5x-1
+    function foot(px0,py0){var a=m,b=-1,c=k;var t=(a*px0+b*py0+c)/(a*a+b*b);return{x:px0-a*t,y:py0-b*t,d:Math.abs(a*px0+b*py0+c)/Math.hypot(a,b)};}
+    function draw(){P.clear();P.grid();P.line(m,k,"#334155",2.5);
+      // 회색 비교선 (직선 위 임의 점 몇 개)
+      [-4,-1,2,5].forEach(function(xx){var yy=m*xx+k;P.seg(A.x,A.y,xx,yy,"#cbd5e1",1.5);});
+      var f=foot(A.x,A.y);P.seg(A.x,A.y,f.x,f.y,"#2563eb",3);P.dot(f.x,f.y,"#2563eb","수선의 발",4);
+      P.handle(A.x,A.y,"#e11d48","A");P.dot(A.x,A.y,"#e11d48","A",4);
+      document.getElementById("s1read").innerHTML="파란 수선 = <b>"+fmt(f.d)+"</b> (가장 짧음)<br>회색 선들은 모두 이보다 깁니다.";}
+    P.onDrag(function(n,pt){A=pt;draw();});draw();
+  })();
+
+  // 화면3: 거리 공식
+  (function(){
+    var P=Plane(document.getElementById("s3"),-6,6),Pt={x:2,y:3},m=1,k=-1;
+    var mr=document.getElementById("s3mr"),kr=document.getElementById("s3kr");
+    function calc(){var a=m,b=-1,c=k;var num=a*Pt.x+b*Pt.y+c;var den=Math.hypot(a,b);var t=num/(a*a+b*b);return{fx:Pt.x-a*t,fy:Pt.y-b*t,d:Math.abs(num)/den,num:num,den:den};}
+    function draw(){P.clear();P.grid();P.line(m,k,"#334155",2.5);
+      var r=calc();P.seg(Pt.x,Pt.y,r.fx,r.fy,"#2563eb",3,"5 4");P.dot(r.fx,r.fy,"#2563eb",null,4);
+      P.handle(Pt.x,Pt.y,"#e11d48","P");P.dot(Pt.x,Pt.y,"#e11d48","P("+Pt.x+","+Pt.y+")",4);
+      document.getElementById("s3m").textContent=m;document.getElementById("s3k").textContent=k;
+      document.getElementById("s3read").innerHTML="직선: "+m+"x − y "+(k<0?"− "+(-k):"+ "+k)+" = 0<br>d = |"+m+"·"+Pt.x+" − "+Pt.y+" "+(k<0?"− "+(-k):"+ "+k)+"| / √("+fmt(m*m)+"+1)<br>= "+Math.abs(fmt(r.num))+" / "+fmt(r.den)+" = <b>"+fmt(r.d)+"</b>";}
+    mr.oninput=function(){m=parseFloat(mr.value);draw();};kr.oninput=function(){k=parseFloat(kr.value);draw();};
+    P.onDrag(function(n,pt){Pt=pt;draw();});draw();
+  })();
+
+  go(0);
+})();
+</script>

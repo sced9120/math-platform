@@ -1,0 +1,259 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:12px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .modebtn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+  .modebtn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .formula{font-size:17px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  ol.steps2{margin:6px 0;padding-left:22px}ol.steps2 li{margin:5px 0}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 함수</div>
+    <h1>입력과 출력을 뒤집으면?</h1>
+    <p>함수 f 가 x → y 로 보냈다면, <b>역함수 f⁻¹</b> 는 그 <b>y 를 다시 x 로</b> 되돌립니다.
+       버튼으로 화살표 방향을 뒤집어 보세요.</p>
+    <div class="btns" style="margin-bottom:8px">
+      <button class="modebtn on" data-m="f">f : X → Y</button>
+      <button class="modebtn" data-m="inv">f⁻¹ : Y → X</button>
+    </div>
+    <div class="lab">
+      <svg id="s0" viewBox="0 0 400 260"></svg>
+      <div class="controls"><div class="readout" id="r0"></div></div>
+    </div>
+    <p class="hint">f(1)=2, f(2)=1, f(3)=3 → f⁻¹(2)=1, f⁻¹(1)=2, f⁻¹(3)=3</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">개념</div>
+    <h1>역함수가 존재하려면?</h1>
+    <div class="callout" style="margin-top:0">역함수 f⁻¹ 가 존재하려면 f 가 <b>일대일대응</b>이어야 합니다.
+      (출력이 겹치면 되돌릴 때 어디로 갈지 모르고, 빠진 출력이 있으면 그 값의 역이 없으니까요.)</div>
+    <div class="formula">f⁻¹(f(x)) = x &nbsp;&nbsp; 그리고 &nbsp;&nbsp; f(f⁻¹(y)) = y</div>
+    <ul style="margin:6px 0;padding-left:20px">
+      <li>f 의 <b>정의역 ↔ 치역</b>이 서로 뒤바뀝니다 (f 의 치역 = f⁻¹ 의 정의역).</li>
+      <li>f⁻¹ 의 역함수는 다시 f: &nbsp; <b>(f⁻¹)⁻¹ = f</b>.</li>
+      <li>f 와 f⁻¹ 를 합성하면 <b>항등함수</b> I 가 됩니다.</li>
+    </ul>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">식 구하기</div>
+    <h1>역함수의 식 구하기</h1>
+    <p>예: f(x) = 2x + 1 의 역함수를 구해 봅시다.</p>
+    <ol class="steps2">
+      <li>y = 2x + 1 로 놓는다.</li>
+      <li>x 에 대해 푼다: &nbsp; x = <span style="white-space:nowrap">(y − 1) / 2</span>.</li>
+      <li>x 와 y 를 <b>맞바꾼다</b>: &nbsp; y = (x − 1) / 2.</li>
+      <li>∴ <b>f⁻¹(x) = (x − 1) / 2</b></li>
+    </ol>
+    <div class="lab">
+      <svg id="s2" viewBox="0 0 400 150"></svg>
+      <div class="controls">
+        <div class="slider"><label>x <span><b id="s2x">3</b></span></label><input id="s2xr" type="range" min="0" max="9" step="1" value="3"></div>
+        <div class="readout" id="r2"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">그래프</div>
+    <h1>y = f(x) 와 y = f⁻¹(x) 는 y = x 에 대칭</h1>
+    <p>f(x) = ax + b (파랑)와 f⁻¹(x) (초록), 그리고 대칭축 <b>y = x</b> (점선). a, b 를 바꿔도 두 그래프는
+       항상 y=x 에 대해 <b>거울처럼 대칭</b>입니다.</p>
+    <div class="lab">
+      <svg id="s3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>a (기울기) <span><b id="s3a">2</b></span></label><input id="s3ar" type="range" min="0.5" max="3" step="0.5" value="2"></div>
+        <div class="slider"><label>b <span><b id="s3b">1</b></span></label><input id="s3br" type="range" min="-4" max="4" step="1" value="1"></div>
+        <div class="readout" id="r3"></div>
+      </div>
+    </div>
+    <p class="hint">점 (p, q) 가 f 위에 있으면, (q, p) 는 f⁻¹ 위에 있습니다 — 좌표가 바뀐 거울상!</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">합성함수의 역함수</div>
+    <h1>순서가 뒤집힌다</h1>
+    <div class="formula">(g ∘ f)⁻¹ = f⁻¹ ∘ g⁻¹</div>
+    <div class="card">‘양말 → 신발’ 순서로 신었다면, 벗을 땐 ‘신발 → 양말’ 순서죠. 합성함수의 역함수도
+      <b>적용한 순서를 거꾸로</b> 되돌립니다. (f 먼저 g 나중이었으니, 되돌릴 땐 g⁻¹ 먼저 f⁻¹ 나중.)</div>
+    <table>
+      <tr><th>성질</th><th>내용</th></tr>
+      <tr><td>존재 조건</td><td>f 가 <b>일대일대응</b></td></tr>
+      <tr><td>합성</td><td>f⁻¹∘f = f∘f⁻¹ = I (항등함수)</td></tr>
+      <tr><td>이중 역함수</td><td>(f⁻¹)⁻¹ = f</td></tr>
+      <tr><td>합성의 역함수</td><td>(g∘f)⁻¹ = f⁻¹∘g⁻¹</td></tr>
+      <tr><td>그래프</td><td>y=f(x) 와 y=f⁻¹(x) 는 <b>y=x</b> 에 대칭</td></tr>
+    </table>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>정리</h1>
+    <ul style="margin:6px 0;padding-left:20px">
+      <li>역함수 존재 ⟺ f 가 <b>일대일대응</b></li>
+      <li>식: y=f(x) → x에 대해 풀고 → x, y 맞바꾸기</li>
+      <li>y=f(x) 와 y=f⁻¹(x) 는 <b>y=x 에 대칭</b></li>
+      <li>(g∘f)⁻¹ = f⁻¹∘g⁻¹</li>
+    </ul>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, 역함수가 존재하기 위한 조건을 쓰고, y=f(x) 와 y=f⁻¹(x) 의
+      그래프가 y=x 에 대해 대칭인 이유를 ‘점 (p,q) ↔ (q,p)’ 로 설명해 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">암호화와 복호화, 로그와 지수, 섭씨↔화씨 변환이 모두 역함수 관계입니다. 현대 암호는 ‘계산은 쉬운데 <b>역은 사실상 불가능한</b>’ 함수(일방향 함수)를 일부러 골라 쓰는데, 이것이 인터넷 보안의 토대예요.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">역함수가 존재할 조건은 <b>일대일대응</b>입니다. 함수를 ‘정보를 잃지 않는 변환’으로 보면, 역함수가 있다는 것은 <b>정보가 보존된다</b>는 뜻이죠. 압축·암호·물리 법칙의 가역성 논의가 모두 이 관점 위에 있습니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>자기 자신이 역함수인 함수(f⁻¹ = f)의 그래프는 y = x 에 대해 대칭이어야 합니다. f(x) = 1/x, f(x) = −x 로 확인해 보고, 이런 함수를 하나 더 만들어 보세요.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 6</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+  function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
+  function Plane(svg,lo,hi){
+    var S=400,pad=28,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){for(var g=Math.ceil(lo);g<=hi;g++){svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));}
+        svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));},
+      line:function(m,b,color,w,dash){var o={x1:px(lo),y1:py(m*lo+b),x2:px(hi),y2:py(m*hi+b),stroke:color,"stroke-width":w||2.5,"stroke-linecap":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(e("line",o));},
+      seg:function(x1,y1,x2,y2,color,w,dash){var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2,"stroke-linecap":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(e("line",o));},
+      dot:function(x,y,color,label,r){svg.appendChild(e("circle",{cx:px(x),cy:py(y),r:r||6,fill:color}));if(label){var t=e("text",{x:px(x)+9,y:py(y)-8,"font-size":12,"font-weight":700,fill:color});t.textContent=label;svg.appendChild(t);}}
+    };
+  }
+  function mapping(svg,arrows,dir){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    var X=["1","2","3"],Y=["1","2","3"],Lx=120,Rx=280;
+    var ys=[70,130,190];
+    svg.appendChild(e("ellipse",{cx:Lx,cy:130,rx:52,ry:100,fill:"rgba(225,29,72,0.05)",stroke:"#e11d48","stroke-width":2}));
+    svg.appendChild(e("ellipse",{cx:Rx,cy:130,rx:52,ry:100,fill:"rgba(37,99,235,0.05)",stroke:"#2563eb","stroke-width":2}));
+    lab(svg,Lx,34,"X","#e11d48");lab(svg,Rx,34,"Y","#2563eb");
+    var col=dir==="f"?"#2563eb":"#059669";
+    var defs=e("defs",{});var mk=e("marker",{id:"m",markerWidth:8,markerHeight:8,refX:7,refY:3,orient:"auto"});mk.appendChild(e("path",{d:"M0,0 L7,3 L0,6 Z",fill:col}));defs.appendChild(mk);svg.appendChild(defs);
+    arrows.forEach(function(a){
+      var x1=dir==="f"?Lx+20:Rx-20, x2=dir==="f"?Rx-22:Lx+22;
+      var y1=dir==="f"?ys[a[0]]:ys[a[1]], y2=dir==="f"?ys[a[1]]:ys[a[0]];
+      svg.appendChild(e("line",{x1:x1,y1:y1,x2:x2,y2:y2,stroke:col,"stroke-width":2.2,"marker-end":"url(#m)"}));
+    });
+    X.forEach(function(s,i){node(svg,Lx,ys[i],s,"#e11d48");});
+    Y.forEach(function(s,i){node(svg,Rx,ys[i],s,"#2563eb");});
+  }
+  function node(svg,x,y,s,c){svg.appendChild(e("circle",{cx:x,cy:y,r:15,fill:"#fff",stroke:c,"stroke-width":2}));var t=e("text",{x:x,y:y+5,"font-size":14,"font-weight":700,fill:c,"text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+  function lab(svg,x,y,s,c){var t=e("text",{x:x,y:y,"font-size":16,"font-weight":800,fill:c,"text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+
+  // 화면0: 뒤집기
+  (function(){
+    var svg=document.getElementById("s0"),arrows=[[0,1],[1,0],[2,2]]; // f(1)=2,f(2)=1,f(3)=3
+    function draw(m){mapping(svg,arrows,m);
+      document.getElementById("r0").innerHTML=m==="f"?"f: 1→2, 2→1, 3→3":"f⁻¹: 2→1, 1→2, 3→3 <br><span class='hint'>화살표 방향만 뒤집힘</span>";}
+    [].slice.call(screens[0].querySelectorAll("[data-m]")).forEach(function(b){b.onclick=function(){[].slice.call(screens[0].querySelectorAll("[data-m]")).forEach(function(x){x.classList.toggle("on",x===b);});draw(b.getAttribute("data-m"));};});
+    draw("f");
+  })();
+
+  // 화면2: 식 구하기 값 검증
+  (function(){
+    var svg=document.getElementById("s2"),x=3;
+    function draw(){while(svg.firstChild)svg.removeChild(svg.firstChild);
+      var fx=2*x+1, back=(fx-1)/2;
+      function txt(tx,ty,s,c,fs){var t=e("text",{x:tx,y:ty,"font-size":fs||15,"font-weight":700,fill:c});t.textContent=s;svg.appendChild(t);}
+      txt(20,45,"x = "+x+"  →  f(x)=2x+1  →  "+fx,"#2563eb");
+      txt(20,90,fx+"  →  f⁻¹(x)=(x−1)/2  →  "+back,"#059669");
+      txt(20,130,"f⁻¹(f("+x+")) = "+back+"  = 원래 x ✓","#d97706",14);
+      document.getElementById("s2x").textContent=x;
+      document.getElementById("r2").innerHTML="f("+x+")=<b>"+fx+"</b><br>f⁻¹("+fx+")=<b>"+back+"</b> (=원래 x)";}
+    document.getElementById("s2xr").oninput=function(){x=+this.value;draw();};draw();
+  })();
+
+  // 화면3: 대칭 그래프
+  (function(){
+    var P=Plane(document.getElementById("s3"),-6,6),a=2,b=1;
+    function draw(){P.clear();P.grid();
+      P.line(1,0,"#cbd5e1",1.8,"5 5"); // y=x
+      P.line(a,b,"#2563eb",2.5);        // f
+      P.line(1/a,-b/a,"#059669",2.5);   // f⁻¹: y=(x-b)/a
+      // 대응점 예시: p=1 → f(p)=a+b, 거울상 (a+b,1)
+      var p=1,q=a*p+b;
+      P.dot(p,q,"#2563eb","("+fmt(p)+","+fmt(q)+")",5);
+      P.dot(q,p,"#059669","("+fmt(q)+","+fmt(p)+")",5);
+      P.seg(p,q,q,p,"#f59e0b",1.5,"4 4");
+      document.getElementById("s3a").textContent=a;document.getElementById("s3b").textContent=b;
+      document.getElementById("r3").innerHTML="f(x)="+a+"x"+(b<0?"−"+(-b):"+"+b)+"<br>f⁻¹(x)=(x"+(b<0?"+"+(-b):"−"+b)+")/"+a+"<br><span class='hint'>(p,q) ↔ (q,p) 거울상</span>";}
+    document.getElementById("s3ar").oninput=function(){a=parseFloat(this.value);draw();};
+    document.getElementById("s3br").oninput=function(){b=parseFloat(this.value);draw();};draw();
+  })();
+
+  go(0);
+})();
+</script>

@@ -1,0 +1,258 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .lab{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:12px}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .modebtn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+  .modebtn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .prose{font-size:14.5px;color:#3f3f46}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .formula{font-size:16px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 집합</div>
+    <h1>여집합과 차집합</h1>
+    <p>전체집합 U 안에서 생각합니다. 버튼을 눌러 영역을 강조해 보세요.</p>
+    <div class="btns" style="margin-bottom:10px">
+      <button class="modebtn on" data-m="Ac">Aᶜ (여집합)</button>
+      <button class="modebtn" data-m="Bc">Bᶜ</button>
+      <button class="modebtn" data-m="A-B">A − B (차집합)</button>
+      <button class="modebtn" data-m="B-A">B − A</button>
+    </div>
+    <div class="lab">
+      <svg id="v1" viewBox="0 0 400 250"></svg>
+      <div class="controls">
+        <div class="readout" id="r1"></div>
+        <div class="hint">U={1..8}, A={1,2,3,4}, B={3,4,5,6}</div>
+      </div>
+    </div>
+    <p class="hint">여집합 <b>Aᶜ = U − A</b> (A에 속하지 않는 것), &nbsp; 차집합 <b>A − B = A ∩ Bᶜ</b> (A에서 B를 뺀 것).</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">드모르간</div>
+    <h1>드모르간의 법칙 — 눈으로 확인</h1>
+    <p>왼쪽·오른쪽 버튼을 번갈아 눌러 보세요. <b>강조되는 영역이 똑같습니다!</b></p>
+    <div class="btns" style="margin-bottom:10px">
+      <button class="modebtn on" data-m="union-c">(A ∪ B)ᶜ</button>
+      <button class="modebtn" data-m="AcBc">Aᶜ ∩ Bᶜ</button>
+      <span style="width:12px"></span>
+      <button class="modebtn" data-m="inter-c">(A ∩ B)ᶜ</button>
+      <button class="modebtn" data-m="AcuBc">Aᶜ ∪ Bᶜ</button>
+    </div>
+    <div class="lab">
+      <svg id="v2" viewBox="0 0 400 250"></svg>
+      <div class="controls">
+        <div class="readout" id="r2"></div>
+        <div class="hint">(A∪B)ᶜ 와 Aᶜ∩Bᶜ 는 같은 영역, &nbsp; (A∩B)ᶜ 와 Aᶜ∪Bᶜ 도 같은 영역.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>드모르간 법칙 &amp; 성질</h1>
+    <div class="formula"><b>(A ∪ B)ᶜ = Aᶜ ∩ Bᶜ</b> &nbsp;&nbsp; <b>(A ∩ B)ᶜ = Aᶜ ∪ Bᶜ</b></div>
+    <table>
+      <tr><th>성질</th><th>내용</th></tr>
+      <tr><td>여집합</td><td>Aᶜ = U − A, &nbsp; (Aᶜ)ᶜ = A</td></tr>
+      <tr><td>U 와 ∅</td><td>Uᶜ = ∅, &nbsp; ∅ᶜ = U</td></tr>
+      <tr><td>A 와 Aᶜ</td><td>A ∪ Aᶜ = U, &nbsp; A ∩ Aᶜ = ∅</td></tr>
+      <tr><td>차집합</td><td>A − B = A ∩ Bᶜ</td></tr>
+      <tr><td>개수</td><td>n(Aᶜ) = n(U) − n(A), &nbsp; n(A−B) = n(A) − n(A∩B)</td></tr>
+    </table>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">읽을거리</div>
+    <h1>드모르간과 에이다 러브레이스</h1>
+    <p class="prose">드모르간 법칙의 그 <b>드모르간</b>은 19세기 런던 대학의 수학자였습니다. 그는 논리와 수학을
+      날카롭게 파고들며 “<b>수학은 패턴을 다루는 학문</b>”이라 말했죠.</p>
+    <p class="prose">그의 제자 중에 <b>에이다 러브레이스</b>가 있었습니다. 여성에게 수학이 필요 없다고 여기던
+      시대였지만, 드모르간은 에이다의 재능을 알아보고 꾸준히 지도했어요. 에이다는 찰스 배비지의
+      해석기관을 연구하며 <b>세계 최초의 알고리즘</b>을 기록해, ‘최초의 프로그래머’로 불립니다.</p>
+    <div class="callout">드모르간의 정밀한 <b>논리(집합·명제)</b> 훈련과 에이다의 상상력이 만나, 현대 컴퓨터 과학의
+      씨앗이 뿌려졌습니다. 오늘 배운 드모르간 법칙은 컴퓨터의 논리 회로(AND·OR·NOT)에서도 그대로 쓰입니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>세 집합 — 포함·배제 원리</h1>
+    <p>어느 반 취미 조사: 독서 12, 음악 10, 운동 14, (독∩음) 5, (음∩운) 4, (독∩운) 6, (셋 다) 2.
+       세 취미 중 하나라도 좋아하는 학생 수는?</p>
+    <svg id="v3" viewBox="0 0 400 300"></svg>
+    <div class="formula" style="font-size:14px">
+      n(A∪B∪C) = n(A)+n(B)+n(C) − n(A∩B) − n(B∩C) − n(C∩A) + n(A∩B∩C)<br>
+      = 12+10+14 − 5 − 4 − 6 + 2 = <b style="color:#2563eb">23</b>
+    </div>
+    <p class="hint">겹치는 부분을 빼고, <b>너무 많이 뺀 부분(세 겹)을 다시 더하는</b> 것이 핵심입니다.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리 · 무한 이야기</div>
+    <h1>정리, 그리고 칸토어의 무한</h1>
+    <ul style="margin:6px 0;padding-left:20px">
+      <li>여집합 Aᶜ=U−A, 차집합 A−B=A∩Bᶜ, 드모르간 법칙</li>
+      <li>포함·배제: 겹침을 빼고, 과하게 뺀 부분을 다시 더한다</li>
+    </ul>
+    <p class="prose">19세기 <b>칸토어</b>는 무한에도 크기가 있다고 주장했습니다. 자연수와 짝수는 1:1 대응이 되니
+      크기가 같지만, 실수는 자연수보다 ‘더 큰 무한’이라는 것이죠(대각선 논법). 당시엔 큰 반발을 샀지만,
+      이 아이디어는 현대 수학과 컴퓨터 과학의 토대가 되었습니다.</p>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, 드모르간 법칙 (A∪B)ᶜ=Aᶜ∩Bᶜ 를 벤 다이어그램으로 확인한 과정을
+      설명해 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">컴퓨터의 논리 회로는 AND·OR·NOT 세 가지로 모든 계산을 만듭니다. 드모르간 법칙은 회로를 <b>더 적은 부품으로</b> 바꾸는 규칙으로 실제 반도체 설계에 쓰여요. 스팸 필터의 ‘~를 제외하고’도 차집합입니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">집합의 (∪, ∩, ᶜ) 와 명제의 (또는, 그리고, 부정), 회로의 (OR, AND, NOT)은 <b>완전히 같은 규칙</b>을 따릅니다. 이렇게 겉모습이 달라도 구조가 같은 것을 수학에서는 ‘동형’이라 하고, 이 공통 구조를 <b>불 대수</b>라 부릅니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>집합 {1,2,3,4,5}의 부분집합을 5자리 이진수로 나타내면(속하면 1) 여집합은 어떤 연산이 될까요? 교집합·합집합은요? (컴퓨터가 집합을 다루는 실제 방법입니다)
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 6</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg",uid=0;
+  function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+  var A={x:158,y:120,r:78}, B={x:250,y:120,r:78}, Ubox={x:20,y:22,w:360,h:206};
+  // 마스크 기반 영역 강조: extent(rect|A|B) 에서 cuts(A,B,lens) 를 뺀 영역을 color 로 칠함
+  function highlight(svg,extent,cuts,color){
+    var mid="m"+(uid++);
+    var mask=e("mask",{id:mid});
+    mask.appendChild(e("rect",{x:0,y:0,width:400,height:250,fill:"white"}));
+    (cuts||[]).forEach(function(c){
+      if(c==="A")mask.appendChild(e("circle",{cx:A.x,cy:A.y,r:A.r,fill:"black"}));
+      else if(c==="B")mask.appendChild(e("circle",{cx:B.x,cy:B.y,r:B.r,fill:"black"}));
+      else if(c==="lens"){var cp="cp"+(uid++);var clip=e("clipPath",{id:cp});clip.appendChild(e("circle",{cx:B.x,cy:B.y,r:B.r}));svg.appendChild(clip);var g=e("g",{"clip-path":"url(#"+cp+")"});g.appendChild(e("circle",{cx:A.x,cy:A.y,r:A.r,fill:"black"}));mask.appendChild(g);}
+    });
+    svg.appendChild(mask);
+    var hl;
+    if(extent==="rect")hl=e("rect",{x:Ubox.x,y:Ubox.y,width:Ubox.w,height:Ubox.h,fill:color,mask:"url(#"+mid+")"});
+    else if(extent==="A")hl=e("circle",{cx:A.x,cy:A.y,r:A.r,fill:color,mask:"url(#"+mid+")"});
+    else hl=e("circle",{cx:B.x,cy:B.y,r:B.r,fill:color,mask:"url(#"+mid+")"});
+    svg.appendChild(hl);
+  }
+  function base(svg,nums){
+    svg.appendChild(e("rect",{x:Ubox.x,y:Ubox.y,width:Ubox.w,height:Ubox.h,fill:"none",stroke:"#cbd5e1","stroke-width":1.5,rx:8}));
+    var u=e("text",{x:Ubox.x+14,y:Ubox.y+20,"font-size":14,"font-weight":800,fill:"#64748b"});u.textContent="U";svg.appendChild(u);
+    svg.appendChild(e("circle",{cx:A.x,cy:A.y,r:A.r,fill:"none",stroke:"#e11d48","stroke-width":2}));
+    svg.appendChild(e("circle",{cx:B.x,cy:B.y,r:B.r,fill:"none",stroke:"#2563eb","stroke-width":2}));
+    lab(svg,A.x-58,A.y-58,"A","#e11d48");lab(svg,B.x+58,B.y-58,"B","#2563eb");
+    if(nums){num(svg,120,120,"1");num(svg,138,145,"2");num(svg,204,105,"3");num(svg,204,140,"4");num(svg,288,110,"5");num(svg,288,145,"6");num(svg,55,210,"7");num(svg,345,210,"8");}
+  }
+  function lab(svg,x,y,s,c){var t=e("text",{x:x,y:y,"font-size":17,"font-weight":800,fill:c,"text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+  function num(svg,x,y,s){var t=e("text",{x:x,y:y,"font-size":14,"font-weight":700,fill:"#27272a","text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+
+  // 화면0: 여집합/차집합
+  (function(){
+    var svg=document.getElementById("v1"),mode="Ac",HL="rgba(37,99,235,0.24)";
+    var res={Ac:"Aᶜ = {5, 6, 7, 8}","Bc":"Bᶜ = {1, 2, 7, 8}","A-B":"A − B = {1, 2}","B-A":"B − A = {5, 6}"};
+    function draw(){while(svg.firstChild)svg.removeChild(svg.firstChild);
+      if(mode==="Ac")highlight(svg,"rect",["A"],HL);
+      else if(mode==="Bc")highlight(svg,"rect",["B"],HL);
+      else if(mode==="A-B")highlight(svg,"A",["B"],"rgba(225,29,72,0.28)");
+      else highlight(svg,"B",["A"],"rgba(37,99,235,0.28)");
+      base(svg,true);
+      document.getElementById("r1").innerHTML="<b>"+res[mode]+"</b>";}
+    [].slice.call(document.querySelectorAll("#v1")).length;
+    [].slice.call(screens[0].querySelectorAll("[data-m]")).forEach(function(b){b.onclick=function(){mode=b.getAttribute("data-m");[].slice.call(screens[0].querySelectorAll("[data-m]")).forEach(function(x){x.classList.toggle("on",x===b);});draw();};});
+    draw();
+  })();
+
+  // 화면1: 드모르간
+  (function(){
+    var svg=document.getElementById("v2"),mode="union-c",HL="rgba(124,58,237,0.24)";
+    var note={"union-c":"(A∪B)ᶜ — A에도 B에도 속하지 않는 영역","AcBc":"Aᶜ∩Bᶜ — 같은 영역! ✓","inter-c":"(A∩B)ᶜ — 겹치는 부분만 뺀 영역","AcuBc":"Aᶜ∪Bᶜ — 같은 영역! ✓"};
+    function draw(){while(svg.firstChild)svg.removeChild(svg.firstChild);
+      if(mode==="union-c"||mode==="AcBc")highlight(svg,"rect",["A","B"],HL);
+      else highlight(svg,"rect",["lens"],HL);
+      base(svg,false);
+      document.getElementById("r2").innerHTML="<b>"+note[mode]+"</b>";}
+    [].slice.call(screens[1].querySelectorAll("[data-m]")).forEach(function(b){b.onclick=function(){mode=b.getAttribute("data-m");[].slice.call(screens[1].querySelectorAll("[data-m]")).forEach(function(x){x.classList.toggle("on",x===b);});draw();};});
+    draw();
+  })();
+
+  // 화면4: 세 집합 벤 (정적)
+  (function(){
+    var svg=document.getElementById("v3");
+    var cA={x:150,y:120,r:80},cB={x:250,y:120,r:80},cC={x:200,y:190,r:80};
+    svg.appendChild(e("circle",{cx:cA.x,cy:cA.y,r:cA.r,fill:"rgba(225,29,72,0.06)",stroke:"#e11d48","stroke-width":2}));
+    svg.appendChild(e("circle",{cx:cB.x,cy:cB.y,r:cB.r,fill:"rgba(37,99,235,0.06)",stroke:"#2563eb","stroke-width":2}));
+    svg.appendChild(e("circle",{cx:cC.x,cy:cC.y,r:cC.r,fill:"rgba(5,150,105,0.06)",stroke:"#059669","stroke-width":2}));
+    lab(svg,90,70,"독서","#e11d48");lab(svg,310,70,"음악","#2563eb");lab(svg,200,285,"운동","#059669");
+    function n(x,y,s){var t=e("text",{x:x,y:y,"font-size":16,"font-weight":800,fill:"#27272a","text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+    n(120,110,"3");   // 독만
+    n(280,110,"3");   // 음만
+    n(200,215,"6");   // 운만
+    n(200,100,"3");   // 독∩음만
+    n(155,170,"4");   // 독∩운만
+    n(245,170,"2");   // 음∩운만
+    n(200,150,"2");   // 셋 다
+  })();
+
+  go(0);
+})();
+</script>

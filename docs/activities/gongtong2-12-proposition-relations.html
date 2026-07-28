@@ -1,0 +1,185 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .toggle{display:flex;gap:8px;align-items:center;margin:8px 0}
+  .tg{border:1px solid var(--line);background:#fff;font:inherit;font-size:14px;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:700}
+  .tg.t{background:#dcfce7;border-color:#86efac;color:var(--emerald)}
+  .tg.f{background:#fee2e2;border-color:#fca5a5;color:var(--rose)}
+  .result{font-size:16px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px}
+  .big{font-size:22px;font-weight:800}
+  svg{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:12px;max-width:360px;margin:0 auto}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .ok{color:var(--emerald);font-weight:800}.no{color:var(--rose);font-weight:800}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 명제</div>
+    <h1>‘p이면 q이다’ 는 언제 거짓일까?</h1>
+    <p>A의 약속: <b>“내가 로또 1등에 당첨된다면(p), 너에게 2억을 줄게(q).”</b>
+       두 상황을 바꿔 가며, A가 <b>약속을 어긴</b> 경우를 찾아보세요.</p>
+    <div class="card">
+      <div class="toggle">로또 당첨 (p): <button class="tg t" id="pbtn">참</button></div>
+      <div class="toggle">2억 줌 (q): <button class="tg t" id="qbtn">참</button></div>
+      <div class="result" id="res1"></div>
+    </div>
+    <div class="callout"><b>핵심:</b> 명제 <b>p → q</b> 는 <b>‘가정 p 가 참인데 결론 q 가 거짓’</b> 일 때만 거짓입니다.
+      (당첨됐는데 안 준 경우!) p 가 거짓이면(당첨 안 됨) 약속은 <b>깨지지 않아</b> 항상 참으로 봅니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">구성요소</div>
+    <h1>가정과 결론, 그리고 반례</h1>
+    <div class="card">
+      명제 <b>p → q</b> 에서 &nbsp; <b>p</b> = 가정, &nbsp; <b>q</b> = 결론.<br>
+      명제가 <b>거짓</b>임을 보이려면 → <b>반례</b> 하나면 충분! (가정은 만족하는데 결론이 안 되는 예)
+    </div>
+    <p>예) 명제 “x가 4의 배수이면(p), x는 짝수이다(q)” → <b class="ok">참</b> (4의 배수는 늘 짝수).<br>
+       명제 “x가 짝수이면(p), x는 4의 배수이다(q)” → <b class="no">거짓</b>, 반례 <code>x = 6</code> (짝수지만 4의 배수 아님).</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">역 · 이 · 대우</div>
+    <h1>역 · 이 · 대우</h1>
+    <p>원명제 <b>p → q</b> 로부터 세 가지 명제를 만듭니다. 예: p: “x = 2”, q: “x² = 4”.</p>
+    <table>
+      <tr><th>이름</th><th>꼴</th><th>예시</th><th>참/거짓</th></tr>
+      <tr><td>원명제</td><td>p → q</td><td>x=2 → x²=4</td><td class="ok">참</td></tr>
+      <tr><td>역</td><td>q → p</td><td>x²=4 → x=2</td><td class="no">거짓 (x=−2)</td></tr>
+      <tr><td>이</td><td>~p → ~q</td><td>x≠2 → x²≠4</td><td class="no">거짓 (x=−2)</td></tr>
+      <tr><td><b>대우</b></td><td>~q → ~p</td><td>x²≠4 → x≠2</td><td class="ok">참</td></tr>
+    </table>
+    <div class="callout"><b>원명제와 대우는 참·거짓이 항상 같습니다!</b> (원명제 참 ⟺ 대우 참)
+      반면 역과 이는 원명제와 참·거짓이 다를 수 있어요. 역과 이는 서로 대우 관계라 둘의 참·거짓은 같습니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">진리집합</div>
+    <h1>p ⇒ q ⟺ P ⊂ Q</h1>
+    <p>조건 p, q 의 진리집합을 P, Q 라 하면, 명제 <b>p → q 가 참</b> ⟺ <b>P ⊂ Q</b> (P 가 Q 안에 들어감).</p>
+    <svg id="venn" viewBox="0 0 360 220"></svg>
+    <div class="callout">“x=2 이면 x²=4” 가 참인 이유를 집합으로 보면: P={2} ⊂ Q={2, −2}.
+      P 의 모든 원소가 Q 에 들어 있으니, p 를 만족하면 자동으로 q 도 만족! 대우가 참인 것도
+      <b>Pᶜ ⊃ Qᶜ</b> (여집합은 포함관계가 뒤집힘)로 설명됩니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">필요 · 충분조건</div>
+    <h1>필요조건과 충분조건</h1>
+    <p><b>p ⇒ q</b> 일 때 (P ⊂ Q):</p>
+    <table>
+      <tr><th>이름</th><th>뜻</th></tr>
+      <tr><td>p 는 q 이기 위한 <b>충분조건</b></td><td>p 면 <b>충분히</b> q 가 됨 (작은 쪽 P)</td></tr>
+      <tr><td>q 는 p 이기 위한 <b>필요조건</b></td><td>p 가 되려면 q 는 <b>반드시 필요</b> (큰 쪽 Q)</td></tr>
+      <tr><td>p ⇔ q (P = Q)</td><td><b>필요충분조건</b> — 서로가 서로의 충분·필요</td></tr>
+    </table>
+    <div class="card"><b>화살표로 기억!</b> p ⇒ q 에서 화살표가 <b>나가는</b> p 는 <b>충</b>분조건,
+      화살표가 <b>들어오는</b> q 는 <b>필</b>요조건. (작은 집합 → 큰 집합)</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>정리</h1>
+    <ul style="margin:6px 0;padding-left:20px">
+      <li>p → q 는 <b>p참·q거짓</b>일 때만 거짓</li>
+      <li>역(q→p), 이(~p→~q), 대우(~q→~p) — <b>원명제 ⟺ 대우</b></li>
+      <li>p ⇒ q ⟺ <b>P ⊂ Q</b></li>
+      <li>p ⇒ q 이면 p 충분조건, q 필요조건 / p ⇔ q 필요충분조건</li>
+    </ul>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, 역·이·대우를 각각 쓰고, <b>원명제와 대우의 참·거짓이 항상 같은 이유</b>를
+      진리집합 P ⊂ Q ⟺ Qᶜ ⊂ Pᶜ 로 설명해 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">의학 검사에서 ‘병이 있으면 양성’과 ‘양성이면 병이 있다’는 완전히 다른 말입니다(민감도와 정밀도). 이 둘을 혼동하면 오진이 생기죠. 재판의 알리바이 추론, 뉴스의 인과 주장 검증에도 그대로 쓰입니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">수학의 <b>모든 정의</b>는 필요충분조건(⟺)입니다. ‘짝수란 2로 나누어떨어지는 수’처럼요. 반면 정리는 보통 한쪽 방향(⟹)이고, 역이 성립하는지는 <b>따로 증명</b>해야 합니다. 이 구분이 수학적 엄밀함의 핵심이에요.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>‘비가 오면 땅이 젖는다’의 역·이·대우를 각각 쓰고 참·거짓을 판단해 보세요. 우리가 일상에서 자주 저지르는 <b>역을 참으로 착각하는 오류</b>의 예도 하나 들어 보세요.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 6</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+
+  // 화면0: p→q 진리
+  (function(){
+    var p=true,q=true;
+    var pb=document.getElementById("pbtn"),qb=document.getElementById("qbtn");
+    function setBtn(b,v){b.textContent=v?"참":"거짓";b.className="tg "+(v?"t":"f");}
+    function draw(){setBtn(pb,p);setBtn(qb,q);
+      var val=!(p&&!q); // p→q
+      var story = (p&&q)?"당첨됐고 2억 줌 → 약속 지킴":(p&&!q)?"당첨됐는데 안 줌 → 약속 어김!":(!p&&q)?"당첨 안 됐지만 줌 → 약속 안 어김":"당첨 안 됐고 안 줌 → 약속 안 어김";
+      document.getElementById("res1").innerHTML="p → q = <span class='big "+(val?"ok":"no")+"'>"+(val?"참":"거짓")+"</span><br><span class='hint'>"+story+"</span>";}
+    pb.onclick=function(){p=!p;draw();};qb.onclick=function(){q=!q;draw();};draw();
+  })();
+
+  // 화면3: 벤 P⊂Q
+  (function(){
+    var svg=document.getElementById("venn"),NS="http://www.w3.org/2000/svg";
+    function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+    svg.appendChild(e("ellipse",{cx:180,cy:110,rx:150,ry:90,fill:"rgba(37,99,235,0.07)",stroke:"#2563eb","stroke-width":2}));
+    svg.appendChild(e("circle",{cx:160,cy:120,r:52,fill:"rgba(225,29,72,0.10)",stroke:"#e11d48","stroke-width":2}));
+    function t(x,y,s,c,fs){var n=e("text",{x:x,y:y,"font-size":fs||16,"font-weight":800,fill:c,"text-anchor":"middle"});n.textContent=s;svg.appendChild(n);}
+    t(300,40,"Q","#2563eb",18);t(160,120,"P","#e11d48",18);
+    t(180,200,"P ⊂ Q  →  p 이면 q (참)","#52525b",14);
+  })();
+
+  go(0);
+})();
+</script>

@@ -1,9 +1,20 @@
+// 교과 → 단원 → 활동 3단계 구조의 최상위
+export type Subject = {
+  id: string;
+  title: string;
+  grade: number;
+  order_index: number;
+  is_published: boolean;
+  created_at: string;
+};
+
 export type Unit = {
   id: string;
   title: string;
   grade: number;
   order_index: number;
   is_published: boolean;
+  subject_id: string | null; // null = 교과 미지정(옛 단원)
   created_at: string;
 };
 

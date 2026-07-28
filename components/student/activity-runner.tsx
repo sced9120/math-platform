@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import GeoGebraEmbed from "@/components/student/geogebra-embed";
+import HtmlActivityFrame from "@/components/student/html-activity-frame";
 import SocraticChat from "@/components/student/socratic-chat";
 import FeedbackPanel from "@/components/student/feedback-panel";
 import type { Activity } from "@/lib/types";
@@ -191,13 +192,12 @@ export default function ActivityRunner({
 
       {tab === "run" && activity.type === "html" && (
         <div className="flex flex-col gap-4">
-          {/* sandbox: 스크립트만 허용 — 앱 세션/쿠키에는 접근 불가 */}
-          <iframe
-            srcDoc={content.html ?? ""}
-            sandbox="allow-scripts"
-            style={{ height: content.height ?? 600 }}
-            className="w-full rounded-lg border border-zinc-200 bg-white"
+          {/* sandbox: 스크립트만 허용 — 앱 세션/쿠키에는 접근 불가.
+              높이는 iframe 안에서 실제 콘텐츠를 재어 알려 준다(답변칸이 멀어지지 않도록). */}
+          <HtmlActivityFrame
+            html={content.html ?? ""}
             title={activity.title}
+            initialHeight={content.height}
           />
           {showCompleteButton && (
             <CompleteButton

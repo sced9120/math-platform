@@ -1,0 +1,230 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .modebtn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+  .modebtn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;margin:2px 2px 0 0}
+  .badge.ok{background:#dcfce7;color:var(--emerald)}.badge.no{background:#fee2e2;color:var(--rose)}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 함수</div>
+    <h1>대응이 ‘함수’가 되려면?</h1>
+    <p>프로그래밍 명령어처럼 <b>‘하나의 입력 → 정확히 하나의 결과’</b>. 집합 X 의 <b>모든</b> 원소에 대해
+       Y 의 원소가 <b>오직 하나씩</b> 대응할 때, 이 대응을 <b>함수</b>라 합니다. 버튼으로 확인하세요.</p>
+    <div class="btns" style="margin-bottom:8px">
+      <button class="modebtn on" data-m="func">함수 ✓</button>
+      <button class="modebtn" data-m="multi">함수 아님 (하나에 둘)</button>
+      <button class="modebtn" data-m="miss">함수 아님 (빠진 원소)</button>
+    </div>
+    <div class="lab">
+      <svg id="s0" viewBox="0 0 400 260"></svg>
+      <div class="controls"><div class="readout" id="r0"></div></div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">용어</div>
+    <h1>정의역 · 공역 · 치역</h1>
+    <div class="card">함수 <b>f : X → Y</b> 에서</div>
+    <table>
+      <tr><th>이름</th><th>뜻</th></tr>
+      <tr><td>정의역 (X)</td><td>입력이 되는 집합 (X 전체)</td></tr>
+      <tr><td>공역 (Y)</td><td>출력이 담길 수 있는 집합 (Y 전체)</td></tr>
+      <tr><td><b>치역</b></td><td>실제 대응된 출력들의 모임 = { f(x) | x∈X } &nbsp;(공역의 부분집합)</td></tr>
+      <tr><td>f(x)</td><td>x 에 대응하는 값 (함숫값)</td></tr>
+    </table>
+    <div class="callout"><b>치역 ⊂ 공역</b> 입니다. 치역이 공역과 <b>같아질 때</b>(꽉 채울 때) 특별한 이름 ‘일대일대응’이 붙어요(다음 화면).</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">특별한 함수</div>
+    <h1>일대일함수 · 일대일대응</h1>
+    <p>버튼을 눌러 세 함수를 비교하세요. <b>일대일함수</b>: 서로 다른 입력 → 서로 다른 출력.
+       <b>일대일대응</b>: 일대일함수 <b>이면서</b> 치역 = 공역(빠짐 없이 꽉 참).</p>
+    <div class="btns" style="margin-bottom:8px">
+      <button class="modebtn on" data-m="normal">일반 함수</button>
+      <button class="modebtn" data-m="injective">일대일함수</button>
+      <button class="modebtn" data-m="bijective">일대일대응</button>
+    </div>
+    <div class="lab">
+      <svg id="s2" viewBox="0 0 400 280"></svg>
+      <div class="controls"><div class="readout" id="r2"></div></div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">특별한 함수 2</div>
+    <h1>항등함수 · 상수함수</h1>
+    <div class="btns" style="margin-bottom:8px">
+      <button class="modebtn on" data-m="identity">항등함수 f(x)=x</button>
+      <button class="modebtn" data-m="constant">상수함수 f(x)=c</button>
+    </div>
+    <div class="lab">
+      <svg id="s3" viewBox="0 0 400 260"></svg>
+      <div class="controls"><div class="readout" id="r3"></div></div>
+    </div>
+    <div class="callout"><b>항등함수</b> f(x)=x: 자기 자신으로 대응 → 일대일대응! &nbsp;
+      <b>상수함수</b> f(x)=c: 모든 입력이 한 값 c 로 → 치역은 {c} 하나뿐(일대일 아님).</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>한눈에 정리</h1>
+    <table>
+      <tr><th>종류</th><th>조건</th></tr>
+      <tr><td>함수</td><td>X의 각 원소에 Y의 원소가 <b>오직 하나</b> 대응</td></tr>
+      <tr><td>일대일함수</td><td>x₁≠x₂ → f(x₁)≠f(x₂) (서로 다른 입력 → 서로 다른 출력)</td></tr>
+      <tr><td>일대일대응</td><td>일대일함수 <b>+ 치역 = 공역</b></td></tr>
+      <tr><td>항등함수</td><td>f(x) = x (모든 x)</td></tr>
+      <tr><td>상수함수</td><td>f(x) = c (모든 x, 일정)</td></tr>
+    </table>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, 대응이 ‘함수’가 되는 조건을 쓰고, 일대일함수와 일대일대응의 차이를
+      대응 그림으로 설명해 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">프로그래밍의 함수, 자판기(버튼 → 음료), 바코드(상품 → 번호)가 모두 함수입니다. 특히 <b>일대일대응</b>이어야 되돌릴 수 있어서, 암호·압축·주민번호 체계 설계에서 결정적으로 중요해요.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">함수는 ‘두 집합 사이의 특별한 대응’이고, 더 근본적으로는 <b>관계</b>의 특수한 경우입니다. 칸토어는 함수(일대일대응)를 이용해 <b>무한집합의 크기를 비교</b>했어요 — 자연수와 짝수는 크기가 같고, 실수는 더 크다는 놀라운 결론이 여기서 나옵니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>자연수 전체 {1,2,3,…} 와 짝수 전체 {2,4,6,…} 사이에 일대일대응 f(n) = 2n 을 만들 수 있습니다. ‘부분이 전체와 크기가 같다’는 이 결과를 어떻게 받아들여야 할까요?
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 5</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+  // 대응 다이어그램: X labels(left), Y labels(right), arrows [[xi,yi],...]
+  function mapping(svg,X,Y,arrows,arrowColor){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    var Lx=120,Rx=280,top=48,gap=58;
+    function yx(i,n){var h=(n-1)*gap;return top+i*gap+(200-h)/2-40;}
+    // 타원 영역
+    svg.appendChild(e("ellipse",{cx:Lx,cy:130,rx:56,ry:110,fill:"rgba(225,29,72,0.05)",stroke:"#e11d48","stroke-width":2}));
+    svg.appendChild(e("ellipse",{cx:Rx,cy:130,rx:56,ry:110,fill:"rgba(37,99,235,0.05)",stroke:"#2563eb","stroke-width":2}));
+    lab(svg,Lx,28,"X","#e11d48");lab(svg,Rx,28,"Y","#2563eb");
+    var yl=X.map(function(_,i){return yx(i,X.length);});
+    var yr=Y.map(function(_,i){return yx(i,Y.length);});
+    X.forEach(function(s,i){node(svg,Lx,yl[i],s,"#e11d48");});
+    Y.forEach(function(s,i){node(svg,Rx,yr[i],s,"#2563eb");});
+    // 화살표 마커
+    var defs=e("defs",{});var mk=e("marker",{id:"ah",markerWidth:8,markerHeight:8,refX:7,refY:3,orient:"auto"});mk.appendChild(e("path",{d:"M0,0 L7,3 L0,6 Z",fill:arrowColor||"#7c3aed"}));defs.appendChild(mk);svg.appendChild(defs);
+    arrows.forEach(function(a){
+      svg.appendChild(e("line",{x1:Lx+22,y1:yl[a[0]],x2:Rx-24,y2:yr[a[1]],stroke:arrowColor||"#7c3aed","stroke-width":2.2,"marker-end":"url(#ah)"}));
+    });
+  }
+  function node(svg,x,y,s,c){svg.appendChild(e("circle",{cx:x,cy:y,r:15,fill:"#fff",stroke:c,"stroke-width":2}));var t=e("text",{x:x,y:y+5,"font-size":14,"font-weight":700,fill:c,"text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+  function lab(svg,x,y,s,c){var t=e("text",{x:x,y:y,"font-size":16,"font-weight":800,fill:c,"text-anchor":"middle"});t.textContent=s;svg.appendChild(t);}
+
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  function bindBtns(screen,cb){[].slice.call(screen.querySelectorAll("[data-m]")).forEach(function(b){b.onclick=function(){[].slice.call(screen.querySelectorAll("[data-m]")).forEach(function(x){x.classList.toggle("on",x===b);});cb(b.getAttribute("data-m"));};});}
+
+  // 화면0: 함수 판별
+  (function(){
+    var svg=document.getElementById("s0");
+    var data={
+      func:{X:["a","b","c"],Y:["1","2","3"],ar:[[0,0],[1,0],[2,1]],ok:true,why:"각 입력에 출력이 하나씩 → <b>함수 ✓</b> (a,b가 같은 1에 가도 괜찮음)"},
+      multi:{X:["a","b","c"],Y:["1","2","3"],ar:[[0,0],[0,1],[1,2]],ok:false,why:"a 하나에 출력이 <b>둘(1,2)</b> → 함수 아님"},
+      miss:{X:["a","b","c"],Y:["1","2","3"],ar:[[0,0],[1,1]],ok:false,why:"c 에 대응하는 출력이 <b>없음</b> → 함수 아님"}
+    };
+    function draw(m){var d=data[m];mapping(svg,d.X,d.Y,d.ar,d.ok?"#059669":"#e11d48");
+      document.getElementById("r0").innerHTML=(d.ok?'<span class="badge ok">함수 O</span>':'<span class="badge no">함수 X</span>')+"<br>"+d.why;}
+    bindBtns(screens[0],draw);draw("func");
+  })();
+
+  // 화면2: 일대일/대응
+  (function(){
+    var svg=document.getElementById("s2");
+    var data={
+      normal:{X:["a","b","c"],Y:["1","2","3"],ar:[[0,0],[1,0],[2,1]],inj:false,sur:false,note:"a,b가 같은 1로 → 일대일 아님. 치역={1,2}≠공역."},
+      injective:{X:["a","b","c"],Y:["1","2","3","4"],ar:[[0,0],[1,1],[2,2]],inj:true,sur:false,note:"서로 다른 출력 → 일대일함수 O. 하지만 4가 남음 → 치역≠공역 → 대응 아님."},
+      bijective:{X:["a","b","c"],Y:["1","2","3"],ar:[[0,1],[1,0],[2,2]],inj:true,sur:true,note:"일대일 O + 빠짐없이 꽉 참 → <b>일대일대응 ✓</b>"}
+    };
+    function draw(m){var d=data[m];mapping(svg,d.X,d.Y,d.ar,d.inj&&d.sur?"#059669":"#7c3aed");
+      document.getElementById("r2").innerHTML=
+        (d.inj?'<span class="badge ok">일대일 O</span>':'<span class="badge no">일대일 X</span>')+
+        (d.sur?'<span class="badge ok">치역=공역 O</span>':'<span class="badge no">치역=공역 X</span>')+
+        "<br>"+d.note;}
+    bindBtns(screens[2],draw);draw("normal");
+  })();
+
+  // 화면3: 항등/상수
+  (function(){
+    var svg=document.getElementById("s3");
+    var data={
+      identity:{X:["1","2","3"],Y:["1","2","3"],ar:[[0,0],[1,1],[2,2]],note:"f(x)=x, 자기 자신으로 → <b>일대일대응</b>"},
+      constant:{X:["1","2","3"],Y:["a","b","c"],ar:[[0,1],[1,1],[2,1]],note:"f(x)=b, 모두 한 값으로 → 치역 {b} 하나, 일대일 아님"}
+    };
+    function draw(m){var d=data[m];mapping(svg,d.X,d.Y,d.ar,m==="identity"?"#059669":"#d97706");
+      document.getElementById("r3").innerHTML=d.note;}
+    bindBtns(screens[3],draw);draw("identity");
+  })();
+
+  go(0);
+})();
+</script>

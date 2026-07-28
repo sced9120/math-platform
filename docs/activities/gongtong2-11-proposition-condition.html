@@ -1,0 +1,225 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .qrow{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:7px 0;background:#fff}
+  .qrow .lab{font-size:14.5px}
+  .qbtns{display:flex;gap:6px;flex:none}
+  .qb{border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;padding:5px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+  .qb.right{background:#dcfce7;border-color:#86efac;color:var(--emerald)}
+  .qb.wrong{background:#fee2e2;border-color:#fca5a5;color:var(--rose)}
+  .fb{font-size:12.5px;margin-top:3px}
+  .btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .modebtn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+  .modebtn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+  .chip{width:44px;height:44px;border-radius:10px;border:2px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:var(--muted);transition:all .12s}
+  .chip.on{background:var(--blue);border-color:var(--blue);color:#fff;transform:translateY(-2px)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 명제</div>
+    <h1>명제란?</h1>
+    <p><b>명제</b> = 참인지 거짓인지 <b>명확하게 판별</b>할 수 있는 문장이나 식. 의견·주관·모호한 문장은 명제가 아닙니다.</p>
+    <div class="callout" style="margin-top:0">“지평선이 직선이니 지구는 평평하다” 같은 <b>궤변</b>에 속지 않으려면, 문장이 참·거짓을
+      가릴 수 있는지(=명제인지) 따지는 힘이 필요합니다. 아래에서 연습해 보세요.</div>
+    <div id="quiz"></div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">조건과 진리집합</div>
+    <h1>조건 → 진리집합</h1>
+    <p>문자를 포함해 참·거짓이 <b>정해지지 않은</b> 문장을 <b>조건</b>이라 합니다. 전체집합 U 에서 그 조건을
+       <b>참이 되게 하는 원소들의 집합</b>을 <b>진리집합 P</b> 라 해요. 버튼을 눌러 진리집합을 확인하세요.</p>
+    <div class="btns">
+      <button class="modebtn on" data-c="even">x 는 짝수</button>
+      <button class="modebtn" data-c="mul3">x 는 3의 배수</button>
+      <button class="modebtn" data-c="le5">x ≤ 5</button>
+      <button class="modebtn" data-c="prime">x 는 소수</button>
+    </div>
+    <div class="chips" id="chips1"></div>
+    <div class="readout" id="r1"></div>
+    <p class="hint">U = {1, 2, …, 10}</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">그리고 · 또는</div>
+    <h1>‘그리고’ = ∩, ‘또는’ = ∪</h1>
+    <p>조건 p: <b>x 는 짝수</b>, 조건 q: <b>x ≤ 5</b>. 두 조건을 ‘그리고/또는’으로 이으면
+       진리집합은 교집합·합집합이 됩니다.</p>
+    <div class="btns">
+      <button class="modebtn on" data-o="and">p 그리고 q (P ∩ Q)</button>
+      <button class="modebtn" data-o="or">p 또는 q (P ∪ Q)</button>
+    </div>
+    <div class="chips" id="chips2"></div>
+    <div class="readout" id="r2"></div>
+    <div class="callout">‘<b>그리고</b>’는 두 조건을 <b>모두</b> 만족 → <b>교집합</b>. ‘<b>또는</b>’은 <b>적어도 하나</b> 만족 → <b>합집합</b>.
+      조건의 부정 ~p 의 진리집합은 <b>여집합 Pᶜ</b>. (명제·조건이 집합과 똑같이 움직입니다!)</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">모든 · 어떤</div>
+    <h1>‘모든’과 ‘어떤’</h1>
+    <table>
+      <tr><th>명제</th><th>뜻</th><th>참/거짓</th></tr>
+      <tr><td>모든 실수 x, x² ≥ 0</td><td>전부 만족</td><td><b style="color:#059669">참</b></td></tr>
+      <tr><td>모든 실수 x, x² = 4</td><td>전부 만족?</td><td><b style="color:#e11d48">거짓</b> (x=3은 아님)</td></tr>
+      <tr><td>어떤 실수 x, x² = 4</td><td>하나라도 만족</td><td><b style="color:#059669">참</b> (x=2)</td></tr>
+      <tr><td>어떤 실수 x, x²+3 ≤ 0</td><td>하나라도 만족?</td><td><b style="color:#e11d48">거짓</b> (항상 &gt;0)</td></tr>
+    </table>
+    <div class="card"><b>‘모든(전칭)’</b>은 진리집합이 전체집합 U 와 같아야 참. <b>‘어떤(존재)’</b>은 진리집합이
+      공집합이 아니면 참. (반례가 하나라도 있으면 ‘모든’ 명제는 거짓!)</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">부정</div>
+    <h1>‘모든’을 부정하면?</h1>
+    <div class="card" style="font-size:15px">
+      ‘<b>모든</b> x 에 대하여 p(x)’ 의 부정 &nbsp;→&nbsp; ‘<b>어떤</b> x 에 대하여 ~p(x)’<br>
+      ‘<b>어떤</b> x 에 대하여 p(x)’ 의 부정 &nbsp;→&nbsp; ‘<b>모든</b> x 에 대하여 ~p(x)’
+    </div>
+    <p>예) ‘우리 반의 <b>모든</b> 학생은 걸어서 등교한다’ 의 부정은?<br>
+      → ‘우리 반의 <b>어떤</b> 학생은 걸어서 등교하지 <b>않는다</b>’ (즉, 걸어서 안 오는 학생이 한 명이라도 있다).</p>
+    <div class="callout">‘모든 학생이 안 걸어온다’ 가 아닙니다! ‘모든’의 부정은 ‘전부 아니다’가 아니라
+      <b>‘하나라도 아니다(반례가 있다)’</b> 입니다. and ↔ or 처럼 뒤집힌다고 기억하세요(드모르간과 닮은꼴).</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>정리</h1>
+    <ul style="margin:6px 0;padding-left:20px">
+      <li>명제 = 참·거짓 판별 가능한 문장/식</li>
+      <li>조건 → 진리집합 P, &nbsp; ~p ↔ Pᶜ, &nbsp; ‘그리고’ ↔ ∩, &nbsp; ‘또는’ ↔ ∪</li>
+      <li>‘모든’ 참 ⟺ P=U, &nbsp; ‘어떤’ 참 ⟺ P≠∅</li>
+      <li>부정: 모든 ↔ 어떤, &nbsp; p ↔ ~p</li>
+    </ul>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, (1) 무엇이 명제인지, (2) 조건 p, q 의 진리집합 P, Q 로
+      ‘그리고/또는/부정’이 각각 어떤 집합연산이 되는지 정리해 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">프로그램의 <code>if</code> 조건, 계약서의 ‘~인 경우에 한하여’, 법률 조항이 모두 명제와 조건입니다. 조건을 잘못 쓰면 프로그램에 버그가 생기고 계약에 분쟁이 생기죠.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">‘모든’과 ‘어떤’은 기호로 ∀, ∃ 라 쓰고, 이것을 다루는 논리를 <b>술어논리</b>라 합니다. 조건 p 에 진리집합 P 를 대응시키는 순간 <b>논리 문제가 집합 문제로 번역</b>되는데, 이 다리가 수학 전체를 지탱합니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>‘모든 학생이 숙제를 했다’가 거짓임을 보이려면 몇 명을 확인해야 할까요? 반대로 ‘어떤 학생이 숙제를 했다’가 거짓임을 보이려면요? 두 경우의 <b>확인 비용</b>이 왜 다른지 설명해 보세요.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 6</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+
+  // 화면0: 명제 판별 퀴즈
+  (function(){
+    var items=[
+      {t:"3 은 소수이다.", set:true, why:"참인 명제(3은 소수)."},
+      {t:"2 + 5 = 8", set:true, why:"거짓인 명제 — 하지만 참·거짓 판별은 가능하니 명제!"},
+      {t:"수학은 재미있다.", set:false, why:"주관적 의견 → 명제 아님."},
+      {t:"x + 1 = 3", set:false, why:"x값에 따라 달라짐 → 조건(명제 아님)."},
+      {t:"오늘은 참 덥다.", set:false, why:"기준이 모호한 느낌 → 명제 아님."},
+      {t:"√2 는 유리수이다.", set:true, why:"거짓인 명제 — 판별 가능."}
+    ];
+    var box=document.getElementById("quiz");
+    items.forEach(function(it){
+      var row=document.createElement("div");row.className="qrow";
+      var left=document.createElement("div");var lab=document.createElement("div");lab.className="lab";lab.textContent=it.t;
+      var fb=document.createElement("div");fb.className="fb";left.appendChild(lab);left.appendChild(fb);
+      var btns=document.createElement("div");btns.className="qbtns";
+      ["명제","명제 아님"].forEach(function(txt,bi){
+        var b=document.createElement("button");b.className="qb";b.textContent=txt;
+        b.onclick=function(){var ok=((bi===0)===it.set);[].slice.call(btns.children).forEach(function(x){x.className="qb";});b.className="qb "+(ok?"right":"wrong");fb.style.color=ok?"#059669":"#e11d48";fb.innerHTML=(ok?"✓ ":"✗ ")+it.why;};
+        btns.appendChild(b);
+      });
+      row.appendChild(left);row.appendChild(btns);box.appendChild(row);
+    });
+  })();
+
+  var U=[1,2,3,4,5,6,7,8,9,10];
+  var conds={even:function(x){return x%2===0;},mul3:function(x){return x%3===0;},le5:function(x){return x<=5;},prime:function(x){return [2,3,5,7].indexOf(x)>=0;}};
+  var condName={even:"x는 짝수",mul3:"x는 3의 배수",le5:"x≤5",prime:"x는 소수"};
+
+  // 화면1: 진리집합
+  (function(){
+    var wrap=document.getElementById("chips1"),chips={};
+    U.forEach(function(v){var c=document.createElement("div");c.className="chip";c.textContent=v;wrap.appendChild(c);chips[v]=c;});
+    var cur="even";
+    function draw(){var P=U.filter(conds[cur]);U.forEach(function(v){chips[v].classList.toggle("on",conds[cur](v));});
+      document.getElementById("r1").innerHTML="조건 p: <b>"+condName[cur]+"</b><br>진리집합 P = <b>{"+P.join(", ")+"}</b>";}
+    [].slice.call(screens[1].querySelectorAll("[data-c]")).forEach(function(b){b.onclick=function(){cur=b.getAttribute("data-c");[].slice.call(screens[1].querySelectorAll("[data-c]")).forEach(function(x){x.classList.toggle("on",x===b);});draw();};});
+    draw();
+  })();
+
+  // 화면2: 그리고/또는
+  (function(){
+    var wrap=document.getElementById("chips2"),chips={};
+    U.forEach(function(v){var c=document.createElement("div");c.className="chip";c.textContent=v;wrap.appendChild(c);chips[v]=c;});
+    var op="and";
+    function draw(){var inSet=U.filter(function(v){var p=conds.even(v),q=conds.le5(v);return op==="and"?(p&&q):(p||q);});
+      U.forEach(function(v){chips[v].classList.toggle("on",inSet.indexOf(v)>=0);});
+      var sym=op==="and"?"P ∩ Q":"P ∪ Q",word=op==="and"?"그리고":"또는";
+      document.getElementById("r2").innerHTML="p 짝수 = {2,4,6,8,10}, q (x≤5) = {1,2,3,4,5}<br>p <b>"+word+"</b> q → <b>"+sym+" = {"+inSet.join(", ")+"}</b>";}
+    [].slice.call(screens[2].querySelectorAll("[data-o]")).forEach(function(b){b.onclick=function(){op=b.getAttribute("data-o");[].slice.call(screens[2].querySelectorAll("[data-o]")).forEach(function(x){x.classList.toggle("on",x===b);});draw();};});
+    draw();
+  })();
+
+  go(0);
+})();
+</script>

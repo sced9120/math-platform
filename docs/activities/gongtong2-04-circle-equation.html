@@ -1,0 +1,267 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .formula{font-size:18px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .handle{cursor:grab}.handle:active{cursor:grabbing}
+  .controls{display:flex;flex-direction:column;gap:12px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  ul.tight{margin:6px 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+</style>
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 도형의 방정식</div>
+    <h1>원의 방정식</h1>
+    <p><b>원</b> = 한 평면에서 <b>한 점(중심)</b>으로부터 <b>일정한 거리(반지름)</b>에 있는 모든 점의 모임.
+       중심을 <b>드래그</b> 하고 반지름을 바꿔 보세요. 원 위의 초록 점은 항상 중심에서 거리 r 만큼 떨어져 있습니다.</p>
+    <div class="lab">
+      <svg id="s0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>반지름 r <span><b id="s0r">3</b></span></label>
+          <input id="s0rr" type="range" min="1" max="6" step="0.5" value="3"></div>
+        <div class="readout" id="s0read"></div>
+        <div class="formula" style="font-size:16px">(x−a)² + (y−b)² = r²</div>
+      </div>
+    </div>
+    <p class="q">원 위의 점 (x, y) 는 중심 (a, b) 와의 거리가 r → √((x−a)²+(y−b)²)=r → 양변 제곱!</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">표준형</div>
+    <h1>표준형과 예시</h1>
+    <div class="formula">중심 (a, b), 반지름 r &nbsp;→&nbsp; <b>(x − a)² + (y − b)² = r²</b></div>
+    <table>
+      <tr><th>중심 · 반지름</th><th>방정식</th></tr>
+      <tr><td>(0, 0), r = 5</td><td>x² + y² = 25</td></tr>
+      <tr><td>(−3, 2), r = 4</td><td>(x + 3)² + (y − 2)² = 16</td></tr>
+      <tr><td>(−2, 3), r = 4</td><td>(x + 2)² + (y − 3)² = 16</td></tr>
+    </table>
+    <div class="callout">부호 주의! 중심이 (<b>−3</b>, 2) 이면 식에서는 (x <b>+ 3</b>)² 처럼 <b>반대 부호</b>로 들어갑니다.
+      중심좌표를 그대로 빼 준다고 생각하면 됩니다: (x − (−3))² = (x + 3)².</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">응용</div>
+    <h1>두 점을 지름의 양 끝으로</h1>
+    <p>두 점 A, B 를 지름의 양 끝점으로 하는 원. A, B 를 <b>드래그</b> 하면
+       중심(=중점)과 반지름(=거리의 절반)이 따라옵니다.</p>
+    <div class="lab">
+      <svg id="s2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="s2read"></div>
+        <div class="hint">중심 = AB의 중점, 반지름 = AB 길이의 ½.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">일반형 ↔ 표준형</div>
+    <h1>일반형을 완전제곱으로</h1>
+    <p>일반형 <code>x² + y² + Ax + By + C = 0</code> 의 A, B, C 를 바꿔 보세요.
+       완전제곱으로 정리해 <b>중심과 반지름</b>을 찾습니다.</p>
+    <div class="lab">
+      <svg id="s3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>A <span><b id="s3A">-2</b></span></label><input id="s3Ar" type="range" min="-8" max="8" step="1" value="-2"></div>
+        <div class="slider"><label>B <span><b id="s3B">4</b></span></label><input id="s3Br" type="range" min="-8" max="8" step="1" value="4"></div>
+        <div class="slider"><label>C <span><b id="s3C">-4</b></span></label><input id="s3Cr" type="range" min="-12" max="12" step="1" value="-4"></div>
+        <div class="readout" id="s3read"></div>
+      </div>
+    </div>
+    <div class="formula" style="font-size:15px">중심 (−A/2, −B/2), &nbsp; r = <span class="sqrt">(A/2)² + (B/2)² − C</span></div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>정리</h1>
+    <table>
+      <tr><th>꼴</th><th>식</th><th>읽는 법</th></tr>
+      <tr><td>표준형</td><td>(x−a)²+(y−b)²=r²</td><td>중심·반지름이 바로 보임</td></tr>
+      <tr><td>일반형</td><td>x²+y²+Ax+By+C=0</td><td>완전제곱해서 표준형으로</td></tr>
+    </table>
+    <ul class="tight">
+      <li>중심 = <b>(−A/2, −B/2)</b></li>
+      <li>반지름 r = <b>√((A/2)² + (B/2)² − C)</b> &nbsp;— 근호 안이 <b>양수</b>여야 진짜 원!</li>
+      <li>근호 안 = 0 이면 <b>점</b>, 음수면 <b>실제 원이 없음</b>.</li>
+    </ul>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, 표준형이 왜 “거리 = r” 에서 나오는지, 그리고 일반형을 완전제곱으로 고치는 과정을 예를 들어 설명해 보세요.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">추가 탐구</div>
+    <h1>아폴로니오스의 원</h1>
+    <p>두 정점 A, B 로부터의 <b>거리의 비 PA : PB 가 일정한 값 k (≠1)</b> 인 점 P 들의 자취는
+       놀랍게도 <b>원</b>이 됩니다. 이것을 <b>아폴로니오스의 원</b>이라 합니다.</p>
+    <div class="lab">
+      <svg id="s5" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>비율 PA : PB = k : 1, &nbsp;k <span><b id="s5k">2</b></span></label>
+          <input id="s5kr" type="range" min="0.5" max="3" step="0.25" value="2"></div>
+        <div class="readout" id="s5read"></div>
+        <div class="hint">k = 1 이면 원이 아니라 <b>수직이등분선</b>(직선)이 됩니다.</div>
+      </div>
+    </div>
+    <p class="hint">교과서 38p ‘수학 충전소’ 탐구와 연결됩니다. 관찰한 내용을 아래에 자유롭게 적어보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">GPS는 위성 3개로부터의 <b>거리</b>를 재어 위치를 찾습니다. 각 위성을 중심으로 한 구(원)를 그리면 교점이 내 위치죠. 지진의 진원 찾기, 와이파이 실내 측위도 같은 원리입니다(삼변측량).</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">원은 ‘중심에서 거리가 일정한 점의 모임’입니다. 이 정의를 3차원으로 올리면 <b>구</b>, n차원으로 올리면 <b>초구</b>가 되고 식은 (x₁−a₁)² + ⋯ + (xₙ−aₙ)² = r² 로 똑같습니다. 차원이 올라가도 <b>정의는 그대로</b>인 것이 수학의 힘이에요.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>한 직선 위에 있지 않은 세 점을 지나는 원은 <b>단 하나</b> 존재합니다(삼각형의 외접원). 왜 그럴까요? (힌트: 두 점에서 같은 거리인 점들의 자취 = 수직이등분선)
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 6</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
+  function Plane(svg,lo,hi){
+    var S=400,pad=28,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}
+    function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,lo:lo,hi:hi,sc:sc,svg:svg,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){for(var g=Math.ceil(lo);g<=hi;g++){svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));}
+        svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));},
+      seg:function(x1,y1,x2,y2,color,w,dash){var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2,"stroke-linecap":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));},
+      circle:function(cx,cy,r,color,w,fill){svg.appendChild(el("circle",{cx:px(cx),cy:py(cy),r:r*sc,fill:fill||"none",stroke:color,"stroke-width":w||2.5}));},
+      dot:function(x,y,color,label,r){svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||6,fill:color}));if(label){var t=el("text",{x:px(x)+9,y:py(y)-8,"font-size":13,"font-weight":700,fill:color});t.textContent=label;svg.appendChild(t);}},
+      handle:function(x,y,color,name){var c=el("circle",{cx:px(x),cy:py(y),r:11,fill:color,"fill-opacity":.18,stroke:color,"stroke-width":2,class:"handle"});c.setAttribute("data-name",name);svg.appendChild(c);},
+      onDrag:function(cb){var dragging=null;function toData(evt){var r=svg.getBoundingClientRect();var sx=(evt.clientX-r.left)/r.width*S,sy=(evt.clientY-r.top)/r.height*S;var x=lo+(sx-pad)/sc,y=lo+((S-pad)-sy)/sc;return{x:Math.max(lo,Math.min(hi,Math.round(x))),y:Math.max(lo,Math.min(hi,Math.round(y)))};}
+        svg.addEventListener("pointerdown",function(e){var t=e.target;if(t&&t.getAttribute&&t.getAttribute("class")==="handle"){dragging=t.getAttribute("data-name");svg.setPointerCapture(e.pointerId);}});
+        svg.addEventListener("pointermove",function(e){if(dragging)cb(dragging,toData(e));});
+        svg.addEventListener("pointerup",function(){dragging=null;});svg.addEventListener("pointerleave",function(){dragging=null;});}
+    };
+  }
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+
+  // 화면0: 원의 정의
+  (function(){
+    var P=Plane(document.getElementById("s0"),-7,7),C={x:0,y:0},r=3,ang=0.6;
+    function draw(){P.clear();P.grid();P.circle(C.x,C.y,r,"#2563eb",2.5);
+      var ex=C.x+r*Math.cos(ang),ey=C.y+r*Math.sin(ang);P.seg(C.x,C.y,ex,ey,"#059669",2.5);P.dot(ex,ey,"#059669",null,5);
+      P.handle(C.x,C.y,"#e11d48","C");P.dot(C.x,C.y,"#e11d48","중심("+C.x+","+C.y+")",4);
+      document.getElementById("s0r").textContent=r;
+      document.getElementById("s0read").innerHTML="중심 ("+C.x+", "+C.y+"), 반지름 <b>"+r+"</b><br>식: <b>(x"+(C.x<=0?"+"+(-C.x):"−"+C.x)+")² + (y"+(C.y<=0?"+"+(-C.y):"−"+C.y)+")² = "+fmt(r*r)+"</b>";}
+    document.getElementById("s0rr").oninput=function(){r=parseFloat(this.value);draw();};
+    P.onDrag(function(n,pt){C=pt;draw();});
+    setInterval(function(){ang+=0.03;if(screens[0].classList.contains("on"))draw();},60);draw();
+  })();
+
+  // 화면2: 두 점 지름
+  (function(){
+    var P=Plane(document.getElementById("s2"),-7,7),A={x:-3,y:-1},B={x:3,y:3};
+    function draw(){P.clear();P.grid();
+      var cx=(A.x+B.x)/2,cy=(A.y+B.y)/2,r=Math.hypot(B.x-A.x,B.y-A.y)/2;
+      P.circle(cx,cy,r,"#2563eb",2.5);P.seg(A.x,A.y,B.x,B.y,"#334155",2);
+      P.dot(cx,cy,"#7c3aed","중심("+fmt(cx)+","+fmt(cy)+")",5);
+      P.handle(A.x,A.y,"#e11d48","A");P.handle(B.x,B.y,"#059669","B");
+      P.dot(A.x,A.y,"#e11d48","A",4);P.dot(B.x,B.y,"#059669","B",4);
+      document.getElementById("s2read").innerHTML="A("+A.x+","+A.y+"), B("+B.x+","+B.y+")<br>중심 (<b>"+fmt(cx)+", "+fmt(cy)+"</b>), 반지름 <b>"+fmt(r)+"</b>";}
+    P.onDrag(function(n,pt){if(n==="A")A=pt;else B=pt;draw();});draw();
+  })();
+
+  // 화면3: 일반형→표준형
+  (function(){
+    var P=Plane(document.getElementById("s3"),-9,9),A=-2,B=4,C=-4;
+    function draw(){P.clear();P.grid();
+      var cx=-A/2,cy=-B/2,disc=(A/2)*(A/2)+(B/2)*(B/2)-C;
+      var read;
+      if(disc>0){var r=Math.sqrt(disc);P.circle(cx,cy,r,"#2563eb",2.5);P.dot(cx,cy,"#e11d48","("+fmt(cx)+","+fmt(cy)+")",4);
+        read="중심 (<b>"+fmt(cx)+", "+fmt(cy)+"</b>), 반지름 <b>"+fmt(r)+"</b><br>근호 안 = "+fmt(disc)+" > 0 → 원!";}
+      else if(disc===0){P.dot(cx,cy,"#e11d48","점("+fmt(cx)+","+fmt(cy)+")",5);read="근호 안 = 0 → <b>점</b> ("+fmt(cx)+", "+fmt(cy)+") 하나뿐.";}
+      else{read="근호 안 = "+fmt(disc)+" < 0 → <b>실제 원이 없음</b>.";}
+      document.getElementById("s3A").textContent=A;document.getElementById("s3B").textContent=B;document.getElementById("s3C").textContent=C;
+      document.getElementById("s3read").innerHTML=read;}
+    document.getElementById("s3Ar").oninput=function(){A=parseFloat(this.value);draw();};
+    document.getElementById("s3Br").oninput=function(){B=parseFloat(this.value);draw();};
+    document.getElementById("s3Cr").oninput=function(){C=parseFloat(this.value);draw();};draw();
+  })();
+
+  // 화면5: 아폴로니오스 원
+  (function(){
+    var P=Plane(document.getElementById("s5"),-7,7),A={x:-3,y:0},B={x:3,y:0},k=2;
+    function draw(){P.clear();P.grid();P.dot(A.x,A.y,"#e11d48","A",5);P.dot(B.x,B.y,"#059669","B",5);
+      if(Math.abs(k-1)<1e-9){ // 수직이등분선
+        var mx=(A.x+B.x)/2; P.seg(mx,-7,mx,7,"#2563eb",2.5);
+        document.getElementById("s5read").innerHTML="k = 1 → 자취는 <b>수직이등분선</b> (직선).";
+      } else {
+        // PA^2 = k^2 PB^2 → 원. 중심,반지름 유도
+        var k2=k*k;
+        var cx=(A.x-k2*B.x)/(1-k2), cy=(A.y-k2*B.y)/(1-k2);
+        var r=k*Math.hypot(B.x-A.x,B.y-A.y)/Math.abs(1-k2);
+        P.circle(cx,cy,r,"#2563eb",2.5);P.dot(cx,cy,"#7c3aed","중심",4);
+        document.getElementById("s5read").innerHTML="PA : PB = <b>"+k+" : 1</b><br>자취는 <b>원</b> — 중심 ("+fmt(cx)+", "+fmt(cy)+"), 반지름 "+fmt(r);
+      }
+      document.getElementById("s5k").textContent=k;}
+    document.getElementById("s5kr").oninput=function(){k=parseFloat(this.value);draw();};draw();
+  })();
+
+  go(0);
+})();
+</script>

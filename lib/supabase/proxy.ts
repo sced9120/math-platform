@@ -33,9 +33,13 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isLoginPage = request.nextUrl.pathname.startsWith("/login");
+  const path = request.nextUrl.pathname;
+  const isLoginPage = path.startsWith("/login");
+  // 최초 설정 화면과 그 API 는 계정이 하나도 없을 때 쓰는 곳이라 로그인 없이 열어 둔다.
+  // (실제 생성 가능 여부는 /api/setup 에서 "관리자·교사 계정 0개"인지 서버가 직접 확인한다)
+  const isSetup = path.startsWith("/setup") || path.startsWith("/api/setup");
 
-  if (!user && !isLoginPage) {
+  if (!user && !isLoginPage && !isSetup) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

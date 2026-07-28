@@ -26,13 +26,11 @@
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` → 2번 값
    - `AI_PROVIDER` → `gpt` (또는 `claude`)
    - `OPENAI_API_KEY` → [OpenAI 키](https://platform.openai.com/api-keys) (claude면 `ANTHROPIC_API_KEY`)
-4. 배포 완료 후, 로컬에서 관리자 계정 1개 생성:
-   ```bash
-   git clone https://github.com/sced9120/math-platform && cd math-platform
-   npm install && cp .env.local.example .env.local   # .env.local 에 위 키들 입력
-   npm run create-teacher -- admin 관리자 --admin
-   ```
-   출력된 아이디/초기비번으로 로그인 → 관리자 화면에서 교사·학생 계정을 만들면 끝.
+4. 배포된 주소로 접속 → **관리자 계정 만들기 화면**이 자동으로 뜹니다.
+   아이디·이름·비밀번호를 정하면 끝. 이후 관리자 화면에서 교사·학생 계정을 만들면 됩니다.
+
+   > 이 화면은 **계정이 하나도 없을 때만** 열리고, 첫 관리자가 만들어지면 스스로 닫힙니다.
+   > 터미널을 쓰고 싶다면 대신 `npm run create-teacher -- admin 관리자 --admin` 도 가능합니다.
 
 각 단계를 화면과 함께 자세히: [docs/06_BUILD_FROM_SCRATCH.md](docs/06_BUILD_FROM_SCRATCH.md)
 

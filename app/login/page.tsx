@@ -1,6 +1,7 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -15,6 +16,15 @@ function LoginForm() {
       : null
   );
   const [loading, setLoading] = useState(false);
+  // 계정이 하나도 없는 새 사이트면 최초 설정으로 안내한다
+  const [needsSetup, setNeedsSetup] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/setup")
+      .then((r) => r.json())
+      .then((d) => setNeedsSetup(!!d?.needsSetup))
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,6 +51,16 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {needsSetup && (
+        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+          <b>아직 계정이 하나도 없습니다.</b>
+          <p className="mt-1">
+            <Link href="/setup" className="font-medium underline">
+              관리자 계정 만들기 →
+            </Link>
+          </p>
+        </div>
+      )}
       <div className="flex flex-col gap-1">
         <label htmlFor="studentId" className="text-sm font-medium text-zinc-700">
           학번

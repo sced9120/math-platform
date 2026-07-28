@@ -28,7 +28,8 @@
   .modebtn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600}
   .modebtn.on{background:var(--blue);border-color:var(--blue);color:#fff}
   .formula{font-size:17px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
-  .sqrt{border-top:1.5px solid currentColor;padding:0 3px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
+  .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
   table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
   th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
   ul.tight{margin:6px 0;padding-left:20px}ul.tight li{margin:3px 0}

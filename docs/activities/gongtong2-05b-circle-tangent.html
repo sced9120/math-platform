@@ -26,7 +26,8 @@
   .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
   .readout b{color:var(--blue)}
   .formula{font-size:17px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
-  .sqrt{border-top:1.5px solid currentColor;padding:0 3px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
+  .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
   .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700}
   .badge.ok{background:#dcfce7;color:var(--emerald)}.badge.no{background:#fee2e2;color:var(--rose)}
   .badge.warn{background:#fef3c7;color:var(--amber)}

@@ -39,6 +39,26 @@
   .ok{color:var(--emerald);font-weight:700}
 </style>
 
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
 <div class="wrap">
   <div class="steps" id="steps"></div>
 

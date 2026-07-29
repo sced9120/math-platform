@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>활동 가져다 쓰기 · 새로 만들기 — 안내서</title>
+<meta name="description" content="아카이브의 수학 활동을 내 수업·내 플랫폼에 가져다 쓰는 방법과, 새 활동을 아카이브에 추가하는 방법." />
+<style>
+  :root{--bg:#fafafa;--card:#fff;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--soft:#eff6ff}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic","Noto Sans KR",sans-serif;
+       background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px}
+  .back{display:inline-block;color:var(--blue);text-decoration:none;font-size:14px;font-weight:600;margin-bottom:18px}
+  .back:hover{text-decoration:underline}
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 26px}
+  h2{font-size:20px;margin:38px 0 10px;padding-top:20px;border-top:1px solid var(--line)}
+  h3{font-size:16px;margin:22px 0 6px}
+  p{margin:8px 0}
+  ul,ol{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  code{background:#f4f4f5;padding:1.5px 6px;border-radius:5px;font-size:13.5px;
+       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  pre{background:#18181b;color:#e4e4e7;padding:14px 16px;border-radius:10px;overflow-x:auto;font-size:13px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+  .tip{background:var(--soft);border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;margin:14px 0;font-size:15px}
+  .warn{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px 16px;margin:14px 0;font-size:15px;color:#78350f}
+  .steps{counter-reset:s;list-style:none;padding:0}
+  .steps>li{counter-increment:s;position:relative;padding-left:38px;margin:14px 0}
+  .steps>li::before{content:counter(s);position:absolute;left:0;top:2px;width:25px;height:25px;border-radius:999px;
+    background:var(--blue);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;margin:12px 0}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:#f4f4f5}
+  .muted{color:var(--muted);font-size:13.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← 활동 목록</a>
+
+  <h1>활동 가져다 쓰기 · 새로 만들기</h1>
+  <p class="sub">아카이브의 활동을 내 수업에 쓰는 방법과, 새 활동을 만들어 넣는 방법을 정리했습니다.</p>
+
+  <div class="tip">
+    <b>먼저 알아 두면 좋은 것</b> — 모든 활동은 <b>HTML 파일 하나</b>로 끝납니다.
+    외부 라이브러리도, 인터넷 연결도, 로그인도 필요 없습니다.
+    파일을 내려받아 더블클릭하면 그대로 열립니다.
+  </div>
+
+  <!-- ===================== A ===================== -->
+  <h2>A. 원하는 활동을 내 수업에 쓰기</h2>
+  <p>목적에 따라 네 가지 방법이 있습니다. 위쪽일수록 간단합니다.</p>
+
+  <table>
+    <tr><th style="width:26%">방법</th><th>이럴 때</th><th style="width:22%">준비물</th></tr>
+    <tr><td><b>1. 링크 공유</b></td><td>수업 중 화면에 띄우거나, 학생에게 주소만 보낼 때</td><td>없음</td></tr>
+    <tr><td><b>2. 파일 내려받기</b></td><td>인터넷이 불안한 교실, USB로 옮길 때, 내용을 고쳐 쓸 때</td><td>없음</td></tr>
+    <tr><td><b>3. 내 LMS에 넣기</b></td><td>구글 클래스룸·e학습터 등에 링크나 파일로 올릴 때</td><td>해당 LMS 계정</td></tr>
+    <tr><td><b>4. 내 학습 플랫폼에 넣기</b></td><td>학생 진도·서술 답변까지 관리하고 싶을 때</td><td>이 저장소 배포</td></tr>
+  </table>
+
+  <h3>방법 1 · 링크 공유 (가장 간단)</h3>
+  <p>활동 목록에서 원하는 활동을 열고, 주소창의 주소를 그대로 복사해 보내면 됩니다.</p>
+  <pre><code>https://sced9120.github.io/math-platform/activities/gongtong2-01-segment-division.html</code></pre>
+  <p class="muted">학생은 아무것도 설치하지 않고 휴대폰·태블릿·PC 어디서나 바로 조작할 수 있습니다.</p>
+
+  <h3>방법 2 · 파일 내려받기 (오프라인·수정용)</h3>
+  <ol class="steps">
+    <li>활동을 연 다음 <b>마우스 오른쪽 → 다른 이름으로 저장</b> (또는 <code>Ctrl/⌘ + S</code>)</li>
+    <li>저장한 <code>.html</code> 파일을 더블클릭하면 인터넷 없이도 열립니다.</li>
+    <li>내용을 바꾸고 싶으면 메모장·VS Code 등으로 열어 글자를 고치면 됩니다.
+        수식·문구는 파일 위쪽 HTML 부분에, 그래프 동작은 아래쪽 <code>&lt;script&gt;</code> 부분에 있습니다.</li>
+  </ol>
+  <div class="tip">
+    저장소를 통째로 받으려면:
+    <pre><code>git clone https://github.com/sced9120/math-platform
+cd math-platform/docs/activities</code></pre>
+    이 폴더의 HTML 파일들이 전부 활동입니다.
+  </div>
+
+  <h3>방법 3 · 구글 클래스룸 등 LMS에 넣기</h3>
+  <ul>
+    <li><b>링크로</b> — 과제·자료에 위 주소를 붙여넣기 (가장 쉽고 항상 최신)</li>
+    <li><b>파일로</b> — 내려받은 <code>.html</code> 을 그대로 첨부 (오프라인에서도 열림)</li>
+  </ul>
+  <p class="muted">활동 안의 &lsquo;내 생각 적기&rsquo;는 학습 플랫폼에서만 저장됩니다.
+     LMS에 올릴 때는 LMS의 과제 제출 기능을 함께 쓰시면 됩니다.</p>
+
+  <h3>방법 4 · 내 학습 플랫폼에 넣기 (진도·답변까지 관리)</h3>
+  <p>이 저장소에는 활동뿐 아니라 <b>학생 계정·진도·서술 답변·AI 도우미</b>가 포함된 학습 플랫폼이 함께 있습니다.
+     배포한 뒤 아래처럼 활동을 넣습니다.</p>
+  <ol class="steps">
+    <li>저장소를 배포합니다. (<a href="https://github.com/sced9120/math-platform">README의 &lsquo;5분 만에 배포하기&rsquo;</a> 참고)
+        배포 후 접속하면 <b>관리자 계정 만들기</b> 화면이 뜹니다.</li>
+    <li>교사 화면 → <b>교과 관리</b>에서 교과를 만들고, <b>단원/활동 관리</b>에서 단원을 만듭니다.</li>
+    <li>단원 안에서 <b>활동 추가 → 유형 &lsquo;HTML&rsquo;</b> 선택</li>
+    <li>가져올 활동 HTML 파일을 텍스트 편집기로 열어 <b>전체 복사(Ctrl/⌘ + A, C)</b> 후 붙여넣기</li>
+    <li><b>학생 글 작성란</b>에 서술 문항을 적으면, 활동 아래에 &lsquo;내 생각 적기&rsquo;가 생기고 답변이 저장됩니다.</li>
+    <li>저장 → <b>공개</b>로 바꾸면 학생에게 보입니다.</li>
+  </ol>
+  <div class="tip">
+    활동이 많다면 하나씩 붙여넣는 대신 스크립트로 한 번에 넣을 수 있습니다.
+    <code>scripts/gongtong2-registry.mjs</code> 에 목록을 적고
+    <code>node --env-file=.env.local scripts/build-gongtong2.mjs --publish</code> 를 실행하면 됩니다.
+  </div>
+  <div class="warn">
+    붙여넣은 활동은 <code>sandbox="allow-scripts"</code> 인 iframe 안에서 실행됩니다.
+    앱의 로그인 정보나 쿠키에는 접근할 수 없으니, 남이 만든 활동을 넣어도 계정이 위험해지지 않습니다.
+    다만 <b>내용 자체는 직접 확인</b>하고 넣으세요.
+  </div>
+
+  <!-- ===================== B ===================== -->
+  <h2>B. 새 활동을 만들어 아카이브에 넣기</h2>
+  <p>저장소를 복사(fork)해서 자기 아카이브를 꾸리거나, 이 저장소에 활동을 보태고 싶을 때의 절차입니다.</p>
+
+  <h3>1) 활동 파일 만들기</h3>
+  <p>가장 빠른 방법은 <b>비슷한 활동을 복사해 고치는 것</b>입니다. 모든 활동이 같은 뼈대를 씁니다.</p>
+  <pre><code>cd docs/activities
+cp gongtong2-01-segment-division.html gongtong2-30-my-activity.html</code></pre>
+  <p>파일 하나에 아래가 모두 들어 있습니다.</p>
+  <ul>
+    <li><code>&lt;style&gt;</code> — 디자인 (그대로 두면 다른 활동과 통일됩니다)</li>
+    <li><code>&lt;section class="screen"&gt;</code> — <b>화면 하나</b>. 여러 개 두면 위쪽 번호로 넘길 수 있습니다.</li>
+    <li><code>&lt;script&gt;</code> — 그래프·조작 로직. <code>Plane(svg, lo, hi)</code> 헬퍼로 좌표평면을 그립니다.</li>
+  </ul>
+  <div class="card">
+    <b>자주 쓰는 도구</b>
+    <ul style="margin-bottom:0">
+      <li><code>P.grid()</code> 격자·축 · <code>P.line(m,b,색)</code> 직선 · <code>P.circle(cx,cy,r,색)</code> 원</li>
+      <li><code>P.plot(fn,색)</code> 함수 그래프 · <code>P.plotSeg(fn,색)</code> 끊기는 그래프(점근선 등)</li>
+      <li><code>P.handle(x,y,색,"A")</code> + <code>P.onDrag(cb)</code> — <b>드래그되는 점</b></li>
+      <li><code>&lt;input type="range"&gt;</code> — 슬라이더</li>
+    </ul>
+  </div>
+  <p class="muted">AI에게 맡기고 싶다면 <code>docs/04_HTML_ACTIVITY_PROMPT.md</code> 에 활동 생성용 프롬프트 틀이 있습니다.</p>
+
+  <h3>2) 목록에 등록하기</h3>
+  <p><code>scripts/gongtong2-registry.mjs</code> 를 열고 <code>REG</code> 배열에 한 줄 추가합니다.</p>
+  <pre><code>{ unit: "I", order: 10, title: "내가 만든 활동",
+  desc: "한 줄 소개 (목록에 표시됩니다)",
+  file: "gongtong2-30-my-activity.html", height: 980,
+  rp: "학생이 답할 서술 문항" },</code></pre>
+  <table>
+    <tr><th style="width:18%">항목</th><th>뜻</th></tr>
+    <tr><td><code>unit</code></td><td>어느 단원인지 — <code>"I"</code>, <code>"II"</code>, <code>"III"</code></td></tr>
+    <tr><td><code>order</code></td><td>그 단원 안에서의 순서 (0부터)</td></tr>
+    <tr><td><code>desc</code></td><td>아카이브 목록에 보일 한 줄 소개</td></tr>
+    <tr><td><code>rp</code></td><td>&lsquo;내 생각 적기&rsquo; 문항. 비우면 서술란이 안 생깁니다</td></tr>
+  </table>
+
+  <h3>3) 공통 요소 붙이고 목차 다시 만들기</h3>
+  <pre><code># 확장 탐구 화면 (수평·수직 확장 + 도전 질문)
+node scripts/add-extension-screens.mjs
+
+# 활동 맨 위 "← 활동 목록" 링크
+node scripts/add-archive-nav.mjs
+
+# 아카이브 목차 다시 생성
+node scripts/build-archive-index.mjs
+
+# (플랫폼도 쓴다면) DB 에 반영
+node --env-file=.env.local scripts/build-gongtong2.mjs --publish</code></pre>
+  <p class="muted">모두 <b>여러 번 실행해도 안전</b>합니다. 이미 들어간 부분은 알아서 갈아끼웁니다.
+     확장 탐구 문구는 <code>add-extension-screens.mjs</code> 안의 <code>EXT</code> 목록에 파일명을 키로 적습니다.</p>
+
+  <h3>4) 올리기</h3>
+  <pre><code>git add -A
+git commit -m "활동 추가: 내가 만든 활동"
+git push</code></pre>
+  <p>GitHub Pages 를 켜 두었다면 1~2분 뒤 아카이브에 자동 반영됩니다.</p>
+
+  <div class="tip">
+    <b>내 것으로 만들기</b> — 다른 교과·학년으로 바꾸려면
+    <code>scripts/gongtong2-registry.mjs</code> 의 <code>SUBJECT</code>·<code>UNITS</code> 를 고치면 됩니다.
+    자세한 안내는 저장소의 <code>docs/06_BUILD_FROM_SCRATCH.md</code> 에 있습니다.
+  </div>
+
+  <h2>도움이 필요하면</h2>
+  <ul>
+    <li>소스와 이슈: <a href="https://github.com/sced9120/math-platform">github.com/sced9120/math-platform</a></li>
+    <li>플랫폼 구조 설명: 저장소의 <code>docs/05_STRUCTURE_GUIDE.md</code></li>
+    <li>처음부터 만들기: 저장소의 <code>docs/06_BUILD_FROM_SCRATCH.md</code></li>
+  </ul>
+
+  <p style="margin-top:30px"><a class="back" href="index.html">← 활동 목록으로 돌아가기</a></p>
+</div>
+</body>
+</html>

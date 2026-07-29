@@ -68,7 +68,11 @@ const html = `<!doctype html>
   header .sub{color:var(--muted);margin:0 0 18px}
   .lead{background:var(--soft);border:1px solid #bfdbfe;border-radius:14px;padding:16px 18px;margin:0 0 10px;font-size:15px}
   .lead b{color:#1d4ed8}
-  .hint{font-size:13px;color:var(--muted);margin:10px 0 30px}
+  .hint{font-size:13px;color:var(--muted);margin:10px 0 14px}
+  .guidelink{margin:0 0 30px;font-size:14px}
+  .guidelink a{color:var(--blue);font-weight:600;text-decoration:none}
+  .guidelink a:hover{text-decoration:underline}
+  .guidelink span{display:block;color:var(--muted);font-size:13px;margin-top:2px}
   .unit{margin:0 0 34px}
   .unit h2{font-size:18px;margin:0 0 12px;display:flex;align-items:baseline;gap:10px}
   .unit h2::before{content:"";width:4px;height:18px;background:var(--blue);border-radius:2px;display:inline-block}
@@ -107,6 +111,10 @@ const html = `<!doctype html>
     <p class="hint">
       모든 활동은 외부 라이브러리 없이 순수 HTML·SVG·JavaScript 로 만든 <b>단일 파일</b>입니다.
       파일 하나만 내려받아도 오프라인에서 그대로 동작합니다.
+    </p>
+    <p class="guidelink">
+      <a href="guide.html">📘 활동 가져다 쓰기 · 새로 만들기 안내서 →</a>
+      <span>내 수업·내 플랫폼에 넣는 방법과, 새 활동을 만들어 추가하는 방법</span>
     </p>
 
 ${sections}

@@ -38,8 +38,10 @@ export async function updateSession(request: NextRequest) {
   // 최초 설정 화면과 그 API 는 계정이 하나도 없을 때 쓰는 곳이라 로그인 없이 열어 둔다.
   // (실제 생성 가능 여부는 /api/setup 에서 "관리자·교사 계정 0개"인지 서버가 직접 확인한다)
   const isSetup = path.startsWith("/setup") || path.startsWith("/api/setup");
+  // 체험판 — 로그인 없이 둘러보는 읽기 전용 화면. 저장·AI 는 전부 막혀 있다.
+  const isDemo = path.startsWith("/demo");
 
-  if (!user && !isLoginPage && !isSetup) {
+  if (!user && !isLoginPage && !isSetup && !isDemo) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

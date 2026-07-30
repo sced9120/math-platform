@@ -13,6 +13,8 @@ import { SUBJECT, UNITS, REG } from "./gongtong2-registry.mjs";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const docs = join(__dirname, "..", "docs");
 const REPO = "https://github.com/sced9120/math-platform";
+// 배포된 플랫폼의 체험판 주소 (로그인 없이 둘러보는 읽기 전용 화면)
+const DEMO_URL = "https://math.hsorbit.uk/demo";
 
 const esc = (s) =>
   String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -115,6 +117,10 @@ const html = `<!doctype html>
     <p class="guidelink">
       <a href="guide.html">📘 활동 가져다 쓰기 · 새로 만들기 안내서 →</a>
       <span>내 수업·내 플랫폼에 넣는 방법과, 새 활동을 만들어 추가하는 방법</span>
+    </p>
+    <p class="guidelink">
+      <a href="${DEMO_URL}">🎬 학습 플랫폼 체험해 보기 →</a>
+      <span>학생이 보는 화면을 로그인 없이 둘러봅니다 (저장되지 않는 체험판)</span>
     </p>
 
 ${sections}

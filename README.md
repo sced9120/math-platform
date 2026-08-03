@@ -1,9 +1,21 @@
 # 수학 학습 플랫폼
 
 고등학교 교사가 운영하는 AI 학습 플랫폼.
-학생은 학번으로 로그인해 단원별 활동(GeoGebra·자료·문제·사진·HTML 체험)을 수행하고,
+학생은 학번으로 로그인해 **내 교과 → 단원 → 활동**(GeoGebra·자료·문제·사진·HTML 체험)을 수행하고,
 **AI 소크라테스 문답**과 **사진/PDF 풀이 첨삭**을 받습니다.
-교사는 학생 계정 일괄 생성·활동 관리·기록 다운로드를, 관리자는 교사 계정까지 관리합니다.
+교사는 학생 계정 일괄 생성·활동 관리·진도 확인·기록 다운로드를, 관리자는 교사 계정까지 관리합니다.
+
+**바로 둘러보기** — 로그인 없이 학생 화면을 체험할 수 있습니다: [`/demo`](https://math.hsorbit.uk/demo)
+**활동만 보기** — 공통수학2 인터랙티브 활동 22개: [활동 아카이브](https://sced9120.github.io/math-platform/)
+
+### 주요 기능
+
+| 대상 | 기능 |
+|---|---|
+| 학생 | 내 교과 → 단원 → 활동, 진도 저장, &lsquo;내 생각 적기&rsquo; 서술, AI 문답·첨삭 |
+| 교사 | 학생 일괄 생성(**내가 만든 학생만 내 목록에**), 교과·단원·활동 관리, **진도 현황**(반×활동 완료율), **서술 읽기**, 기록 CSV |
+| 관리자 | 교사 계정 관리, 전체 학생 조회, AI 키·모델·일일 한도 설정 |
+| 누구나 | **체험판**(`/demo`) — 로그인 없이 둘러보기, 저장 안 됨 |
 
 > 수학이 아닌 다른 교과로 바꾸는 법과 처음부터 만드는 법:
 > [docs/06_BUILD_FROM_SCRATCH.md](docs/06_BUILD_FROM_SCRATCH.md)
@@ -67,8 +79,19 @@ cp .env.local.example .env.local
 Supabase 대시보드 **SQL Editor**에 [`supabase/setup.sql`](supabase/setup.sql)
 **전체를 한 번에** 붙여넣고 Run 하세요 (테이블·RLS 정책·함수가 모두 만들어집니다).
 
-> `supabase/setup.sql` 은 개별 마이그레이션(`supabase/migrations/0001~0006`)을 하나로 합친 파일입니다.
+> `supabase/setup.sql` 은 개별 마이그레이션(`supabase/migrations/0001~0011`)을 하나로 합친 파일입니다.
 > supabase CLI를 쓴다면 `supabase db push`.
+
+**이미 운영 중인 분**은 `setup.sql` 을 다시 돌리지 말고, 아직 실행하지 않은 마이그레이션만
+`supabase/migrations/` 에서 번호 순으로 실행하세요. 최근 것은 다음 둘입니다.
+
+| 파일 | 하는 일 |
+|---|---|
+| `0010_subjects.sql` | **교과(subjects)** 계층 추가 — 교과 → 단원 → 활동 |
+| `0011_student_owner.sql` | 학생에 **담당 교사** 지정 — 교사는 자기 학생만 보고 관리 |
+
+> `0011` 을 실행하면 기존 학생은 **가장 먼저 만들어진 교사/관리자**에게 자동 배정됩니다
+> (아무에게도 안 보이게 되는 것을 막기 위함). 이후 관리자 화면에서 확인할 수 있습니다.
 
 ### 1-4. 관리자·교사 계정 만들기 (최초 1회)
 
@@ -111,8 +134,15 @@ http://localhost:3000 접속. (포트가 사용 중이면 `PORT=3001 npm run dev
    학번이 5자리라 Supabase 최소 길이(6자)를 못 넘겨 접두 `s`를 붙입니다)
 2. 생성 결과 화면의 **학번·초기비밀번호 표를 CSV 다운로드 또는 인쇄**해서 배포
    (학생이 비밀번호를 잊으면 학생 관리 목록의 **비밀번호 재설정** 버튼 사용)
-3. 단원/활동 관리에서 콘텐츠 구성 → **공개** 토글을 켜야 학생에게 보입니다
-4. 학생은 학번+초기비밀번호로 로그인 → 비밀번호 변경 → 활동 수행
+3. **교과 관리**에서 교과를 만들고 → **단원/활동 관리**에서 단원·활동 구성 →
+   **공개** 토글을 켜야 학생에게 보입니다 (교과·단원·활동 모두 공개여야 함)
+4. 학생은 학번+초기비밀번호로 로그인 → 비밀번호 변경 → **내 교과 → 단원 → 활동** 수행
+5. **진도 현황**에서 반별·활동별 완료율 확인, 활동을 눌러 **서술 답변 읽기**
+
+**여러 교사가 함께 쓸 때** — 학생은 **만든 교사에게 귀속**되어 그 교사의 목록에만 보입니다.
+다른 선생님은 자기 학생 관리 탭에서 각자 추가·관리하면 됩니다.
+교과·단원·활동은 **공유**되므로(학년이 같으면), 자료는 함께 쓰고 학생만 나눠 맡는 구조입니다.
+관리자는 전체 학생과 담당 교사를 볼 수 있습니다.
 
 **학번 규칙**: 학년(1자리) + 반(2자리) + 번호(2자리). 예: 1학년 3반 15번 → `10315`
 내부적으로는 `10315@school.local` 가상 이메일로 처리되며 실제 이메일은 수집하지 않습니다.
@@ -129,21 +159,38 @@ http://localhost:3000 접속. (포트가 사용 중이면 `PORT=3001 npm run dev
 ```
 app/
 ├─ login/, change-password/     인증
-├─ (student)/                   학생: dashboard, unit/[id], activity/[id]
-├─ teacher/                     교사: students(일괄 생성), units(단원/활동 CRUD)
-└─ api/teacher/students/        학생 계정 생성/삭제 (service role, 서버 전용)
+├─ setup/                       최초 설정 — 계정이 0개일 때만 열리는 관리자 만들기
+├─ demo/                        체험판 — 로그인 없이 둘러보기(읽기 전용)
+├─ (student)/                   학생: dashboard(내 교과), subject/[id], unit/[id], activity/[id]
+├─ teacher/                     교사: subjects, units, students, progress(진도), export
+└─ api/                         setup/, teacher/students/ (service role, 서버 전용)
 components/                     student/, teacher/ UI 컴포넌트
 lib/supabase/                   client(브라우저) / server(서버) / admin(service role) / proxy(세션)
+lib/demo.ts                     체험판 조회 — 읽기 전용·공개된 것만·정답 제거
 supabase/migrations/            SQL 마이그레이션 (SQL Editor에 순서대로 실행)
-scripts/                        seed.mjs, create-teacher.mjs
+scripts/                        seed, create-teacher, build-gongtong2(콘텐츠), build-archive-index
 proxy.ts                        비로그인 차단 + 세션 갱신 (Next.js 16의 middleware)
-docs/                           설계 문서
+docs/                           설계 문서 + activities/(활동 HTML) + index.html(공개 아카이브)
 ```
+
+**데이터 구조**: 교과(subjects) → 단원(units) → 활동(activities) → 진행기록(progress)
+학생 프로필(`profiles`)은 학년·반·번호와 **담당 교사**(`teacher_id`)를 가집니다.
+
+**활동 아카이브**: `docs/` 를 GitHub Pages 소스(`main` / `/docs`)로 지정하면
+활동 22개가 공개 사이트로 열립니다. 목차는 `node scripts/build-archive-index.mjs` 로 생성합니다.
 
 ## 6. 보안 메모
 
 - 모든 데이터 접근은 **RLS로 DB에서 강제** — 학생은 자기 학년의 공개 콘텐츠와 자기 기록만.
 - 문제 정답은 학생에게 **어떤 API로도 내려가지 않습니다** (채점은 DB 함수 `submit_answer`).
+  학생은 `activities` 를 직접 읽지 못하고, 정답을 걷어낸 `student_activities()` RPC 로만 조회합니다.
+- 교사는 **자기가 담당하는 학생만** 조회·수정·삭제할 수 있습니다(RLS + 서버 API 이중 확인).
+  `service_role` 은 RLS를 우회하므로, 서버 코드에서 소유권을 따로 검사합니다.
+- 활동 HTML 은 `sandbox="allow-scripts"` iframe 에서 실행되어 **앱 세션·쿠키에 접근할 수 없습니다.**
+  남이 만든 활동을 붙여넣어도 계정이 위험해지지 않습니다(내용 자체는 확인하고 넣으세요).
+- `/setup` 은 **관리자·교사 계정이 0개일 때만** 열리고, 하나라도 있으면 403 입니다.
+- `/demo` 는 **읽기 전용**입니다 — 저장하지 않고, 정답을 내보내지 않으며, 학생 개인정보를 조회하지 않고,
+  AI 호출도 하지 않습니다(비용 발생 차단).
 - `service_role` 키가 노출됐다면 대시보드에서 즉시 rotate 하세요.
 
 ## 7. 다음 단계 (2단계 — AI)

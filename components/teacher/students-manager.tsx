@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { toStudentId, defaultPassword, type StudentRow } from "@/lib/types";
 
@@ -15,6 +15,7 @@ type CreateResult = {
 type StudentProfile = StudentRow & {
   id: string;
   must_change_password: boolean;
+  teacher_id?: string | null; // 담당 교사 (관리자 화면에서만 표시)
 };
 
 type RosterRow = StudentRow & { password?: string };
@@ -54,8 +55,12 @@ function parseRoster(text: string): { rows: RosterRow[]; errors: string[] } {
 
 export default function StudentsManager({
   initialStudents,
+  isAdmin = false,
+  teacherNames = {},
 }: {
   initialStudents: StudentProfile[];
+  isAdmin?: boolean;
+  teacherNames?: Record<string, string>;
 }) {
   const [text, setText] = useState("");
   const [parsed, setParsed] = useState<RosterRow[]>([]);
@@ -65,11 +70,24 @@ export default function StudentsManager({
   const [students, setStudents] = useState<StudentProfile[]>(initialStudents);
   const [message, setMessage] = useState<string | null>(null);
 
+  // 학년·반으로 묶어서 보여 준다 (목록이 길어져도 찾기 쉽게)
+  const classGroups = useMemo(() => {
+    const map = new Map<string, { key: string; grade: number; classNo: number; list: StudentProfile[] }>();
+    for (const s of students) {
+      const key = `${s.grade}-${s.class_no}`;
+      if (!map.has(key)) map.set(key, { key, grade: s.grade, classNo: s.class_no, list: [] });
+      map.get(key)!.list.push(s);
+    }
+    return [...map.values()].sort(
+      (a, b) => a.grade - b.grade || a.classNo - b.classNo
+    );
+  }, [students]);
+
   const loadStudents = useCallback(async () => {
     const supabase = createClient();
     const { data } = await supabase
       .from("profiles")
-      .select("id, grade, class_no, student_no, name, must_change_password")
+      .select("id, grade, class_no, student_no, name, must_change_password, teacher_id")
       .eq("role", "student")
       .order("grade")
       .order("class_no")
@@ -302,53 +320,80 @@ export default function StudentsManager({
         </section>
       )}
 
-      {/* 전체 학생 목록 */}
+      {/* 학생 목록 — 학년·반으로 묶어서 */}
       <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm print:hidden">
-        <h2 className="mb-4 text-lg font-semibold text-zinc-900">
-          전체 학생 ({students.length}명)
+        <h2 className="mb-1 text-lg font-semibold text-zinc-900">
+          {isAdmin ? "전체 학생" : "내 학생"} ({students.length}명)
         </h2>
+        <p className="mb-4 text-sm text-zinc-500">
+          {isAdmin
+            ? "관리자는 모든 교사의 학생을 볼 수 있습니다."
+            : "내가 추가한 학생만 보입니다. 다른 선생님의 학생은 그 선생님 목록에 있어요."}
+        </p>
+
         {students.length === 0 ? (
-          <p className="text-sm text-zinc-500">아직 학생 계정이 없습니다.</p>
+          <p className="text-sm text-zinc-500">
+            아직 학생 계정이 없습니다. 위에서 명단을 붙여넣어 추가하세요.
+          </p>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-zinc-200 text-left text-zinc-500">
-                <th className="py-1 pr-4">학번</th>
-                <th className="py-1 pr-4">이름</th>
-                <th className="py-1 pr-4">비밀번호 변경</th>
-                <th className="py-1"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((s) => (
-                <tr key={s.id} className="border-b border-zinc-100">
-                  <td className="py-1.5 pr-4 font-mono">{toStudentId(s)}</td>
-                  <td className="py-1.5 pr-4">{s.name}</td>
-                  <td className="py-1.5 pr-4">
-                    {s.must_change_password ? (
-                      <span className="text-amber-600">초기비번 상태</span>
-                    ) : (
-                      <span className="text-green-600">변경 완료</span>
-                    )}
-                  </td>
-                  <td className="py-1.5 text-right">
-                    <button
-                      onClick={() => handleResetPassword(s)}
-                      className="mr-3 text-xs text-blue-600 hover:underline"
-                    >
-                      비밀번호 재설정
-                    </button>
-                    <button
-                      onClick={() => handleDelete(s)}
-                      className="text-xs text-red-500 hover:underline"
-                    >
-                      삭제
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="flex flex-col gap-5">
+            {classGroups.map((g) => (
+              <div key={g.key}>
+                <h3 className="mb-1.5 flex items-center gap-2 text-sm font-semibold text-zinc-700">
+                  <span className="h-3.5 w-1 rounded-full bg-blue-500" />
+                  {g.grade}학년 {g.classNo}반
+                  <span className="font-normal text-zinc-400">{g.list.length}명</span>
+                </h3>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-zinc-200 text-left text-zinc-500">
+                      <th className="py-1 pr-4">학번</th>
+                      <th className="py-1 pr-4">이름</th>
+                      <th className="py-1 pr-4">비밀번호 변경</th>
+                      {isAdmin && <th className="py-1 pr-4">담당 교사</th>}
+                      <th className="py-1"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {g.list.map((s) => (
+                      <tr key={s.id} className="border-b border-zinc-100">
+                        <td className="py-1.5 pr-4 font-mono">{toStudentId(s)}</td>
+                        <td className="py-1.5 pr-4">{s.name}</td>
+                        <td className="py-1.5 pr-4">
+                          {s.must_change_password ? (
+                            <span className="text-amber-600">초기비번 상태</span>
+                          ) : (
+                            <span className="text-green-600">변경 완료</span>
+                          )}
+                        </td>
+                        {isAdmin && (
+                          <td className="py-1.5 pr-4 text-zinc-600">
+                            {s.teacher_id
+                              ? (teacherNames[s.teacher_id] ?? "(알 수 없음)")
+                              : <span className="text-amber-600">담당 없음</span>}
+                          </td>
+                        )}
+                        <td className="py-1.5 text-right">
+                          <button
+                            onClick={() => handleResetPassword(s)}
+                            className="mr-3 text-xs text-blue-600 hover:underline"
+                          >
+                            비밀번호 재설정
+                          </button>
+                          <button
+                            onClick={() => handleDelete(s)}
+                            className="text-xs text-red-500 hover:underline"
+                          >
+                            삭제
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
         )}
       </section>
     </div>

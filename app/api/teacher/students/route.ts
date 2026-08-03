@@ -9,6 +9,7 @@ import { toStudentId, defaultPassword, type StudentRow } from "@/lib/types";
 const MAX_ROWS = 300;
 
 // 교사 또는 관리자면 통과 (admin은 교사 권한 포함)
+// 역할까지 함께 돌려준다 — 남의 학생을 건드리지 못하게 확인할 때 쓴다.
 async function requireTeacher() {
   const supabase = await createClient();
   const {
@@ -21,7 +22,24 @@ async function requireTeacher() {
     .select("role")
     .eq("id", user.id)
     .single();
-  return me?.role === "teacher" || me?.role === "admin" ? user : null;
+  if (me?.role !== "teacher" && me?.role !== "admin") return null;
+  return { user, role: me.role as "teacher" | "admin" };
+}
+
+// 이 학생을 다룰 권한이 있는가 (관리자는 전부, 교사는 자기 담당만)
+// service role 클라이언트는 RLS 를 우회하므로 여기서 직접 확인해야 한다.
+async function canManage(
+  admin: ReturnType<typeof createAdminClient>,
+  actor: { user: { id: string }; role: "teacher" | "admin" },
+  studentId: string
+): Promise<boolean> {
+  if (actor.role === "admin") return true;
+  const { data } = await admin
+    .from("profiles")
+    .select("teacher_id, role")
+    .eq("id", studentId)
+    .maybeSingle<{ teacher_id: string | null; role: string }>();
+  return data?.role === "student" && data.teacher_id === actor.user.id;
 }
 
 function isValidRow(s: StudentRow): boolean {
@@ -34,7 +52,8 @@ function isValidRow(s: StudentRow): boolean {
 }
 
 export async function POST(request: Request) {
-  if (!(await requireTeacher())) {
+  const actor = await requireTeacher();
+  if (!actor) {
     return NextResponse.json({ error: "교사만 사용할 수 있습니다." }, { status: 403 });
   }
 
@@ -103,6 +122,7 @@ export async function POST(request: Request) {
       ...row,
       role: "student",
       must_change_password: true,
+      teacher_id: actor.user.id, // 만든 교사가 담당 — 그 교사의 목록에만 뜬다
     });
 
     if (profileError) {
@@ -121,7 +141,8 @@ export async function POST(request: Request) {
 // 학생 비밀번호 재설정 (분실 시). 새 비밀번호 미지정이면 학번으로 초기화.
 // 재설정 후에는 첫 로그인 시 비밀번호 변경이 강제된다.
 export async function PATCH(request: Request) {
-  if (!(await requireTeacher())) {
+  const actor = await requireTeacher();
+  if (!actor) {
     return NextResponse.json({ error: "교사만 사용할 수 있습니다." }, { status: 403 });
   }
 
@@ -152,6 +173,12 @@ export async function PATCH(request: Request) {
       { status: 400 }
     );
   }
+  if (!(await canManage(admin, actor, userId))) {
+    return NextResponse.json(
+      { error: "내가 담당하는 학생만 관리할 수 있습니다." },
+      { status: 403 }
+    );
+  }
 
   // 미지정 시 학번 기반 기본값(s+학번)으로 초기화 — 6자 이상 보장
   const studentId = toStudentId({
@@ -176,7 +203,8 @@ export async function PATCH(request: Request) {
 
 // 학생 계정 삭제 (잘못 생성한 계정 정리용). auth 계정 삭제 시 profiles는 FK cascade.
 export async function DELETE(request: Request) {
-  if (!(await requireTeacher())) {
+  const actor = await requireTeacher();
+  if (!actor) {
     return NextResponse.json({ error: "교사만 사용할 수 있습니다." }, { status: 403 });
   }
 
@@ -196,6 +224,12 @@ export async function DELETE(request: Request) {
     .single();
   if (!target || target.role !== "student") {
     return NextResponse.json({ error: "학생 계정만 삭제할 수 있습니다." }, { status: 400 });
+  }
+  if (!(await canManage(admin, actor, userId))) {
+    return NextResponse.json(
+      { error: "내가 담당하는 학생만 관리할 수 있습니다." },
+      { status: 403 }
+    );
   }
 
   const { error } = await admin.auth.admin.deleteUser(userId);

@@ -1,0 +1,369 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .tog{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer;background:#fff}
+  .tog input{accent-color:var(--blue);width:16px;height:16px}
+  .tog.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .pick{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .pk{border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;padding:7px 4px;border-radius:9px;cursor:pointer}
+  .pk.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  .bad{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 도형의 이동</div>
+    <span class="sheet">📄 성취기준 ⑥⑦ 실생활 연결 · 데스모스 ‘테셀레이션’</span>
+    <h1>🧩 테셀레이션 공방 — 평면을 빈틈없이</h1>
+    <p><b>테셀레이션</b>은 무늬 하나를 반복해 평면을 <b>빈틈도 겹침도 없이</b> 덮는 것입니다.
+       먼저 <b>평행이동만</b>으로 도전해 봅시다. 옆으로 <b>dx</b>, 위로 <b>dy</b> 만큼 옮겨 가며 복사합니다.</p>
+    <div class="lab">
+      <svg id="t0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>dx (가로 간격) <span><b id="t0dxv">80</b></span></label><input id="t0dx" type="range" min="50" max="115" step="1" value="62"></div>
+        <div class="slider"><label>dy (세로 간격) <span><b id="t0dyv">80</b></span></label><input id="t0dy" type="range" min="50" max="115" step="1" value="98"></div>
+        <div class="readout" id="t0r"></div>
+        <div class="win" id="t0w"></div>
+      </div>
+    </div>
+    <p class="hint">타일 한 칸의 크기는 <b>80</b> 입니다. 간격이 그보다 작으면 <b>겹치고</b>, 크면 <b>빈틈</b>이 생겨요.
+      평면을 덮는 평행이동은 아무 값이나 되는 게 아니라 <b>타일 크기의 배수</b>여야 합니다.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">반사를 더하면</div>
+    <span class="sheet">학습지 3-02 · 대칭이동의 실생활 적용</span>
+    <h1>거울을 놓아 보자 — 반사</h1>
+    <p>이번엔 <b>한 칸 걸러 뒤집어</b> 봅시다. 가로 방향으로 뒤집으면 <b>y축 대칭</b>,
+       세로 방향으로 뒤집으면 <b>x축 대칭</b>을 칸마다 적용하는 것과 같아요.</p>
+    <div class="lab">
+      <svg id="t1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <label class="tog" id="t1lc"><input type="checkbox" id="t1c"> 세로줄마다 좌우 뒤집기</label>
+        <label class="tog" id="t1lr"><input type="checkbox" id="t1rw"> 가로줄마다 위아래 뒤집기</label>
+        <div class="readout" id="t1r"></div>
+      </div>
+    </div>
+    <div class="callout">둘 다 켜 보세요. <b>네 칸이 한 덩어리</b>가 되어 나비 날개 같은 무늬가 생깁니다.
+      실제 벽지·타일 디자인이 이 원리로 만들어집니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">회전을 더하면</div>
+    <span class="sheet">데스모스 활동 6 · 이슬람 미술과 테셀레이션</span>
+    <h1>90°씩 돌려 보자 — 회전</h1>
+    <p>칸마다 <b>90°씩 더 돌리면</b> 어떤 무늬가 될까요? 이슬람 미술과 건축은 원과 직선으로 만든
+       기본 형태를 <b>반복·반사·회전</b>시켜 무한히 이어지는 무늬를 만듭니다.</p>
+    <div class="lab">
+      <svg id="t2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <label class="tog" id="t2lo"><input type="checkbox" id="t2rot" checked> 칸마다 90° 회전</label>
+        <label class="tog" id="t2lm"><input type="checkbox" id="t2mir"> 반사도 함께</label>
+        <div class="readout" id="t2r"></div>
+      </div>
+    </div>
+    <p class="hint">회전은 이 단원에서 <b>식으로는</b> 다루지 않지만, 앞 활동의 ‘합성 실험실’에서 보았듯
+      <b>두 번의 대칭 = 회전</b>입니다. 즉 회전도 결국 대칭이동으로 만들 수 있어요.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">창작</div>
+    <h1>🎨 나만의 테셀레이션</h1>
+    <p>무늬와 변환을 마음대로 조합해 자신만의 무늬를 만들어 보세요.
+       <b>어긋나기</b>는 벽돌쌓기처럼 한 줄씩 밀어 놓는 것입니다.</p>
+    <div class="lab">
+      <svg id="t3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div>
+          <div class="hint" style="font-weight:700;margin-bottom:4px">무늬 고르기</div>
+          <div class="pick" id="t3pick">
+            <button class="pk on" data-m="0">잎사귀</button>
+            <button class="pk" data-m="1">부채꼴</button>
+            <button class="pk" data-m="2">별무늬</button>
+          </div>
+        </div>
+        <label class="tog" id="t3lc"><input type="checkbox" id="t3c"> 좌우 뒤집기</label>
+        <label class="tog" id="t3lr"><input type="checkbox" id="t3rw"> 위아래 뒤집기</label>
+        <label class="tog" id="t3lo"><input type="checkbox" id="t3rot"> 90° 회전</label>
+        <div class="slider"><label>어긋나기 <span><b id="t3ofv">0</b></span></label><input id="t3of" type="range" min="0" max="100" step="5" value="0"></div>
+        <button class="btn" id="t3rand" style="width:100%">🎲 무작위 조합</button>
+      </div>
+    </div>
+    <p class="q">마음에 드는 조합을 찾았다면, 아래 ‘내 생각 적기’ 칸에 <b>어떤 이동들을 썼는지</b> 적어 보세요.
+      (예: 평행이동 + 좌우 뒤집기 + 어긋나기 50%)</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>테셀레이션 속의 수학</h1>
+    <table>
+      <tr><th>사용한 이동</th><th>수학 이름</th><th>좌표에서는</th></tr>
+      <tr><td>옆으로·위로 복사</td><td>평행이동</td><td>(x, y) → (x + a, y + b)</td></tr>
+      <tr><td>좌우 뒤집기</td><td>y축 대칭</td><td>(x, y) → (−x, y)</td></tr>
+      <tr><td>위아래 뒤집기</td><td>x축 대칭</td><td>(x, y) → (x, −y)</td></tr>
+      <tr><td>180° 돌리기</td><td>원점 대칭</td><td>(x, y) → (−x, −y)</td></tr>
+      <tr><td>90° 돌리기</td><td>회전 (= 대칭 두 번)</td><td>(x, y) → (−y, x)</td></tr>
+    </table>
+    <div class="callout"><b>놀라운 사실</b> — 평면을 규칙적으로 덮는 무늬의 <b>대칭 방식</b>은
+      아무리 다양해 보여도 수학적으로 <b>딱 17가지</b>뿐입니다(벽지군, wallpaper group).
+      스페인 알람브라 궁전의 무늬들이 그 17가지를 거의 모두 담고 있다고 알려져 있어요.</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에 정리해 보세요.<br>
+      (1) 첫 화면에서 <b>빈틈도 겹침도 없이</b> 덮이는 dx, dy 는 왜 하필 그 값이어야 했나요?<br>
+      (2) 내가 만든 무늬에 쓰인 이동을 <b>좌표 규칙</b>으로 모두 적어 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">보도블록, 욕실 타일, 벌집, 거북 등딱지, 에스허르(Escher)의 판화, 게임의 배경 타일맵 —
+          모두 같은 원리입니다. 결정(crystal) 속 원자 배열도 3차원 테셀레이션이라, 이 수학이 재료공학의 기초가 됩니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">정다각형 중 평면을 혼자서 빈틈없이 덮을 수 있는 것은
+          <b>정삼각형·정사각형·정육각형</b> 셋뿐입니다. 한 점에 모인 각의 합이 정확히 360°가 되어야 하기 때문이에요.
+          정오각형은 내각이 108°라 360°를 만들 수 없습니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>
+      ① 정오각형으로는 왜 평면을 덮을 수 없는지 <b>내각의 크기</b>로 설명해 보세요.<br>
+      ② 그런데 1974년 펜로즈는 <b>규칙이 절대 반복되지 않는</b> 타일 덮기를 발견했습니다.
+      ‘펜로즈 타일’을 찾아보고, 우리가 만든 무늬와 무엇이 다른지 적어 보세요.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 6</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+
+  // 무늬 — 단위정사각형 [0,1]² 안의 선들 -------------------------------------
+  function arc(cx,cy,r,a0,a1){ // 사분원 근사
+    var p=[];
+    for(var i=0;i<=14;i++){var a=a0+(a1-a0)*i/14;p.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}
+    return p;
+  }
+  var MOTIF=[
+    { name:"잎사귀", fill:"rgba(37,99,235,.13)", stroke:"#2563eb",
+      shapes:[ arc(0,0,0.62,0,Math.PI/2).concat(arc(1,1,0.62,Math.PI,Math.PI*1.5)) ],
+      lines:[ [[0,1],[1,0]] ] },
+    { name:"부채꼴", fill:"rgba(5,150,105,.13)", stroke:"#059669",
+      shapes:[ [[0,0]].concat(arc(0,0,0.9,0,Math.PI/2)) ,
+               [[1,1]].concat(arc(1,1,0.45,Math.PI,Math.PI*1.5)) ],
+      lines:[] },
+    { name:"별무늬", fill:"rgba(124,58,237,.13)", stroke:"#7c3aed",
+      shapes:[ [[0.5,0],[0.66,0.34],[1,0.5],[0.66,0.66],[0.5,1],[0.34,0.66],[0,0.5],[0.34,0.34]] ],
+      lines:[ [[0,0],[1,1]] ] }
+  ];
+
+  // 단위정사각형 안에서의 변환 (좌우/상하 뒤집기, 90°씩 회전) -----------------
+  function tp(u,v,fx,fy,rot){
+    if(fx) u=1-u;
+    if(fy) v=1-v;
+    for(var k=0;k<(rot||0);k++){var t=u;u=1-v;v=t;}   // 90° 반시계
+    return [u,v];
+  }
+
+  // 격자 그리기 --------------------------------------------------------------
+  // cfg: {svg, cell, dx, dy, mirrorCol, mirrorRow, rot, offset, motif, showCell}
+  function tile(cfg){
+    var svg=document.getElementById(cfg.svg);
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    var S=400, cell=cfg.cell, dx=cfg.dx, dy=cfg.dy, M=MOTIF[cfg.motif||0];
+    var nx=Math.ceil(S/dx)+2, ny=Math.ceil(S/dy)+2;
+    for(var j=-1;j<ny;j++){
+      for(var i=-1;i<nx;i++){
+        var ox=i*dx + (cfg.offset? (((j%2)+2)%2)*cfg.offset*dx : 0);
+        var oy=S-(j+1)*dy;                       // 아래에서 위로 쌓기
+        var fx=!!cfg.mirrorCol && (((i%2)+2)%2===1);
+        var fy=!!cfg.mirrorRow && (((j%2)+2)%2===1);
+        var rot=cfg.rot ? ((((i+j)%4)+4)%4) : 0;
+        if(cfg.showCell)
+          svg.appendChild(el("rect",{x:ox,y:oy,width:cell,height:cell,fill:"none",
+            stroke:"#e4e4e7","stroke-width":1,"stroke-dasharray":"3 3"}));
+        var s,pts,q,k;
+        for(s=0;s<M.shapes.length;s++){
+          pts=M.shapes[s].map(function(p){var t=tp(p[0],p[1],fx,fy,rot);return (ox+t[0]*cell).toFixed(1)+","+(oy+(1-t[1])*cell).toFixed(1);});
+          svg.appendChild(el("polygon",{points:pts.join(" "),fill:M.fill,stroke:M.stroke,"stroke-width":1.6,"stroke-linejoin":"round"}));
+        }
+        for(k=0;k<M.lines.length;k++){
+          pts=M.lines[k].map(function(p){var t=tp(p[0],p[1],fx,fy,rot);return (ox+t[0]*cell).toFixed(1)+","+(oy+(1-t[1])*cell).toFixed(1);});
+          svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:M.stroke,"stroke-width":1.2,opacity:.55}));
+        }
+      }
+    }
+  }
+
+  function bindTog(labelId,inputId,cb){
+    var lab=document.getElementById(labelId), inp=document.getElementById(inputId);
+    function sync(){lab.className="tog"+(inp.checked?" on":"");cb();}
+    inp.onchange=sync;sync();
+  }
+
+  // 화면 0: 평행이동만 --------------------------------------------------------
+  (function(){
+    var CELL=80, dx=62, dy=98;
+    var read=document.getElementById("t0r"), win=document.getElementById("t0w");
+    function draw(){
+      tile({svg:"t0",cell:CELL,dx:dx,dy:dy,motif:0,showCell:true});
+      document.getElementById("t0dxv").textContent=dx;
+      document.getElementById("t0dyv").textContent=dy;
+      var okx=dx===CELL, oky=dy===CELL;
+      var msg=[];
+      if(!okx) msg.push("가로: "+(dx<CELL?"겹침":"빈틈"));
+      if(!oky) msg.push("세로: "+(dy<CELL?"겹침":"빈틈"));
+      read.innerHTML="타일 크기 <b>80</b> · 간격 (<b>"+dx+"</b>, <b>"+dy+"</b>)"+
+        (msg.length?"<br><span style='color:#991b1b;font-weight:700'>"+msg.join(" · ")+"</span>":"");
+      if(okx&&oky){win.className="win on";win.innerHTML="🎉 빈틈도 겹침도 없이 평면을 덮었습니다! 이동량이 <b>타일 크기와 같을 때</b>만 딱 맞물립니다.";}
+      else win.className="win";
+    }
+    document.getElementById("t0dx").oninput=function(){dx=parseInt(this.value,10);draw();};
+    document.getElementById("t0dy").oninput=function(){dy=parseInt(this.value,10);draw();};
+    draw();
+  })();
+
+  // 화면 1: 반사 --------------------------------------------------------------
+  (function(){
+    var read=document.getElementById("t1r");
+    function draw(){
+      var c=document.getElementById("t1c").checked, r=document.getElementById("t1rw").checked;
+      tile({svg:"t1",cell:80,dx:80,dy:80,motif:0,mirrorCol:c,mirrorRow:r});
+      var on=[];
+      if(c)on.push("y축 대칭(좌우)");
+      if(r)on.push("x축 대칭(위아래)");
+      read.innerHTML=on.length? "쓰고 있는 이동<br>평행이동 + <b>"+on.join(" + ")+"</b>"
+                              : "지금은 <b>평행이동만</b> 쓰고 있습니다.";
+    }
+    bindTog("t1lc","t1c",draw);bindTog("t1lr","t1rw",draw);
+  })();
+
+  // 화면 2: 회전 --------------------------------------------------------------
+  (function(){
+    var read=document.getElementById("t2r");
+    function draw(){
+      var rot=document.getElementById("t2rot").checked, mir=document.getElementById("t2mir").checked;
+      tile({svg:"t2",cell:80,dx:80,dy:80,motif:2,rot:rot,mirrorCol:mir,mirrorRow:mir});
+      read.innerHTML=(rot?"칸마다 <b>90°씩</b> 더 돌립니다.":"회전을 껐습니다.")+
+        (mir?"<br>여기에 <b>반사</b>까지 겹쳤습니다.":"");
+    }
+    bindTog("t2lo","t2rot",draw);bindTog("t2lm","t2mir",draw);
+  })();
+
+  // 화면 3: 창작 --------------------------------------------------------------
+  (function(){
+    var motif=0, off=0;
+    function draw(){
+      tile({svg:"t3",cell:80,dx:80,dy:80,motif:motif,
+        mirrorCol:document.getElementById("t3c").checked,
+        mirrorRow:document.getElementById("t3rw").checked,
+        rot:document.getElementById("t3rot").checked,
+        offset:off/100});
+      document.getElementById("t3ofv").textContent=off+"%";
+    }
+    [].slice.call(document.querySelectorAll("#t3pick .pk")).forEach(function(b){
+      b.onclick=function(){
+        motif=parseInt(b.getAttribute("data-m"),10);
+        [].slice.call(document.querySelectorAll("#t3pick .pk")).forEach(function(o){o.className="pk"+(o===b?" on":"");});
+        draw();
+      };
+    });
+    document.getElementById("t3of").oninput=function(){off=parseInt(this.value,10);draw();};
+    document.getElementById("t3rand").onclick=function(){
+      motif=Math.floor(Math.random()*3);
+      [].slice.call(document.querySelectorAll("#t3pick .pk")).forEach(function(o,k){o.className="pk"+(k===motif?" on":"");});
+      ["t3c","t3rw","t3rot"].forEach(function(id){document.getElementById(id).checked=Math.random()<0.5;});
+      off=[0,0,50][Math.floor(Math.random()*3)];
+      document.getElementById("t3of").value=off;
+      ["t3lc","t3lr","t3lo"].forEach(function(id,k){
+        document.getElementById(id).className="tog"+(document.getElementById(["t3c","t3rw","t3rot"][k]).checked?" on":"");
+      });
+      draw();
+    };
+    bindTog("t3lc","t3c",draw);bindTog("t3lr","t3rw",draw);bindTog("t3lo","t3rot",draw);
+  })();
+
+  // 스테퍼 -------------------------------------------------------------------
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

@@ -1,0 +1,424 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:800}
+  .badge.two{background:#dbeafe;color:#1d4ed8}.badge.tan{background:#dcfce7;color:#059669}.badge.none{background:#fee2e2;color:#b91c1c}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+  @media (max-width:600px){.two-col{grid-template-columns:1fr}}
+  .box{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff}
+  .box h3{margin:0 0 6px;font-size:14.5px}
+  .qz{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0;background:#fff}
+  .opts{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .op{border:1px solid var(--line);background:#fff;font:inherit;font-size:14px;padding:8px 12px;border-radius:9px;cursor:pointer;text-align:left;font-weight:600}
+  .op:hover{border-color:var(--blue)}
+  .op.right{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .op.wrong{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .fb{font-size:13px;margin-top:6px;font-weight:700}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:16px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
+  .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 원과 직선</div>
+    <span class="sheet">📄 학습지 2-02 [생각 틔우기] Q2</span>
+    <h1>🎚 a 를 움직여라</h1>
+    <p>원 <b>x² + y² = 8</b> 과 직선 <b>y = x + a</b> 입니다. 기울기는 1 로 고정이고 <b>a</b> 만 변합니다.
+       슬라이더를 움직이며 <b>세 가지 위치 관계</b>를 모두 만들어 보세요.</p>
+    <div class="lab">
+      <svg id="s0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>a <span><b id="s0av">4</b></span></label><input id="s0a" type="range" min="-7" max="7" step="0.5" value="4"></div>
+        <div class="readout" id="s0r"></div>
+        <div class="win" id="s0w"></div>
+      </div>
+    </div>
+    <p class="hint">a 가 커지면 직선은 <b>왼쪽 위로</b>, 작아지면 <b>오른쪽 아래로</b> 평행이동합니다.
+      기울기가 그대로이므로 <b>평행이동</b>이죠 — 앞 단원에서 배운 그대로예요.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">두 가지 방법</div>
+    <span class="sheet">학습지 2-02 · Q5 두 가지 판단 방법</span>
+    <h1>거리로 볼까, 판별식으로 볼까</h1>
+    <p>같은 상황을 <b>기하적으로</b>(중심과 직선 사이의 거리) 그리고 <b>대수적으로</b>(연립 후 판별식)
+       판단해 봅시다. 두 방법이 <b>언제나 같은 답</b>을 주는지 확인하세요.</p>
+    <div class="lab">
+      <svg id="s1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>a <span><b id="s1av">2</b></span></label><input id="s1a" type="range" min="-7" max="7" step="0.5" value="2"></div>
+        <div class="readout" id="s1r"></div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="box"><h3>① 중심과 직선 사이의 거리</h3>
+        <div style="font-size:13.5px">직선을 <code>x − y + a = 0</code> 으로 쓰면<br>
+          d = |0 − 0 + a| / <span class="sqrt">1² + (−1)²</span> = <b>|a| / <span class="sqrt">2</span></b><br>
+          반지름 r = <span class="sqrt">8</span> = 2<span class="sqrt">2</span><br>
+          <b>d &lt; r</b> ⟺ |a| &lt; 4</div>
+      </div>
+      <div class="box"><h3>② 연립 후 판별식</h3>
+        <div style="font-size:13.5px">y = x + a 를 대입하면<br>
+          x² + (x + a)² = 8 → <b>2x² + 2ax + a² − 8 = 0</b><br>
+          D/4 = a² − 2(a² − 8) = <b>16 − a²</b><br>
+          <b>D &gt; 0</b> ⟺ |a| &lt; 4</div>
+      </div>
+    </div>
+    <div class="callout"><b>왜 같은 답이 나올까?</b> 판별식은 “교점의 <b>개수</b>”를 세는 도구이고,
+      거리는 “직선이 원에 얼마나 <b>가까운가</b>”를 재는 도구입니다.
+      원은 중심에서 거리가 r 인 점들의 모임이니, 두 이야기는 결국 같은 이야기예요.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">확인</div>
+    <span class="sheet">학습지 2-02 · Q2 (4)(5)(6) a 의 범위 구하기</span>
+    <h1>a 의 범위를 말해 보자</h1>
+    <p>원 <b>x² + y² = 8</b>, 직선 <b>y = x + a</b> 입니다. 앞 화면에서 관찰한 것을 바탕으로 답해 보세요.</p>
+    <div id="quiz"></div>
+    <div class="win" id="qzw"></div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">예제 1</div>
+    <span class="sheet">학습지 2-02 · Q3 [예제1] 거리로 판단하기</span>
+    <h1>중심이 원점이 아니라면?</h1>
+    <p>원 <b>(x + 1)² + (y − 2)² = 8</b> 과 직선 <b>y = x − 1</b> 의 위치 관계를 판단해 봅시다.
+       중심이 원점이 아니어도 방법은 똑같습니다 — <b>중심에서 직선까지의 거리</b>를 재면 됩니다.</p>
+    <div class="lab">
+      <svg id="s2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout">
+          중심 <b>(−1, 2)</b>, r = <b>2<span class="sqrt">2</span> ≈ 2.83</b><br>
+          직선: x − y − 1 = 0<br>
+          d = |(−1) − 2 − 1| / <span class="sqrt">2</span><br>
+          &nbsp;&nbsp;= 4 / <span class="sqrt">2</span> = <b>2<span class="sqrt">2</span> ≈ 2.83</b>
+        </div>
+        <div class="win win on" style="display:block">d = r 이므로 <b>접합니다</b> (교점 1개)</div>
+      </div>
+    </div>
+    <p class="hint">그림에서도 직선이 원에 <b>살짝 스치듯</b> 닿아 있습니다. 접점의 좌표는 중심에서 직선에 내린
+      <b>수선의 발</b>이에요.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">예제 2</div>
+    <span class="sheet">학습지 2-02 · Q4 [예제2] 판별식으로 범위 구하기</span>
+    <h1>서로 다른 두 점에서 만날 k 의 범위</h1>
+    <p>원 <b>x² + y² = 5</b> 와 직선 <b>y = 2x + k</b> 가 <b>서로 다른 두 점</b>에서 만나도록 하는
+       실수 k 의 범위를 구해 봅시다. 슬라이더로 먼저 눈으로 찾고, 계산으로 확인하세요.</p>
+    <div class="lab">
+      <svg id="s3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>k <span><b id="s3kv">0</b></span></label><input id="s3k" type="range" min="-8" max="8" step="0.5" value="0"></div>
+        <div class="readout" id="s3r"></div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="box"><h3>거리로</h3>
+        <div style="font-size:13.5px">2x − y + k = 0 이므로<br>
+          d = |k| / <span class="sqrt">5</span> &lt; <span class="sqrt">5</span> = r<br>
+          → |k| &lt; 5 → <b>−5 &lt; k &lt; 5</b></div>
+      </div>
+      <div class="box"><h3>판별식으로</h3>
+        <div style="font-size:13.5px">x² + (2x + k)² = 5<br>
+          → <b>5x² + 4kx + k² − 5 = 0</b><br>
+          D/4 = 4k² − 5(k² − 5) = <b>25 − k²</b> &gt; 0<br>
+          → <b>−5 &lt; k &lt; 5</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>한눈에 정리</h1>
+    <table>
+      <tr><th>위치 관계</th><th>교점</th><th>거리로</th><th>판별식으로</th></tr>
+      <tr><td>서로 다른 두 점에서 만남</td><td>2개</td><td>d &lt; r</td><td>D &gt; 0</td></tr>
+      <tr><td>접함</td><td>1개</td><td>d = r</td><td>D = 0</td></tr>
+      <tr><td>만나지 않음</td><td>0개</td><td>d &gt; r</td><td>D &lt; 0</td></tr>
+    </table>
+    <div class="card"><b>어느 쪽을 쓸까?</b><br>
+      · <b>위치 관계만</b> 알면 될 때 → <b>거리</b>가 훨씬 빠릅니다(제곱·전개가 없음).<br>
+      · <b>교점의 좌표</b>까지 필요할 때 → <b>연립</b>해야 하므로 판별식 쪽이 자연스럽습니다.</div>
+    <div class="callout"><b>주의</b> — 직선이 <code>x = k</code> 꼴(세로선)이면 y = mx + n 으로 쓸 수 없습니다.
+      원과 직선 문제에서 <b>기울기가 없는 경우</b>를 빠뜨리지 않도록 늘 확인하세요.
+      (다음 활동 ‘원의 접선의 방정식’에서 이 함정을 자세히 다룹니다.)</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에 정리해 보세요.<br>
+      (1) 두 판단 방법이 <b>왜 같은 답</b>을 주는지 자신의 말로 설명하세요.<br>
+      (2) 원 x² + y² = 8 과 직선 y = x + a 가 <b>접할</b> a 를 두 방법으로 각각 구해 보세요.<br>
+      (3) 어떤 상황에서 어느 방법이 유리한지 예를 들어 적어 보세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">게임에서 총알(직선)이 캐릭터의 판정 원에 맞았는지,
+          자율주행차의 경로(직선)가 장애물의 안전 반경에 들어오는지 — 모두 “중심과 직선 사이의 거리 vs 반지름” 한 줄로 판정합니다.
+          제곱근을 피하려고 <b>거리²과 r²</b> 을 비교하는 것도 실제 코드의 관행이에요.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">D &lt; 0 이면 “만나지 않는다”고 배웠지만, 복소수까지 허용하면
+          <b>허수 교점 두 개</b>가 있습니다. 대수기하학은 이렇게 “언제나 교점의 개수가 같다”고 말할 수 있는 세계를 만들어
+          이론을 훨씬 깔끔하게 만듭니다(베주 정리).</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>
+      ① 기울기가 <b>m 으로 고정</b>된 직선 y = mx + a 가 원 x² + y² = r² 에 접할 때,
+      a 를 m 과 r 로 나타내 보세요. (답이 <b>두 개</b> 나오는 이유도 함께)<br>
+      ② 직선이 원을 지나며 만드는 <b>현의 길이</b>는 d 와 r 로 어떻게 표현될까요? 피타고라스를 써 보세요.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 7</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function f1(v){return (Math.round(v*100)/100).toFixed(2);}
+  function num(v){var r=Math.round(v*100)/100;return r<0?"−"+(-r):""+r;}
+  function sgn(v){return v<0?"− "+(-v):"+ "+v;}
+
+  function Plane(svg,lo,hi){
+    var S=400,pad=26,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}
+    function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,sc:sc,lo:lo,hi:hi,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){
+        for(var g=Math.ceil(lo);g<=hi;g++){
+          svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));
+          svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));
+        }
+        svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+        svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+      },
+      circle:function(cx,cy,r,color,w,fill){
+        svg.appendChild(el("circle",{cx:px(cx),cy:py(cy),r:r*sc,fill:fill||"none",stroke:color,"stroke-width":w||2.6}));
+      },
+      line:function(m,b,color,w,dash){
+        var o={x1:px(lo),y1:py(m*lo+b),x2:px(hi),y2:py(m*hi+b),stroke:color,"stroke-width":w||2.6,"stroke-linecap":"round"};
+        if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));
+      },
+      seg:function(x1,y1,x2,y2,color,w,dash){
+        var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2,"stroke-linecap":"round"};
+        if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));
+      },
+      dot:function(x,y,color,label,r,dy){
+        svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||5,fill:color}));
+        if(label){var t=el("text",{x:px(x)+9,y:py(y)+(dy||-9),"font-size":12.5,"font-weight":800,fill:color});t.textContent=label;svg.appendChild(t);}
+      }
+    };
+  }
+
+  // 중심(cx,cy) 에서 직선 y = mx + b 에 내린 수선의 발
+  function foot(cx,cy,m,b){
+    var x=(cx+m*(cy-b))/(m*m+1);
+    return [x,m*x+b];
+  }
+
+  // 화면 0 · 1 공용: x²+y²=8 과 y=x+a -----------------------------------------
+  function circleLine(svgId,readId,winId,inputId,valId,withDist){
+    var P=Plane(document.getElementById(svgId),-8,8), a=parseFloat(document.getElementById(inputId).value);
+    var R=Math.sqrt(8), seen={};
+    var read=document.getElementById(readId), win=winId?document.getElementById(winId):null;
+    function draw(){
+      P.clear();P.grid();
+      P.circle(0,0,R,"#2563eb",2.8,"rgba(37,99,235,.05)");
+      P.line(1,a,"#e11d48",2.6);
+      var d=Math.abs(a)/Math.SQRT2, D4=16-a*a, tag, cls, key;
+      if(Math.abs(D4)<1e-9){tag="접한다 (교점 1개)";cls="tan";key="tan";}
+      else if(D4>0){tag="서로 다른 두 점에서 만난다";cls="two";key="two";}
+      else {tag="만나지 않는다";cls="none";key="none";}
+      seen[key]=true;
+      // 교점
+      if(D4>=0){
+        var s=Math.sqrt(Math.max(0,16-a*a));
+        var x1=(-a+s)/2, x2=(-a-s)/2;
+        P.dot(x1,x1+a,"#e11d48",null,5);
+        if(D4>1e-9) P.dot(x2,x2+a,"#e11d48",null,5);
+      }
+      if(withDist){
+        var F=foot(0,0,1,a);
+        P.seg(0,0,F[0],F[1],"#059669",2.2,"5 4");
+        P.dot(0,0,"#2563eb",null,4);
+      }
+      document.getElementById(valId).textContent=a;
+      read.innerHTML="직선 y = x "+sgn(a)+"<br><span class='badge "+cls+"'>"+tag+"</span>"+
+        (withDist
+          ? "<br>d = |a|/<span class='sqrt'>2</span> = <b>"+f1(d)+"</b><br>r = 2<span class='sqrt'>2</span> = <b>"+f1(R)+"</b>"+
+            "<br>D/4 = 16 − a² = <b>"+f1(D4)+"</b><br><span class='hint'>d "+(Math.abs(d-R)<1e-6?"=":(d<R?"<":">"))+" r 이고 D "+(Math.abs(D4)<1e-9?"=":(D4>0?">":"<"))+" 0 — 같은 결론!</span>"
+          : "<br><span class='hint'>중심에서 직선까지 거리 d = "+f1(d)+", 반지름 r = "+f1(R)+"</span>");
+      if(win&&seen.two&&seen.tan&&seen.none){
+        win.className="win on";
+        win.innerHTML="🎉 세 가지 위치 관계를 모두 만들었습니다! 접하는 순간의 a 는 <b>a = 4</b> 와 <b>a = −4</b> 두 개죠.";
+      }
+    }
+    document.getElementById(inputId).oninput=function(){a=parseFloat(this.value);draw();};
+    draw();
+  }
+  circleLine("s0","s0r","s0w","s0a","s0av",false);
+  circleLine("s1","s1r",null,"s1a","s1av",true);
+
+  // 화면 2: 퀴즈 --------------------------------------------------------------
+  (function(){
+    var Q=[
+      { q:"① 서로 다른 <b>두 점</b>에서 만날 a 의 범위는?",
+        o:["−4 &lt; a &lt; 4","a &lt; −4 또는 a &gt; 4","a = 4 또는 a = −4"], c:0,
+        why:"d = |a|/√2 &lt; 2√2 ⟺ |a| &lt; 4. 판별식으로도 16 − a² &gt; 0 ⟺ |a| &lt; 4 입니다." },
+      { q:"② <b>접할</b> 때의 a 값은?",
+        o:["a = 0","a = 4 또는 a = −4","a = 8 또는 a = −8"], c:1,
+        why:"d = r 이므로 |a|/√2 = 2√2 → |a| = 4. 접선은 원의 <b>양쪽</b>에 하나씩, 총 2개입니다." },
+      { q:"③ <b>만나지 않을</b> a 의 범위는?",
+        o:["−4 &lt; a &lt; 4","a = 4 또는 a = −4","a &lt; −4 또는 a &gt; 4"], c:2,
+        why:"d &gt; r ⟺ |a| &gt; 4. 직선이 원에서 충분히 멀어진 경우입니다." }
+    ];
+    var box=document.getElementById("quiz"), win=document.getElementById("qzw"), done=0, answered=[];
+    Q.forEach(function(item,i){
+      var d=document.createElement("div");d.className="qz";
+      var h=document.createElement("div");h.innerHTML=item.q;h.style.fontWeight="700";d.appendChild(h);
+      var op=document.createElement("div");op.className="opts";
+      var fb=document.createElement("div");fb.className="fb";
+      item.o.forEach(function(txt,k){
+        var b=document.createElement("button");b.className="op";b.innerHTML=txt;
+        b.onclick=function(){
+          if(answered[i])return;
+          if(k===item.c){
+            b.className="op right";answered[i]=true;done++;
+            fb.style.color="#065f46";fb.innerHTML="✅ 정답! "+item.why;
+            if(done===Q.length){win.className="win on";win.innerHTML="🎉 세 문제 모두 정답! 이제 학습지 Q2 (4)(5)(6) 을 자신 있게 적어 보세요.";}
+          } else {
+            b.className="op wrong";
+            fb.style.color="#991b1b";fb.innerHTML="다시 생각해 보세요. 앞 화면에서 a 를 그 범위로 놓아 보면 어떻게 되나요?";
+          }
+        };
+        op.appendChild(b);
+      });
+      d.appendChild(op);d.appendChild(fb);box.appendChild(d);
+    });
+  })();
+
+  // 화면 3: 예제1 — (x+1)²+(y−2)²=8, y=x−1 ------------------------------------
+  (function(){
+    var P=Plane(document.getElementById("s2"),-8,8), C=[-1,2], R=Math.sqrt(8);
+    P.grid();
+    P.circle(C[0],C[1],R,"#2563eb",2.8,"rgba(37,99,235,.05)");
+    P.line(1,-1,"#e11d48",2.6);
+    var F=foot(C[0],C[1],1,-1);
+    P.seg(C[0],C[1],F[0],F[1],"#059669",2.2,"5 4");
+    P.dot(C[0],C[1],"#2563eb","중심(−1, 2)",5);
+    P.dot(F[0],F[1],"#e11d48","접점("+f1(F[0])+", "+f1(F[1])+")",6,18);
+  })();
+
+  // 화면 4: 예제2 — x²+y²=5, y=2x+k -------------------------------------------
+  (function(){
+    var P=Plane(document.getElementById("s3"),-8,8), k=0, R=Math.sqrt(5);
+    var read=document.getElementById("s3r");
+    function draw(){
+      P.clear();P.grid();
+      P.circle(0,0,R,"#2563eb",2.8,"rgba(37,99,235,.05)");
+      P.line(2,k,"#e11d48",2.6);
+      var d=Math.abs(k)/Math.sqrt(5), D4=25-k*k, tag, cls;
+      if(Math.abs(D4)<1e-9){tag="접한다";cls="tan";}
+      else if(D4>0){tag="두 점에서 만난다";cls="two";}
+      else {tag="만나지 않는다";cls="none";}
+      if(D4>=0){
+        var s=Math.sqrt(Math.max(0,25-k*k));
+        var x1=(-2*k+s)/5, x2=(-2*k-s)/5;
+        P.dot(x1,2*x1+k,"#e11d48",null,5);
+        if(D4>1e-9) P.dot(x2,2*x2+k,"#e11d48",null,5);
+      }
+      document.getElementById("s3kv").textContent=k;
+      read.innerHTML="직선 y = 2x "+sgn(k)+"<br><span class='badge "+cls+"'>"+tag+"</span>"+
+        "<br>d = |k|/<span class='sqrt'>5</span> = <b>"+f1(d)+"</b><br>r = <span class='sqrt'>5</span> = <b>"+f1(R)+"</b>"+
+        "<br>D/4 = 25 − k² = <b>"+f1(D4)+"</b>";
+    }
+    document.getElementById("s3k").oninput=function(){k=parseFloat(this.value);draw();};
+    draw();
+  })();
+
+  // 스테퍼 -------------------------------------------------------------------
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

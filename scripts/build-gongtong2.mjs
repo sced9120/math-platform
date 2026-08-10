@@ -48,24 +48,26 @@ if (!subject) {
   console.log(`✔ 교과 공개: ${SUBJECT.title}`);
 }
 
-// 2) 단원 보장 (기존 '공통수학2' 단원은 Ⅰ단원으로 재활용) --------------------
-const legacy = await s.from("units").select("id")
-  .eq("title", "공통수학2").eq("grade", SUBJECT.grade).maybeSingle();
-
+// 2) 단원 보장 (옛 이름의 단원이 남아 있으면 이름만 바꿔 재사용) --------------
 const unitIdByKey = {};
+const claimed = new Set();          // 한 단원을 두 key 가 가져가지 않도록
 for (const u of UNITS) {
   let { data: row } = await s.from("units").select("id, is_published")
     .eq("title", u.title).eq("grade", SUBJECT.grade).maybeSingle();
 
-  if (!row && u.key === "I" && legacy.data) {
-    // 옛 '공통수학2' 단원의 이름을 바꿔 그대로 쓴다(활동이 딸려 있으므로 이동 최소화)
+  for (const old of row ? [] : (u.legacy ?? [])) {
+    const { data: prev } = await s.from("units").select("id")
+      .eq("title", old).eq("grade", SUBJECT.grade).maybeSingle();
+    if (!prev || claimed.has(prev.id)) continue;
+    // 활동이 딸려 있으므로 새로 만들지 않고 이름만 바꿔 그대로 쓴다
     const upd = await s.from("units")
       .update({ title: u.title, order_index: u.order_index, subject_id: subject.id,
                 ...(PUBLISH ? { is_published: true } : {}) })
-      .eq("id", legacy.data.id).select("id, is_published").single();
+      .eq("id", prev.id).select("id, is_published").single();
     if (upd.error) { console.error("단원 전환 실패:", upd.error.message); process.exit(1); }
-    row = upd.data;
-    console.log(`✔ 단원 전환: "공통수학2" → "${u.title}"`);
+    row = upd.data; claimed.add(prev.id);
+    console.log(`✔ 단원 전환: "${old}" → "${u.title}"`);
+    break;
   }
 
   if (!row) {
@@ -83,6 +85,7 @@ for (const u of UNITS) {
     }).eq("id", row.id);
   }
   unitIdByKey[u.key] = row.id;
+  claimed.add(row.id);
 }
 
 const unitIds = Object.values(unitIdByKey);

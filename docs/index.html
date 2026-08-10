@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>공통수학2 수학 활동 아카이브</title>
-<meta name="description" content="고등학교 공통수학2 수업용 인터랙티브 수학 활동 22개. 설치 없이 브라우저에서 바로 조작해 볼 수 있습니다." />
+<meta name="description" content="고등학교 공통수학2 수업용 인터랙티브 수학 활동 30개. 설치 없이 브라우저에서 바로 조작해 볼 수 있습니다." />
 <meta property="og:title" content="공통수학2 수학 활동 아카이브" />
-<meta property="og:description" content="브라우저에서 바로 조작하는 인터랙티브 수학 활동 22개" />
+<meta property="og:description" content="브라우저에서 바로 조작하는 인터랙티브 수학 활동 30개" />
 <style>
   :root{--bg:#fafafa;--card:#fff;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--soft:#eff6ff}
   *{box-sizing:border-box}
@@ -36,6 +36,8 @@
   .body{flex:1;min-width:0}
   .t{display:block;font-weight:600}
   .d{display:block;font-size:13.5px;color:var(--muted);margin-top:2px}
+  .sh{display:inline-block;margin-top:5px;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;
+      border-radius:999px;padding:1px 9px;font-size:11.5px;font-weight:700}
   .go{flex:none;font-size:13px;color:var(--blue);font-weight:600}
   .meta{display:block;padding:0 16px 10px;font-size:11.5px;color:#a1a1aa}
   footer{margin-top:44px;padding-top:22px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
@@ -50,7 +52,7 @@
   <div class="wrap">
     <header>
       <h1>공통수학2 수학 활동 아카이브</h1>
-      <p class="sub">고등학교 1학년 · 2022 개정 교육과정 · 인터랙티브 활동 22개</p>
+      <p class="sub">고등학교 1학년 · 2022 개정 교육과정 · 인터랙티브 활동 30개</p>
     </header>
 
     <p class="lead">
@@ -72,25 +74,51 @@
     </p>
 
       <section class="unit">
-        <h2>Ⅰ. 도형의 방정식 <span class="cnt">활동 10개</span></h2>
+        <h2>Ⅰ-1. 평면좌표와 직선의 방정식 <span class="cnt">활동 7개</span></h2>
         <ul class="cards">
         <li class="card">
-          <a href="activities/gongtong2-00-distance-two-points.html">
+          <a href="activities/gongtong2-00b-bulguksa-coordinate.html">
             <span class="no">1</span>
             <span class="body">
-              <span class="t">두 점 사이의 거리</span>
-              <span class="d">수직선 |b−a| → 피타고라스 → 삼각형 모양 자동 판정 → 수직이등분선 발견</span>
+              <span class="t">불국사에서 좌표까지</span>
+              <span class="d">불국사 배치도 → 수직선 → 좌표평면. 원점을 옮겨도 거리는 그대로</span>
+              <span class="sh">📄 학습지 1-01 [생각 틔우기]</span>
             </span>
             <span class="go">열기 →</span>
           </a>
-          <span class="meta">23KB · 단일 HTML</span>
+          <span class="meta">25KB · 단일 HTML</span>
+        </li>
+        <li class="card">
+          <a href="activities/gongtong2-00-distance-two-points.html">
+            <span class="no">2</span>
+            <span class="body">
+              <span class="t">두 점 사이의 거리</span>
+              <span class="d">수직선 |b−a| → 피타고라스 → 삼각형 모양 자동 판정 → 수직이등분선 발견</span>
+              <span class="sh">📄 학습지 1-01 [일반화하기]·[연습하기]</span>
+            </span>
+            <span class="go">열기 →</span>
+          </a>
+          <span class="meta">24KB · 단일 HTML</span>
+        </li>
+        <li class="card">
+          <a href="activities/gongtong2-00c-median-theorem.html">
+            <span class="no">3</span>
+            <span class="body">
+              <span class="t">파푸스의 중선 정리</span>
+              <span class="d">삼각형을 끌며 실시간 확인 → 좌표를 어디에 놓느냐로 증명이 세 줄이 된다</span>
+              <span class="sh">📄 학습지 1-01 [증명하기] 교과서 14p</span>
+            </span>
+            <span class="go">열기 →</span>
+          </a>
+          <span class="meta">21KB · 단일 HTML</span>
         </li>
         <li class="card">
           <a href="activities/gongtong2-01-segment-division.html">
-            <span class="no">2</span>
+            <span class="no">4</span>
             <span class="body">
               <span class="t">선분의 내분</span>
               <span class="d">1차원에서 2차원으로 확장. 지레의 원리와 삼각형 무게중심까지</span>
+              <span class="sh">📄 학습지 1-01 [탐구] 내분과 등분</span>
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -98,10 +126,11 @@
         </li>
         <li class="card">
           <a href="activities/gongtong2-02b-line-equation.html">
-            <span class="no">3</span>
+            <span class="no">5</span>
             <span class="body">
               <span class="t">직선의 방정식</span>
               <span class="d">한 점+기울기 / 두 점 중 무엇이 직선을 정하는지 직접 조작</span>
+              <span class="sh">📄 학습지 1-02 [생각 틔우기]·교과서 18p</span>
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -109,10 +138,11 @@
         </li>
         <li class="card">
           <a href="activities/gongtong2-02-parallel-perpendicular.html">
-            <span class="no">4</span>
+            <span class="no">6</span>
             <span class="body">
               <span class="t">두 직선의 평행과 수직</span>
               <span class="d">기울기 두 개를 움직여 평행·일치·수직을 실시간 판정</span>
+              <span class="sh">📄 학습지 1-02 [평행·수직 조건] 교과서 20~22p</span>
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -120,32 +150,65 @@
         </li>
         <li class="card">
           <a href="activities/gongtong2-03-point-line-distance.html">
-            <span class="no">5</span>
+            <span class="no">7</span>
             <span class="body">
               <span class="t">점과 직선 사이의 거리</span>
               <span class="d">수선이 가장 짧은 이유를 눈으로. 거리 공식이 실시간 계산</span>
-            </span>
-            <span class="go">열기 →</span>
-          </a>
-          <span class="meta">18KB · 단일 HTML</span>
-        </li>
-        <li class="card">
-          <a href="activities/gongtong2-04-circle-equation.html">
-            <span class="no">6</span>
-            <span class="body">
-              <span class="t">원의 방정식</span>
-              <span class="d">중심 드래그·일반형↔표준형 변환·아폴로니오스의 원</span>
+              <span class="sh">📄 학습지 1-02 [점과 직선 사이의 거리] 교과서 24p</span>
             </span>
             <span class="go">열기 →</span>
           </a>
           <span class="meta">19KB · 단일 HTML</span>
         </li>
+        </ul>
+      </section>
+
+      <section class="unit">
+        <h2>Ⅰ-2. 원의 방정식 <span class="cnt">활동 5개</span></h2>
+        <ul class="cards">
+        <li class="card">
+          <a href="activities/gongtong2-04-circle-equation.html">
+            <span class="no">1</span>
+            <span class="body">
+              <span class="t">원의 방정식</span>
+              <span class="d">중심 드래그·일반형↔표준형 변환·아폴로니오스의 원</span>
+              <span class="sh">📄 학습지 2-01 Q3·Q4 원의 방정식</span>
+            </span>
+            <span class="go">열기 →</span>
+          </a>
+          <span class="meta">20KB · 단일 HTML</span>
+        </li>
+        <li class="card">
+          <a href="activities/gongtong2-04b-circle-three-points.html">
+            <span class="no">2</span>
+            <span class="body">
+              <span class="t">세 점을 지나는 원</span>
+              <span class="d">컴퍼스로 원의 정의 → 두 원의 교점으로 작도 → 세 점을 지나는 원 찾기</span>
+              <span class="sh">📄 학습지 2-01 [생각 틔우기]·[실생활] 용접 로봇</span>
+            </span>
+            <span class="go">열기 →</span>
+          </a>
+          <span class="meta">26KB · 단일 HTML</span>
+        </li>
+        <li class="card">
+          <a href="activities/gongtong2-05c-circle-line-lab.html">
+            <span class="no">3</span>
+            <span class="body">
+              <span class="t">a 를 움직여라 — 원과 직선 실험실</span>
+              <span class="d">a 를 움직여 세 위치 관계를 만들고, 거리와 판별식이 같은 답을 주는지 대조</span>
+              <span class="sh">📄 학습지 2-02 [생각 틔우기] Q2</span>
+            </span>
+            <span class="go">열기 →</span>
+          </a>
+          <span class="meta">25KB · 단일 HTML</span>
+        </li>
         <li class="card">
           <a href="activities/gongtong2-05-circle-line.html">
-            <span class="no">7</span>
+            <span class="no">4</span>
             <span class="body">
               <span class="t">원과 직선의 위치 관계</span>
               <span class="d">거리 d와 반지름 r 비교, 기하와 대수(판별식)가 만나는 지점</span>
+              <span class="sh">📄 학습지 2-02 Q5 [스스로 정리하기]</span>
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -153,36 +216,93 @@
         </li>
         <li class="card">
           <a href="activities/gongtong2-05b-circle-tangent.html">
-            <span class="no">8</span>
+            <span class="no">5</span>
             <span class="body">
               <span class="t">원의 접선의 방정식</span>
               <span class="d">기울기·접점·원 밖의 점 — 세 유형을 각각 조작해 보기</span>
+              <span class="sh">📄 학습지 2-02 [접선의 방정식] 교과서 37~40p</span>
             </span>
             <span class="go">열기 →</span>
           </a>
-          <span class="meta">20KB · 단일 HTML</span>
+          <span class="meta">21KB · 단일 HTML</span>
         </li>
+        </ul>
+      </section>
+
+      <section class="unit">
+        <h2>Ⅰ-3. 도형의 이동 <span class="cnt">활동 6개</span></h2>
+        <ul class="cards">
         <li class="card">
           <a href="activities/gongtong2-06-translation.html">
-            <span class="no">9</span>
+            <span class="no">1</span>
             <span class="body">
               <span class="t">평행이동</span>
               <span class="d">점은 +a, 도형은 −a. 부호가 반대인 이유를 그래프로</span>
+              <span class="sh">📄 학습지 3-01 Q1~Q5 평행이동</span>
             </span>
             <span class="go">열기 →</span>
           </a>
           <span class="meta">16KB · 단일 HTML</span>
         </li>
         <li class="card">
+          <a href="activities/gongtong2-06b-star-translation.html">
+            <span class="no">2</span>
+            <span class="body">
+              <span class="t">⭐ 별 먹기 — 평행이동</span>
+              <span class="d">직선·포물선·원의 식을 조절해 별을 모두 획득하는 게임</span>
+              <span class="sh">📄 학습지 3-01 Q1~Q4 · 데스모스 ‘동전 먹기’</span>
+            </span>
+            <span class="go">열기 →</span>
+          </a>
+          <span class="meta">21KB · 단일 HTML</span>
+        </li>
+        <li class="card">
           <a href="activities/gongtong2-07-reflection.html">
-            <span class="no">10</span>
+            <span class="no">3</span>
             <span class="body">
               <span class="t">대칭이동</span>
               <span class="d">점의 네 대칭을 동시에. 두 대칭을 합성하면 회전이 나온다</span>
+              <span class="sh">📄 학습지 3-02 Q3~Q8 대칭이동</span>
             </span>
             <span class="go">열기 →</span>
           </a>
           <span class="meta">20KB · 단일 HTML</span>
+        </li>
+        <li class="card">
+          <a href="activities/gongtong2-07b-star-reflection.html">
+            <span class="no">4</span>
+            <span class="body">
+              <span class="t">⭐ 별 먹기 — 대칭이동</span>
+              <span class="d">대칭 버튼으로 별 모으기 + 두 대칭을 이으면 무엇이 되는지 실험</span>
+              <span class="sh">📄 학습지 3-02 Q3·Q5~Q7 · 대칭 합성</span>
+            </span>
+            <span class="go">열기 →</span>
+          </a>
+          <span class="meta">29KB · 단일 HTML</span>
+        </li>
+        <li class="card">
+          <a href="activities/gongtong2-07d-shortest-path.html">
+            <span class="no">5</span>
+            <span class="body">
+              <span class="t">최단 경로 — 대칭이동의 쓸모</span>
+              <span class="d">강가·거울·당구 — 대칭이동으로 꺾인 길을 곧은 길로 바꾸기</span>
+              <span class="sh">📄 학습지 3-02 성취기준(상) · 최단 거리</span>
+            </span>
+            <span class="go">열기 →</span>
+          </a>
+          <span class="meta">24KB · 단일 HTML</span>
+        </li>
+        <li class="card">
+          <a href="activities/gongtong2-07c-tessellation.html">
+            <span class="no">6</span>
+            <span class="body">
+              <span class="t">🧩 테셀레이션 공방</span>
+              <span class="d">평행이동·반사·회전을 조합해 평면을 빈틈없이 덮는 무늬 만들기</span>
+              <span class="sh">📄 성취기준 ⑥⑦ 실생활 연결 · 데스모스 ‘테셀레이션’</span>
+            </span>
+            <span class="go">열기 →</span>
+          </a>
+          <span class="meta">22KB · 단일 HTML</span>
         </li>
         </ul>
       </section>
@@ -196,6 +316,7 @@
             <span class="body">
               <span class="t">집합의 뜻과 포함관계</span>
               <span class="d">집합 판별 퀴즈 + 부분집합 직접 만들기(2ⁿ의 의미)</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -207,6 +328,7 @@
             <span class="body">
               <span class="t">교집합과 합집합</span>
               <span class="d">클릭으로 영역 강조, 분배법칙을 벤 다이어그램으로 확인</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -218,6 +340,7 @@
             <span class="body">
               <span class="t">여집합과 차집합</span>
               <span class="d">드모르간 법칙을 두 식이 같은 영역임을 눌러 비교</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -229,6 +352,7 @@
             <span class="body">
               <span class="t">명제와 조건</span>
               <span class="d">무엇이 명제인지 퀴즈 + 조건을 진리집합으로 옮기기</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -240,6 +364,7 @@
             <span class="body">
               <span class="t">명제 사이의 관계</span>
               <span class="d">p→q가 거짓인 유일한 경우를 토글로. 역·이·대우와 필요충분조건</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -251,6 +376,7 @@
             <span class="body">
               <span class="t">명제의 증명</span>
               <span class="d">연역법·대우·귀류법(√2)과 산술기하평균</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -262,6 +388,7 @@
             <span class="body">
               <span class="t">범인을 찾아라 (논리 추론)</span>
               <span class="d">증언을 명제로 번역 → 대우로 연쇄 → 카드를 눌러 범인 찾기</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -279,6 +406,7 @@
             <span class="body">
               <span class="t">함수</span>
               <span class="d">대응 다이어그램으로 함수/일대일함수/일대일대응 구분</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -290,6 +418,7 @@
             <span class="body">
               <span class="t">합성함수</span>
               <span class="d">함수 기계 두 대를 연결. g∘f ≠ f∘g를 직접 확인</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -301,6 +430,7 @@
             <span class="body">
               <span class="t">역함수</span>
               <span class="d">대응 뒤집기와 y=x 대칭. 식 구하는 3단계</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -312,6 +442,7 @@
             <span class="body">
               <span class="t">유리함수</span>
               <span class="d">y=(ax+b)/(cx+d)를 k/(x−p)+q로 변형해 점근선 찾기</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -323,6 +454,7 @@
             <span class="body">
               <span class="t">무리함수</span>
               <span class="d">a의 부호로 갈리는 네 방향과 y=x²의 역함수 관계</span>
+              
             </span>
             <span class="go">열기 →</span>
           </a>

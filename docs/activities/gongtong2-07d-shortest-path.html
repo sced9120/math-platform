@@ -1,0 +1,407 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .handle{cursor:grab}.handle:active{cursor:grabbing}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .tog{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer;background:#fff}
+  .tog input{accent-color:var(--blue);width:16px;height:16px}
+  .tog.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .big{font-size:19px;font-weight:800;color:var(--blue)}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:17px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
+  .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 도형의 이동</div>
+    <span class="sheet">📄 학습지 3-02 성취기준(상) · 최단 거리</span>
+    <h1>🚶 강가에 물 뜨러 가기</h1>
+    <p>마을 <b>A</b> 에서 출발해 <b>강(x축)</b>에서 물을 뜬 뒤 마을 <b>B</b> 로 갑니다.
+       강 위의 어느 지점 <b>P</b> 에 들러야 <b>가장 짧게</b> 갈 수 있을까요?</p>
+    <p><b>P 를 좌우로 드래그</b>하며 거리 합을 직접 줄여 보세요.</p>
+    <div class="lab">
+      <svg id="s0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="s0r"></div>
+        <div class="readout">지금까지 최소<br><span class="big" id="s0best">—</span></div>
+        <div class="win" id="s0w"></div>
+        <button class="btn" id="s0reset" style="width:100%">↺ 기록 지우기</button>
+      </div>
+    </div>
+    <p class="hint">어림짐작으로 찾기는 꽤 어렵습니다. 다음 화면에서 <b>대칭이동</b>을 쓰면 계산 없이 단번에 찾을 수 있어요.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">대칭의 마법</div>
+    <h1>B 를 강 건너로 뒤집으면?</h1>
+    <p>마을 <b>B(3, 5)</b> 를 강(x축)에 대해 대칭이동한 점을 <b>B′(3, −5)</b> 라 합시다.
+       P 가 강 위에 있으면 <b>PB = PB′</b> 이므로,</p>
+    <div class="formula">AP + PB &nbsp;=&nbsp; AP + PB′ &nbsp;≥&nbsp; <b>AB′</b></div>
+    <p>즉 <b>A, P, B′ 가 한 직선</b> 위에 있을 때가 최소! 아래 토글을 켜서 확인해 보세요.</p>
+    <div class="lab">
+      <svg id="s1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <label class="tog" id="s1l1"><input type="checkbox" id="s1b1"> B′ 과 선분 PB′ 보기</label>
+        <label class="tog" id="s1l2"><input type="checkbox" id="s1b2"> 선분 AB′ (최단 경로) 보기</label>
+        <div class="readout" id="s1r"></div>
+        <div class="win" id="s1w"></div>
+      </div>
+    </div>
+    <div class="callout"><b>왜 PB = PB′ 일까?</b> P 는 x축 위의 점이고, B 와 B′ 은 x축에 대해 대칭입니다.
+      대칭이동은 <b>거리를 바꾸지 않으므로</b>(합동변환) 대칭축 위의 점에서 잰 거리는 항상 같습니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">빛도 같은 길로 간다</div>
+    <h1>입사각 = 반사각</h1>
+    <p>거울에 빛을 비추면 <b>들어온 각과 나가는 각이 같습니다</b>. 놀랍게도 이것은
+       <b>빛이 가장 짧은(=가장 빠른) 길을 택하기 때문</b>입니다. P 를 움직이며 두 각을 비교해 보세요.</p>
+    <div class="lab">
+      <svg id="s2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="s2r"></div>
+        <div class="win" id="s2w"></div>
+      </div>
+    </div>
+    <p class="hint">두 각이 같아지는 순간, 거리 합도 최소가 됩니다. 기원전 1세기 헤론이 이미 이 사실을 증명했어요
+      (<b>헤론의 반사 법칙</b>).</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">응용</div>
+    <h1>🎱 당구 — 한 쿠션 치기</h1>
+    <p>흰 공 <b>A(−5, −3)</b> 로 오른쪽 벽(<b>x = 6</b>)을 한 번 맞혀 빨간 공 <b>B(2, 4)</b> 를 맞히려 합니다.
+       이번엔 대칭축이 <b>세로선</b>입니다. 어디를 겨냥해야 할까요?</p>
+    <p><b>벽 위의 점 P 를 위아래로 드래그</b>해서 최단 경로를 찾아보세요. 힌트가 필요하면 토글을 켜세요.</p>
+    <div class="lab">
+      <svg id="s3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <label class="tog" id="s3l"><input type="checkbox" id="s3b"> 힌트: B 를 벽에 대칭시키기</label>
+        <div class="readout" id="s3r"></div>
+        <div class="win" id="s3w"></div>
+      </div>
+    </div>
+    <p class="hint">직선 <code>x = 6</code> 에 대한 대칭은 이 단원의 네 가지(x축·y축·원점·y=x)에는 없지만,
+      원리는 똑같습니다 — <b>벽에서 같은 거리, 반대쪽</b>으로 보내면 됩니다.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>대칭이동으로 최단 거리 풀기</h1>
+    <div class="card">
+      <b>전략 3단계</b>
+      <ol style="margin:8px 0 0;padding-left:20px">
+        <li>반드시 <b>들러야 하는 선</b>(강·거울·벽)을 대칭축으로 삼는다.</li>
+        <li>두 점 중 <b>하나를 대칭이동</b> 시킨다 → B′</li>
+        <li>나머지 점과 B′ 을 <b>직선으로 잇는다.</b> 그 직선이 대칭축과 만나는 점이 답!</li>
+      </ol>
+    </div>
+    <table>
+      <tr><th>상황</th><th>대칭축</th><th>최단 거리</th></tr>
+      <tr><td>A(−4, 3) → 강(x축) → B(3, 5)</td><td>x축</td><td>AB′ = <span class="sqrt">7² + 8²</span> = <span class="sqrt">113</span> ≈ 10.63</td></tr>
+      <tr><td>A(−5, −3) → 벽(x = 6) → B(2, 4)</td><td>직선 x = 6</td><td>AB′ = <span class="sqrt">15² + 7²</span> = <span class="sqrt">274</span> ≈ 16.55</td></tr>
+    </table>
+    <div class="callout"><b>핵심은 하나</b> — 꺾인 길은 비교하기 어렵지만, <b>대칭이동은 길이를 바꾸지 않으므로</b>
+      꺾인 길을 <b>곧은 길</b>로 바꿔 놓을 수 있습니다. 그리고 두 점을 잇는 가장 짧은 길은 언제나 직선이죠.</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에 정리해 보세요.<br>
+      (1) 왜 B 를 대칭이동해도 되는지, <b>PB = PB′</b> 을 근거로 설명하세요.<br>
+      (2) 마을 A(−4, 3), B(3, 5) 일 때 최단 지점 P 의 좌표를 <b>직접 계산</b>해 구하세요.
+      (직선 AB′ 의 방정식을 세우고 y = 0 을 대입)</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">당구·풋살의 벽 패스, 음향 설계(소리의 반사 경로), 통신 기지국 배치,
+          물류 창고에서 통로를 반드시 지나야 할 때의 최단 동선 — 모두 같은 문제입니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">빛이 최단(최소 시간) 경로를 택한다는 생각을 <b>페르마의 원리</b>라 합니다.
+          공기에서 물로 들어갈 때 빛이 꺾이는 굴절도 여기서 나오고, 이 발상은 물리학 전체를 떠받치는
+          <b>최소 작용의 원리</b>로 이어집니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>
+      ① 마을 A, B 가 강을 <b>사이에 두고 반대쪽</b>에 있다면, 최단 경로는 어떻게 될까요? 왜 대칭이 필요 없을까요?<br>
+      ② 강을 <b>두 번</b> 들러야 한다면(강이 두 줄) 대칭을 몇 번 써야 할까요? 그림으로 그려 보세요.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 6</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function d2(p,q){return Math.sqrt((p[0]-q[0])*(p[0]-q[0])+(p[1]-q[1])*(p[1]-q[1]));}
+  function f1(v){return (Math.round(v*100)/100).toFixed(2);}
+  function num(v){var r=Math.round(v*100)/100;return r<0?"−"+(-r):""+r;}
+
+  function Plane(svg,lo,hi){
+    var S=400,pad=26,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}
+    function py(y){return (S-pad)-(y-lo)*sc;}
+    function ux(cx){return lo+(cx-pad)/sc;}
+    function uy(cy){return lo+((S-pad)-cy)/sc;}
+    return {px:px,py:py,ux:ux,uy:uy,sc:sc,lo:lo,hi:hi,svg:svg,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){
+        for(var g=Math.ceil(lo);g<=hi;g++){
+          svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));
+          svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));
+        }
+        svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+        svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+      },
+      band:function(y0,y1,fill){svg.appendChild(el("rect",{x:px(lo),y:py(y1),width:px(hi)-px(lo),height:py(y0)-py(y1),fill:fill}));},
+      vband:function(x0,x1,fill){svg.appendChild(el("rect",{x:px(x0),y:py(hi),width:px(x1)-px(x0),height:py(lo)-py(hi),fill:fill}));},
+      seg:function(x1,y1,x2,y2,color,w,dash){
+        var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2.2,"stroke-linecap":"round"};
+        if(dash)o["stroke-dasharray"]=dash;
+        svg.appendChild(el("line",o));
+      },
+      dot:function(x,y,color,label,r,dy){
+        svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||6,fill:color}));
+        if(label){var t=el("text",{x:px(x)+10,y:py(y)+(dy||-9),"font-size":13,"font-weight":800,fill:color});t.textContent=label;svg.appendChild(t);}
+      },
+      handle:function(x,y,color){
+        var g=el("g",{"class":"handle"});
+        g.appendChild(el("circle",{cx:px(x),cy:py(y),r:15,fill:"transparent"}));
+        g.appendChild(el("circle",{cx:px(x),cy:py(y),r:8,fill:"#fff",stroke:color,"stroke-width":3}));
+        svg.appendChild(g);return g;
+      },
+      text:function(x,y,s,color,size){
+        var t=el("text",{x:px(x),y:py(y),"font-size":size||12.5,"font-weight":700,fill:color});
+        t.textContent=s;svg.appendChild(t);return t;
+      },
+      onDrag:function(handler){
+        var down=false;
+        function pt(ev){
+          var r=svg.getBoundingClientRect();
+          var cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left;
+          var cy=(ev.touches?ev.touches[0].clientY:ev.clientY)-r.top;
+          return [ux(cx*400/r.width), uy(cy*400/r.height)];
+        }
+        // 화면이 숨어 있으면 크기가 0 이라 좌표가 NaN 이 된다 — 그때는 무시한다
+        function move(ev){if(!down)return;ev.preventDefault();var p=pt(ev);
+          if(!isFinite(p[0])||!isFinite(p[1]))return;handler(p[0],p[1]);}
+        svg.addEventListener("pointerdown",function(ev){down=true;svg.setPointerCapture(ev.pointerId);move(ev);});
+        svg.addEventListener("pointermove",move);
+        svg.addEventListener("pointerup",function(){down=false;});
+        svg.addEventListener("pointercancel",function(){down=false;});
+      }
+    };
+  }
+  function bindTog(labelId,inputId,cb){
+    var lab=document.getElementById(labelId),inp=document.getElementById(inputId);
+    function sync(){lab.className="tog"+(inp.checked?" on":"");cb();}
+    inp.onchange=sync;sync();
+  }
+
+  var A=[-4,3], B=[3,5], Bp=[3,-5];
+  var BEST=Math.sqrt(113);              // = AB′
+  var PSTAR=-11/8;                      // 최단이 되는 P 의 x좌표
+
+  // 화면 0: P 드래그해서 최소 찾기 -------------------------------------------
+  (function(){
+    var P=Plane(document.getElementById("s0"),-8,8), px0=4, best=Infinity;
+    var read=document.getElementById("s0r"), bestEl=document.getElementById("s0best"), win=document.getElementById("s0w");
+    function draw(){
+      P.clear();P.grid();
+      P.band(-8,0,"rgba(59,130,246,.07)");
+      P.text(-7.4,-1.1,"강 (x축)","#60a5fa");
+      var Pp=[px0,0], t=d2(A,Pp)+d2(Pp,B);
+      P.seg(A[0],A[1],Pp[0],Pp[1],"#2563eb",2.6);
+      P.seg(Pp[0],Pp[1],B[0],B[1],"#2563eb",2.6);
+      P.dot(A[0],A[1],"#e11d48","A(−4, 3)",6);
+      P.dot(B[0],B[1],"#059669","B(3, 5)",6);
+      P.handle(Pp[0],Pp[1],"#2563eb");
+      P.text(Pp[0]-0.3,-1.15,"P("+num(Math.round(px0*100)/100)+", 0)","#2563eb");
+      if(t<best){best=t;bestEl.textContent=f1(best);}
+      read.innerHTML="AP = <b>"+f1(d2(A,Pp))+"</b><br>PB = <b>"+f1(d2(Pp,B))+"</b><br>합계 = <b style='font-size:17px'>"+f1(t)+"</b>";
+      if(best<=BEST+0.03){win.className="win on";win.innerHTML="🎉 최솟값 <b>"+f1(BEST)+"</b> 에 도달했습니다! 이때 P 는 약 (−1.38, 0). 왜 하필 여기일까요?";}
+      else win.className="win";
+    }
+    P.onDrag(function(x){px0=Math.max(-7.5,Math.min(7.5,Math.round(x*100)/100));draw();});
+    document.getElementById("s0reset").onclick=function(){best=Infinity;bestEl.textContent="—";win.className="win";draw();};
+    draw();
+  })();
+
+  // 화면 1: 대칭의 마법 -------------------------------------------------------
+  (function(){
+    var P=Plane(document.getElementById("s1"),-8,8), px1=4;
+    var read=document.getElementById("s1r"), win=document.getElementById("s1w");
+    function draw(){
+      var showBp=document.getElementById("s1b1").checked, showLine=document.getElementById("s1b2").checked;
+      P.clear();P.grid();
+      P.band(-8,0,"rgba(59,130,246,.07)");
+      var Pp=[px1,0], t=d2(A,Pp)+d2(Pp,B);
+      if(showLine) P.seg(A[0],A[1],Bp[0],Bp[1],"#f59e0b",2.6,"6 4");
+      P.seg(A[0],A[1],Pp[0],Pp[1],"#2563eb",2.6);
+      P.seg(Pp[0],Pp[1],B[0],B[1],"#2563eb",2.6);
+      if(showBp){
+        P.seg(Pp[0],Pp[1],Bp[0],Bp[1],"#059669",2.2,"5 4");
+        P.seg(B[0],B[1],Bp[0],Bp[1],"#94a3b8",1.4,"3 3");
+        P.dot(Bp[0],Bp[1],"#059669","B′(3, −5)",6,16);
+      }
+      P.dot(A[0],A[1],"#e11d48","A(−4, 3)",6);
+      P.dot(B[0],B[1],"#059669","B(3, 5)",6);
+      P.handle(Pp[0],Pp[1],"#2563eb");
+      var onLine=Math.abs(px1-PSTAR)<0.06;
+      read.innerHTML="AP + PB = <b>"+f1(t)+"</b>"+
+        (showBp?"<br>AP + PB′ = <b>"+f1(d2(A,Pp)+d2(Pp,Bp))+"</b> <span class='hint'>(같죠?)</span>":"")+
+        (showLine?"<br>AB′ = <b>"+f1(BEST)+"</b> ← 넘을 수 없는 <b>하한</b>":"");
+      if(onLine){win.className="win on";win.innerHTML="🎉 A, P, B′ 이 <b>한 직선</b> 위! 이때가 최소 <b>"+f1(BEST)+"</b> 입니다.";}
+      else win.className="win";
+    }
+    P.onDrag(function(x){px1=Math.max(-7.5,Math.min(7.5,Math.round(x*100)/100));draw();});
+    bindTog("s1l1","s1b1",draw);bindTog("s1l2","s1b2",draw);
+  })();
+
+  // 화면 2: 입사각 = 반사각 ---------------------------------------------------
+  (function(){
+    var P=Plane(document.getElementById("s2"),-8,8), px2=4;
+    var read=document.getElementById("s2r"), win=document.getElementById("s2w");
+    function draw(){
+      P.clear();P.grid();
+      P.band(-8,0,"rgba(59,130,246,.07)");
+      var Pp=[px2,0];
+      P.seg(Pp[0],-1.6,Pp[0],1.6,"#a1a1aa",1.4,"4 3");     // 법선
+      P.seg(A[0],A[1],Pp[0],Pp[1],"#e11d48",2.6);
+      P.seg(Pp[0],Pp[1],B[0],B[1],"#059669",2.6);
+      P.dot(A[0],A[1],"#e11d48","A",6);
+      P.dot(B[0],B[1],"#059669","B",6);
+      P.handle(Pp[0],Pp[1],"#2563eb");
+      // 벽(x축)과 이루는 각
+      var a1=Math.atan2(A[1],Math.abs(A[0]-Pp[0]))*180/Math.PI;
+      var a2=Math.atan2(B[1],Math.abs(B[0]-Pp[0]))*180/Math.PI;
+      var same=Math.abs(a1-a2)<0.6;
+      read.innerHTML="들어오는 각 <b style='color:#e11d48'>"+f1(a1)+"°</b><br>나가는 각 <b style='color:#059669'>"+f1(a2)+"°</b>"+
+        "<br>거리 합 = <b>"+f1(d2(A,Pp)+d2(Pp,B))+"</b>"+
+        "<br><span class='hint'>"+(same?"두 각이 같습니다!":(a1>a2?"들어오는 각이 더 큽니다 →":"나가는 각이 더 큽니다 ←"))+"</span>";
+      if(same){win.className="win on";win.innerHTML="🎉 <b>입사각 = 반사각</b> 이고, 바로 이때 거리 합이 최소입니다. 빛이 가는 길이 곧 최단 경로예요.";}
+      else win.className="win";
+    }
+    P.onDrag(function(x){px2=Math.max(-7.5,Math.min(7.5,Math.round(x*100)/100));draw();});
+    draw();
+  })();
+
+  // 화면 3: 당구 한 쿠션 ------------------------------------------------------
+  (function(){
+    var P=Plane(document.getElementById("s3"),-8,8);
+    var A2=[-5,-3], B2=[2,4], WALL=6, B2p=[2*WALL-B2[0],B2[1]];   // (10, 4)
+    // 최단: 직선 A2B2′ 이 x = WALL 과 만나는 y
+    var YSTAR=A2[1]+(B2p[1]-A2[1])*(WALL-A2[0])/(B2p[0]-A2[0]);
+    var BEST2=d2(A2,B2p), py3=-6;
+    var read=document.getElementById("s3r"), win=document.getElementById("s3w");
+    function draw(){
+      var hint=document.getElementById("s3b").checked;
+      P.clear();P.grid();
+      P.vband(WALL,8,"rgba(245,158,11,.10)");
+      P.seg(WALL,-8,WALL,8,"#d97706",2.6);
+      P.text(WALL+0.15,7.2,"벽 x = 6","#b45309");
+      var Pp=[WALL,py3];
+      if(hint){
+        P.seg(A2[0],A2[1],B2p[0],B2p[1],"#f59e0b",2.4,"6 4");
+        P.seg(B2[0],B2[1],B2p[0],B2p[1],"#94a3b8",1.4,"3 3");
+        P.dot(B2p[0],B2p[1],"#059669","B′(10, 4)",6);
+      }
+      P.seg(A2[0],A2[1],Pp[0],Pp[1],"#2563eb",2.6);
+      P.seg(Pp[0],Pp[1],B2[0],B2[1],"#2563eb",2.6);
+      P.dot(A2[0],A2[1],"#27272a","A(−5, −3)",6);
+      P.dot(B2[0],B2[1],"#e11d48","B(2, 4)",6);
+      P.handle(Pp[0],Pp[1],"#2563eb");
+      var t=d2(A2,Pp)+d2(Pp,B2);
+      read.innerHTML="P = (6, <b>"+num(Math.round(py3*100)/100)+"</b>)<br>거리 합 = <b style='font-size:17px'>"+f1(t)+"</b>"+
+        (hint?"<br>AB′ = <b>"+f1(BEST2)+"</b> ← 최솟값":"");
+      if(Math.abs(py3-YSTAR)<0.08){
+        win.className="win on";
+        win.innerHTML="🎉 정답! P = (6, "+f1(YSTAR)+") 에서 최소 <b>"+f1(BEST2)+"</b>. 벽 대칭점 B′(10, 4) 과 A 를 이은 직선 위의 점이죠.";
+      } else win.className="win";
+    }
+    P.onDrag(function(x,y){py3=Math.max(-7.5,Math.min(7.5,Math.round(y*100)/100));draw();});
+    bindTog("s3l","s3b",draw);
+  })();
+
+  // 스테퍼 -------------------------------------------------------------------
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

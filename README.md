@@ -6,7 +6,7 @@
 교사는 학생 계정 일괄 생성·활동 관리·진도 확인·기록 다운로드를, 관리자는 교사 계정까지 관리합니다.
 
 **바로 둘러보기** — 로그인 없이 학생 화면을 체험할 수 있습니다: [`/demo`](https://math.hsorbit.uk/demo)
-**활동만 보기** — 공통수학2 인터랙티브 활동 22개: [활동 아카이브](https://sced9120.github.io/math-platform/)
+**활동만 보기** — 공통수학2 인터랙티브 활동 30개: [활동 아카이브](https://sced9120.github.io/math-platform/)
 
 ### 주요 기능
 
@@ -178,7 +178,11 @@ docs/                           설계 문서 + activities/(활동 HTML) + index
 학생 프로필(`profiles`)은 학년·반·번호와 **담당 교사**(`teacher_id`)를 가집니다.
 
 **활동 아카이브**: `docs/` 를 GitHub Pages 소스(`main` / `/docs`)로 지정하면
-활동 22개가 공개 사이트로 열립니다. 목차는 `node scripts/build-archive-index.mjs` 로 생성합니다.
+활동 30개가 공개 사이트로 열립니다. 목차는 `node scripts/build-archive-index.mjs` 로 생성합니다.
+
+**수업 학습지 연계**: 각 활동은 첫 화면에 대응하는 학습지 항목(예: `📄 학습지 1-01 [생각 틔우기]`)을 표시합니다.
+문구는 `scripts/gongtong2-registry.mjs` 의 `sheet` 값 하나로 관리하고,
+`node scripts/add-worksheet-badge.mjs` 가 활동 HTML 과 아카이브 목차에 함께 반영합니다.
 
 ## 6. 보안 메모
 

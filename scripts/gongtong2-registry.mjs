@@ -1,40 +1,67 @@
 // 공통수학2 콘텐츠 목록 (한 곳에서 관리)
 //  - scripts/build-gongtong2.mjs        : 이 목록대로 DB(교과/단원/활동)를 만든다
 //  - scripts/build-archive-index.mjs    : 이 목록대로 공개 아카이브 목차를 만든다
-// 활동을 추가·수정할 때는 이 파일만 고치면 두 곳이 함께 따라온다.
+//  - scripts/add-worksheet-badge.mjs    : sheet 값을 활동 첫 화면의 배지로 넣는다
+// 활동을 추가·수정할 때는 이 파일만 고치면 세 곳이 함께 따라온다.
 
 export const SUBJECT = { title: "공통수학2", grade: 1, order_index: 0 };
 
-// 교과서(전인태) 대단원 = 단원
+// 교과서(전인태) 단원 구성.
+// Ⅰ 은 교과서·학습지와 같게 3개 중단원으로 나눈다(학습지 1 / 2 / 3 과 1:1 대응).
+//   legacy: 예전에 쓰던 단원 제목들. DB 에 그 이름의 단원이 남아 있으면 이름만 바꿔 재사용한다.
 export const UNITS = [
-  { key: "I",   title: "Ⅰ. 도형의 방정식", order_index: 0 },
-  { key: "II",  title: "Ⅱ. 집합과 명제",   order_index: 1 },
-  { key: "III", title: "Ⅲ. 함수와 그래프", order_index: 2 },
+  { key: "I1",  title: "Ⅰ-1. 평면좌표와 직선의 방정식", order_index: 0,
+    legacy: ["Ⅰ. 도형의 방정식", "공통수학2"] },
+  { key: "I2",  title: "Ⅰ-2. 원의 방정식",             order_index: 1 },
+  { key: "I3",  title: "Ⅰ-3. 도형의 이동",             order_index: 2 },
+  { key: "II",  title: "Ⅱ. 집합과 명제",               order_index: 3 },
+  { key: "III", title: "Ⅲ. 함수와 그래프",             order_index: 4 },
 ];
 
 // unit: 소속 단원 key, order: 단원 안에서의 순서
+// sheet: 대응하는 학습지 항목 (활동 첫 화면 배지 + 아카이브 목차에 표시)
 export const REG = [
-  // ── Ⅰ. 도형의 방정식 ──────────────────────────────────────────
-  { unit: "I", order: 0, desc: "수직선 |b−a| → 피타고라스 → 삼각형 모양 자동 판정 → 수직이등분선 발견", title: "두 점 사이의 거리", file: "gongtong2-00-distance-two-points.html", height: 980,
+  // ── Ⅰ-1. 평면좌표와 직선의 방정식 ─────────────────────────────
+  { unit: "I1", order: 0, sheet: "학습지 1-01 [생각 틔우기]", desc: "불국사 배치도 → 수직선 → 좌표평면. 원점을 옮겨도 거리는 그대로", title: "불국사에서 좌표까지", file: "gongtong2-00b-bulguksa-coordinate.html", height: 980,
+    rp: "(1) 배치도만으로는 왜 두 탑 사이의 거리를 말할 수 없었나요? 무엇이 더 필요했는지 쓰세요. (2) 원점을 옮겨도 거리가 변하지 않는 이유를 |b − a| 로 설명하세요. (3) 대웅전과 석가탑 사이의 거리를 구하는 방법을 자신의 말로 서술하세요." },
+  { unit: "I1", order: 1, sheet: "학습지 1-01 [일반화하기]·[연습하기]", desc: "수직선 |b−a| → 피타고라스 → 삼각형 모양 자동 판정 → 수직이등분선 발견", title: "두 점 사이의 거리", file: "gongtong2-00-distance-two-points.html", height: 980,
     rp: "두 점 사이의 거리 공식이 피타고라스 정리에서 어떻게 나오는지 자신의 말로 설명하고, 세 점 A(0,0), B(4,0), C(0,3)으로 만든 삼각형의 세 변의 길이를 구해 어떤 삼각형인지 판정하세요." },
-  { unit: "I", order: 1, desc: "1차원에서 2차원으로 확장. 지레의 원리와 삼각형 무게중심까지", title: "선분의 내분", file: "gongtong2-01-segment-division.html", height: 980,
+  { unit: "I1", order: 2, sheet: "학습지 1-01 [증명하기] 교과서 14p", desc: "삼각형을 끌며 실시간 확인 → 좌표를 어디에 놓느냐로 증명이 세 줄이 된다", title: "파푸스의 중선 정리", file: "gongtong2-00c-median-theorem.html", height: 980,
+    rp: "(1) B(−c, 0), C(c, 0) 으로 놓았을 때 계산이 쉬워진 결정적인 이유는 무엇인가요? 어떤 항이 지워졌는지 쓰세요. (2) B(0, 0), C(2c, 0) 으로 놓았다면 어떻게 되는지 직접 계산해 비교하세요. (3) 이 정리가 실제로 어디에 쓰일지 하나만 찾아 적어 보세요." },
+  { unit: "I1", order: 3, sheet: "학습지 1-01 [탐구] 내분과 등분", desc: "1차원에서 2차원으로 확장. 지레의 원리와 삼각형 무게중심까지", title: "선분의 내분", file: "gongtong2-01-segment-division.html", height: 980,
     rp: "[심화 과제] 세 꼭짓점 A(0,0)·200g, B(6,0)·300g, C(0,8)·400g 의 전체 무게중심 G 좌표를 풀이과정과 함께 구하고, 무게가 클수록 G 가 어느 쪽으로 끌리는지 내분(가중평균) 관점에서 설명하세요." },
-  { unit: "I", order: 2, desc: "한 점+기울기 / 두 점 중 무엇이 직선을 정하는지 직접 조작", title: "직선의 방정식", file: "gongtong2-02b-line-equation.html", height: 980,
+  { unit: "I1", order: 4, sheet: "학습지 1-02 [생각 틔우기]·교과서 18p", desc: "한 점+기울기 / 두 점 중 무엇이 직선을 정하는지 직접 조작", title: "직선의 방정식", file: "gongtong2-02b-line-equation.html", height: 980,
     rp: "두 점 (1, 2), (3, 8)을 지나는 직선의 방정식을 기울기부터 차례로 구해 보고, 왜 '한 점 + 기울기'만으로 직선이 하나로 정해지는지 설명하세요." },
-  { unit: "I", order: 3, desc: "기울기 두 개를 움직여 평행·일치·수직을 실시간 판정", title: "두 직선의 평행과 수직", file: "gongtong2-02-parallel-perpendicular.html", height: 980,
+  { unit: "I1", order: 5, sheet: "학습지 1-02 [평행·수직 조건] 교과서 20~22p", desc: "기울기 두 개를 움직여 평행·일치·수직을 실시간 판정", title: "두 직선의 평행과 수직", file: "gongtong2-02-parallel-perpendicular.html", height: 980,
     rp: "직접 두 직선을 움직여 본 뒤, 두 직선이 (1) 평행할 조건과 (2) 수직일 조건을 기울기 m₁, m₂ 로 각각 정리하고, 왜 수직이면 기울기의 곱이 −1 이 되는지 자신의 말로 설명하세요." },
-  { unit: "I", order: 4, desc: "수선이 가장 짧은 이유를 눈으로. 거리 공식이 실시간 계산", title: "점과 직선 사이의 거리", file: "gongtong2-03-point-line-distance.html", height: 980,
+  { unit: "I1", order: 6, sheet: "학습지 1-02 [점과 직선 사이의 거리] 교과서 24p", desc: "수선이 가장 짧은 이유를 눈으로. 거리 공식이 실시간 계산", title: "점과 직선 사이의 거리", file: "gongtong2-03-point-line-distance.html", height: 980,
     rp: "점 (2,3) 과 직선 3x−4y+1=0 사이의 거리를 공식으로 구하고, 이 거리가 '점에서 직선에 내린 수선의 길이'와 같은 이유를 설명하세요." },
-  { unit: "I", order: 5, desc: "중심 드래그·일반형↔표준형 변환·아폴로니오스의 원", title: "원의 방정식", file: "gongtong2-04-circle-equation.html", height: 980,
+
+  // ── Ⅰ-2. 원의 방정식 ─────────────────────────────────────────
+  { unit: "I2", order: 0, sheet: "학습지 2-01 Q3·Q4 원의 방정식", desc: "중심 드래그·일반형↔표준형 변환·아폴로니오스의 원", title: "원의 방정식", file: "gongtong2-04-circle-equation.html", height: 980,
     rp: "중심 (a,b), 반지름 r 인 원의 방정식이 (x−a)²+(y−b)²=r² 인 이유를 거리로 설명하고, x²+y²+Ax+By+C=0 꼴을 완전제곱으로 고쳐 중심·반지름을 찾는 과정을 예로 보이세요." },
-  { unit: "I", order: 6, desc: "거리 d와 반지름 r 비교, 기하와 대수(판별식)가 만나는 지점", title: "원과 직선의 위치 관계", file: "gongtong2-05-circle-line.html", height: 980,
+  { unit: "I2", order: 1, sheet: "학습지 2-01 [생각 틔우기]·[실생활] 용접 로봇", desc: "컴퍼스로 원의 정의 → 두 원의 교점으로 작도 → 세 점을 지나는 원 찾기", title: "세 점을 지나는 원", file: "gongtong2-04b-circle-three-points.html", height: 1000,
+    rp: "(1) 원을 하나로 결정하려면 왜 점 3개가 필요한지 수직이등분선으로 설명하세요. (2) 세 점이 한 직선 위에 있으면 어떻게 되며 왜 그런가요? (3) A(1, 7), B(−5, 1), C(3, −3) 을 지나는 원의 방정식을 직접 계산해 구하세요." },
+  { unit: "I2", order: 2, sheet: "학습지 2-02 [생각 틔우기] Q2", desc: "a 를 움직여 세 위치 관계를 만들고, 거리와 판별식이 같은 답을 주는지 대조", title: "a 를 움직여라 — 원과 직선 실험실", file: "gongtong2-05c-circle-line-lab.html", height: 1020,
+    rp: "(1) 거리로 판단하는 방법과 판별식으로 판단하는 방법이 왜 같은 답을 주는지 자신의 말로 설명하세요. (2) 원 x²+y²=8 과 직선 y=x+a 가 접할 a 를 두 방법으로 각각 구하세요. (3) 어떤 상황에서 어느 방법이 유리한지 예를 들어 적으세요." },
+  { unit: "I2", order: 3, sheet: "학습지 2-02 Q5 [스스로 정리하기]", desc: "거리 d와 반지름 r 비교, 기하와 대수(판별식)가 만나는 지점", title: "원과 직선의 위치 관계", file: "gongtong2-05-circle-line.html", height: 980,
     rp: "원의 중심과 직선 사이의 거리 d, 반지름 r 을 비교해 (서로 다른 두 점에서 만남 / 접함 / 만나지 않음)의 세 경우를 d 와 r 의 대소로 정리하세요." },
-  { unit: "I", order: 7, desc: "기울기·접점·원 밖의 점 — 세 유형을 각각 조작해 보기", title: "원의 접선의 방정식", file: "gongtong2-05b-circle-tangent.html", height: 980,
+  { unit: "I2", order: 4, sheet: "학습지 2-02 [접선의 방정식] 교과서 37~40p", desc: "기울기·접점·원 밖의 점 — 세 유형을 각각 조작해 보기", title: "원의 접선의 방정식", file: "gongtong2-05b-circle-tangent.html", height: 980,
     rp: "원 x² + y² = 5 위의 점 (1, 2) 에서의 접선의 방정식을 구하고, 그 접선이 반지름과 수직임을 두 기울기의 곱으로 확인하세요. 또 접선 공식들이 모두 '중심에서 접선까지 거리 = 반지름'에서 나온다는 점을 설명해 보세요." },
-  { unit: "I", order: 8, desc: "점은 +a, 도형은 −a. 부호가 반대인 이유를 그래프로", title: "평행이동", file: "gongtong2-06-translation.html", height: 960,
+
+  // ── Ⅰ-3. 도형의 이동 ─────────────────────────────────────────
+  { unit: "I3", order: 0, sheet: "학습지 3-01 Q1~Q5 평행이동", desc: "점은 +a, 도형은 −a. 부호가 반대인 이유를 그래프로", title: "평행이동", file: "gongtong2-06-translation.html", height: 960,
     rp: "도형 f(x,y)=0 을 x축으로 a, y축으로 b 만큼 평행이동하면 왜 f(x−a, y−b)=0 이 되는지, 부호가 반대인 이유를 예를 들어 설명하세요." },
-  { unit: "I", order: 9, desc: "점의 네 대칭을 동시에. 두 대칭을 합성하면 회전이 나온다", title: "대칭이동", file: "gongtong2-07-reflection.html", height: 980,
+  { unit: "I3", order: 1, sheet: "학습지 3-01 Q1~Q4 · 데스모스 ‘동전 먹기’", desc: "직선·포물선·원의 식을 조절해 별을 모두 획득하는 게임", title: "⭐ 별 먹기 — 평행이동", file: "gongtong2-06b-star-translation.html", height: 1000,
+    rp: "(1) 스테이지 1(직선)은 왜 클리어하는 (a, b) 가 여러 개이고, 스테이지 2(포물선)는 왜 하나뿐인가요? (2) 점은 +a, 도형의 식은 −a 로 부호가 반대인 이유를 자신의 말로 설명하세요." },
+  { unit: "I3", order: 2, sheet: "학습지 3-02 Q3~Q8 대칭이동", desc: "점의 네 대칭을 동시에. 두 대칭을 합성하면 회전이 나온다", title: "대칭이동", file: "gongtong2-07-reflection.html", height: 980,
     rp: "점 (x,y) 를 x축, y축, 원점, 직선 y=x 에 대해 각각 대칭이동한 좌표를 정리하고, 도형의 방정식에서는 x·y 를 어떻게 바꾸는지 규칙으로 쓰세요." },
+  { unit: "I3", order: 3, sheet: "학습지 3-02 Q3·Q5~Q7 · 대칭 합성", desc: "대칭 버튼으로 별 모으기 + 두 대칭을 이으면 무엇이 되는지 실험", title: "⭐ 별 먹기 — 대칭이동", file: "gongtong2-07b-star-reflection.html", height: 1020,
+    rp: "(1) 네 가지 대칭이동의 좌표 규칙을 표로 쓰세요. (2) 합성 실험실에서 x축 대칭 다음 y축 대칭이 무엇과 같았는지, 그 이유를 설명하세요. (3) 포물선 y = x² + 1 이 y축 대칭에서 변하지 않은 까닭을 식으로 설명하세요." },
+  { unit: "I3", order: 4, sheet: "학습지 3-02 성취기준(상) · 최단 거리", desc: "강가·거울·당구 — 대칭이동으로 꺾인 길을 곧은 길로 바꾸기", title: "최단 경로 — 대칭이동의 쓸모", file: "gongtong2-07d-shortest-path.html", height: 1000,
+    rp: "(1) 왜 B 를 대칭이동해도 되는지 PB = PB′ 을 근거로 설명하세요. (2) 마을 A(−4, 3), B(3, 5) 일 때 최단 지점 P 의 좌표를 직접 계산해 구하세요. (직선 AB′ 의 방정식을 세우고 y = 0 을 대입)" },
+  { unit: "I3", order: 5, sheet: "성취기준 ⑥⑦ 실생활 연결 · 데스모스 ‘테셀레이션’", desc: "평행이동·반사·회전을 조합해 평면을 빈틈없이 덮는 무늬 만들기", title: "🧩 테셀레이션 공방", file: "gongtong2-07c-tessellation.html", height: 1000,
+    rp: "(1) 첫 화면에서 빈틈도 겹침도 없이 덮이는 dx, dy 는 왜 하필 그 값이어야 했나요? (2) 내가 만든 무늬에 쓰인 이동을 좌표 규칙으로 모두 적어 보세요." },
 
   // ── Ⅱ. 집합과 명제 ────────────────────────────────────────────
   { unit: "II", order: 0, desc: "집합 판별 퀴즈 + 부분집합 직접 만들기(2ⁿ의 의미)", title: "집합의 뜻과 포함관계", file: "gongtong2-08-sets-subset.html", height: 960,

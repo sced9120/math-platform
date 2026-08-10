@@ -555,7 +555,14 @@ export default function ActivitiesManager({
                 <tr key={a.id} className="border-b border-zinc-100">
                   <td className="py-2 pr-4">{a.order_index}</td>
                   <td className="py-2 pr-4">{TYPE_LABELS[a.type]}</td>
-                  <td className="py-2 pr-4 font-medium text-zinc-900">{a.title}</td>
+                  <td className="py-2 pr-4">
+                    <Link
+                      href={`/teacher/activity/${a.id}/preview`}
+                      className="font-medium text-zinc-900 hover:text-blue-700 hover:underline"
+                    >
+                      {a.title}
+                    </Link>
+                  </td>
                   <td className="py-2 pr-4 text-zinc-600">
                     {a.assigned_classes === null
                       ? "전체"
@@ -575,6 +582,12 @@ export default function ActivitiesManager({
                   </td>
                   <td className="py-2 text-right">
                     <div className="flex justify-end gap-3">
+                      <Link
+                        href={`/teacher/activity/${a.id}/preview`}
+                        className="text-xs font-medium text-blue-600 hover:underline"
+                      >
+                        미리보기
+                      </Link>
                       <Link
                         href={`/teacher/activity/${a.id}/submissions`}
                         className="text-xs text-blue-600 hover:underline"

@@ -84,6 +84,7 @@ docs/                 ← 설계 문서 (지금 이 글 포함)
 | 로그인 화면 | `app/login/page.tsx` |
 | 교사 헤더·메뉴 | `app/teacher/layout.tsx` |
 | 교사 활동 등록 폼 | `components/teacher/activities-manager.tsx` |
+| 교사 활동 미리보기(학생 화면) | `components/teacher/activity-preview.tsx` |
 | 기록 다운로드 화면·CSV 구조 | `components/teacher/export-builder.tsx` |
 | 관리자: 교사 계정 관리 화면 | `components/teacher/teachers-manager.tsx` |
 | 관리자: AI 프롬프트 편집 화면 | `components/teacher/prompts-manager.tsx` |

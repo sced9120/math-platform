@@ -63,6 +63,13 @@ export const REG = [
   { unit: "I3", order: 5, sheet: "성취기준 ⑥⑦ 실생활 연결 · 데스모스 ‘테셀레이션’", desc: "평행이동·반사·회전을 조합해 평면을 빈틈없이 덮는 무늬 만들기", title: "🧩 테셀레이션 공방", file: "gongtong2-07c-tessellation.html", height: 1000,
     rp: "(1) 첫 화면에서 빈틈도 겹침도 없이 덮이는 dx, dy 는 왜 하필 그 값이어야 했나요? (2) 내가 만든 무늬에 쓰인 이동을 좌표 규칙으로 모두 적어 보세요." },
 
+  { unit: "III", order: 3, sheet: "학습지 ‘함수 2. 합성함수’ · 데스모스 15번 [추가 탐구]", desc: "세 평면을 따라 x→y→z 를 추적하고, 자취로 합성함수의 그래프를 직접 그려 보기", title: "⚙️ 합성함수의 그래프", file: "gongtong2-15b-composite-graph.html", height: 1040,
+    rp: "(1) 첫 평면의 세로축과 둘째 평면의 가로축이 같아야 하는 이유를 치역·정의역이라는 말로 설명하세요. (2) f(x)=x−1, g(x)=x²+1 일 때 (g∘f)(2) 와 (f∘g)(2) 를 각각 구하고 왜 다른지 쓰세요. (3) 세 함수에 대해 (h∘g)∘f 와 h∘(g∘f) 가 같은 이유를 ‘여정’에 빗대어 설명하세요." },
+  { unit: "III", order: 5, sheet: "학습지 ‘함수 3. 역함수’ (생각열기) Q3·Q4 확장", desc: "수평선 판정 → 정의역을 좁혀 일대일대응 만들기 → y=x 대칭으로 √x 등장", title: "🔍 정의역을 좁혀 역함수 만들기", file: "gongtong2-16c-restrict-domain.html", height: 1020,
+    rp: "(1) y=x² 이 실수 전체에서는 왜 역함수를 갖지 못하는지 수평선 판정으로 설명하세요. (2) 정의역을 x≤0 으로 정하면 역함수가 y=−√x 가 되는 이유를 쓰세요. (3) 함수 y=(x−2)² 이 역함수를 갖도록 정의역을 하나 정하고 그때의 역함수를 구하세요." },
+  { unit: "III", order: 8, sheet: "학습지 ‘유리·무리 3. 무리함수’ (생각키우기) 검증", desc: "제곱이 만들어 낸 가짜 해를 눈으로 잡아내고 올바른 범위 −4 ≤ t < −31/8 을 확정", title: "🕵️ 가짜 해를 찾아라", file: "gongtong2-21b-fake-root.html", height: 1020,
+    rp: "(1) t=−5 에서 x=2.25 가 가짜 해인 이유를 대입 결과로 설명하세요. (2) 제곱이라는 조작이 무엇을 잃어버리게 하는지 ‘충분조건’이라는 말을 써서 설명하세요. (3) 올바른 범위 −4 ≤ t < −31/8 이 나오는 과정을 ‘시작점을 지날 때’와 ‘접할 때’로 나누어 쓰세요." },
+
   // ── Ⅱ. 집합과 명제 ────────────────────────────────────────────
   { unit: "II", order: 0, desc: "집합 판별 퀴즈 + 부분집합 직접 만들기(2ⁿ의 의미)", title: "집합의 뜻과 포함관계", file: "gongtong2-08-sets-subset.html", height: 960,
     rp: "'집합'이 되려면 어떤 조건을 만족해야 하는지 쓰고, 부분집합(⊂)과 진부분집합의 차이를 예를 들어 설명하세요. 원소가 n개인 집합의 부분집합 개수가 2ⁿ 인 이유도 적어보세요." },
@@ -88,11 +95,11 @@ export const REG = [
     rp: "대응이 '함수'가 되기 위한 조건을 쓰고, 일대일함수·일대일대응의 차이를 그림(대응)으로 설명하세요." },
   { unit: "III", order: 2, desc: "함수 기계 두 대를 연결. g∘f ≠ f∘g를 직접 확인", title: "합성함수", file: "gongtong2-15-composite.html", height: 980,
     rp: "합성함수 (g∘f)(x)=g(f(x)) 의 계산 순서를 설명하고, 일반적으로 g∘f ≠ f∘g 임을 구체적인 예로 보이세요." },
-  { unit: "III", order: 3, desc: "대응 뒤집기와 y=x 대칭. 식 구하는 3단계", title: "역함수", file: "gongtong2-16-inverse.html", height: 980,
+  { unit: "III", order: 4, desc: "대응 뒤집기와 y=x 대칭. 식 구하는 3단계", title: "역함수", file: "gongtong2-16-inverse.html", height: 980,
     rp: "역함수가 존재하기 위한 조건(일대일대응)을 쓰고, y=f(x) 와 y=f⁻¹(x) 의 그래프가 직선 y=x 에 대해 대칭인 이유를 설명하세요." },
-  { unit: "III", order: 4, desc: "y=(ax+b)/(cx+d)를 k/(x−p)+q로 변형해 점근선 찾기", title: "유리함수", file: "gongtong2-20-rational-function.html", height: 1000,
+  { unit: "III", order: 6, desc: "y=(ax+b)/(cx+d)를 k/(x−p)+q로 변형해 점근선 찾기", title: "유리함수", file: "gongtong2-20-rational-function.html", height: 1000,
     rp: "유리함수 y=(ax+b)/(cx+d) 를 y=k/(x−p)+q 꼴로 변형해 점근선을 찾는 과정을, 예를 하나 들어 직접 계산해 보이세요. (예: y=(2x−1)/(x+1))" },
-  { unit: "III", order: 5, desc: "a의 부호로 갈리는 네 방향과 y=x²의 역함수 관계", title: "무리함수", file: "gongtong2-21-irrational-function.html", height: 1000,
+  { unit: "III", order: 7, desc: "a의 부호로 갈리는 네 방향과 y=x²의 역함수 관계", title: "무리함수", file: "gongtong2-21-irrational-function.html", height: 1000,
     rp: "무리함수 y=√(ax+b)+c 의 정의역·치역이 a 의 부호에 따라 어떻게 달라지는지 그래프를 움직여 관찰한 내용을 바탕으로 정리하고, y=√x 와 y=x²(x≥0) 이 역함수 관계인 이유를 설명하세요." },
 ];
 

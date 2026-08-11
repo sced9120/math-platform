@@ -1,0 +1,415 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .tog{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer;background:#fff}
+  .tog input{accent-color:var(--blue);width:16px;height:16px}
+  .tog.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .pick{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .pk{border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;font-weight:700;padding:8px 6px;border-radius:9px;cursor:pointer}
+  .pk.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .verdict{font-size:15px;font-weight:800;border-radius:10px;padding:9px 12px;text-align:center;
+           background:#f4f4f5;color:#52525b;border:1px solid #e4e4e7}
+  .verdict.ok{background:#dcfce7;color:#065f46;border:1px solid #86efac}
+  .verdict.no{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:16px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
+  .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 역함수</div>
+    <span class="sheet">📄 학습지 ‘함수 3. 역함수’ (생각열기) Q3·Q4 확장</span>
+    <h1>🔍 y = x² 는 정말 역함수가 없을까?</h1>
+    <p>입력과 출력을 바꾸려면 <b>출력 하나에 입력이 하나</b>여야 합니다.
+       가로선(<b>y = k</b>)을 위아래로 움직이며 그래프와 <b>몇 번 만나는지</b> 세어 보세요.</p>
+    <div class="lab">
+      <svg id="s0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>가로선 y = k <span><b id="s0kv">4</b></span></label>
+          <input id="s0k" type="range" min="-1" max="9" step="0.25" value="4"></div>
+        <div class="readout" id="s0r"></div>
+        <div class="verdict no" id="s0v">일대일함수가 아니다</div>
+        <div class="win" id="s0w"></div>
+      </div>
+    </div>
+    <div class="callout"><b>수평선 판정법</b> — x축과 평행한 직선을 <b>어디에 그어도 최대 한 번만</b> 만나야
+      일대일함수입니다. y = x² 는 k &gt; 0 인 모든 가로선과 <b>두 번</b> 만나므로 실격이죠.
+      예를 들어 출력 4 를 보고는 입력이 <b>2 였는지 −2 였는지</b> 알 수 없습니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">발상의 전환</div>
+    <h1>정의역을 좁혀 보자</h1>
+    <p>“역함수가 없다”가 아니라 <b>“정의역을 너무 넓게 잡았다”</b> 였다면 어떨까요?
+       <b>a</b> 를 움직여 정의역을 <b>x ≥ a</b> 로 좁혀 봅시다. 언제부터 일대일함수가 될까요?</p>
+    <div class="lab">
+      <svg id="s1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>정의역 x ≥ a <span><b id="s1av">−3</b></span></label>
+          <input id="s1a" type="range" min="-3" max="3" step="0.25" value="-3"></div>
+        <div class="readout" id="s1r"></div>
+        <div class="verdict no" id="s1v"></div>
+        <div class="win" id="s1w"></div>
+      </div>
+    </div>
+    <p class="hint">굵은 파란 곡선이 <b>실제로 쓰는 부분</b>입니다. 붉은 가로선은
+      <b>가장 나쁜 경우</b>(가장 많이 만나는 높이)를 자동으로 찾아 그린 것이에요.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">역함수 등장</div>
+    <h1>y = x² (x ≥ 0) 을 뒤집으면</h1>
+    <p>정의역을 <b>x ≥ 0</b> 으로 정했더니 일대일대응이 되었습니다. 이제 <b>입력과 출력을 바꿔</b> 봅시다.
+       점 (t, t²) 이 (t², t) 로 옮겨 갑니다.</p>
+    <div class="lab">
+      <svg id="s2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>t <span><b id="s2tv">2</b></span></label>
+          <input id="s2t" type="range" min="0" max="3" step="0.1" value="2"></div>
+        <label class="tog" id="s2l1"><input type="checkbox" id="s2b1" checked> 직선 y = x 보기</label>
+        <label class="tog" id="s2l2"><input type="checkbox" id="s2b2"> 역함수 그래프 보기</label>
+        <div class="readout" id="s2r"></div>
+        <div class="win" id="s2w"></div>
+      </div>
+    </div>
+    <div class="formula">y = x² (x ≥ 0) &nbsp;의 역함수는&nbsp; <b>y = <span class="sqrt">x</span></b></div>
+    <p class="hint">두 점을 잇는 회색 선분의 <b>한가운데가 직선 y = x 위</b>에 있고, 선분이 그 직선과 <b>수직</b>입니다.
+      이것이 “y = x 에 대하여 대칭”의 정확한 뜻이에요.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">반대쪽을 고르면</div>
+    <h1>왼쪽 반을 고르면 어떻게 될까?</h1>
+    <p>정의역을 <b>x ≤ 0</b> 으로 정해도 일대일대응입니다. 그때의 역함수는 무엇일까요?</p>
+    <div class="lab">
+      <svg id="s3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="pick" id="s3pick">
+          <button class="pk on" data-s="1">정의역 x ≥ 0</button>
+          <button class="pk" data-s="-1">정의역 x ≤ 0</button>
+        </div>
+        <div class="readout" id="s3r"></div>
+        <div class="win" id="s3w"></div>
+      </div>
+    </div>
+    <table>
+      <tr><th>정의역</th><th>치역</th><th>역함수</th><th>역함수의 정의역</th></tr>
+      <tr><td>x ≥ 0</td><td>y ≥ 0</td><td>y = <span class="sqrt">x</span></td><td>x ≥ 0</td></tr>
+      <tr><td>x ≤ 0</td><td>y ≥ 0</td><td>y = −<span class="sqrt">x</span></td><td>x ≥ 0</td></tr>
+    </table>
+    <div class="callout"><b>정의역과 치역이 맞바뀝니다.</b> 원래 함수의 <b>치역</b>이 역함수의 <b>정의역</b>이 되죠.
+      그래서 <span class="sqrt">x</span> 의 정의역이 x ≥ 0 인 것은 우연이 아니라,
+      원래 함수 y = x² 의 <b>치역이 y ≥ 0</b> 이었기 때문입니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>무리함수로 가는 다리</h1>
+    <div class="card">
+      <b>오늘의 발상 전환</b><br>
+      “이 함수는 역함수가 <b>없다</b>” &nbsp;→&nbsp; “이 함수는 정의역을 <b>어떻게 잡느냐</b>에 따라 역함수가 생긴다”
+    </div>
+    <table>
+      <tr><th>단계</th><th>내용</th></tr>
+      <tr><td>1</td><td>수평선 판정 — 가로선과 <b>최대 한 번</b>만 만나야 일대일함수</td></tr>
+      <tr><td>2</td><td>정의역을 좁혀 <b>일대일대응</b>으로 만든다</td></tr>
+      <tr><td>3</td><td>역함수의 그래프는 원래 그래프를 <b>직선 y = x 에 대해 대칭</b>이동한 것</td></tr>
+      <tr><td>4</td><td>원래 함수의 <b>치역 = 역함수의 정의역</b></td></tr>
+    </table>
+    <div class="callout"><b>다음 시간 예고</b> — 무리함수 <b>y = <span class="sqrt">ax</span></b> 는
+      바로 <b>y = x²/a (x ≥ 0)</b> 의 역함수입니다.
+      그래서 무리함수 그래프가 포물선을 <b>눕혀 놓은</b> 모양이고, 정의역에 조건이 붙는 것이죠.
+      오늘 한 일이 그 단원의 준비 운동이었습니다.</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에 정리해 보세요.<br>
+      (1) y = x² 이 <b>실수 전체</b>에서는 왜 역함수를 갖지 못하는지 <b>수평선 판정</b>으로 설명하세요.<br>
+      (2) 정의역을 x ≤ 0 으로 정하면 역함수가 y = −<span class="sqrt">x</span> 가 되는 이유를 쓰세요.<br>
+      (3) 함수 y = (x − 2)² 이 역함수를 갖도록 하는 정의역을 <b>하나</b> 정하고, 그때의 역함수를 구하세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">계산기의 <b>sin⁻¹</b> 버튼이 정확히 이 이야기입니다.
+          sin 은 주기함수라 역함수가 없지만, 정의역을 −90°~90° 로 <b>잘라서</b> 역함수를 만들어 놓은 것이죠.
+          암호에서 “되돌릴 수 있는 변환”을 설계할 때도 일대일대응이 필수 조건입니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">함수는 <b>식만으로 정해지지 않습니다.</b>
+          정의역·공역까지 정해야 비로소 하나의 함수예요. 같은 식 x² 도 정의역을 바꾸면
+          <b>다른 함수</b>가 되고, 어떤 것은 역함수를 갖고 어떤 것은 갖지 못합니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>
+      ① y = x² 의 정의역을 <b>x ≥ 1</b> 로 정하면 역함수는 무엇이고, 그 <b>정의역</b>은 어떻게 될까요?<br>
+      ② 정의역을 <b>[−1, 1]</b> 로 정하면 일대일대응이 될까요? 안 된다면, 왜 ‘좁히기만’ 하면 되는 게 아닌지 설명해 보세요.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 6</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function f1(v){var r=Math.round(v*100)/100;return (r<0?"−":"")+Math.abs(r);}
+
+  function Plane(id,lo,hi,S){
+    var svg=document.getElementById(id), pad=26, sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}
+    function py(y){return (S-pad)-(y-lo)*sc;}
+    return {svg:svg,px:px,py:py,lo:lo,hi:hi,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){
+        for(var g=Math.ceil(lo);g<=hi;g++){
+          svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));
+          svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));
+        }
+        svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+        svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+      },
+      plot:function(fn,x0,x1,color,w,dash,op){
+        var pts=[];
+        for(var i=0;i<=240;i++){var x=x0+(x1-x0)*i/240,y=fn(x);
+          if(isFinite(y)&&y>=lo-1&&y<=hi+1)pts.push(px(x)+","+py(y));}
+        if(pts.length<2)return;
+        var o={points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round","stroke-linecap":"round"};
+        if(dash)o["stroke-dasharray"]=dash;
+        if(op)o.opacity=op;
+        svg.appendChild(el("polyline",o));
+      },
+      hline:function(y,color,w){svg.appendChild(el("line",{x1:px(lo),y1:py(y),x2:px(hi),y2:py(y),stroke:color,"stroke-width":w||2,"stroke-dasharray":"6 4"}));},
+      seg:function(x1,y1,x2,y2,color,w,dash){
+        var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2,"stroke-linecap":"round"};
+        if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));
+      },
+      dot:function(x,y,color,label,r,dy){
+        svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||6,fill:color}));
+        if(label){var t=el("text",{x:px(x)+9,y:py(y)+(dy||-9),"font-size":12,"font-weight":800,fill:color});t.textContent=label;svg.appendChild(t);}
+      },
+      text:function(x,y,s,color,size){
+        var t=el("text",{x:px(x),y:py(y),"font-size":size||12,"font-weight":800,fill:color});t.textContent=s;svg.appendChild(t);
+      }
+    };
+  }
+  function bindTog(labelId,inputId,cb){
+    var lab=document.getElementById(labelId),inp=document.getElementById(inputId);
+    function sync(){lab.className="tog"+(inp.checked?" on":"");cb();}
+    inp.onchange=sync;sync();
+  }
+  var sq=function(x){return x*x;};
+
+  // 화면 0: 수평선 판정 --------------------------------------------------------
+  (function(){
+    var P=Plane("s0",-1,9.5,400), k=4, seen={};
+    var read=document.getElementById("s0r"), vd=document.getElementById("s0v"), win=document.getElementById("s0w");
+    function draw(){
+      P.clear();P.grid();
+      P.plot(sq,-3.2,3.2,"#2563eb",2.8);
+      P.hline(k,"#e11d48",2);
+      var n=0;
+      if(k>0){var r=Math.sqrt(k);P.dot(r,k,"#e11d48",null,6);P.dot(-r,k,"#e11d48",null,6);n=2;
+        P.text(-2.9,k+0.3,"y = "+f1(k),"#e11d48");}
+      else if(Math.abs(k)<1e-9){P.dot(0,0,"#e11d48",null,6);n=1;P.text(-2.9,0.35,"y = 0","#e11d48");}
+      else {n=0;P.text(-2.9,k+0.3,"y = "+f1(k),"#e11d48");}
+      document.getElementById("s0kv").textContent=f1(k);
+      read.innerHTML="가로선 y = <b>"+f1(k)+"</b><br>그래프와 만나는 횟수 : <b style='font-size:17px'>"+n+"</b>회"+
+        (n===2?"<br><span class='hint'>x = "+f1(Math.sqrt(k))+" 와 x = −"+f1(Math.sqrt(k))+"</span>":"");
+      seen[n]=true;
+      if(n===2){vd.className="verdict no";vd.textContent="✗ 두 번 만난다 — 일대일이 아니다";}
+      else if(n===1){vd.className="verdict ok";vd.textContent="여기서는 한 번만 만난다";}
+      else {vd.className="verdict";vd.textContent="만나지 않는다";}
+      if(seen[0]&&seen[1]&&seen[2]){
+        win.className="win on";
+        win.innerHTML="🎉 <b>단 하나의 가로선이라도 두 번 만나면 실격</b>입니다. y = x² 는 k &gt; 0 인 모든 높이에서 두 번 만나죠.";
+      }
+    }
+    document.getElementById("s0k").oninput=function(){k=parseFloat(this.value);draw();};
+    draw();
+  })();
+
+  // 화면 1: 정의역 좁히기 ------------------------------------------------------
+  (function(){
+    var P=Plane("s1",-3.5,9.5,400), a=-3;
+    var read=document.getElementById("s1r"), vd=document.getElementById("s1v"), win=document.getElementById("s1w");
+    function draw(){
+      P.clear();P.grid();
+      P.plot(sq,-3.2,3.2,"#cbd5e1",2,"4 4");            // 원래 전체
+      P.plot(sq,a,3.2,"#2563eb",3.6);                    // 쓰는 부분
+      P.seg(a,0,a,sq(a),"#7c3aed",1.6,"4 3");
+      P.dot(a,sq(a),"#7c3aed","x = a",5);
+      // 가장 많이 만나는 높이: a<0 이면 (0, a²) 사이 아무 높이나 두 번 만난다
+      var worst=null, n=1;
+      if(a<-0.001){worst=Math.min(sq(a),9)/2; n=2;
+        P.hline(worst,"#e11d48",2);
+        P.dot(Math.sqrt(worst),worst,"#e11d48",null,5.5);
+        P.dot(-Math.sqrt(worst),worst,"#e11d48",null,5.5);
+      }
+      document.getElementById("s1av").textContent=f1(a);
+      read.innerHTML="정의역 : <b>x ≥ "+f1(a)+"</b><br>"+
+        (n===2?"가로선 y = <b>"+f1(worst)+"</b> 이 <b>두 번</b> 만납니다."
+              :"어떤 가로선도 <b>최대 한 번</b>만 만납니다.");
+      if(n===2){vd.className="verdict no";vd.textContent="✗ 아직 일대일이 아니다";}
+      else {vd.className="verdict ok";vd.textContent="✓ 일대일함수! 역함수를 만들 수 있다";
+        if(Math.abs(a)<0.001){
+          win.className="win on";
+          win.innerHTML="🎉 <b>a = 0</b> 이 경계입니다. a 가 0 보다 조금이라도 작으면 대칭인 짝이 함께 들어와 두 번 만나게 되죠.";
+        }}
+    }
+    document.getElementById("s1a").oninput=function(){a=parseFloat(this.value);draw();};
+    draw();
+  })();
+
+  // 화면 2: 역함수 등장 --------------------------------------------------------
+  (function(){
+    var P=Plane("s2",-0.8,9.5,400), t=2;
+    var read=document.getElementById("s2r"), win=document.getElementById("s2w"), seen=false;
+    function draw(){
+      var showId=document.getElementById("s2b1").checked, showInv=document.getElementById("s2b2").checked;
+      P.clear();P.grid();
+      if(showId)P.plot(function(x){return x;},-0.8,9.5,"#f59e0b",1.8,"6 4");
+      P.plot(sq,0,3.1,"#2563eb",3);
+      if(showInv)P.plot(function(x){return Math.sqrt(Math.max(0,x));},0,9.5,"#059669",3);
+      var y=sq(t);
+      P.seg(t,y,y,t,"#a1a1aa",1.6,"4 3");
+      P.dot(t,y,"#2563eb","("+f1(t)+", "+f1(y)+")",6);
+      P.dot(y,t,"#059669","("+f1(y)+", "+f1(t)+")",6,18);
+      P.text(2.5,8.6,"y = x²","#2563eb",13);
+      if(showInv)P.text(7.6,2.2,"y = √x","#059669",13);
+      document.getElementById("s2tv").textContent=f1(t);
+      read.innerHTML="원래 : ("+f1(t)+", <b>"+f1(y)+"</b>)<br>뒤집으면 : (<b>"+f1(y)+"</b>, "+f1(t)+")<br>"+
+        "<span class='hint'>√"+f1(y)+" = "+f1(t)+"</span>";
+      if(showInv&&!seen){
+        seen=true;win.className="win on";
+        win.innerHTML="🎉 초록 곡선이 <b>y = √x</b>. 파란 곡선을 <b>직선 y = x 에 대해 접어 놓은</b> 모양이죠.";
+      }
+    }
+    document.getElementById("s2t").oninput=function(){t=parseFloat(this.value);draw();};
+    bindTog("s2l1","s2b1",draw);bindTog("s2l2","s2b2",draw);
+  })();
+
+  // 화면 3: 왼쪽 반 고르기 -----------------------------------------------------
+  (function(){
+    var P=Plane("s3",-3.5,9.5,400), side=1, seen={};
+    var read=document.getElementById("s3r"), win=document.getElementById("s3w");
+    function draw(){
+      P.clear();P.grid();
+      P.plot(function(x){return x;},-3.5,9.5,"#f59e0b",1.6,"6 4");
+      P.plot(sq,-3.2,3.2,"#cbd5e1",2,"4 4");
+      if(side>0){
+        P.plot(sq,0,3.1,"#2563eb",3);
+        P.plot(function(x){return Math.sqrt(Math.max(0,x));},0,9.5,"#059669",3);
+        P.text(2.4,8.6,"y = x² (x ≥ 0)","#2563eb",12.5);
+        P.text(7.4,2.2,"y = √x","#059669",13);
+      } else {
+        P.plot(sq,-3.1,0,"#2563eb",3);
+        P.plot(function(x){return -Math.sqrt(Math.max(0,x));},0,9.5,"#059669",3);
+        P.text(-3.2,8.6,"y = x² (x ≤ 0)","#2563eb",12.5);
+        P.text(7.2,-1.6,"y = −√x","#059669",13);
+      }
+      var t=side>0?2:-2;
+      P.seg(t,sq(t),sq(t),t,"#a1a1aa",1.6,"4 3");
+      P.dot(t,sq(t),"#2563eb",null,5.5);P.dot(sq(t),t,"#059669",null,5.5);
+      seen[side]=true;
+      read.innerHTML=(side>0
+        ? "정의역 <b>x ≥ 0</b> → 역함수 <b>y = √x</b><br><span class='hint'>(2, 4) ↔ (4, 2)</span>"
+        : "정의역 <b>x ≤ 0</b> → 역함수 <b>y = −√x</b><br><span class='hint'>(−2, 4) ↔ (4, −2)</span>");
+      if(seen[1]&&seen[-1]){
+        win.className="win on";
+        win.innerHTML="🎉 <b>같은 식 x² 인데 정의역이 다르면 다른 함수</b>이고, 역함수도 달라집니다. 두 역함수를 합치면 포물선을 눕힌 모양 전체가 되죠.";
+      }
+    }
+    [].slice.call(document.querySelectorAll("#s3pick .pk")).forEach(function(b){
+      b.onclick=function(){
+        side=parseInt(b.getAttribute("data-s"),10);
+        [].slice.call(document.querySelectorAll("#s3pick .pk")).forEach(function(o){o.className="pk"+(o===b?" on":"");});
+        draw();
+      };
+    });
+    draw();
+  })();
+
+  // 스테퍼 -------------------------------------------------------------------
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

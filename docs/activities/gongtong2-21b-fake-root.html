@@ -1,0 +1,370 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+  .lab{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:800}
+  .badge.real{background:#dcfce7;color:#065f46}
+  .badge.fake{background:#fee2e2;color:#991b1b}
+  .badge.none{background:#f4f4f5;color:var(--muted)}
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .vs .box{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:#fff;text-align:center}
+  .vs .box .num{font-size:22px;font-weight:800}
+  .vs .box .lb{font-size:12px;color:var(--muted);font-weight:700}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .qz{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0;background:#fff}
+  .opts{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .op{border:1px solid var(--line);background:#fff;font:inherit;font-size:14px;padding:9px 12px;border-radius:9px;cursor:pointer;text-align:left;font-weight:600}
+  .op:hover{border-color:var(--blue)}
+  .op.right{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .op.wrong{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .fb{font-size:13px;margin-top:7px;font-weight:600;color:var(--muted)}
+  .formula{font-size:16px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
+  .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 무리함수</div>
+    <span class="sheet">📄 학습지 ‘유리·무리 3. 무리함수’ (생각키우기) 검증</span>
+    <h1>🕵️ 가짜 해를 찾아라</h1>
+    <p>곡선 <b>y = <span class="sqrt">x − 2</span></b> 와 직선 <b>y = 2x + t</b> 입니다.
+       어떤 학생이 <b>“양변을 제곱해서 판별식으로”</b> 교점의 개수를 구했습니다.
+       슬라이더로 t 를 움직여 <b>판별식이 세는 개수</b>와 <b>실제 교점의 개수</b>를 비교해 보세요.</p>
+    <div class="lab">
+      <svg id="s0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>t <span><b id="s0tv">−5</b></span></label>
+          <input id="s0t" type="range" min="-5.5" max="-3.5" step="0.025" value="-5"></div>
+        <div class="vs">
+          <div class="box"><div class="num" id="dcnt" style="color:#7c3aed">–</div><div class="lb">판별식이 세는 해</div></div>
+          <div class="box"><div class="num" id="rcnt" style="color:#2563eb">–</div><div class="lb">실제 교점</div></div>
+        </div>
+        <div class="readout" id="s0r"></div>
+        <div class="win" id="s0w"></div>
+      </div>
+    </div>
+    <p class="hint">회색 점선은 <b>제곱하는 순간 함께 태어나는 유령 곡선 y = −<span class="sqrt">x − 2</span></b> 입니다.
+      제곱한 방정식 x − 2 = (2x + t)² 은 <b>두 곡선을 구분하지 못합니다.</b></p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">현장 검증</div>
+    <h1>t = −5 — 학습지 풀이를 검산하자</h1>
+    <p>학습지의 풀이는 판별식 D &gt; 0 ⟺ <b>t &lt; −31/8</b> 이라고 했습니다.
+       그렇다면 <b>t = −5</b> 에서는 교점이 2개여야 합니다. 정말일까요?</p>
+    <div class="card">
+      제곱한 방정식: <code>4x² − 21x + 27 = 0</code> → <b>x = 3</b> 또는 <b>x = 2.25</b>
+    </div>
+    <p><b>두 해를 원래 식 <span class="sqrt">x − 2</span> = 2x − 5 에 각각 대입</b>해 봅시다. 버튼을 눌러 확인하세요.</p>
+    <div class="qz">
+      <div style="font-weight:700">x = 3 을 대입하면?</div>
+      <div class="opts" id="chk1"></div>
+      <div class="fb" id="fb1"></div>
+    </div>
+    <div class="qz">
+      <div style="font-weight:700">x = 2.25 를 대입하면?</div>
+      <div class="opts" id="chk2"></div>
+      <div class="fb" id="fb2"></div>
+    </div>
+    <div class="win" id="s1w"></div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">범인의 정체</div>
+    <h1>제곱은 부호를 지운다</h1>
+    <div class="formula">a = b &nbsp;⟹&nbsp; a² = b² &nbsp;&nbsp;(참)<br>
+      a² = b² &nbsp;⟹&nbsp; a = b &nbsp;&nbsp;<b style="color:#e11d48">(거짓! a = −b 일 수도)</b></div>
+    <p><span class="sqrt">x − 2</span> 는 <b>항상 0 이상</b>입니다. 그런데 제곱한 방정식
+       <code>x − 2 = (2x + t)²</code> 은 <b>2x + t 가 음수인 해까지</b> 함께 데려옵니다.
+       그 해가 바로 유령 곡선 <b>y = −<span class="sqrt">x − 2</span></b> 위의 교점, 즉 <b>가짜 해</b>입니다.</p>
+    <div class="callout"><b>Ⅱ단원의 말로 정리하면</b> —
+      「a = b 이면 a² = b² 이다」는 참이지만 그 <b>역은 거짓</b>입니다.
+      제곱은 <b>충분조건 방향으로만</b> 안전한 조작이라서, 제곱해서 얻은 해는
+      반드시 <b>원래 식으로 되돌아가 검산</b>해야 합니다.</div>
+    <p>그래서 놓치면 안 되는 조건이 <b>두 가지</b>입니다.</p>
+    <table>
+      <tr><th>조건</th><th>이유</th></tr>
+      <tr><td><b>x ≥ 2</b></td><td>근호 안이 0 이상이어야 함 (정의역)</td></tr>
+      <tr><td><b>2x + t ≥ 0</b></td><td>좌변 <span class="sqrt">x − 2</span> ≥ 0 이므로 우변도 0 이상이어야 함</td></tr>
+    </table>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">사건 해결</div>
+    <h1>올바른 답을 찾아라</h1>
+    <p>첫 화면으로 돌아가 t 를 천천히 움직이며, <b>실제 교점이 2개</b>가 되는 t 의 범위를 찾아보세요.
+       특히 <b>t = −4</b> 와 <b>t = −31/8 = −3.875</b> 근처에서 무슨 일이 일어나는지 관찰하세요.</p>
+    <div class="qz">
+      <div style="font-weight:700">곡선과 직선이 <b>서로 다른 두 점</b>에서 만나는 t 의 범위는?</div>
+      <div class="opts" id="q3"></div>
+      <div class="fb" id="fb3"></div>
+    </div>
+    <div class="win" id="s3w"></div>
+    <table>
+      <tr><th>t</th><th>판별식의 해</th><th>실제 교점</th><th>무슨 일이</th></tr>
+      <tr><td>t &gt; −31/8</td><td>0개</td><td>0개</td><td>아예 안 만남</td></tr>
+      <tr><td>t = −31/8</td><td>1개(중근)</td><td>1개</td><td><b>접함</b></td></tr>
+      <tr><td>−4 ≤ t &lt; −31/8</td><td>2개</td><td><b>2개</b></td><td>둘 다 진짜 ✅</td></tr>
+      <tr><td>t &lt; −4</td><td>2개</td><td><b>1개</b></td><td>하나는 <b>가짜</b> 👻</td></tr>
+    </table>
+    <div class="callout"><b>그래프로 보는 요령</b> — 직선이 곡선의 <b>시작점 (2, 0)</b> 을 지나는 순간(t = −4)과
+      곡선에 <b>접하는</b> 순간(t = −31/8) 사이가 답입니다. 무리함수 문제에서는
+      판별식보다 <b>이 두 경계를 그래프에서 직접 찾는 것</b>이 안전합니다.</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에 정리해 보세요.<br>
+      (1) t = −5 에서 x = 2.25 가 <b>가짜 해</b>인 이유를 대입 결과로 설명하세요.<br>
+      (2) 제곱이라는 조작이 무엇을 잃어버리게 하는지, <b>충분조건</b>이라는 말을 써서 설명하세요.<br>
+      (3) 올바른 범위 <b>−4 ≤ t &lt; −31/8</b> 이 나오는 과정을 ‘시작점을 지날 때’와 ‘접할 때’로 나누어 쓰세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">컴퓨터가 방정식을 풀 때도 똑같은 함정에 빠집니다.
+          수식 처리 프로그램은 제곱·역수 같은 조작을 한 뒤 반드시 <b>후보 해를 원식에 대입해 거르는 단계</b>를 거칩니다.
+          공학에서는 이런 가짜 해를 extraneous solution 이라 부르며 따로 관리해요.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">방정식을 변형할 때 해가 보존되려면 그 조작이
+          <b>필요충분(⟺)</b>이어야 합니다. 양변에 같은 수를 더하기·0이 아닌 수 곱하기는 ⟺ 이지만,
+          제곱은 <b>⟹ 한쪽 방향</b>뿐입니다. Ⅱ단원의 명제가 방정식 풀이의 문법이었던 셈이죠.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>
+      ① 직선의 기울기가 2 가 아니라 <b>1/2</b> 이라면(y = x/2 + t), 가짜 해 구간이 생길까요?
+      기울기가 완만할수록 무슨 일이 일어나는지 그래프로 생각해 보세요.<br>
+      ② <span class="sqrt">x + 3</span> = x − 3 을 제곱해서 풀면 해가 두 개 나옵니다.
+      어느 것이 가짜인지 찾아보세요. (답: x = 1 이 가짜, x = 6 이 진짜)
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 5</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function f2(v){var r=Math.round(v*1000)/1000;return (r<0?"−":"")+Math.abs(r);}
+
+  function Plane(svg,lo,hi){
+    var S=400,pad=26,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}
+    function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,sc:sc,lo:lo,hi:hi,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){
+        for(var g=Math.ceil(lo);g<=hi;g++){
+          svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));
+          svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));
+        }
+        svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+        svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+      },
+      plot:function(fn,x0,x1,color,w,dash){
+        var pts=[];
+        for(var i=0;i<=260;i++){var x=x0+(x1-x0)*i/260,y=fn(x);
+          if(isFinite(y)&&y>lo-3&&y<hi+3)pts.push(px(x)+","+py(y));}
+        var o={points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round","stroke-linecap":"round"};
+        if(dash)o["stroke-dasharray"]=dash;
+        svg.appendChild(el("polyline",o));
+      },
+      dot:function(x,y,color,label,r,dy){
+        svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||6,fill:color}));
+        if(label){var t=el("text",{x:px(x)+9,y:py(y)+(dy||-9),"font-size":12,"font-weight":800,fill:color});t.textContent=label;svg.appendChild(t);}
+      },
+      ghost:function(x,y){
+        svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:7,fill:"none",stroke:"#e11d48","stroke-width":2,"stroke-dasharray":"3 2"}));
+        var t=el("text",{x:px(x)+9,y:py(y)+14,"font-size":12,"font-weight":800,fill:"#e11d48"});t.textContent="👻";svg.appendChild(t);
+      },
+      text:function(x,y,s,color,size){
+        var t=el("text",{x:px(x),y:py(y),"font-size":size||12,"font-weight":700,fill:color});t.textContent=s;svg.appendChild(t);
+      }
+    };
+  }
+
+  // 화면 0: 슬라이더 실험 ------------------------------------------------------
+  (function(){
+    var P=Plane(document.getElementById("s0"),-2,6), t=-5;
+    var seen={fake:false,two:false,tan:false};
+    var read=document.getElementById("s0r"), win=document.getElementById("s0w");
+    function roots(){
+      // 4x² + (4t−1)x + t²+2 = 0
+      var D=-8*t-31;
+      if(D<0)return [];
+      var s=Math.sqrt(D), b=(1-4*t);
+      if(D===0)return [b/8];
+      return [(b-s)/8,(b+s)/8];
+    }
+    function draw(){
+      P.clear();P.grid();
+      P.plot(function(x){return -Math.sqrt(Math.max(0,x-2));},2,6,"#a1a1aa",1.8,"5 4");   // 유령
+      P.plot(function(x){return Math.sqrt(Math.max(0,x-2));},2,6,"#2563eb",2.8);          // 진짜 곡선
+      P.plot(function(x){return 2*x+t;},-2,6,"#e11d48",2.4);
+      P.dot(2,0,"#2563eb",null,4);
+      P.text(4.6,2.35,"y = √(x−2)","#2563eb");
+      P.text(4.35,-2.15,"유령 y = −√(x−2)","#a1a1aa",11);
+      var rs=roots(), real=0, fake=0;
+      rs.forEach(function(x){
+        var y=2*x+t;
+        if(y>=-1e-9){real++;P.dot(x,Math.sqrt(Math.max(0,x-2)),"#059669",null,6);}
+        else {fake++;P.ghost(x,y);}
+      });
+      document.getElementById("s0tv").textContent=f2(t);
+      document.getElementById("dcnt").textContent=rs.length;
+      document.getElementById("rcnt").textContent=real;
+      var note;
+      if(!rs.length)note="직선이 곡선 아래를 지나가 만나지 않습니다.";
+      else if(rs.length===1)note="<b>접합니다</b> (t = −31/8 = −3.875).";
+      else if(fake)note="해 하나는 <b>유령 곡선 위</b>에 있습니다 — 원래 곡선과는 만나지 않아요.";
+      else note="두 해 모두 <b>진짜 곡선 위</b>! 판별식과 실제가 일치합니다.";
+      read.innerHTML="y = 2x "+(t<0?"− "+f2(-t):"+ "+f2(t))+"<br>"+
+        (rs.length?rs.map(function(x){var y=2*x+t;
+          return "x = "+f2(x)+" <span class='badge "+(y>=-1e-9?"real'>진짜":"fake'>가짜 👻")+"</span>";}).join("<br>")
+        :"<span class='badge none'>해 없음</span>")+"<br><span class='hint'>"+note+"</span>";
+      if(fake)seen.fake=true;
+      if(rs.length===2&&!fake)seen.two=true;
+      if(rs.length===1)seen.tan=true;
+      if(seen.fake&&seen.two&&seen.tan){
+        win.className="win on";
+        win.innerHTML="🎉 세 상황(가짜 해 등장 · 둘 다 진짜 · 접함)을 모두 목격했습니다! 4번 화면에서 범위를 확정해 봅시다.";
+      }
+    }
+    document.getElementById("s0t").oninput=function(){t=parseFloat(this.value);draw();};
+    draw();
+  })();
+
+  // 화면 1: t = −5 검산 --------------------------------------------------------
+  (function(){
+    var done={};
+    function build(boxId,fbId,key,left,right,isReal,detail){
+      var box=document.getElementById(boxId), fb=document.getElementById(fbId);
+      [["진짜 해다",isReal],["가짜 해다",!isReal]].forEach(function(pair){
+        var b=document.createElement("button");b.className="op";b.textContent=pair[0];
+        b.onclick=function(){
+          if(done[key])return;
+          if(pair[1]){
+            b.className="op right";done[key]=true;
+            fb.innerHTML="✅ 좌변 "+left+", 우변 "+right+" — "+detail;
+            if(done.a&&done.b){
+              document.getElementById("s1w").className="win on";
+              document.getElementById("s1w").innerHTML="🎉 t = −5 의 실제 교점은 <b>1개뿐</b>. 학습지 풀이 t &lt; −31/8 은 <b>틀렸다</b>는 증거를 잡았습니다!";
+            }
+          } else {b.className="op wrong";fb.innerHTML="❌ 직접 대입해 보세요. 좌변은 "+left+", 우변은 "+right+" 입니다.";}
+        };
+        box.appendChild(b);
+      });
+    }
+    build("chk1","fb1","a","√(3−2) = 1","2(3)−5 = 1",true,
+      "양변이 <b>1 = 1</b> 로 일치합니다. 진짜 해!");
+    build("chk2","fb2","b","√(2.25−2) = 0.5","2(2.25)−5 = −0.5",false,
+      "좌변은 <b>+0.5</b>, 우변은 <b>−0.5</b>. 같지 않으므로 <b>가짜 해</b>입니다. 제곱하는 순간 부호가 지워져 섞여 들어온 거예요.");
+  })();
+
+  // 화면 3: 범위 퀴즈 ----------------------------------------------------------
+  (function(){
+    var OPTS=[
+      {t:"t < −31/8  (판별식 D > 0 만으로)",ok:false,
+       why:"t = −5 도 이 범위에 들지만 실제 교점은 1개였죠. 가짜 해를 세고 있습니다."},
+      {t:"−4 ≤ t < −31/8",ok:true,
+       why:"직선이 시작점 (2, 0) 을 지나는 t = −4 부터, 접하기 직전(t = −31/8)까지. 이 구간에서만 두 해가 모두 진짜입니다."},
+      {t:"t ≤ −4",ok:false,
+       why:"t 가 −4 보다 작아지면 아래쪽 해가 유령 곡선으로 넘어가 교점이 1개가 됩니다."}
+    ];
+    var box=document.getElementById("q3"), fb=document.getElementById("fb3"), win=document.getElementById("s3w");
+    OPTS.forEach(function(o){
+      var b=document.createElement("button");b.className="op";b.textContent=o.t;
+      b.onclick=function(){
+        if(o.ok){
+          b.className="op right";
+          [].slice.call(box.children).forEach(function(x){x.disabled=true;});
+          fb.innerHTML="✅ "+o.why;
+          win.className="win on";
+          win.innerHTML="🎉 사건 해결! 올바른 답은 <b>−4 ≤ t &lt; −31/8</b>. 판별식만 믿으면 안 되는 이유를 몸으로 확인했습니다.";
+        } else {b.className="op wrong";fb.innerHTML="❌ "+o.why;}
+      };
+      box.appendChild(b);
+    });
+  })();
+
+  // 스테퍼 -------------------------------------------------------------------
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

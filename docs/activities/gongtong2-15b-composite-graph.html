@@ -1,0 +1,375 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+  svg{width:100%;height:auto;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:10px}
+  .trio{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+  @media (max-width:600px){.trio{grid-template-columns:1fr}}
+  .pane{}
+  .pane .cap{font-size:12.5px;font-weight:800;margin:0 0 4px;color:var(--muted)}
+  .pane .cap b{color:var(--ink)}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .tog{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer;background:#fff}
+  .tog input{accent-color:var(--blue);width:16px;height:16px}
+  .tog.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:12px 0}
+  .chip{border:2px solid var(--line);border-radius:12px;padding:9px 14px;font-weight:800;font-size:17px;background:#fff;min-width:64px;text-align:center}
+  .chip.x{border-color:#2563eb;color:#2563eb}
+  .chip.y{border-color:#d97706;color:#d97706}
+  .chip.z{border-color:#059669;color:#059669}
+  .mach{border:2px solid var(--line);border-radius:12px;padding:9px 12px;font-weight:800;font-size:14px;background:var(--panel)}
+  .arr{color:var(--muted);font-size:18px}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:16px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 합성함수</div>
+    <span class="sheet">📄 학습지 ‘함수 2. 합성함수’ · 데스모스 15번 [추가 탐구]</span>
+    <h1>⚙️ 기계 두 대를 이어 붙이면</h1>
+    <p>함수를 <b>기계</b>라고 생각합시다. 수를 넣으면 다른 수가 나오죠.
+       두 기계 <b>f</b> 와 <b>g</b> 를 <b>차례로</b> 통과시켜 봅니다.</p>
+    <div class="card" style="margin:8px 0">
+      <b>f(x) = x − 1</b> &nbsp;— 1을 뺀다<br>
+      <b>g(y) = y² + 1</b> &nbsp;— 제곱하고 1을 더한다
+    </div>
+    <div class="flow">
+      <span class="chip x" id="cx">2</span><span class="arr">→</span>
+      <span class="mach">f</span><span class="arr">→</span>
+      <span class="chip y" id="cy">1</span><span class="arr">→</span>
+      <span class="mach">g</span><span class="arr">→</span>
+      <span class="chip z" id="cz">2</span>
+    </div>
+    <div class="lab">
+      <svg id="m0" viewBox="0 0 400 150"></svg>
+      <div class="controls">
+        <div class="slider"><label>x <span><b id="m0xv">2</b></span></label>
+          <input id="m0x" type="range" min="-2" max="4" step="0.5" value="2"></div>
+        <div class="readout" id="m0r"></div>
+      </div>
+    </div>
+    <div class="callout">중간에 나온 <b>y = f(x)</b> 가 곧바로 <b>g 의 입력</b>이 됩니다.
+      그래서 결과는 <b>g(f(x))</b> 이고, 이것을 <b>(g∘f)(x)</b> 라고 씁니다.<br>
+      읽는 순서는 <b>오른쪽부터</b> — “f 먼저, 그 다음 g”.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">그래프로 추적</div>
+    <h1>세 평면을 따라가 보자</h1>
+    <p>x 를 움직이면 값이 <b>①에서 ②로, ②에서 ③으로</b> 흘러갑니다.
+       ①의 <b>세로축</b>과 ②의 <b>가로축</b>이 똑같이 <b>y</b> 인 것에 주목하세요 — 그게 이어 붙이는 고리입니다.</p>
+    <div class="trio">
+      <div class="pane"><div class="cap">① <b>y = f(x) = x − 1</b> &nbsp;(가로 x · 세로 y)</div><svg id="p1" viewBox="0 0 220 220"></svg></div>
+      <div class="pane"><div class="cap">② <b>z = g(y) = y² + 1</b> &nbsp;(가로 y · 세로 z)</div><svg id="p2" viewBox="0 0 220 220"></svg></div>
+    </div>
+    <div class="trio" style="grid-template-columns:1fr 250px">
+      <div class="pane"><div class="cap">③ <b>z = (g∘f)(x)</b> &nbsp;(가로 x · 세로 z)</div><svg id="p3" viewBox="0 0 220 220"></svg></div>
+      <div class="controls">
+        <div class="slider"><label>x <span><b id="t2xv">2</b></span></label>
+          <input id="t2x" type="range" min="-2" max="4" step="0.1" value="2"></div>
+        <label class="tog" id="t2l"><input type="checkbox" id="t2trace"> 자취 남기기</label>
+        <button class="btn" id="t2sweep" style="width:100%">▶ 자동으로 훑기</button>
+        <div class="readout" id="t2r"></div>
+        <div class="win" id="t2w"></div>
+      </div>
+    </div>
+    <p class="hint"><b>자취 남기기</b>를 켜고 x 를 끝에서 끝까지 움직이면, ③에 <b>합성함수의 그래프</b>가 그려집니다.
+      직접 식을 전개하지 않고도 모양이 나오죠.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">순서를 바꾸면</div>
+    <h1>g∘f 와 f∘g 는 다르다</h1>
+    <p>같은 두 기계를 <b>순서만 바꿔</b> 이어 붙여 봅시다.</p>
+    <div class="formula">
+      (g∘f)(x) = g(x − 1) = <b>(x − 1)² + 1</b> &nbsp;&nbsp;/&nbsp;&nbsp;
+      (f∘g)(x) = f(x² + 1) = <b>x²</b>
+    </div>
+    <div class="lab">
+      <svg id="p4" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>x <span><b id="t3xv">0</b></span></label>
+          <input id="t3x" type="range" min="-2" max="4" step="0.1" value="0"></div>
+        <div class="readout" id="t3r"></div>
+        <div class="win" id="t3w"></div>
+      </div>
+    </div>
+    <p class="hint">x 를 움직여 두 값이 <b>같아지는 지점</b>도 찾아보세요. 몇 군데나 있나요?</p>
+    <div class="callout"><b>왜 다를까?</b> f 는 “1을 뺀다”, g 는 “제곱하고 1을 더한다” 입니다.
+      <b>빼고 나서 제곱</b>하는 것과 <b>제곱하고 나서 빼는</b> 것은 당연히 다르죠.
+      앞 단원 로봇에서 <span style="font-family:monospace">move</span> 다음
+      <span style="font-family:monospace">turn_left</span> 와 그 반대가 달랐던 것과 똑같습니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>정리</h1>
+    <table>
+      <tr><th></th><th>뜻</th><th>이 활동에서</th></tr>
+      <tr><td>(g∘f)(x)</td><td>g(f(x)) — <b>f 먼저</b>, 그 다음 g</td><td>(x − 1)² + 1</td></tr>
+      <tr><td>(f∘g)(x)</td><td>f(g(x)) — <b>g 먼저</b>, 그 다음 f</td><td>x²</td></tr>
+      <tr><td>합성이 되려면</td><td>f 의 <b>치역</b>이 g 의 <b>정의역</b> 안에</td><td>①의 세로축 = ②의 가로축</td></tr>
+      <tr><td>교환법칙</td><td colspan="2"><b>성립하지 않는다</b> &nbsp;g∘f ≠ f∘g</td></tr>
+      <tr><td>결합법칙</td><td colspan="2"><b>성립한다</b> &nbsp;(h∘g)∘f = h∘(g∘f)</td></tr>
+    </table>
+    <div class="callout"><b>결합법칙은 왜 성립할까?</b> 어느 쪽이든 결국 <b>“f 를 지나고, g 를 지나고, h 를 지난다”</b>
+      는 같은 여정이기 때문입니다. 묶는 방법이 달라질 뿐 <b>지나가는 순서는 그대로</b>죠.</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에 정리해 보세요.<br>
+      (1) ①의 세로축과 ②의 가로축이 같아야 하는 이유를 <b>치역·정의역</b>이라는 말로 설명하세요.<br>
+      (2) f(x) = x − 1, g(x) = x² + 1 일 때 (g∘f)(2) 와 (f∘g)(2) 를 각각 구하고, 왜 다른지 쓰세요.<br>
+      (3) 세 함수 f, g, h 에 대해 (h∘g)∘f 와 h∘(g∘f) 가 같은 이유를 ‘여정’에 빗대어 설명하세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">사진 앱의 필터를 여러 개 겹치는 것, 환전을 두 번 하는 것,
+          공장의 컨베이어에서 공정이 이어지는 것 — 모두 합성입니다.
+          인공지능의 <b>신경망</b>도 단순한 함수를 수십 층 합성한 것이고, 순서를 바꾸면 전혀 다른 모델이 됩니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">합성은 <b>결합법칙은 되지만 교환법칙은 안 되는</b> 연산입니다.
+          행렬의 곱셈, 도형의 이동, 로봇의 명령 — 모두 같은 성질을 가져요.
+          수학은 이런 공통 구조를 뽑아 <b>모노이드·군</b>이라 부르며 한꺼번에 다룹니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>
+      ① (g∘f)(x) = (f∘g)(x) 가 <b>모든 x 에서</b> 성립하려면 f 와 g 가 어떤 관계여야 할까요?
+      한 가지 예를 만들어 보세요. (힌트: f 가 항등함수라면?)<br>
+      ② f(x) = x − 1 을 <b>세 번</b> 합성하면 (f∘f∘f)(x) 는? n 번이면?
+      이런 반복 합성을 <b>f ⁿ</b> 이라 씁니다.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 5</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function f1(v){var r=Math.round(v*100)/100;return (r<0?"−":"")+Math.abs(r);}
+  function f(x){return x-1;}
+  function g(y){return y*y+1;}
+
+  // 작은 좌표평면 (가로·세로 범위를 따로 준다) --------------------------------
+  function Pane(id,x0,x1,y0,y1,S){
+    var svg=document.getElementById(id), pad=22;
+    var sx=(S-2*pad)/(x1-x0), sy=(S-2*pad)/(y1-y0);
+    function px(x){return pad+(x-x0)*sx;}
+    function py(y){return (S-pad)-(y-y0)*sy;}
+    return {svg:svg,px:px,py:py,x0:x0,x1:x1,y0:y0,y1:y1,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(xl,yl){
+        for(var a=Math.ceil(x0);a<=x1;a++)svg.appendChild(el("line",{x1:px(a),y1:py(y0),x2:px(a),y2:py(y1),stroke:"#f1f5f9","stroke-width":1}));
+        for(var b=Math.ceil(y0);b<=y1;b++)svg.appendChild(el("line",{x1:px(x0),y1:py(b),x2:px(x1),y2:py(b),stroke:"#f1f5f9","stroke-width":1}));
+        if(y0<=0&&y1>=0)svg.appendChild(el("line",{x1:px(x0),y1:py(0),x2:px(x1),y2:py(0),stroke:"#cbd5e1","stroke-width":1.4}));
+        if(x0<=0&&x1>=0)svg.appendChild(el("line",{x1:px(0),y1:py(y0),x2:px(0),y2:py(y1),stroke:"#cbd5e1","stroke-width":1.4}));
+        if(xl){var t=el("text",{x:S-pad,y:S-6,"font-size":11,"font-weight":800,fill:"#a1a1aa","text-anchor":"end"});t.textContent=xl;svg.appendChild(t);}
+        if(yl){var u=el("text",{x:6,y:16,"font-size":11,"font-weight":800,fill:"#a1a1aa"});u.textContent=yl;svg.appendChild(u);}
+      },
+      plot:function(fn,color,w,dash){
+        var pts=[];
+        for(var i=0;i<=240;i++){var x=x0+(x1-x0)*i/240,y=fn(x);
+          if(isFinite(y)&&y>=y0-0.3&&y<=y1+0.3)pts.push(px(x)+","+py(y));}
+        var o={points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.4,"stroke-linejoin":"round"};
+        if(dash)o["stroke-dasharray"]=dash;
+        svg.appendChild(el("polyline",o));
+      },
+      guide:function(x,y,color){                 // 축 → 점 → 축 안내선
+        svg.appendChild(el("line",{x1:px(x),y1:py(Math.max(y0,0)),x2:px(x),y2:py(y),stroke:color,"stroke-width":1.6,"stroke-dasharray":"4 3",opacity:.85}));
+        svg.appendChild(el("line",{x1:px(x),y1:py(y),x2:px(Math.max(x0,0)),y2:py(y),stroke:color,"stroke-width":1.6,"stroke-dasharray":"4 3",opacity:.85}));
+      },
+      dot:function(x,y,color,r){svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||5,fill:color}));},
+      trace:function(pts,color){
+        if(pts.length<2)return;
+        svg.appendChild(el("polyline",{points:pts.map(function(p){return px(p[0])+","+py(p[1]);}).join(" "),
+          fill:"none",stroke:color,"stroke-width":3,opacity:.35,"stroke-linecap":"round"}));
+      }
+    };
+  }
+
+  // 화면 0: 기계 두 대 --------------------------------------------------------
+  (function(){
+    var svg=document.getElementById("m0"), x=2;
+    var read=document.getElementById("m0r");
+    function draw(){
+      var y=f(x), z=g(y);
+      document.getElementById("cx").textContent=f1(x);
+      document.getElementById("cy").textContent=f1(y);
+      document.getElementById("cz").textContent=f1(z);
+      document.getElementById("m0xv").textContent=f1(x);
+      read.innerHTML="f("+f1(x)+") = <b style='color:#d97706'>"+f1(y)+"</b><br>"+
+        "g("+f1(y)+") = <b style='color:#059669'>"+f1(z)+"</b><br>"+
+        "→ (g∘f)("+f1(x)+") = <b>"+f1(z)+"</b>";
+      // 수직선 위에 세 값 표시
+      while(svg.firstChild)svg.removeChild(svg.firstChild);
+      var lo=-3,hi=11,X=function(v){return 24+(v-lo)*(352/(hi-lo));};
+      svg.appendChild(el("line",{x1:20,y1:100,x2:380,y2:100,stroke:"#52525b","stroke-width":2}));
+      for(var v=lo;v<=hi;v++){
+        svg.appendChild(el("line",{x1:X(v),y1:95,x2:X(v),y2:105,stroke:"#a1a1aa","stroke-width":1.2}));
+        if(v%2===0){var t=el("text",{x:X(v),y:122,"font-size":10.5,fill:"#a1a1aa","text-anchor":"middle"});t.textContent=v;svg.appendChild(t);}
+      }
+      [[x,"#2563eb","x",-30],[y,"#d97706","y = f(x)",-52],[z,"#059669","z = g(y)",-74]].forEach(function(p){
+        svg.appendChild(el("circle",{cx:X(p[0]),cy:100,r:6,fill:p[1]}));
+        svg.appendChild(el("line",{x1:X(p[0]),y1:100,x2:X(p[0]),y2:100+p[3],stroke:p[1],"stroke-width":1.4,"stroke-dasharray":"3 3"}));
+        var t=el("text",{x:X(p[0]),y:100+p[3]-4,"font-size":11.5,"font-weight":800,fill:p[1],"text-anchor":"middle"});
+        t.textContent=p[2]+" = "+f1(p[0]);svg.appendChild(t);
+      });
+    }
+    document.getElementById("m0x").oninput=function(){x=parseFloat(this.value);draw();};
+    draw();
+  })();
+
+  // 화면 1: 세 평면 추적 -------------------------------------------------------
+  (function(){
+    var P1=Pane("p1",-2,4,-3,3,220), P2=Pane("p2",-3,3,0,10,220), P3=Pane("p3",-2,4,0,10,220);
+    var x=2, trail=[], read=document.getElementById("t2r"), win=document.getElementById("t2w");
+    var traceOn=false, sweeping=false, timer=null;
+    function draw(){
+      var y=f(x), z=g(y);
+      P1.clear();P1.grid("x","y");P1.plot(f,"#2563eb",2.6);
+      P1.guide(x,y,"#d97706");P1.dot(x,y,"#2563eb");
+      P2.clear();P2.grid("y","z");P2.plot(g,"#d97706",2.6);
+      P2.guide(y,z,"#059669");P2.dot(y,z,"#d97706");
+      P3.clear();P3.grid("x","z");
+      if(traceOn)P3.trace(trail,"#059669");
+      P3.guide(x,z,"#059669");P3.dot(x,z,"#059669");
+      document.getElementById("t2xv").textContent=f1(x);
+      read.innerHTML="x = <b>"+f1(x)+"</b><br>y = f(x) = <b style='color:#d97706'>"+f1(y)+"</b><br>"+
+        "z = g(y) = <b style='color:#059669'>"+f1(z)+"</b>";
+      if(traceOn&&trail.length>50){
+        win.className="win on";
+        win.innerHTML="🎉 ③에 그려진 것이 바로 <b>z = (g∘f)(x) = (x−1)² + 1</b> 의 그래프입니다. 식을 전개하지 않고도 모양이 나왔죠!";
+      }
+    }
+    function push(){if(traceOn)trail.push([x,g(f(x))]);}
+    document.getElementById("t2x").oninput=function(){x=parseFloat(this.value);push();draw();};
+    (function(){
+      var lab=document.getElementById("t2l"), inp=document.getElementById("t2trace");
+      inp.onchange=function(){traceOn=inp.checked;lab.className="tog"+(traceOn?" on":"");if(!traceOn)trail=[];draw();};
+    })();
+    document.getElementById("t2sweep").onclick=function(){
+      if(sweeping)return;
+      var inp=document.getElementById("t2trace");
+      if(!inp.checked){inp.checked=true;inp.onchange();}
+      sweeping=true;trail=[];x=-2;
+      (function tick(){
+        if(x>4.0001){sweeping=false;return;}
+        push();draw();document.getElementById("t2x").value=x;
+        x=Math.round((x+0.1)*10)/10;
+        timer=setTimeout(tick,26);
+      })();
+    };
+    draw();
+  })();
+
+  // 화면 2: 순서 비교 ----------------------------------------------------------
+  (function(){
+    var P=Pane("p4",-2,4,0,17,400), x=0;
+    var read=document.getElementById("t3r"), win=document.getElementById("t3w"), seen=false;
+    function gf(t){return (t-1)*(t-1)+1;}
+    function fg(t){return t*t;}
+    function draw(){
+      P.clear();P.grid("x","z");
+      P.plot(gf,"#2563eb",2.8);
+      P.plot(fg,"#e11d48",2.8,"6 4");
+      P.dot(x,gf(x),"#2563eb",6);P.dot(x,fg(x),"#e11d48",6);
+      var t1=el("text",{x:P.px(3.5),y:P.py(gf(3.5))-8,"font-size":12,"font-weight":800,fill:"#2563eb","text-anchor":"end"});
+      t1.textContent="(g∘f)(x)";P.svg.appendChild(t1);
+      var t2=el("text",{x:P.px(3.6),y:P.py(fg(3.6))+16,"font-size":12,"font-weight":800,fill:"#e11d48","text-anchor":"end"});
+      t2.textContent="(f∘g)(x)";P.svg.appendChild(t2);
+      document.getElementById("t3xv").textContent=f1(x);
+      var d=Math.abs(gf(x)-fg(x));
+      read.innerHTML="(g∘f)("+f1(x)+") = <b style='color:#2563eb'>"+f1(gf(x))+"</b><br>"+
+        "(f∘g)("+f1(x)+") = <b style='color:#e11d48'>"+f1(fg(x))+"</b><br>"+
+        "<span class='hint'>차이 "+f1(d)+(d<0.05?" — 여기서는 같습니다!":"")+"</span>";
+      if(d<0.05&&!seen){
+        seen=true;win.className="win on";
+        win.innerHTML="🎉 x = 1 에서만 두 값이 같습니다(둘 다 1). <b>‘어떤 x 에서 우연히 같다’</b> 와 <b>‘함수가 같다’</b> 는 전혀 다른 이야기예요.";
+      }
+    }
+    document.getElementById("t3x").oninput=function(){x=parseFloat(this.value);draw();};
+    draw();
+  })();
+
+  // 스테퍼 -------------------------------------------------------------------
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

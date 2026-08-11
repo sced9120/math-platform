@@ -45,6 +45,8 @@
   .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
 </style>
 
+
+
 <!-- NAV:START -->
 <div id="archiveNav" style="display:none">
   <a href="../index.html">← 활동 목록</a>
@@ -96,9 +98,9 @@
     <div class="lab">
       <svg id="m1" viewBox="0 0 400 200"></svg>
       <div class="controls">
-        <div class="slider"><label>원점을 어디에 둘까 <span><b id="m1ov">0</b></span></label><input id="m1o" type="range" min="-4" max="12" step="1" value="0"></div>
+        <div class="slider"><label>원점을 어디에 둘까 <span><b id="m1ov">9</b></span></label><input id="m1o" type="range" min="0" max="18" step="1" value="9"></div>
         <div class="readout" id="m1r"></div>
-        <div class="win win on" style="display:block">거리는 <b>언제나 9</b> 로 같습니다!</div>
+        <div class="win win on" style="display:block">거리는 <b>언제나 18</b> 로 같습니다!</div>
       </div>
     </div>
     <div class="formula">수직선 위 두 점 A(a), B(b) 사이의 거리 = <b>|b − a|</b></div>
@@ -137,7 +139,7 @@
       </div>
     </div>
     <div class="callout"><b>이것이 바로 ‘내분’ 입니다.</b> 선분을 <b>2 : 1</b> 로 나누는 점을 찾은 것이죠.
-      석가탑 −3, 다보탑 6 이라면 <b>P = (2·6 + 1·(−3)) / (2 + 1) = 3</b>.
+      석가탑 −9, 다보탑 9 이므로 <b>P = (2·9 + 1·(−9)) / (2 + 1) = 3</b>.
       다음 활동 <b>‘선분의 내분’</b>에서 이 공식을 제대로 세워 봅니다.</div>
   </section>
 
@@ -241,16 +243,17 @@
 
   // 화면 1: 수직선 위 — 원점을 옮겨도 거리는 그대로 ---------------------------
   (function(){
-    var svg=document.getElementById("m1"), o=0;
-    var S=[0], D=[9];                       // 세계 좌표(고정)
+    var svg=document.getElementById("m1"), o=9;
+    var S=[0], D=[18];                      // 세계 좌표(고정) — 원점을 9 에 두면 −9, 9
     var read=document.getElementById("m1r");
-    function X(w){return 40+(w-(-4))*(320/17);}   // 세계좌표 → 화면
+    function X(w){return 40+w*(320/18);}          // 세계좌표 → 화면
     function draw(){
       while(svg.firstChild)svg.removeChild(svg.firstChild);
       svg.appendChild(el("line",{x1:20,y1:120,x2:380,y2:120,stroke:"#52525b","stroke-width":2}));
-      for(var w=-4;w<=12;w++){
+      for(var w=0;w<=18;w++){
         var x=X(w), lab=w-o;
         svg.appendChild(el("line",{x1:x,y1:114,x2:x,y2:126,stroke:"#a1a1aa","stroke-width":1.4}));
+        if(lab%3!==0)continue;                 // 눈금은 1칸마다, 숫자는 3칸마다
         var t=el("text",{x:x,y:142,"font-size":10.5,"font-weight":lab===0?800:600,
           fill:lab===0?"#2563eb":"#a1a1aa","text-anchor":"middle"});
         t.textContent=lab;svg.appendChild(t);
@@ -264,11 +267,11 @@
       td.textContent="다보탑 ("+num(D[0]-o)+")";svg.appendChild(td);
       svg.appendChild(el("line",{x1:X(S[0]),y1:186,x2:X(D[0]),y2:186,stroke:"#2563eb","stroke-width":2.4}));
       var tm=el("text",{x:(X(S[0])+X(D[0]))/2,y:180,"font-size":12,"font-weight":800,fill:"#2563eb","text-anchor":"middle"});
-      tm.textContent="9";svg.appendChild(tm);
+      tm.textContent="18";svg.appendChild(tm);
       document.getElementById("m1ov").textContent=o;
       var a=S[0]-o, b=D[0]-o;
       var av=a<0?"("+num(a)+")":num(a);   // 음수일 때만 괄호
-      read.innerHTML="석가탑 a = <b>"+num(a)+"</b><br>다보탑 b = <b>"+num(b)+"</b><br>|b − a| = |"+num(b)+" − "+av+"| = <b>9</b>";
+      read.innerHTML="석가탑 a = <b>"+num(a)+"</b><br>다보탑 b = <b>"+num(b)+"</b><br>|b − a| = |"+num(b)+" − "+av+"| = <b>18</b>";
     }
     document.getElementById("m1o").oninput=function(){o=parseInt(this.value,10);draw();};
     draw();
@@ -276,13 +279,13 @@
 
   // 화면 2: 좌표평면 — 대웅전 드래그 ------------------------------------------
   (function(){
-    var svg=document.getElementById("m2"), lo=-6, hi=9, pad=30, SZ=400;
+    var svg=document.getElementById("m2"), lo=-11, hi=11, pad=30, SZ=400;
     var sc=(SZ-2*pad)/(hi-lo);
     function px(x){return pad+(x-lo)*sc;}
     function py(y){return (SZ-pad)-(y-lo)*sc;}
     function ux(cx){return lo+(cx-pad)/sc;}
     function uy(cy){return lo+((SZ-pad)-cy)/sc;}
-    var Sk=[-3,0], Db=[6,0], H=[1,6];
+    var Sk=[-9,0], Db=[9,0], H=[-3,8];
     var read=document.getElementById("m2r");
     function draw(){
       while(svg.firstChild)svg.removeChild(svg.firstChild);
@@ -299,9 +302,9 @@
       pagoda(svg,px(Sk[0]),py(0),0.55,"#e11d48",null);
       pagoda(svg,px(Db[0]),py(0),0.55,"#059669",null);
       var t1=el("text",{x:px(Sk[0]),y:py(0)+20,"font-size":11.5,"font-weight":800,fill:"#e11d48","text-anchor":"middle"});
-      t1.textContent="석가탑(−3, 0)";svg.appendChild(t1);
+      t1.textContent="석가탑(−9, 0)";svg.appendChild(t1);
       var t2=el("text",{x:px(Db[0]),y:py(0)+20,"font-size":11.5,"font-weight":800,fill:"#059669","text-anchor":"middle"});
-      t2.textContent="다보탑(6, 0)";svg.appendChild(t2);
+      t2.textContent="다보탑(9, 0)";svg.appendChild(t2);
       var gh=el("g",{"class":"handle"});
       gh.appendChild(el("circle",{cx:px(H[0]),cy:py(H[1]),r:16,fill:"transparent"}));
       gh.appendChild(el("circle",{cx:px(H[0]),cy:py(H[1]),r:8,fill:"#fff",stroke:"#7c3aed","stroke-width":3}));
@@ -309,7 +312,7 @@
       var t3=el("text",{x:px(H[0]),y:py(H[1])-16,"font-size":12,"font-weight":800,fill:"#7c3aed","text-anchor":"middle"});
       t3.textContent="대웅전("+num(H[0])+", "+num(H[1])+")";svg.appendChild(t3);
       var dx=H[0]-Sk[0], dy=H[1]-Sk[1], d=Math.sqrt(dx*dx+dy*dy);
-      read.innerHTML="가로 = |"+num(H[0])+" − (−3)| = <b style='color:#e11d48'>"+f1(Math.abs(dx))+"</b><br>"+
+      read.innerHTML="가로 = |"+num(H[0])+" − (−9)| = <b style='color:#e11d48'>"+f1(Math.abs(dx))+"</b><br>"+
         "세로 = |"+num(H[1])+" − 0| = <b style='color:#059669'>"+f1(Math.abs(dy))+"</b><br>"+
         "대웅전–석가탑 = <b style='font-size:17px'>"+f1(d)+"</b><br>"+
         "<span class='hint'>대웅전–다보탑 = "+f1(Math.sqrt((H[0]-Db[0])*(H[0]-Db[0])+H[1]*H[1]))+"</span>";
@@ -321,7 +324,7 @@
         return [ux((ev.clientX-r.left)*400/r.width), uy((ev.clientY-r.top)*400/r.height)];}
       function move(ev){if(!down)return;ev.preventDefault();var p=pt(ev);
         if(!isFinite(p[0]))return;
-        H=[Math.max(lo+1,Math.min(hi-1,Math.round(p[0]*2)/2)),Math.max(0.5,Math.min(hi-1,Math.round(p[1]*2)/2))];draw();}
+        H=[Math.max(lo+1,Math.min(hi-1,Math.round(p[0]))),Math.max(1,Math.min(hi-1,Math.round(p[1])))];draw();}
       svg.addEventListener("pointerdown",function(ev){down=true;svg.setPointerCapture(ev.pointerId);move(ev);});
       svg.addEventListener("pointermove",move);
       svg.addEventListener("pointerup",function(){down=false;});
@@ -333,16 +336,17 @@
   // 화면 3: 데카르트의 자리 (2:1 내분) ----------------------------------------
   (function(){
     var svg=document.getElementById("m3"), p=1;
-    var Sx=-3, Dx=6, ANS=3;
+    var Sx=-9, Dx=9, ANS=3;
     var read=document.getElementById("m3r"), win=document.getElementById("m3w");
-    function X(w){return 40+(w-(-5))*(320/13);}
-    function ux(cx){return -5+(cx-40)*13/320;}
+    function X(w){return 40+(w-(-11))*(320/22);}
+    function ux(cx){return -11+(cx-40)*22/320;}
     function draw(){
       while(svg.firstChild)svg.removeChild(svg.firstChild);
       svg.appendChild(el("line",{x1:20,y1:110,x2:380,y2:110,stroke:"#52525b","stroke-width":2}));
-      for(var w=-5;w<=8;w++){
+      for(var w=-11;w<=11;w++){
         var x=X(w);
         svg.appendChild(el("line",{x1:x,y1:105,x2:x,y2:115,stroke:"#a1a1aa","stroke-width":1.3}));
+        if(w%3!==0)continue;                   // 숫자는 3칸마다
         var t=el("text",{x:x,y:130,"font-size":10.5,"font-weight":w===0?800:600,fill:w===0?"#2563eb":"#a1a1aa","text-anchor":"middle"});
         t.textContent=w;svg.appendChild(t);
       }
@@ -352,9 +356,9 @@
       pagoda(svg,X(Sx),100,0.5,"#e11d48",null);
       pagoda(svg,X(Dx),100,0.5,"#059669",null);
       var ts=el("text",{x:X(Sx),y:158,"font-size":11.5,"font-weight":800,fill:"#e11d48","text-anchor":"middle"});
-      ts.textContent="석가탑(−3)";svg.appendChild(ts);
+      ts.textContent="석가탑(−9)";svg.appendChild(ts);
       var td=el("text",{x:X(Dx),y:158,"font-size":11.5,"font-weight":800,fill:"#059669","text-anchor":"middle"});
-      td.textContent="다보탑(6)";svg.appendChild(td);
+      td.textContent="다보탑(9)";svg.appendChild(td);
       var g=el("g",{"class":"handle"});
       g.appendChild(el("circle",{cx:X(p),cy:110,r:16,fill:"transparent"}));
       g.appendChild(el("circle",{cx:X(p),cy:110,r:8,fill:"#fff",stroke:"#2563eb","stroke-width":3}));
@@ -366,7 +370,7 @@
         "비 = <b>"+(pd>0.01?f1(sp/pd):"—")+"</b> : 1";
       if(Math.abs(p-ANS)<0.05){
         win.className="win on";
-        win.innerHTML="🎉 찾았습니다! P(3) — 석가탑까지 6, 다보탑까지 3 이니 <b>정확히 2배</b>. 선분을 <b>2 : 1</b> 로 나눈 점이에요.";
+        win.innerHTML="🎉 찾았습니다! P(3) — 석가탑까지 12, 다보탑까지 6 이니 <b>정확히 2배</b>. 선분을 <b>2 : 1</b> 로 나눈 점이에요.";
       } else win.className="win";
     }
     (function(){

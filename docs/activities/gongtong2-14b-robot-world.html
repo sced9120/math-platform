@@ -1,0 +1,531 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed;--gold:#f59e0b}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:9px}
+  .cmds{display:flex;flex-direction:column;gap:6px}
+  .cmd{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;
+       padding:8px 10px;border-radius:9px;cursor:pointer;text-align:left;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .cmd:hover{border-color:var(--blue);color:var(--blue)}
+  .cmd.new{background:#f5f3ff;border-color:#ddd6fe;color:var(--violet)}
+  .cmd:disabled{opacity:.4;cursor:default}
+  .prog{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:10px 12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:12.5px;min-height:74px;max-height:150px;overflow:auto;line-height:1.55}
+  .prog .ln{opacity:.55}
+  .prog .cur{background:#1d4ed8;color:#fff;border-radius:4px;padding:0 3px}
+  .prog .empty{opacity:.45}
+  .row{display:flex;gap:6px}
+  .row .btn{flex:1}
+  .msg{font-size:13px;font-weight:700;min-height:20px}
+  .msg.ok{color:var(--emerald)}.msg.no{color:var(--rose)}
+  .score{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800}
+  .score .n{color:var(--gold)}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .pick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .pk{border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;font-weight:700;padding:8px 4px;border-radius:9px;cursor:pointer}
+  .pk.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .pk.right{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .pk.wrong{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .match{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+  .mcard{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer;transition:all .12s}
+  .mcard:hover{border-color:var(--blue)}
+  .mcard.on{border-color:var(--blue);background:var(--blue-soft)}
+  .mcard b{display:block;font-size:14.5px;margin-bottom:2px}
+  .mcard span{font-size:12.5px;color:var(--muted)}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on">
+    <div class="kicker">공통수학2 · 함수</div>
+    <span class="sheet">📄 학습지 ‘함수 1. 함수’ [This is Robot World!]</span>
+    <h1>🤖 로봇 월드 — 명령어로 움직이기</h1>
+    <p>이 로봇은 딱 <b>두 가지 명령</b>만 알아듣습니다.</p>
+    <div class="card" style="margin:8px 0">
+      <span class="mono"><b>move()</b></span> — 바라보는 쪽으로 <b>한 칸</b> 이동<br>
+      <span class="mono"><b>turn_left()</b></span> — 제자리에서 <b>왼쪽</b>으로 90° 돌기
+    </div>
+    <p>로봇은 <b>(1, 1)</b> 에서 <b>동쪽</b>을 보고 있습니다. 명령을 눌러 프로그램을 만들고
+       <b>▶ 실행</b>해서 <b>깃발 (3, 3)</b> 까지 데려가세요.</p>
+    <div class="lab">
+      <svg id="w0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="cmds" id="c0"></div>
+        <div class="prog" id="p0"></div>
+        <div class="row">
+          <button class="btn primary" id="r0">▶ 실행</button>
+          <button class="btn" id="x0">↺ 리셋</button>
+        </div>
+        <div class="msg" id="m0"></div>
+        <div class="win" id="v0"></div>
+      </div>
+    </div>
+    <p class="hint">명령을 잘못 눌렀다면 <b>↺ 리셋</b> 으로 처음부터 다시 하면 됩니다.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">새 명령 만들기</div>
+    <h1>오른쪽으로 도는 명령이 없다!</h1>
+    <p>로봇에게는 <span class="mono">turn_left()</span> 뿐입니다. 그렇다면 <b>오른쪽으로 도는 명령</b>
+       <span class="mono">turn_right()</span> 를 어떻게 만들까요?</p>
+    <p><span class="mono">turn_left()</span> 를 <b>몇 번</b> 이어 붙이면 오른쪽으로 돈 것과 같아질까요?</p>
+    <div class="lab">
+      <svg id="w1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout">
+          <b>turn_right()</b> = turn_left() 를<br>몇 번 이어 붙일까?
+        </div>
+        <div class="pick" id="k1">
+          <button class="pk" data-n="1">1번</button>
+          <button class="pk" data-n="2">2번</button>
+          <button class="pk" data-n="3">3번</button>
+        </div>
+        <button class="btn primary" id="r1" style="width:100%">▶ 눌러서 확인</button>
+        <div class="msg" id="m1"></div>
+        <div class="win" id="v1"></div>
+      </div>
+    </div>
+    <div class="callout"><b>이것이 바로 함수의 합성입니다.</b><br>
+      turn_right = turn_left ∘ turn_left ∘ turn_left — <b>있는 명령을 이어 붙여 새 명령을 만든 것</b>이죠.
+      다음 화면부터 <span class="mono">turn_right()</span> 버튼을 쓸 수 있습니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">미션</div>
+    <h1>⭐ 별을 먹자</h1>
+    <p>이제 명령이 <b>세 개</b>입니다. 로봇을 움직여 <b>별 3개를 모두</b> 지나가게 하세요.
+       별 위를 <b>지나가기만</b> 하면 획득됩니다.</p>
+    <div class="lab">
+      <svg id="w2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="cmds" id="c2"></div>
+        <div class="prog" id="p2"></div>
+        <div class="row">
+          <button class="btn primary" id="r2">▶ 실행</button>
+          <button class="btn" id="x2">↺ 리셋</button>
+        </div>
+        <div class="score">⭐ <span class="n" id="s2">0 / 3</span></div>
+        <div class="msg" id="m2"></div>
+        <div class="win" id="v2"></div>
+      </div>
+    </div>
+    <p class="hint">막히면 종이에 <b>경로를 먼저 그려 보고</b> 명령으로 옮겨 적어 보세요.
+      프로그래밍이 곧 <b>‘무엇을 어떤 순서로 합성할까’</b> 를 정하는 일입니다.</p>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">되돌아오기</div>
+    <h1>turn_left() 를 여러 번 하면?</h1>
+    <p>예거가 실수로 <span class="mono">turn_left()</span> 를 <b>5번</b> 하는 명령
+       <span class="mono">turn_5()</span> 를 만들었습니다. 결과는 어떻게 될까요?
+       횟수를 바꿔 가며 확인해 보세요.</p>
+    <div class="lab">
+      <svg id="w3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="d3"></div>
+        <div class="pick" id="k3" style="grid-template-columns:repeat(3,1fr)"></div>
+        <div class="msg" id="m3"></div>
+        <div class="win" id="v3"></div>
+      </div>
+    </div>
+    <table>
+      <tr><th>turn_left() 횟수</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr>
+      <tr><td>같은 결과의 명령</td><td colspan="9" class="hint">위에서 눌러 보며 직접 채워 보세요</td></tr>
+    </table>
+    <div class="callout"><b>4번 돌면 제자리</b> — 아무것도 하지 않은 것과 같습니다.
+      이렇게 <b>넣은 것을 그대로 돌려주는</b> 함수를 <b>항등함수</b>라고 합니다.
+      그리고 <b>5번 = 1번</b>, <b>6번 = 2번</b> … 4씩 더해도 결과가 같죠.
+      명령을 이어 붙이는 세계에도 이런 <b>규칙</b>이 있습니다.</div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">함수로 보기</div>
+    <h1>‘명령어 → 행동’ 이 바로 함수다</h1>
+    <p>지금까지 한 일을 수학의 눈으로 봅시다. <b>명령어의 모임</b>에서 <b>행동의 모임</b>으로,
+       각 명령에 <b>행동이 하나씩</b> 정해졌습니다. 이것이 <b>함수</b>입니다.</p>
+    <table>
+      <tr><th>명령어 (정의역)</th><th>로봇의 행동 (공역)</th></tr>
+      <tr><td class="mono">move()</td><td>앞으로 한 칸 이동</td></tr>
+      <tr><td class="mono">turn_left()</td><td>제자리에서 왼쪽을 본다</td></tr>
+      <tr><td class="mono">turn_right()</td><td>제자리에서 오른쪽을 본다</td></tr>
+      <tr><td class="mono">turn_5()</td><td>제자리에서 왼쪽을 본다</td></tr>
+    </table>
+    <p>아래 네 가지 대응 중 <b>함수인 것</b>을 모두 골라 보세요. (클릭하면 켜집니다)</p>
+    <div class="match" id="mt"></div>
+    <div class="msg" id="m4"></div>
+    <div class="win" id="v4"></div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">정리</div>
+    <h1>정리</h1>
+    <table>
+      <tr><th>로봇 월드에서</th><th>수학에서</th></tr>
+      <tr><td>명령어 하나하나</td><td>정의역의 원소</td></tr>
+      <tr><td>로봇의 행동</td><td>공역의 원소 · 함숫값</td></tr>
+      <tr><td>명령 → 행동이 하나로 정해짐</td><td><b>함수</b></td></tr>
+      <tr><td>명령을 이어 붙여 새 명령 만들기</td><td><b>합성함수</b> (g∘f)</td></tr>
+      <tr><td>turn_left() 4번 = 아무것도 안 함</td><td><b>항등함수</b></td></tr>
+      <tr><td>turn_left() 와 turn_right() 는 서로 되돌림</td><td><b>역함수</b></td></tr>
+    </table>
+    <div class="callout"><b>순서를 바꾸면?</b> <span class="mono">move()</span> 다음
+      <span class="mono">turn_left()</span> 와, <span class="mono">turn_left()</span> 다음
+      <span class="mono">move()</span> 는 결과가 <b>완전히 다릅니다.</b>
+      합성함수에서 <b>g∘f ≠ f∘g</b> 인 이유를 로봇으로 몸소 확인한 셈이에요.</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에 정리해 보세요.<br>
+      (1) <span class="mono">turn_right()</span> 를 <span class="mono">turn_left()</span> 로 만든 과정을
+      <b>합성</b>이라는 말을 써서 설명하세요.<br>
+      (2) <span class="mono">turn_left()</span> 를 4번 하면 왜 <b>항등함수</b>가 되나요?<br>
+      (3) <span class="mono">move()</span> → <span class="mono">turn_left()</span> 와
+      <span class="mono">turn_left()</span> → <span class="mono">move()</span> 의 결과가 다른 이유를
+      <b>합성의 순서</b>로 설명하세요.</p>
+  </section>
+
+  <!-- EXT:START -->
+  <section class="screen">
+    <div class="kicker">확장 탐구</div>
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">프로그래밍의 <b>함수(function)</b> 가 바로 이것입니다.
+          작은 명령을 합성해 큰 명령을 만들고, 그것을 또 합성하죠. 로봇 청소기의 경로, 게임 캐릭터의 조작,
+          공장 로봇 팔의 동작이 전부 이 방식으로 짜입니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">회전 명령 4개가 제자리로 돌아오는 구조는
+          <b>‘4로 나눈 나머지’</b> 의 세계와 똑같습니다(0,1,2,3). 합성이 자유롭고, 항등원이 있고, 역원이 있는
+          이런 구조를 <b>군(group)</b> 이라 하며, 앞 단원의 대칭이동에서 만난 것과 같은 개념이에요.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>
+      ① <span class="mono">move()</span> 를 되돌리는 명령 <span class="mono">move_back()</span> 을
+      지금 있는 명령만으로 만들 수 있을까요? 몇 개가 필요한가요?<br>
+      ② 로봇이 벽에 부딪히면 실패합니다. 이때 <span class="mono">move()</span> 는
+      <b>모든 위치에서 정의되는 함수</b>라고 할 수 있을까요? ‘정의역’ 이라는 말을 써서 설명해 보세요.
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요.</p>
+  </section>
+  <!-- EXT:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 7</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  var N=6, S=400, PAD=24, CELL=(S-2*PAD)/N;
+  // 방향: 0 동(+x) 1 북(+y) 2 서(−x) 3 남(−y)
+  var DIRNAME=["동쪽","북쪽","서쪽","남쪽"], DX=[1,0,-1,0], DY=[0,1,0,-1];
+  function cx(x){return PAD+(x-0.5)*CELL;}
+  function cy(y){return S-PAD-(y-0.5)*CELL;}
+
+  function drawGrid(svg){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    for(var i=0;i<=N;i++){
+      svg.appendChild(el("line",{x1:PAD+i*CELL,y1:PAD,x2:PAD+i*CELL,y2:S-PAD,stroke:"#e4e4e7","stroke-width":1}));
+      svg.appendChild(el("line",{x1:PAD,y1:PAD+i*CELL,x2:S-PAD,y2:PAD+i*CELL,stroke:"#e4e4e7","stroke-width":1}));
+    }
+    for(var g=1;g<=N;g++){
+      var tx=el("text",{x:cx(g),y:S-6,"font-size":10.5,fill:"#a1a1aa","text-anchor":"middle"});tx.textContent=g;svg.appendChild(tx);
+      var ty=el("text",{x:11,y:cy(g)+4,"font-size":10.5,fill:"#a1a1aa","text-anchor":"middle"});ty.textContent=g;svg.appendChild(ty);
+    }
+  }
+  function drawStar(svg,x,y,got){
+    var p=[],R=CELL*0.30;
+    for(var i=0;i<10;i++){var rr=(i%2)?R*0.44:R,a=-Math.PI/2+i*Math.PI/5;
+      p.push((cx(x)+rr*Math.cos(a)).toFixed(1)+","+(cy(y)+rr*Math.sin(a)).toFixed(1));}
+    svg.appendChild(el("polygon",{points:p.join(" "),fill:got?"#f59e0b":"#fff",
+      stroke:got?"#b45309":"#cbd5e1","stroke-width":1.6,"stroke-linejoin":"round"}));
+  }
+  function drawFlag(svg,x,y){
+    var bx=cx(x)-CELL*0.14, by=cy(y)+CELL*0.28;
+    svg.appendChild(el("line",{x1:bx,y1:by,x2:bx,y2:by-CELL*0.56,stroke:"#52525b","stroke-width":2.4}));
+    svg.appendChild(el("polygon",{points:bx+","+(by-CELL*0.56)+" "+(bx+CELL*0.34)+","+(by-CELL*0.44)+" "+bx+","+(by-CELL*0.32),
+      fill:"#e11d48"}));
+  }
+  function drawRobot(svg,x,y,d){
+    var g=el("g",{}), r=CELL*0.30, a=cx(x), b=cy(y);
+    g.appendChild(el("circle",{cx:a,cy:b,r:r,fill:"#dbeafe",stroke:"#2563eb","stroke-width":2.4}));
+    // 방향 삼각형
+    var ux=DX[d], uy=-DY[d], px=-uy, py=ux, t=r*0.95, w=r*0.5;
+    g.appendChild(el("polygon",{points:(a+ux*t)+","+(b+uy*t)+" "+(a-ux*w*0.4+px*w)+","+(b-uy*w*0.4+py*w)+" "+
+      (a-ux*w*0.4-px*w)+","+(b-uy*w*0.4-py*w),fill:"#2563eb"}));
+    svg.appendChild(g);
+  }
+
+  // 로봇 월드 엔진 -----------------------------------------------------------
+  function World(cfg){
+    var prog=[], run=false, timer=null;
+    var pos={x:cfg.start.x,y:cfg.start.y,d:cfg.start.d}, got=[];
+    var svg=document.getElementById(cfg.svg);
+    var progEl=cfg.prog?document.getElementById(cfg.prog):null;
+    var msgEl=document.getElementById(cfg.msg);
+    var winEl=cfg.win?document.getElementById(cfg.win):null;
+    var scEl=cfg.score?document.getElementById(cfg.score):null;
+    var stars=cfg.stars||[];
+
+    function reset(keepProg){
+      clearTimeout(timer);run=false;
+      pos={x:cfg.start.x,y:cfg.start.y,d:cfg.start.d};
+      got=stars.map(function(){return false;});
+      if(!keepProg)prog=[];
+      msg("");draw();paint();
+    }
+    function msg(t,cls){if(msgEl){msgEl.textContent=t;msgEl.className="msg"+(cls?" "+cls:"");}}
+    function draw(cur){
+      drawGrid(svg);
+      for(var i=0;i<stars.length;i++)drawStar(svg,stars[i][0],stars[i][1],got[i]);
+      if(cfg.goal)drawFlag(svg,cfg.goal[0],cfg.goal[1]);
+      drawRobot(svg,pos.x,pos.y,pos.d);
+      if(scEl)scEl.textContent=got.filter(Boolean).length+" / "+stars.length;
+      if(progEl){
+        if(!prog.length)progEl.innerHTML='<span class="empty">// 명령을 눌러 프로그램을 만드세요</span>';
+        else progEl.innerHTML=prog.map(function(c,i){
+          return '<div><span class="ln">'+(i+1)+'</span> <span'+(i===cur?' class="cur"':'')+'>'+c+'()</span></div>';
+        }).join("");
+      }
+    }
+    function paint(){}                     // 자리 표시(버튼 상태는 바깥에서 관리)
+    function collect(){
+      for(var i=0;i<stars.length;i++)
+        if(stars[i][0]===pos.x&&stars[i][1]===pos.y)got[i]=true;
+    }
+    function step(c){
+      if(c==="move"){
+        var nx=pos.x+DX[pos.d], ny=pos.y+DY[pos.d];
+        if(nx<1||nx>N||ny<1||ny>N)return false;
+        pos.x=nx;pos.y=ny;collect();
+      } else if(c==="turn_left") pos.d=(pos.d+1)%4;
+      else if(c==="turn_right") pos.d=(pos.d+3)%4;
+      return true;
+    }
+    function play(){
+      if(run||!prog.length)return;
+      reset(true);run=true;msg("실행 중…");
+      var i=0;
+      (function tick(){
+        if(i>=prog.length){
+          run=false;
+          var win=cfg.goal ? (pos.x===cfg.goal[0]&&pos.y===cfg.goal[1])
+                           : got.length&&got.every(Boolean);
+          if(win){msg(cfg.okMsg||"성공!","ok");if(winEl){winEl.className="win on";winEl.innerHTML=cfg.winHtml||"🎉 성공!";}
+                  if(cfg.onWin)cfg.onWin();}
+          else msg(cfg.failMsg||"아직이에요. 다시 해 볼까요?","no");
+          draw();return;
+        }
+        var ok=step(prog[i]);
+        if(!ok){run=false;msg("🚧 벽에 부딪혔습니다! 리셋하고 다시 해 보세요.","no");draw(i);return;}
+        draw(i);i++;
+        timer=setTimeout(tick,360);
+      })();
+    }
+    return {
+      push:function(c){if(run)return;prog.push(c);msg("");draw();},
+      play:play, reset:reset, isRunning:function(){return run;},
+      pos:function(){return pos;}
+    };
+  }
+
+  function cmdButtons(boxId,list,world){
+    var box=document.getElementById(boxId);
+    box.innerHTML="";
+    list.forEach(function(c){
+      var b=document.createElement("button");
+      b.className="cmd"+(c==="turn_right"?" new":"");
+      b.textContent=c+"()";
+      b.onclick=function(){world.push(c);};
+      box.appendChild(b);
+    });
+  }
+
+  // 화면 0: 깃발까지 -----------------------------------------------------------
+  var w0=World({svg:"w0",prog:"p0",msg:"m0",win:"v0",start:{x:1,y:1,d:0},goal:[3,3],
+    winHtml:"🎉 도착! 예를 들어 <span class='mono'>move, move, turn_left, move, move</span> 로 갈 수 있어요.",
+    okMsg:"깃발 도착!",failMsg:"깃발에 닿지 못했어요. 리셋하고 다시!"});
+  cmdButtons("c0",["move","turn_left"],w0);
+  document.getElementById("r0").onclick=function(){w0.play();};
+  document.getElementById("x0").onclick=function(){w0.reset();};
+  w0.reset();
+
+  // 화면 1: turn_right 만들기 --------------------------------------------------
+  (function(){
+    var pick=null, solved=false;
+    var svg=document.getElementById("w1"), d=0, msgEl=document.getElementById("m1"), win=document.getElementById("v1");
+    function show(){drawGrid(svg);drawRobot(svg,3,3,d);
+      var t=el("text",{x:200,y:S-24,"font-size":13,"font-weight":800,fill:"#2563eb","text-anchor":"middle"});
+      t.textContent="지금 바라보는 방향: "+DIRNAME[d];svg.appendChild(t);}
+    [].slice.call(document.querySelectorAll("#k1 .pk")).forEach(function(b){
+      b.onclick=function(){
+        if(solved)return;
+        pick=parseInt(b.getAttribute("data-n"),10);
+        [].slice.call(document.querySelectorAll("#k1 .pk")).forEach(function(o){o.className="pk"+(o===b?" on":"");});
+        msgEl.textContent="";msgEl.className="msg";
+      };
+    });
+    document.getElementById("r1").onclick=function(){
+      if(!pick){msgEl.textContent="먼저 횟수를 골라 주세요.";msgEl.className="msg no";return;}
+      d=0;var i=0;
+      (function tick(){
+        if(i>=pick){
+          if(d===3){
+            solved=true;
+            [].slice.call(document.querySelectorAll("#k1 .pk")).forEach(function(o){
+              o.className="pk"+(parseInt(o.getAttribute("data-n"),10)===3?" right":"");});
+            msgEl.textContent="정답!";msgEl.className="msg ok";
+            win.className="win on";
+            win.innerHTML="🎉 <b>turn_left() 3번 = turn_right()</b> 입니다. 동쪽 → 북 → 서 → 남, 결국 오른쪽을 보게 되죠!";
+          } else {
+            [].slice.call(document.querySelectorAll("#k1 .pk")).forEach(function(o){
+              if(parseInt(o.getAttribute("data-n"),10)===pick)o.className="pk wrong";});
+            msgEl.textContent="지금 "+DIRNAME[d]+"을 봅니다. 오른쪽(남쪽)이 아니네요.";msgEl.className="msg no";
+          }
+          show();return;
+        }
+        d=(d+1)%4;show();i++;setTimeout(tick,330);
+      })();
+    };
+    show();
+  })();
+
+  // 화면 2: 별 먹기 -------------------------------------------------------------
+  var w2=World({svg:"w2",prog:"p2",msg:"m2",win:"v2",score:"s2",start:{x:1,y:1,d:0},
+    stars:[[3,1],[3,4],[6,4]],
+    winHtml:"🎉 별 3개 완주! 예: <span class='mono'>move·move·turn_left·move·move·move·turn_right·move·move·move</span>",
+    okMsg:"별을 모두 먹었습니다!",failMsg:"아직 못 먹은 별이 있어요."});
+  cmdButtons("c2",["move","turn_left","turn_right"],w2);
+  document.getElementById("r2").onclick=function(){w2.play();};
+  document.getElementById("x2").onclick=function(){w2.reset();};
+  w2.reset();
+
+  // 화면 3: 여러 번 돌기 --------------------------------------------------------
+  (function(){
+    var svg=document.getElementById("w3"), box=document.getElementById("k3");
+    var read=document.getElementById("d3"), win=document.getElementById("v3"), seen={};
+    for(var n=0;n<=8;n++){(function(k){
+      var b=document.createElement("button");b.className="pk";b.textContent=k+"번";
+      b.onclick=function(){
+        [].slice.call(box.children).forEach(function(o){o.className="pk";});
+        b.className="pk on";seen[k]=true;
+        var d=k%4;
+        drawGrid(svg);drawRobot(svg,3,3,d);
+        var t=el("text",{x:200,y:S-24,"font-size":13,"font-weight":800,fill:"#2563eb","text-anchor":"middle"});
+        t.textContent=DIRNAME[d]+" (처음은 동쪽)";svg.appendChild(t);
+        var same = d===0?"아무것도 안 한 것과 같음 (항등)"
+                 : d===1?"turn_left() 1번과 같음"
+                 : d===2?"turn_left() 2번과 같음 (반대 방향)"
+                 : "turn_right() 1번과 같음";
+        read.innerHTML="turn_left() <b>"+k+"번</b><br>→ "+DIRNAME[d]+"<br><span class='hint'>"+same+"</span>";
+        var all=true;for(var i=0;i<=8;i++)if(!seen[i])all=false;
+        if(all){win.className="win on";
+          win.innerHTML="🎉 규칙을 찾았나요? <b>4번마다 제자리</b>로 돌아옵니다. 그래서 <b>5번 = 1번</b>, <b>6번 = 2번</b> 이에요.";}
+      };
+      box.appendChild(b);
+    })(n);}
+    drawGrid(svg);drawRobot(svg,3,3,0);
+    read.innerHTML="횟수를 눌러 보세요.";
+  })();
+
+  // 화면 4: 대응이 함수인가 ------------------------------------------------------
+  (function(){
+    var DATA=[
+      {t:"명령어 → 로봇의 행동", s:"move·turn_left·turn_right·turn_5 각각에 행동 하나", fn:true,
+       why:"모든 명령에 행동이 <b>하나씩</b> 정해집니다. turn_left 와 turn_5 가 같은 행동이어도 함수예요."},
+      {t:"화가 → 작품", s:"반 고흐·모네·르누아르·피카소 → 각자의 작품", fn:true,
+       why:"화가마다 작품이 하나씩 짝지어졌다면 함수입니다."},
+      {t:"작품 → 화가", s:"수련·별이 빛나는 밤 … → 그린 사람", fn:true,
+       why:"작품마다 화가가 하나로 정해지므로 함수입니다."},
+      {t:"국가 → 도시", s:"미국·일본·한국·호주 → 그 나라의 도시", fn:false,
+       why:"한 나라에 도시가 <b>여러 개</b> 있습니다. 하나로 정해지지 않으면 함수가 아니에요."}
+    ];
+    var box=document.getElementById("mt"), msg=document.getElementById("m4"), win=document.getElementById("v4");
+    var picked={};
+    DATA.forEach(function(d,i){
+      var c=document.createElement("div");c.className="mcard";
+      c.innerHTML="<b>"+d.t+"</b><span>"+d.s+"</span>";
+      c.onclick=function(){
+        picked[i]=!picked[i];c.className="mcard"+(picked[i]?" on":"");
+        var ok=DATA.every(function(x,k){return !!picked[k]===x.fn;});
+        if(ok){
+          msg.textContent="정답!";msg.className="msg ok";
+          win.className="win on";
+          win.innerHTML="🎉 정확합니다! <b>국가 → 도시</b> 만 함수가 아니죠 — "+DATA[3].why;
+        } else {msg.textContent="함수인 것을 모두 켜 주세요.";msg.className="msg";win.className="win";}
+      };
+      box.appendChild(c);
+    });
+  })();
+
+  // 스테퍼 -------------------------------------------------------------------
+  var screens=[].slice.call(document.querySelectorAll(".screen")),NS=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<NS;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(NS-1,k));for(var i=0;i<NS;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+NS;prevBtn.disabled=idx===0;nextBtn.textContent=idx===NS-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<NS-1)go(idx+1);};
+  go(0);
+})();
+</script>

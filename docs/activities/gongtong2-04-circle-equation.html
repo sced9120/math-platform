@@ -52,6 +52,14 @@
     border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
     font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
   .turn i{font-style:normal;font-size:17px;line-height:1.3}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .rbtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;font-weight:700;padding:8px 6px;border-radius:9px;cursor:pointer}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
 </style>
 
 
@@ -86,9 +94,50 @@
   <div class="steps" id="steps"></div>
 
   <section class="screen on">
+    <div class="kicker">공통수학2 · 원의 방정식</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-01 [생각 틔우기] Q1 작도에 쓴 도구</span></div>
+<!--TEACH:END-->
+    <h1>🧭 컴퍼스가 하는 일</h1>
+    <p>중학교 작도에서 쓴 도구는 <b>눈금 없는 자와 컴퍼스</b>뿐이었습니다.
+       컴퍼스는 정확히 무엇을 해 주는 도구일까요? 반지름을 바꾸고 <b>점 P 를 드래그</b>해 보세요.</p>
+    <div class="lab">
+      <svg id="cs0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>반지름 r <span><b id="cs0rv">4</b></span></label><input id="cs0rr" type="range" min="1" max="7" step="0.5" value="4"></div>
+        <div class="readout" id="cs0r"></div>
+      </div>
+    </div>
+    <div class="callout"><b>원의 정의</b> — 한 평면 위에서 <b>한 점(중심)으로부터 일정한 거리(반지름)에 있는 모든 점</b>의 모임.
+      컴퍼스는 “중심에서 거리가 항상 같다”는 조건을 손으로 구현하는 도구입니다.<br>
+      이 정의를 <b>식으로 번역</b>하면 그대로 원의 방정식이 됩니다:
+      <span class="sqrt">(x − a)² + (y − b)²</span> = r &nbsp;→&nbsp; <b>(x − a)² + (y − b)² = r²</b></div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">작도</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-01 [생각 틔우기] Q1 작도 과정</span></div>
+<!--TEACH:END-->
+    <h1>두 원의 교점이 꼭짓점이 된다</h1>
+    <p>밑변 <b>BC = 6</b> 이 주어졌습니다. B 를 중심으로 반지름 <b>r₁</b>, C 를 중심으로 반지름 <b>r₂</b> 인
+       원을 그리면 그 <b>교점</b>이 세 번째 꼭짓점 A 입니다. 슬라이더를 움직여 보세요.</p>
+    <div class="lab">
+      <svg id="cs1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>r₁ (B 에서) <span><b id="cs1r1v">5</b></span></label><input id="cs1r1" type="range" min="1" max="9" step="0.5" value="5"></div>
+        <div class="slider"><label>r₂ (C 에서) <span><b id="cs1r2v">4</b></span></label><input id="cs1r2" type="range" min="1" max="9" step="0.5" value="4"></div>
+        <div class="readout" id="cs1r"></div>
+      </div>
+    </div>
+    <p class="hint">교점이 <b>사라지는</b> 순간이 있습니다. 언제일까요? — 두 반지름의 합이 밑변보다 짧거나,
+      차가 밑변보다 길면 원이 만나지 않습니다. 이것이 바로 <b>삼각형의 결정 조건</b>이에요.</p>
+  </section>
+
+  <section class="screen">
     <div class="kicker">공통수학2 · 도형의 방정식</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-01 [생각 틔우기] Q2·Q3 원의 정의</span></div>
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-01 [생각 틔우기] Q2·Q3 원의 정의를 식으로</span></div>
 <!--TEACH:END-->
     <h1>원의 방정식</h1>
     <p><b>원</b> = 한 평면에서 <b>한 점(중심)</b>으로부터 <b>일정한 거리(반지름)</b>에 있는 모든 점의 모임.
@@ -108,7 +157,7 @@
   <section class="screen">
     <div class="kicker">표준형</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-01 Q4 [스스로 정리하기]</span></div>
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-01 Q4 [스스로 정리하기] 원의 방정식</span></div>
 <!--TEACH:END-->
     <h1>표준형과 예시</h1>
     <div class="formula">중심 (a, b), 반지름 r &nbsp;→&nbsp; <b>(x − a)² + (y − b)² = r²</b></div>
@@ -177,6 +226,43 @@
       <li>근호 안 = 0 이면 <b>점</b>, 음수면 <b>실제 원이 없음</b>.</li>
     </ul>
     <p class="q">아래 ‘내 생각 적기’ 칸에, 표준형이 왜 “거리 = r” 에서 나오는지, 그리고 일반형을 완전제곱으로 고치는 과정을 예를 들어 설명해 보세요.</p>
+  </section>
+
+  <!-- 축에 접하는 원 (학습지 2-01 +Q5) -->
+  <section class="screen">
+    <div class="kicker">탐구 · 축에 접하는 원</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-01 +Q5 좌표축에 접하는 원</span></div>
+<!--TEACH:END-->
+    <h1>📐 축에 딱 붙는 원 만들기</h1>
+    <p>중심 <b>C(a, b)</b> 를 <b>드래그</b>하고 반지름 <b>r</b> 을 바꿔,
+       아래 <b>세 가지</b>를 모두 만들어 보세요. 만들 때마다 아래 목록에 불이 켜집니다.</p>
+    <div class="lab">
+      <svg id="s6" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>반지름 r <span><b id="s6rv">3</b></span></label>
+          <input id="s6rr" type="range" min="1" max="6" step="1" value="3"></div>
+        <div class="readout" id="s6read"></div>
+        <div id="s6list" style="display:flex;flex-direction:column;gap:5px"></div>
+        <div class="win" id="s6win"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>왜 그럴까?</b>
+      <button class="reveal" id="rv6" style="margin-left:8px">직접 만들어 본 뒤 열기</button>
+      <div class="ans" id="an6">
+        <p style="margin:8px 0 0">축에 <b>접한다</b>는 것은 <b>중심에서 그 축까지의 거리 = 반지름</b> 이라는 뜻입니다.
+        중심 C(a, b) 에서 x축까지의 거리는 <b>|b|</b>, y축까지의 거리는 <b>|a|</b> 이므로</p>
+        <table>
+          <tr><th>조건</th><th>뜻</th><th>원의 방정식</th></tr>
+          <tr><td><b>|b| = r</b></td><td>x축에 접함</td><td>(x−a)² + (y−b)² = b²</td></tr>
+          <tr><td><b>|a| = r</b></td><td>y축에 접함</td><td>(x−a)² + (y−b)² = a²</td></tr>
+          <tr><td><b>|a| = |b| = r</b></td><td>두 축에 모두 접함</td><td>(x−a)² + (y−a)² = a²</td></tr>
+        </table>
+        <p style="margin:8px 0 0" class="hint">중심이 x축 위에 있으면 b = 0, y축 위에 있으면 a = 0 입니다.
+          문제에서 “좌표축에 접한다”가 나오면 <b>|a|, |b|, r 을 바로 연결</b>하세요.</p>
+      </div>
+    </div>
   </section>
 
   <section class="screen">
@@ -309,6 +395,52 @@
     document.getElementById("s3Cr").oninput=function(){C=parseFloat(this.value);draw();};draw();
   })();
 
+  // 화면6: 축에 접하는 원 (학습지 2-01 +Q5)
+  (function(){
+    var P=Plane(document.getElementById("s6"),-8,8), c={x:3,y:3}, r=3;
+    var read=document.getElementById("s6read"), win=document.getElementById("s6win");
+    var listEl=document.getElementById("s6list");
+    var GOALS=[["x","x축에만 접하기"],["y","y축에만 접하기"],["b","두 축에 모두 접하기"]];
+    var got={};
+    function draw(){
+      var tx=Math.abs(c.y)===r, ty=Math.abs(c.x)===r;   // x축·y축에 접하는가
+      P.clear();P.grid();
+      // 접하는 축을 굵게
+      P.seg(-8,0,8,0, tx?"#059669":"#cbd5e1", tx?3.5:1.5);
+      P.seg(0,-8,0,8, ty?"#059669":"#cbd5e1", ty?3.5:1.5);
+      P.circle(c.x,c.y,r,"#2563eb",2.6);
+      // 중심에서 각 축까지의 거리
+      P.seg(c.x,c.y,c.x,0,"#e11d48",1.8,"5 4");
+      P.seg(c.x,c.y,0,c.y,"#7c3aed",1.8,"5 4");
+      P.dot(c.x,c.y,"#2563eb","C("+c.x+", "+c.y+")",5);
+      P.handle(c.x,c.y,"#2563eb","C");
+      if(tx&&ty) got.b=true; else if(tx) got.x=true; else if(ty) got.y=true;
+      read.innerHTML=
+        "x축까지 거리 <b style='color:#e11d48'>|b| = "+Math.abs(c.y)+"</b>"+
+        " &nbsp;→&nbsp; "+(tx?"<b style='color:#059669'>접함</b>":(Math.abs(c.y)<r?"만남":"떨어짐"))+"<br>"+
+        "y축까지 거리 <b style='color:#7c3aed'>|a| = "+Math.abs(c.x)+"</b>"+
+        " &nbsp;→&nbsp; "+(ty?"<b style='color:#059669'>접함</b>":(Math.abs(c.x)<r?"만남":"떨어짐"))+"<br>"+
+        "<span class='hint'>반지름 r = "+r+"</span>";
+      listEl.innerHTML="";
+      GOALS.forEach(function(g){
+        var d=document.createElement("div"), hit=!!got[g[0]];
+        d.textContent=(hit?"✅ ":"⬜ ")+g[1];
+        d.style.cssText="font-size:13px;font-weight:700;padding:5px 9px;border-radius:8px;border:1px solid "
+          +(hit?"#86efac;background:#dcfce7;color:#065f46":"#e4e4e7;background:#fafafa;color:#a1a1aa");
+        listEl.appendChild(d);
+      });
+      win.className = (got.x&&got.y&&got.b) ? "win on" : "win";
+      win.innerHTML="🎉 세 가지를 모두 만들었습니다. 접하는 조건은 결국 <b>중심에서 축까지의 거리 = 반지름</b> 이었죠.";
+    }
+    P.onDrag(function(_,p){c={x:p.x,y:p.y};draw();});
+    document.getElementById("s6rr").oninput=function(){
+      r=parseInt(this.value,10);document.getElementById("s6rv").textContent=r;draw();};
+    var rv=document.getElementById("rv6"), an=document.getElementById("an6");
+    rv.addEventListener("click",function(){an.classList.toggle("on");
+      rv.textContent=an.classList.contains("on")?"접기":"직접 만들어 본 뒤 열기";});
+    draw();
+  })();
+
   // 화면5: 아폴로니오스 원
   (function(){
     var P=Plane(document.getElementById("s5"),-7,7),A={x:-3,y:0},B={x:3,y:0},k=2;
@@ -326,6 +458,143 @@
       }
       document.getElementById("s5k").textContent=k;}
     document.getElementById("s5kr").oninput=function(){k=parseFloat(this.value);draw();};draw();
+  })();
+
+
+  // ── 작도 도입 (학습지 2-01 [생각 틔우기] Q1) ─────────────────────────────
+  //    〈세 점을 지나는 원〉에서 옮겨 왔다. 아래 헬퍼는 이 블록 안에서만 쓰인다.
+  (function(){
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function f1(v){return (Math.round(v*100)/100).toFixed(2);}
+  function num(v){var r=Math.round(v*100)/100;return r<0?"−"+(-r):""+r;}
+  function dist(p,q){return Math.sqrt((p[0]-q[0])*(p[0]-q[0])+(p[1]-q[1])*(p[1]-q[1]));}
+
+  function Plane(svg,lo,hi){
+    var S=400,pad=26,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}
+    function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,sc:sc,lo:lo,hi:hi,svg:svg,
+      ux:function(cx){return lo+(cx-pad)/sc;},
+      uy:function(cy){return lo+((S-pad)-cy)/sc;},
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){
+        for(var g=Math.ceil(lo);g<=hi;g++){
+          svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));
+          svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));
+        }
+        svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+        svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+      },
+      circle:function(cx,cy,r,color,w,dash,fill){
+        var o={cx:px(cx),cy:py(cy),r:r*sc,fill:fill||"none",stroke:color,"stroke-width":w||2.4};
+        if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("circle",o));
+      },
+      seg:function(x1,y1,x2,y2,color,w,dash){
+        var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2.2,"stroke-linecap":"round"};
+        if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));
+      },
+      lineThrough:function(p,dir,color,w,dash){
+        var t=40, o={x1:px(p[0]-dir[0]*t),y1:py(p[1]-dir[1]*t),x2:px(p[0]+dir[0]*t),y2:py(p[1]+dir[1]*t),
+          stroke:color,"stroke-width":w||1.8};
+        if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));
+      },
+      dot:function(x,y,color,label,r,dy){
+        svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||5,fill:color}));
+        if(label){var t=el("text",{x:px(x)+9,y:py(y)+(dy||-9),"font-size":12.5,"font-weight":800,fill:color});t.textContent=label;svg.appendChild(t);}
+      },
+      handle:function(x,y,color){
+        var g=el("g",{"class":"handle"});
+        g.appendChild(el("circle",{cx:px(x),cy:py(y),r:15,fill:"transparent"}));
+        g.appendChild(el("circle",{cx:px(x),cy:py(y),r:8,fill:"#fff",stroke:color,"stroke-width":3}));
+        svg.appendChild(g);
+      },
+      onDrag:function(handler,step){
+        var down=false, st=step||0.05;
+        function pt(ev){
+          var r=svg.getBoundingClientRect();
+          if(!r.width||!r.height)return null;
+          return [lo+((ev.clientX-r.left)*400/r.width-pad)/sc, lo+((S-pad)-(ev.clientY-r.top)*400/r.height)/sc];
+        }
+        function move(ev){
+          if(!down)return;ev.preventDefault();
+          var p=pt(ev);if(!p||!isFinite(p[0])||!isFinite(p[1]))return;
+          handler(Math.round(p[0]/st)*st,Math.round(p[1]/st)*st);
+        }
+        svg.addEventListener("pointerdown",function(ev){down=true;svg.setPointerCapture(ev.pointerId);move(ev);});
+        svg.addEventListener("pointermove",move);
+        svg.addEventListener("pointerup",function(){down=false;});
+        svg.addEventListener("pointercancel",function(){down=false;});
+      }
+    };
+  }
+  function bindTog(labelId,inputId,cb){
+    var lab=document.getElementById(labelId),inp=document.getElementById(inputId);
+    function sync(){lab.className="tog"+(inp.checked?" on":"");cb();}
+    inp.onchange=sync;sync();
+  }
+
+  // 화면 0: 컴퍼스 = 원의 정의 ------------------------------------------------
+  (function(){
+    var P=Plane(document.getElementById("cs0"),-8,8), r=4, Q=[5,3];
+    var read=document.getElementById("cs0r");
+    function draw(){
+      P.clear();P.grid();
+      P.circle(0,0,r,"#2563eb",2.8,null,"rgba(37,99,235,.05)");
+      P.seg(0,0,Q[0],Q[1],"#7c3aed",2,"5 4");
+      P.dot(0,0,"#2563eb","중심 O(0, 0)",5);
+      P.handle(Q[0],Q[1],"#7c3aed");
+      P.dot(Q[0],Q[1],"#7c3aed","P("+num(Q[0])+", "+num(Q[1])+")",0.1,-16);
+      var d=dist([0,0],Q), tag, cls;
+      if(Math.abs(d-r)<0.08){tag="원 위";cls="on";}
+      else if(d<r){tag="원 안";cls="in";}
+      else {tag="원 밖";cls="out";}
+      document.getElementById("cs0rv").textContent=r;
+      read.innerHTML="OP = <b>"+f1(d)+"</b> · 반지름 r = <b>"+r+"</b><br>"+
+        "<span class='badge "+cls+"'>"+tag+"</span><br>"+
+        "<span class='hint'>OP "+(Math.abs(d-r)<0.08?"=":(d<r?"<":">"))+" r</span>";
+    }
+    document.getElementById("cs0rr").oninput=function(){r=parseFloat(this.value);draw();};
+    P.onDrag(function(x,y){Q=[Math.max(-7.5,Math.min(7.5,x)),Math.max(-7.5,Math.min(7.5,y))];draw();},0.05);
+    draw();
+  })();
+
+  // 화면 1: 두 원의 교점으로 삼각형 작도 --------------------------------------
+  (function(){
+    var P=Plane(document.getElementById("cs1"),-8,8), r1=5, r2=4;
+    var B=[-3,-2], C=[3,-2], d=6;
+    var read=document.getElementById("cs1r");
+    function draw(){
+      P.clear();P.grid();
+      P.circle(B[0],B[1],r1,"#e11d48",1.8,"5 4");
+      P.circle(C[0],C[1],r2,"#059669",1.8,"5 4");
+      // B(−3,−2), C(3,−2) 로 x=0 에 대칭이므로 두 교점은 세로선 x = (r₁²−r₂²)/(2d) 위에 있다
+      var X=(r1*r1-r2*r2)/(2*d);
+      var h2=r1*r1-(X-B[0])*(X-B[0]);
+      P.dot(B[0],B[1],"#e11d48","B(−3, −2)",5.5,16);
+      P.dot(C[0],C[1],"#059669","C(3, −2)",5.5,16);
+      P.seg(B[0],B[1],C[0],C[1],"#27272a",2.6);
+      if(h2>0.0001){
+        var A=[X,B[1]+Math.sqrt(h2)];
+        P.seg(B[0],B[1],A[0],A[1],"#e11d48",2.6);
+        P.seg(C[0],C[1],A[0],A[1],"#059669",2.6);
+        P.dot(A[0],A[1],"#2563eb","A("+f1(A[0])+", "+f1(A[1])+")",6);
+        read.innerHTML="r₁ = <b>"+r1+"</b>, r₂ = <b>"+r2+"</b>, BC = <b>6</b><br>"+
+          "<span class='badge on'>삼각형이 만들어집니다</span><br>"+
+          "<span class='hint'>r₁ + r₂ = "+(r1+r2)+" > 6 이고 |r₁ − r₂| = "+Math.abs(r1-r2)+" < 6</span>";
+      } else {
+        read.innerHTML="r₁ = <b>"+r1+"</b>, r₂ = <b>"+r2+"</b>, BC = <b>6</b><br>"+
+          "<span class='badge out'>교점이 없습니다</span><br>"+
+          "<span class='hint'>"+(r1+r2<d?"두 반지름의 합("+(r1+r2)+")이 6보다 작아요":"두 반지름의 차("+Math.abs(r1-r2)+")가 6보다 커요")+"</span>";
+      }
+      document.getElementById("cs1r1v").textContent=r1;
+      document.getElementById("cs1r2v").textContent=r2;
+    }
+    document.getElementById("cs1r1").oninput=function(){r1=parseFloat(this.value);draw();};
+    document.getElementById("cs1r2").oninput=function(){r2=parseFloat(this.value);draw();};
+    draw();
+  })();
+
   })();
 
   go(0);

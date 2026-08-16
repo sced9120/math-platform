@@ -49,6 +49,14 @@
     border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
     font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
   .turn i{font-style:normal;font-size:17px;line-height:1.3}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .rbtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;font-weight:700;padding:8px 6px;border-radius:9px;cursor:pointer}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
 </style>
 
 
@@ -82,10 +90,54 @@
 <div class="wrap">
   <div class="steps" id="steps"></div>
 
+  <!-- 도입: 데칼코마니 (학습지 3-02 [생각 틔우기] Q1·Q2) -->
   <section class="screen on">
     <div class="kicker">공통수학2 · 도형의 이동</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 [생각 틔우기] Q3 점의 대칭이동</span></div>
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 3-02 [생각 틔우기] Q1·Q2 대칭 퀴즈와 데칼코마니</span></div>
+<!--TEACH:END-->
+    <h1>🎨 데칼코마니 — 접으면 겹칠까?</h1>
+    <p>르네 마그리트의 <b>데칼코마니</b>는 종이에 물감을 묻혀 <b>반으로 접었다 펴서</b> 만든 무늬입니다.
+       아래 격자를 <b>클릭</b>해 물감을 찍어 보세요. 반대편에 <b>거울상</b>이 저절로 생깁니다.</p>
+    <div class="lab">
+      <svg id="d0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="rbtns" id="d0b">
+          <button class="rb on" data-k="y">y축으로 접기</button>
+          <button class="rb" data-k="x">x축으로 접기</button>
+          <button class="rb" data-k="d">y = x 로 접기</button>
+          <button class="rb" data-k="o">원점으로 돌리기</button>
+        </div>
+        <div class="readout" id="d0r"></div>
+        <button class="reveal" id="d0clr">모두 지우기</button>
+      </div>
+    </div>
+    <div class="card">
+      <b>보면서 이야기해 봅시다</b>
+      <ul class="tight" style="margin-bottom:0">
+        <li>내가 찍은 점과 저절로 생긴 점은 <b>무엇이 같고 무엇이 반대</b>인가요?</li>
+        <li>접는 선(대칭축) 위에 물감을 찍으면 어떻게 되나요? <b>왜</b> 그럴까요?</li>
+        <li>‘원점으로 돌리기’는 접는 것이 아니라 <b>반 바퀴 돌리는</b> 것입니다. 무엇이 달라 보이나요?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <b>대칭축은 몇 개일까?</b>
+      <button class="reveal" id="d0rv" style="margin-left:8px">먼저 세어 본 뒤 열기</button>
+      <div class="ans" id="d0an">
+        <table>
+          <tr><th>도형</th><th>정삼각형</th><th>정사각형</th><th>평행사변형</th><th>원</th></tr>
+          <tr><td>대칭축</td><td>3개</td><td>4개</td><td><b>0개</b></td><td>무수히 많음</td></tr>
+        </table>
+        <p style="margin:8px 0 0" class="hint">평행사변형은 <b>점대칭</b>(원점 대칭처럼 반 바퀴 돌리면 겹침)이지만
+          <b>선대칭은 아닙니다</b>. 접어서 겹치는 것과 돌려서 겹치는 것은 서로 다른 성질이에요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div class="kicker">공통수학2 · 도형의 이동</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 [생각 틔우기] Q3 점의 대칭이동 · ▶ 움직이지 않는 점</span></div>
 <!--TEACH:END-->
     <h1>대칭이동 — 점</h1>
     <p>파란 점 P 를 <b>드래그</b> 하면 네 가지 대칭점이 동시에 나타납니다. 부호와 자리가
@@ -107,7 +159,8 @@
   <section class="screen">
     <div class="kicker">정리 · 점</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 3-02 ▶ 움직이지 않는 점이 있었는가</span></div>
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 3-02 Q4 y = x 에 대한 대칭이동</span></div>
+    <div class="turn"><i>📖</i><span>교과서 48쪽 — (x, y) 가 (y, x) 로 옮겨지는 이유를 함께 증명합니다.</span></div>
 <!--TEACH:END-->
     <h1>점 (x, y) 의 대칭이동</h1>
     <table>
@@ -145,8 +198,7 @@
   <section class="screen">
     <div class="kicker">정리 · 도형</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 3-02 Q4 y = x 에 대한 대칭이동</span></div>
-    <div class="turn"><i>📖</i><span>교과서 48쪽 — (x, y) 가 (y, x) 로 옮겨지는 이유를 함께 증명합니다.</span></div>
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 Q5 도형의 대칭이동 규칙</span></div>
 <!--TEACH:END-->
     <h1>도형 f(x, y) = 0 의 대칭이동</h1>
     <table>
@@ -262,6 +314,58 @@
   var dots=[].slice.call(stepsEl.children);
   function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
   prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+
+  // 도입: 데칼코마니 (학습지 3-02 [생각 틔우기] Q1·Q2)
+  (function(){
+    var svg=document.getElementById("d0"), P=Plane(svg,-8,8);
+    var pts=[], mode="y";
+    var NAME={y:"y축",x:"x축",d:"직선 y = x",o:"원점"};
+    function mirror(p){
+      if(mode==="x") return {x:p.x, y:-p.y};
+      if(mode==="y") return {x:-p.x, y:p.y};
+      if(mode==="o") return {x:-p.x, y:-p.y};
+      return {x:p.y, y:p.x};                       // y = x
+    }
+    function sg(v){return v<0?"−"+(-v):""+v;}   // 화면의 다른 곳과 같은 음수 기호
+    function draw(){
+      P.clear();P.grid();
+      // 접는 선
+      if(mode==="y") P.seg(0,-8,0,8,"#f59e0b",3,"7 5");
+      else if(mode==="x") P.seg(-8,0,8,0,"#f59e0b",3,"7 5");
+      else if(mode==="d") P.seg(-8,-8,8,8,"#f59e0b",3,"7 5");
+      else P.dot(0,0,"#f59e0b",null,7);
+      pts.forEach(function(p){
+        var q=mirror(p);
+        P.seg(p.x,p.y,q.x,q.y,"#e4e4e7",1.2,"3 4");
+        P.dot(q.x,q.y,"#7c3aed",null,7);           // 저절로 생긴 상
+        P.dot(p.x,p.y,"#2563eb",null,7);           // 내가 찍은 점
+      });
+      var last=pts[pts.length-1];
+      document.getElementById("d0r").innerHTML = pts.length
+        ? "접는 기준 <b>"+NAME[mode]+"</b> · 찍은 점 <b>"+pts.length+"</b>개<br>"
+          + "마지막 점 ("+sg(last.x)+", "+sg(last.y)+") &nbsp;→&nbsp; 상 <b>("+sg(mirror(last).x)+", "+sg(mirror(last).y)+")</b>"
+        : "접는 기준 <b>"+NAME[mode]+"</b><br><span class='hint'>격자를 눌러 물감을 찍어 보세요.</span>";
+    }
+    svg.addEventListener("pointerdown",function(ev){
+      var r=svg.getBoundingClientRect();
+      var sx=(ev.clientX-r.left)/r.width*400, sy=(ev.clientY-r.top)/r.height*400;
+      var pad=P.px(P.lo);                          // px(lo) 가 곧 여백
+      var x=Math.round(P.lo+(sx-pad)/P.sc), y=Math.round(P.lo+((400-pad)-sy)/P.sc);
+      if(x<-8||x>8||y<-8||y>8) return;
+      pts.push({x:x,y:y}); draw();
+    });
+    var bs=document.getElementById("d0b");
+    bs.addEventListener("click",function(ev){
+      var b=ev.target.closest?ev.target.closest("button"):null; if(!b)return;
+      [].forEach.call(bs.children,function(x){x.classList.toggle("on",x===b);});
+      mode=b.getAttribute("data-k"); draw();
+    });
+    document.getElementById("d0clr").onclick=function(){pts=[];draw();};
+    var rv=document.getElementById("d0rv"), an=document.getElementById("d0an");
+    rv.addEventListener("click",function(){an.classList.toggle("on");
+      rv.textContent=an.classList.contains("on")?"접기":"먼저 세어 본 뒤 열기";});
+    draw();
+  })();
 
   // 화면0: 점의 네 대칭
   (function(){

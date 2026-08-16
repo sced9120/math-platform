@@ -90,18 +90,19 @@ const PLAN = {
 
   // ══════════ Ⅰ-2. 원의 방정식 ══════════
   "gongtong2-04-circle-equation": [
-    { mode: "ask",  sheet: "2-01 [생각 틔우기] Q2·Q3 원의 정의" },
-    { mode: "show", sheet: "2-01 Q4 [스스로 정리하기]" },
+    { mode: "ask",  sheet: "2-01 [생각 틔우기] Q1 작도에 쓴 도구" },
+    { mode: "show", sheet: "2-01 [생각 틔우기] Q1 작도 과정" },
+    { mode: "ask",  sheet: "2-01 [생각 틔우기] Q2·Q3 원의 정의를 식으로" },
+    { mode: "show", sheet: "2-01 Q4 [스스로 정리하기] 원의 방정식" },
     { mode: "write", sheet: "2-01 Q5 [예제 1] 지름의 양 끝점" },
     { mode: "show", sheet: "2-01 Q6 일반형과 C 의 값" },
     { mode: "write",
       turn: "교과서 33쪽 — [스스로 익히기] 문제를 해결합니다." },
+    { mode: "show", sheet: "2-01 +Q5 좌표축에 접하는 원" },
     { mode: "show" },
     { mode: "show" },
   ],
   "gongtong2-04b-circle-three-points": [
-    { mode: "ask",  sheet: "2-01 [생각 틔우기] Q1 작도" },
-    { mode: "show", sheet: "2-01 [생각 틔우기] Q1 작도 과정" },
     { mode: "ask",  sheet: "2-01 +Q3 원을 결정지으려면?" },
     { mode: "show", sheet: "2-01 +Q4 [실생활] 용접 로봇" },
     { mode: "write", sheet: "2-01 Q2 [예제 3] 세 점을 지나는 원" },
@@ -120,10 +121,9 @@ const PLAN = {
     { mode: "show" },
   ],
   "gongtong2-05-circle-line": [
-    { mode: "show", sheet: "2-02 Q5 [스스로 정리하기]" },
-    { mode: "show" },
-    { mode: "ask" },
-    { mode: "write" },
+    { mode: "show", sheet: "2-02 [생각 틔우기] Q1 세 경우를 직접 만들기" },
+    { mode: "show", sheet: "2-02 Q5 [스스로 정리하기] 판정표" },
+    { mode: "write", sheet: "2-02 [스스로 익히기] 앞 연습" },
     { mode: "show" },
   ],
   "gongtong2-05b-circle-tangent": [
@@ -159,11 +159,12 @@ const PLAN = {
     { mode: "show" },
   ],
   "gongtong2-07-reflection": [
-    { mode: "show", sheet: "3-02 [생각 틔우기] Q3 점의 대칭이동" },
-    { mode: "ask",  sheet: "3-02 ▶ 움직이지 않는 점이 있었는가" },
-    { mode: "show", sheet: "3-02 Q5 도형의 대칭이동" },
-    { mode: "show", sheet: "3-02 Q4 y = x 에 대한 대칭이동",
+    { mode: "ask",  sheet: "3-02 [생각 틔우기] Q1·Q2 대칭 퀴즈와 데칼코마니" },
+    { mode: "show", sheet: "3-02 [생각 틔우기] Q3 점의 대칭이동 · ▶ 움직이지 않는 점" },
+    { mode: "ask",  sheet: "3-02 Q4 y = x 에 대한 대칭이동",
       turn: "교과서 48쪽 — (x, y) 가 (y, x) 로 옮겨지는 이유를 함께 증명합니다." },
+    { mode: "show", sheet: "3-02 Q5 도형의 대칭이동" },
+    { mode: "show", sheet: "3-02 Q5 도형의 대칭이동 규칙" },
     { mode: "write", sheet: "3-02 Q8 [도형의 대칭이동 정리]" },
     { mode: "show" },
   ],
@@ -188,7 +189,7 @@ const PLAN = {
   ],
   "gongtong2-07c-tessellation": [
     { mode: "show", sheet: "3-01 [실생활] (1) 빈틈없이 덮으려면" },
-    { mode: "show", sheet: "3-01 [실생활] (3) 대칭까지 쓴 무늬" },
+    { mode: "show", sheet: "3-01 [실생활] (3) — 대칭은 다음 차시에 다시 봅니다" },
     { mode: "show" },
     { mode: "show", sheet: "3-01 [실생활] (2)(4)" },
     { mode: "write" },

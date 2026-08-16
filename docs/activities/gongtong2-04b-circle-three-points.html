@@ -93,47 +93,6 @@
   <div class="steps" id="steps"></div>
 
   <section class="screen on">
-    <div class="kicker">공통수학2 · 원의 방정식</div>
-    <!--TEACH:START-->
-    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-01 [생각 틔우기] Q1 작도</span></div>
-<!--TEACH:END-->
-    <h1>🧭 컴퍼스가 하는 일</h1>
-    <p>중학교 작도에서 쓴 도구는 <b>눈금 없는 자와 컴퍼스</b>뿐이었습니다.
-       컴퍼스는 정확히 무엇을 해 주는 도구일까요? 반지름을 바꾸고 <b>점 P 를 드래그</b>해 보세요.</p>
-    <div class="lab">
-      <svg id="s0" viewBox="0 0 400 400"></svg>
-      <div class="controls">
-        <div class="slider"><label>반지름 r <span><b id="s0rv">4</b></span></label><input id="s0rr" type="range" min="1" max="7" step="0.5" value="4"></div>
-        <div class="readout" id="s0r"></div>
-      </div>
-    </div>
-    <div class="callout"><b>원의 정의</b> — 한 평면 위에서 <b>한 점(중심)으로부터 일정한 거리(반지름)에 있는 모든 점</b>의 모임.
-      컴퍼스는 “중심에서 거리가 항상 같다”는 조건을 손으로 구현하는 도구입니다.<br>
-      이 정의를 <b>식으로 번역</b>하면 그대로 원의 방정식이 됩니다:
-      <span class="sqrt">(x − a)² + (y − b)²</span> = r &nbsp;→&nbsp; <b>(x − a)² + (y − b)² = r²</b></div>
-  </section>
-
-  <section class="screen">
-    <div class="kicker">작도</div>
-    <!--TEACH:START-->
-    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-01 [생각 틔우기] Q1 작도 과정</span></div>
-<!--TEACH:END-->
-    <h1>두 원의 교점이 꼭짓점이 된다</h1>
-    <p>밑변 <b>BC = 6</b> 이 주어졌습니다. B 를 중심으로 반지름 <b>r₁</b>, C 를 중심으로 반지름 <b>r₂</b> 인
-       원을 그리면 그 <b>교점</b>이 세 번째 꼭짓점 A 입니다. 슬라이더를 움직여 보세요.</p>
-    <div class="lab">
-      <svg id="s1" viewBox="0 0 400 400"></svg>
-      <div class="controls">
-        <div class="slider"><label>r₁ (B 에서) <span><b id="s1r1v">5</b></span></label><input id="s1r1" type="range" min="1" max="9" step="0.5" value="5"></div>
-        <div class="slider"><label>r₂ (C 에서) <span><b id="s1r2v">4</b></span></label><input id="s1r2" type="range" min="1" max="9" step="0.5" value="4"></div>
-        <div class="readout" id="s1r"></div>
-      </div>
-    </div>
-    <p class="hint">교점이 <b>사라지는</b> 순간이 있습니다. 언제일까요? — 두 반지름의 합이 밑변보다 짧거나,
-      차가 밑변보다 길면 원이 만나지 않습니다. 이것이 바로 <b>삼각형의 결정 조건</b>이에요.</p>
-  </section>
-
-  <section class="screen">
     <div class="kicker">결정 조건</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-01 +Q3 원을 결정지으려면?</span></div>
@@ -320,68 +279,7 @@
     inp.onchange=sync;sync();
   }
 
-  // 화면 0: 컴퍼스 = 원의 정의 ------------------------------------------------
-  (function(){
-    var P=Plane(document.getElementById("s0"),-8,8), r=4, Q=[5,3];
-    var read=document.getElementById("s0r");
-    function draw(){
-      P.clear();P.grid();
-      P.circle(0,0,r,"#2563eb",2.8,null,"rgba(37,99,235,.05)");
-      P.seg(0,0,Q[0],Q[1],"#7c3aed",2,"5 4");
-      P.dot(0,0,"#2563eb","중심 O(0, 0)",5);
-      P.handle(Q[0],Q[1],"#7c3aed");
-      P.dot(Q[0],Q[1],"#7c3aed","P("+num(Q[0])+", "+num(Q[1])+")",0.1,-16);
-      var d=dist([0,0],Q), tag, cls;
-      if(Math.abs(d-r)<0.08){tag="원 위";cls="on";}
-      else if(d<r){tag="원 안";cls="in";}
-      else {tag="원 밖";cls="out";}
-      document.getElementById("s0rv").textContent=r;
-      read.innerHTML="OP = <b>"+f1(d)+"</b> · 반지름 r = <b>"+r+"</b><br>"+
-        "<span class='badge "+cls+"'>"+tag+"</span><br>"+
-        "<span class='hint'>OP "+(Math.abs(d-r)<0.08?"=":(d<r?"<":">"))+" r</span>";
-    }
-    document.getElementById("s0rr").oninput=function(){r=parseFloat(this.value);draw();};
-    P.onDrag(function(x,y){Q=[Math.max(-7.5,Math.min(7.5,x)),Math.max(-7.5,Math.min(7.5,y))];draw();},0.05);
-    draw();
-  })();
-
-  // 화면 1: 두 원의 교점으로 삼각형 작도 --------------------------------------
-  (function(){
-    var P=Plane(document.getElementById("s1"),-8,8), r1=5, r2=4;
-    var B=[-3,-2], C=[3,-2], d=6;
-    var read=document.getElementById("s1r");
-    function draw(){
-      P.clear();P.grid();
-      P.circle(B[0],B[1],r1,"#e11d48",1.8,"5 4");
-      P.circle(C[0],C[1],r2,"#059669",1.8,"5 4");
-      // B(−3,−2), C(3,−2) 로 x=0 에 대칭이므로 두 교점은 세로선 x = (r₁²−r₂²)/(2d) 위에 있다
-      var X=(r1*r1-r2*r2)/(2*d);
-      var h2=r1*r1-(X-B[0])*(X-B[0]);
-      P.dot(B[0],B[1],"#e11d48","B(−3, −2)",5.5,16);
-      P.dot(C[0],C[1],"#059669","C(3, −2)",5.5,16);
-      P.seg(B[0],B[1],C[0],C[1],"#27272a",2.6);
-      if(h2>0.0001){
-        var A=[X,B[1]+Math.sqrt(h2)];
-        P.seg(B[0],B[1],A[0],A[1],"#e11d48",2.6);
-        P.seg(C[0],C[1],A[0],A[1],"#059669",2.6);
-        P.dot(A[0],A[1],"#2563eb","A("+f1(A[0])+", "+f1(A[1])+")",6);
-        read.innerHTML="r₁ = <b>"+r1+"</b>, r₂ = <b>"+r2+"</b>, BC = <b>6</b><br>"+
-          "<span class='badge on'>삼각형이 만들어집니다</span><br>"+
-          "<span class='hint'>r₁ + r₂ = "+(r1+r2)+" > 6 이고 |r₁ − r₂| = "+Math.abs(r1-r2)+" < 6</span>";
-      } else {
-        read.innerHTML="r₁ = <b>"+r1+"</b>, r₂ = <b>"+r2+"</b>, BC = <b>6</b><br>"+
-          "<span class='badge out'>교점이 없습니다</span><br>"+
-          "<span class='hint'>"+(r1+r2<d?"두 반지름의 합("+(r1+r2)+")이 6보다 작아요":"두 반지름의 차("+Math.abs(r1-r2)+")가 6보다 커요")+"</span>";
-      }
-      document.getElementById("s1r1v").textContent=r1;
-      document.getElementById("s1r2v").textContent=r2;
-    }
-    document.getElementById("s1r1").oninput=function(){r1=parseFloat(this.value);draw();};
-    document.getElementById("s1r2").oninput=function(){r2=parseFloat(this.value);draw();};
-    draw();
-  })();
-
-  // 화면 2: 점 1·2·3 개 -------------------------------------------------------
+  // 화면 0: 점 1·2·3 개 -------------------------------------------------------
   (function(){
     var P=Plane(document.getElementById("s2"),-8,8), n=1, ctr=[3,-2];
     var A=[2,3], B=[-2,3], C=[0,-1];
@@ -420,7 +318,7 @@
     draw();
   })();
 
-  // 화면 3: 용접 로봇 ---------------------------------------------------------
+  // 화면 1: 용접 로봇 ---------------------------------------------------------
   (function(){
     var P=Plane(document.getElementById("s3"),-8,8), c=[4,-3];
     var A=[1,7], B=[-3,5], C=[5,-1];

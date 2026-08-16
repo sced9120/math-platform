@@ -43,6 +43,18 @@
   code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
   .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
   .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -76,7 +88,9 @@
 
   <section class="screen on">
     <div class="kicker">공통수학2 · 평면좌표</div>
-    <span class="sheet">📄 학습지 1-01 [생각 틔우기]</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 1-01 [생각 틔우기] Q1</span></div>
+<!--TEACH:END-->
     <h1>🏯 석가탑과 다보탑, 얼마나 떨어져 있을까?</h1>
     <p>불국사 대웅전 앞에는 <b>석가탑</b>과 <b>다보탑</b>이 마주 서 있습니다.
        아래 배치도를 보고 두 탑 사이의 거리를 말해 보세요.</p>
@@ -95,7 +109,9 @@
 
   <section class="screen">
     <div class="kicker">1차원 — 수직선</div>
-    <span class="sheet">학습지 1-01 · 수직선 위 두 점 사이의 거리</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 [생각 틔우기] Q2</span></div>
+<!--TEACH:END-->
     <h1>수직선을 놓아 보자</h1>
     <p>두 탑을 잇는 선에 <b>수직선</b>을 놓았습니다. 그런데 <b>원점(0)을 어디에 둘지</b>는 우리 마음이죠.
        슬라이더로 원점을 옮겨 보세요. 두 탑의 <b>좌표는 달라지지만</b>, 거리는 어떻게 되나요?</p>
@@ -114,7 +130,10 @@
 
   <section class="screen">
     <div class="kicker">2차원 — 좌표평면</div>
-    <span class="sheet">학습지 1-01 · 대웅전과 석가탑 사이의 거리</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-01 [생각 틔우기] Q3·Q4</span></div>
+    <div class="turn"><i>📖</i><span>교과서 13쪽 — 불국사 배치도 그림을 함께 보며 대웅전까지의 거리를 재어 봅니다.</span></div>
+<!--TEACH:END-->
     <h1>대웅전까지 재려면 한 줄로는 안 된다</h1>
     <p>대웅전은 두 탑을 잇는 선 위에 있지 않습니다. 그래서 <b>수 하나</b>로는 위치를 말할 수 없고,
        <b>가로·세로 두 수</b>가 필요합니다. <b>대웅전을 드래그</b>해 보세요.</p>
@@ -131,7 +150,9 @@
 
   <section class="screen">
     <div class="kicker">데카르트의 자리</div>
-    <span class="sheet">학습지 1-01 · 데카르트는 어디에 서 있을까</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 [생각 틔우기] Q5</span></div>
+<!--TEACH:END-->
     <h1>🧭 석가탑까지가 다보탑까지의 2배인 지점</h1>
     <p>데카르트는 두 탑을 잇는 <b>일직선 사이</b>에 서 있고, <b>석가탑까지의 거리가 다보탑까지의 2배</b>입니다.
        <b>P 를 드래그</b>해 그 자리를 찾아보세요.</p>
@@ -149,6 +170,9 @@
 
   <section class="screen">
     <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span><span class="t-sheet">📄 학습지 1-01 [학습 목표 유추하기]</span></div>
+<!--TEACH:END-->
     <h1>좌표를 놓으면 도형이 계산이 된다</h1>
     <table>
       <tr><th>질문</th><th>좌표 없이</th><th>좌표를 놓으면</th></tr>
@@ -168,6 +192,9 @@
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">

@@ -41,6 +41,21 @@
   .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
   .q{font-weight:600;margin-top:10px}
   .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+  .pick{display:grid;grid-template-columns:1fr;gap:6px}
+  .pk{border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;padding:7px 9px;border-radius:9px;cursor:pointer;text-align:left}
+  .pk.on{background:var(--blue);border-color:var(--blue);color:#fff}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -76,7 +91,9 @@
 
   <section class="screen on">
     <div class="kicker">공통수학2 · 원의 방정식</div>
-    <span class="sheet">📄 학습지 2-02 [접선의 방정식] 교과서 37~40p</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-02 [접선의 방정식] Q1~Q3 접선의 개수</span></div>
+<!--TEACH:END-->
     <h1>접선이란?</h1>
     <p>원과 <b>한 점에서만</b> 만나는 직선을 <b>접선</b>, 그 점을 <b>접점</b>이라 합니다.
        직선을 위아래로 움직여 접하는 순간을 찾아보세요.</p>
@@ -94,6 +111,10 @@
 
   <section class="screen">
     <div class="kicker">유형 ① 기울기가 주어질 때</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 2-02 [접선의 방정식] (1) 기울기가 주어진 경우</span></div>
+    <div class="turn"><i>📖</i><span>교과서 37쪽 — 접선의 방정식을 세우는 두 가지 길을 함께 봅니다.</span></div>
+<!--TEACH:END-->
     <h1>기울기 m 인 접선</h1>
     <p>원 x² + y² = r² 에 기울기가 m 으로 접하는 직선은 <b>언제나 두 개</b>입니다(위·아래로 나란히).</p>
     <div class="lab">
@@ -112,6 +133,9 @@
 
   <section class="screen">
     <div class="kicker">유형 ② 접점이 주어질 때</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-02 [접선의 방정식] (2) 원 위의 한 점</span></div>
+<!--TEACH:END-->
     <h1>원 위의 점에서의 접선</h1>
     <p>원 x² + y² = r² 위의 점 (x₁, y₁) 에서의 접선입니다. 접점을 <b>드래그</b> 해서
        원 둘레를 돌려 보세요.</p>
@@ -131,6 +155,9 @@
 
   <section class="screen">
     <div class="kicker">유형 ③ 원 밖의 점에서</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span><span class="t-sheet">📄 학습지 2-02 Q4 [예제 1] 원 밖의 점 (5, 0)</span></div>
+<!--TEACH:END-->
     <h1>원 밖의 점에서 그은 접선</h1>
     <p>원 밖의 점 P 를 <b>드래그</b> 해 보세요. 그 점에서 원에 그을 수 있는 접선은
        <b>두 개</b>입니다(안에 있으면 0개, 원 위면 1개).</p>
@@ -150,8 +177,71 @@
     </div>
   </section>
 
+  <!-- 놓친 접선 (교과서 40쪽 [개념 탐구]) -->
+  <section class="screen">
+    <div class="kicker">개념 탐구 · 놓친 접선</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 2-02 [개념 탐구] 놓친 접선</span></div>
+    <div class="turn"><i>📖</i><span>교과서 40쪽 — [개념 탐구] 의 물음에 답하며 왜 접선을 놓쳤는지 확인합니다.</span></div>
+<!--TEACH:END-->
+    <h1>🕳 접선이 하나 사라졌다</h1>
+    <p>점 <b>A(2, 4)</b> 에서 원 <b>x² + y² = 4</b> 에 그은 접선을 <b>모두</b> 구해 봅시다.
+       두 가지 방법으로 각각 풀어 보고, 결과를 비교합니다.</p>
+
+    <div class="lab">
+      <svg id="s4" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="pick" id="s4pick">
+          <button class="pk on" data-n="0">① 그림으로 보기</button>
+          <button class="pk" data-n="1">② 기울기 m 으로 풀기</button>
+          <button class="pk" data-n="2">③ 접점 (x₁, y₁) 으로 풀기</button>
+        </div>
+        <div class="readout" id="r4"></div>
+        <div class="win" id="w4"></div>
+      </div>
+    </div>
+
+    <div class="card" id="c4a">
+      <b>② 기울기 m 으로 놓았을 때</b>
+      <ol class="tight">
+        <li>접선을 <b>y − 4 = m(x − 2)</b>, 즉 <code>mx − y + (4 − 2m) = 0</code> 으로 놓는다.</li>
+        <li>중심 O 에서의 거리 = 반지름 : <code>|4 − 2m| / √(m² + 1) = 2</code></li>
+        <li>양변을 제곱해 정리하면 <code>16 − 16m = 4</code> &nbsp;→&nbsp; <b>m = 3/4</b> — <b>단 하나</b>!</li>
+      </ol>
+      <p style="margin-bottom:0" class="hint">그런데 그림에서는 접선이 분명히 <b>두 개</b>였습니다.</p>
+    </div>
+
+    <div class="card" id="c4b">
+      <b>왜 하나를 놓쳤을까?</b>
+      <button class="reveal" id="rv4" style="margin-left:8px">생각해 본 뒤 열기</button>
+      <div class="ans" id="an4">
+        <p style="margin:8px 0 0">“<b>y − q = m(x − p)</b> 로 놓는다”는 말은 이미
+        <b>기울기가 존재한다</b>고 가정한 것입니다. 그래서 기울기가 없는
+        <b>세로 직선 x = 2</b> 는 처음부터 후보에서 빠져 있었습니다.<br>
+        x = 2 는 중심에서의 거리가 정확히 2 (= 반지름) 이므로 <b>진짜 접선</b>입니다.</p>
+      </div>
+    </div>
+
+    <div class="card" id="c4c">
+      <b>③ 접점을 (x₁, y₁) 으로 놓으면</b>
+      <ol class="tight">
+        <li>접선은 <code>x₁x + y₁y = 4</code>. 이것이 A(2, 4) 를 지나므로 <code>2x₁ + 4y₁ = 4</code></li>
+        <li>접점은 원 위의 점이므로 <code>x₁² + y₁² = 4</code></li>
+        <li>연립하면 <b>(2, 0)</b> 과 <b>(−6/5, 8/5)</b> — <b>두 개 모두</b> 나옵니다.</li>
+        <li>각각의 접선 : <b>x = 2</b> 와 <b>3x − 4y + 10 = 0</b></li>
+      </ol>
+      <div class="callout" style="margin-bottom:0"><b>정리</b> — 기울기를 <b>내가 임의로 정한</b> 경우에는
+        <b>기울기가 없는 접선(x = k)</b> 이 있는지 반드시 따로 확인해야 합니다.
+        접점으로 놓는 방법은 이런 빠짐이 없습니다.</div>
+    </div>
+  </section>
+
   <section class="screen">
     <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span></div>
+    <div class="turn"><i>📖</i><span>교과서 39쪽 — [스스로 익히기] 문제를 해결합니다.</span></div>
+<!--TEACH:END-->
     <h1>세 가지 접선 공식 정리</h1>
     <table>
       <tr><th>주어진 조건</th><th>접선의 방정식</th><th>개수</th></tr>
@@ -170,6 +260,9 @@
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
        정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
@@ -287,6 +380,46 @@
       document.getElementById("s2t").textContent=th;
       document.getElementById("r2").innerHTML="접점 ("+fmt(x1)+", "+fmt(y1)+")<br>접선: <b>"+fmt(x1)+"x + "+fmt(y1)+"y = "+fmt(r*r)+"</b><br><span class='hint'>x₁x + y₁y = r²</span>";}
     document.getElementById("s2tr").oninput=function(){th=+this.value;draw();};draw();
+  })();
+
+  // 화면4: 놓친 접선 — 점 (2,4) 에서 원 x²+y²=4 (교과서 40쪽 [개념 탐구])
+  (function(){
+    var P=Plane(document.getElementById("s4"),-6,6), r=2, A={x:2,y:4}, mode=0;
+    var read=document.getElementById("r4"), win=document.getElementById("w4");
+    var boxes={1:document.getElementById("c4a"),2:document.getElementById("c4c")};
+    var T1={m:0.75,b:2.5};                 // 3x − 4y + 10 = 0  →  y = (3/4)x + 5/2
+    function draw(){
+      P.clear();P.grid();
+      P.circle(0,0,r,"#2563eb",2.6);
+      // 세로 접선 x = 2
+      var vShown = mode===0 || mode===2;
+      P.seg(2,-6,2,6, vShown?"#059669":"#e4e4e7", vShown?2.8:2, vShown?null:"5 5");
+      // 기울기 3/4 접선
+      P.line(T1.m,T1.b,"#059669",2.8);
+      // 접점
+      P.dot(2,0,"#059669",null,5);
+      P.dot(-1.2,1.6,"#059669",null,5);
+      P.dot(0,0,"#94a3b8","O",4);
+      P.dot(A.x,A.y,"#e11d48","A(2, 4)",6);
+      var msg=["원 밖의 점에서 그은 접선은 <b>두 개</b>. 눈으로 먼저 세어 봅시다.",
+               "기울기로 놓고 풀었더니 <b>m = 3/4</b> 하나뿐 — 세로 접선 <b>x = 2</b> 가 사라졌습니다.",
+               "접점으로 놓으면 <b>(2, 0)</b> 과 <b>(−6/5, 8/5)</b> — 두 접선을 <b>모두</b> 찾습니다."][mode];
+      read.innerHTML="<b>찾은 접선 "+[2,1,2][mode]+"개</b><br>"+msg;
+      win.className = mode===1 ? "win on" : "win";
+      if(mode===1){ win.style.background="#fee2e2"; win.style.borderColor="#fca5a5"; win.style.color="#991b1b";
+        win.innerHTML="❗ 그림에는 두 개인데 계산에서는 하나 — 무엇을 빠뜨렸을까요?"; }
+      for(var k in boxes) boxes[k].style.display = (+k===mode) ? "" : "none";
+    }
+    var pick=document.getElementById("s4pick");
+    pick.addEventListener("click",function(ev){
+      var b=ev.target.closest?ev.target.closest("button"):null; if(!b)return;
+      [].forEach.call(pick.children,function(x){x.classList.toggle("on",x===b);});
+      mode=+b.getAttribute("data-n"); draw();
+    });
+    var rv=document.getElementById("rv4"), an=document.getElementById("an4");
+    rv.addEventListener("click",function(){an.classList.toggle("on");
+      rv.textContent=an.classList.contains("on")?"접기":"생각해 본 뒤 열기";});
+    draw();
   })();
 
   // 화면3: 원 밖의 점에서 두 접선

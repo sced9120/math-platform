@@ -31,6 +31,11 @@ for (const a of REG) {
   if (!existsSync(path)) { console.error(`✗ 파일 없음: ${a.file}`); skipped++; continue; }
 
   let html = readFileSync(path, "utf8");
+
+  // 수업 진행 칩(add-teaching-strip.mjs)이 들어간 활동은 그쪽이 학습지 연계까지 표시한다.
+  // 여기서 배지를 또 넣으면 같은 말이 두 번 뜨므로 건너뛴다.
+  if (html.includes("<!--TEACH:START-->")) { skipped++; continue; }
+
   const badge = `<span class="sheet">📄 ${esc(a.sheet)}</span>`;
 
   // 1) CSS 보장

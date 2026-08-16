@@ -44,6 +44,18 @@
   .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
   .q{font-weight:600;margin-top:10px}
   code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -77,7 +89,9 @@
 
   <section class="screen on">
     <div class="kicker">공통수학2 · 도형의 이동</div>
-    <span class="sheet">📄 학습지 3-02 Q3·Q5~Q7 · 대칭 합성</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 [생각 틔우기] Q3</span></div>
+<!--TEACH:END-->
     <h1>⭐ 별 먹기 — 점의 네 가지 대칭</h1>
     <p>점 <b>P(3, 2)</b> 를 네 가지 기준으로 대칭이동하면 별 자리에 도착합니다.
        버튼을 눌러 <b>별 4개를 모두</b> 찾아내세요. (매번 원래 점 P 에서 출발합니다)</p>
@@ -101,7 +115,9 @@
 
   <section class="screen">
     <div class="kicker">스테이지</div>
-    <span class="sheet">학습지 3-02 · Q5 도형의 대칭이동</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 Q5 도형의 대칭이동</span></div>
+<!--TEACH:END-->
     <h1>삼각형을 별 위로 — 최소 몇 번?</h1>
     <p>이번에는 <b>누른 결과에서 이어서</b> 대칭합니다. 파란 삼각형의 세 꼭짓점을
        <b>별 3개에 정확히</b> 올려놓으세요. <b>최소 2번</b>이면 됩니다!</p>
@@ -125,7 +141,9 @@
 
   <section class="screen">
     <div class="kicker">합성 실험실</div>
-    <span class="sheet">학습지 3-02 핵심질문 · 여러 번 겹치면?</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 핵심질문 · 여러 번 겹치면?</span></div>
+<!--TEACH:END-->
     <h1>두 대칭을 이으면 무엇이 될까?</h1>
     <p>대칭을 <b>두 번</b> 연달아 하면 전혀 다른 이동이 됩니다. 두 개를 골라 결과를 확인해 보세요.
        회색 F → 연한 파랑(1차) → 진한 파랑(2차) 순서로 움직입니다.</p>
@@ -162,7 +180,9 @@
 
   <section class="screen">
     <div class="kicker">방정식의 대칭</div>
-    <span class="sheet">학습지 3-02 · Q6 원의 대칭이동</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 Q6 원의 대칭이동</span></div>
+<!--TEACH:END-->
     <h1>원 (x−3)² + (y−2)² = 4 를 대칭시키기</h1>
     <p>네 가지 대칭을 <b>모두</b> 눌러, 각각의 자리에 놓인 <b>별 4개</b>를 모으세요.
        버튼을 누를 때마다 <b>식이 어떻게 변하는지</b> 꼭 읽어 보세요.</p>
@@ -185,7 +205,9 @@
 
   <section class="screen">
     <div class="kicker">방정식의 대칭</div>
-    <span class="sheet">학습지 3-02 · Q7 포물선의 대칭이동</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 Q7 포물선의 대칭이동</span></div>
+<!--TEACH:END-->
     <h1>포물선 y = x² + 1 은 어떻게 될까?</h1>
     <p>버튼을 눌러 네 가지 대칭의 식을 확인하세요. <b>하나는 아무 일도 일어나지 않습니다.</b>
        어느 것인지, 그리고 왜 그런지 찾아보세요.</p>
@@ -206,8 +228,50 @@
       이것은 <b>함수가 아닙니다</b>(x 하나에 y 가 둘). 도형의 방정식 f(x, y) = 0 으로 다루는 이유예요.</p>
   </section>
 
+  <!-- 순서를 바꾸면? (학습지 3-02 [생각 키우기]) -->
+  <section class="screen">
+    <div class="kicker">생각 키우기 · 이동의 순서</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 [생각 키우기] 순서를 바꾸면?</span></div>
+<!--TEACH:END-->
+    <h1>🔁 순서를 바꾸면 결과도 바뀔까?</h1>
+    <p>포물선 <b>y = x²</b> 에 <b>평행이동</b>과 <b>x축 대칭이동</b>을 차례로 적용합니다.
+       <b>순서만</b> 바꿔 보면 어떻게 될까요?</p>
+    <div class="lab">
+      <svg id="s5" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider">
+          <label>x축 방향 <span><b id="s5a">2</b></span></label>
+          <input id="s5ar" type="range" min="-4" max="4" step="1" value="2">
+        </div>
+        <div class="slider">
+          <label>y축 방향 <span><b id="s5b">−1</b></span></label>
+          <input id="s5br" type="range" min="-4" max="4" step="1" value="-1">
+        </div>
+        <div class="readout" id="s5r"></div>
+        <div class="win" id="s5w"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>두 결과는 왜 다를까?</b>
+      <button class="reveal" id="rv5" style="margin-left:8px">직접 움직여 본 뒤 열기</button>
+      <div class="ans" id="an5">
+        <p style="margin:8px 0 0">x축 대칭은 <b>y 의 부호를 뒤집는</b> 조작입니다.
+        먼저 위로 b 만큼 올려 두고 뒤집으면 <b>그 b 까지 함께 뒤집혀</b> −b 가 되지만,
+        먼저 뒤집고 나서 올리면 b 는 그대로 남습니다.<br>
+        <span class="hint">경로① 꼭짓점 (a, −b) &nbsp;/&nbsp; 경로② 꼭짓점 (a, +b)</span></p>
+        <p style="margin:8px 0 0">그래서 <b>y 축 방향 이동이 0 일 때</b>(= x축 방향으로만 옮길 때) 순서를 바꿔도 결과가 같습니다.
+        b ≠ 0 이라면, 대칭을 먼저 한 쪽의 y 이동량을 <b>−b</b> 로 바꾸면 두 결과가 같아집니다.</p>
+        <p style="margin:8px 0 0"><b>도형의 이동은 순서를 마음대로 바꿀 수 없다</b> — 이것이 이 활동의 결론입니다.</p>
+      </div>
+    </div>
+  </section>
+
   <section class="screen">
     <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span></div>
+<!--TEACH:END-->
     <h1>한눈에 정리</h1>
     <table>
       <tr><th>대칭 기준</th><th>점 (x, y) →</th><th>f(x, y) = 0 →</th><th>기억법</th></tr>
@@ -229,6 +293,9 @@
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
@@ -520,6 +587,52 @@
       all.forEach(function(o){o.className="rb"+(seen[o.getAttribute("data-k")]?" got":"")+(o===b?" on":"");});
       draw();
     });
+    draw();
+  })();
+
+  // 화면 5: 이동의 순서 (학습지 3-02 [생각 키우기]) -----------------------------
+  (function(){
+    var P=Plane(document.getElementById("s5"),-8,8);
+    var ar=document.getElementById("s5ar"), br=document.getElementById("s5br");
+    var read=document.getElementById("s5r"), win=document.getElementById("s5w");
+    function sg(v){return v<0?"−"+(-v):""+v;}
+    function inner(a){return a===0?"x":(a>0?"x − "+a:"x + "+(-a));}   // (x − a)
+    function tailc(c){return c===0?"":(c>0?" + "+c:" − "+(-c));}      // 상수항 (0 이면 안 쓴다)
+    function draw(){
+      var a=+ar.value, b=+br.value;
+      document.getElementById("s5a").textContent=sg(a);
+      document.getElementById("s5b").textContent=sg(b);
+      P.clear();P.grid(false);
+      // 원본
+      P.plot(function(x){return x*x;},"#cbd5e1",2,"5 4");
+      // 경로① 평행이동 → x축 대칭 :  y = −(x−a)² − b
+      P.plot(function(x){return -(x-a)*(x-a)-b;},"#e11d48",2.8);
+      P.dot(a,-b,"#e11d48",null,5);
+      // 경로② x축 대칭 → 평행이동 :  y = −(x−a)² + b
+      P.plot(function(x){return -(x-a)*(x-a)+b;},"#059669",2.8, b===0?"7 5":null);
+      P.dot(a,b,"#059669",null,5);
+
+      read.innerHTML=
+        "<span style='color:#e11d48;font-weight:700'>경로① 평행이동 → x축 대칭</span><br>"+
+        "y = −(" + inner(a) + ")²" + tailc(-b) + "<br>"+
+        "<span class='hint'>꼭짓점 (" + sg(a) + ", " + sg(-b) + ")</span><hr style='border:0;border-top:1px solid #e4e4e7;margin:7px 0'>"+
+        "<span style='color:#059669;font-weight:700'>경로② x축 대칭 → 평행이동</span><br>"+
+        "y = −(" + inner(a) + ")²" + tailc(b) + "<br>"+
+        "<span class='hint'>꼭짓점 (" + sg(a) + ", " + sg(b) + ")</span>";
+      if(b===0){
+        win.className="win on";
+        win.innerHTML="🎯 y축 방향 이동이 <b>0</b> 이니 두 경로가 <b>같아졌습니다</b>. x축 방향으로만 옮기면 순서를 바꿔도 결과가 같아요.";
+      } else {
+        win.className="win on";
+        win.style.background="#fef3c7";win.style.borderColor="#fcd34d";win.style.color="#92400e";
+        win.innerHTML="↔ 꼭짓점의 y좌표가 <b>"+sg(-b)+"</b> / <b>"+sg(b)+"</b> — 순서를 바꾸니 <b>결과가 다릅니다</b>.";
+      }
+      if(b===0){win.style.background="";win.style.borderColor="";win.style.color="";}
+    }
+    ar.addEventListener("input",draw); br.addEventListener("input",draw);
+    var rv=document.getElementById("rv5"), an=document.getElementById("an5");
+    rv.addEventListener("click",function(){an.classList.toggle("on");
+      rv.textContent=an.classList.contains("on")?"접기":"직접 움직여 본 뒤 열기";});
     draw();
   })();
 

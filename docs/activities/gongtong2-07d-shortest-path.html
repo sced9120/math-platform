@@ -43,6 +43,18 @@
   code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
   .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
   .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -76,7 +88,9 @@
 
   <section class="screen on">
     <div class="kicker">공통수학2 · 도형의 이동</div>
-    <span class="sheet">📄 학습지 3-02 성취기준(상) · 최단 거리</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 Q10 [생각 키우기] (1)</span></div>
+<!--TEACH:END-->
     <h1>🚶 강가에 물 뜨러 가기</h1>
     <p>마을 <b>A</b> 에서 출발해 <b>강(x축)</b>에서 물을 뜬 뒤 마을 <b>B</b> 로 갑니다.
        강 위의 어느 지점 <b>P</b> 에 들러야 <b>가장 짧게</b> 갈 수 있을까요?</p>
@@ -95,6 +109,9 @@
 
   <section class="screen">
     <div class="kicker">대칭의 마법</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 Q10 (2)(3)</span></div>
+<!--TEACH:END-->
     <h1>B 를 강 건너로 뒤집으면?</h1>
     <p>마을 <b>B(6, 5)</b> 를 강(x축)에 대해 대칭이동한 점을 <b>B′(6, −5)</b> 라 합시다.
        P 가 강 위에 있으면 <b>PB = PB′</b> 이므로,</p>
@@ -115,6 +132,9 @@
 
   <section class="screen">
     <div class="kicker">빛도 같은 길로 간다</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>입사각 = 반사각</h1>
     <p>거울에 빛을 비추면 <b>들어온 각과 나가는 각이 같습니다</b>. 놀랍게도 이것은
        <b>빛이 가장 짧은(=가장 빠른) 길을 택하기 때문</b>입니다. P 를 움직이며 두 각을 비교해 보세요.</p>
@@ -131,6 +151,9 @@
 
   <section class="screen">
     <div class="kicker">응용</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 Q10 (5) 강 건너편이라면?</span></div>
+<!--TEACH:END-->
     <h1>🎱 당구 — 한 쿠션 치기</h1>
     <p>흰 공 <b>A(−5, −3)</b> 로 오른쪽 벽(<b>x = 6</b>)을 한 번 맞혀 빨간 공 <b>B(2, 4)</b> 를 맞히려 합니다.
        이번엔 대칭축이 <b>세로선</b>입니다. 어디를 겨냥해야 할까요?</p>
@@ -149,6 +172,10 @@
 
   <section class="screen">
     <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 3-02 Q10 (4) 최단 거리</span></div>
+    <div class="turn"><i>📖</i><span>교과서 51쪽 — [스스로 익히기] 문제를 해결합니다.</span></div>
+<!--TEACH:END-->
     <h1>대칭이동으로 최단 거리 풀기</h1>
     <div class="card">
       <b>전략 3단계</b>
@@ -174,6 +201,9 @@
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">

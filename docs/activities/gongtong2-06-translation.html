@@ -37,6 +37,18 @@
   .q{font-weight:600;margin-top:10px}
   .big{font-size:20px;font-weight:800}
   .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -72,7 +84,9 @@
 
   <section class="screen on">
     <div class="kicker">공통수학2 · 도형의 이동</div>
-    <span class="sheet">📄 학습지 3-01 Q1~Q5 평행이동</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-01 [생각 틔우기] Q1 점의 평행이동</span></div>
+<!--TEACH:END-->
     <h1>평행이동 — 점</h1>
     <p>점 (x, y) 를 x축으로 <b>a</b>, y축으로 <b>b</b> 만큼 옮기면 좌표에 그대로 <b>더합니다</b>.
        슬라이더를 움직여 파란 점이 어떻게 이동하는지 보세요.</p>
@@ -89,6 +103,9 @@
 
   <section class="screen">
     <div class="kicker">도형의 평행이동</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-01 Q3 포물선의 평행이동</span></div>
+<!--TEACH:END-->
     <h1>포물선을 옮기면?</h1>
     <p>포물선 y = x² 를 (a, b) 만큼 평행이동하면 <b>y = (x − a)² + b</b> 가 됩니다.
        회색은 원래, 파랑은 옮긴 것. 부호에 주목하세요 — <b>x 자리에 (x − a)</b> 입니다!</p>
@@ -104,6 +121,9 @@
 
   <section class="screen">
     <div class="kicker">도형의 평행이동</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-01 Q2 원의 평행이동</span></div>
+<!--TEACH:END-->
     <h1>원과 직선도 마찬가지</h1>
     <p>원 x² + y² = 4 를 (a, b) 만큼 옮기면 <b>(x − a)² + (y − b)² = 4</b>.
        모든 도형이 같은 규칙 — <b>x → x−a, y → y−b</b> 로 바꿉니다.</p>
@@ -119,6 +139,10 @@
 
   <section class="screen">
     <div class="kicker">왜?</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 3-01 Q4 도형의 평행이동</span></div>
+    <div class="turn"><i>📖</i><span>교과서 46쪽 — f(x, y) = 0 의 평행이동이 왜 f(x−a, y−b) = 0 이 되는지 논리 전개를 함께 봅니다.</span></div>
+<!--TEACH:END-->
     <h1>점은 +a, 도형은 −a — 왜 반대일까?</h1>
     <div class="card">
       <p style="margin-top:0">옮긴 도형 위의 <b>새 점 (x, y)</b> 를 생각해 봅시다. 이 점은 원래 도형 위의 어떤 점을
@@ -130,6 +154,10 @@
 
   <section class="screen">
     <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 3-01 Q5 [예제 1]</span></div>
+    <div class="turn"><i>📖</i><span>교과서 47쪽 — [스스로 익히기] 문제를 해결합니다.</span></div>
+<!--TEACH:END-->
     <h1>정리</h1>
     <table>
       <tr><th>대상</th><th>(a, b) 만큼 평행이동</th></tr>
@@ -149,6 +177,9 @@
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
        정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>

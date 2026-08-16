@@ -34,7 +34,7 @@ const sections = UNITS.map((u) => {
             <span class="body">
               <span class="t">${esc(a.title)}</span>
               <span class="d">${esc(a.desc ?? "")}</span>
-              ${a.sheet ? `<span class="sh">📄 ${esc(a.sheet)}</span>` : ""}
+              <span class="tags">${a.sheet ? `<span class="sh">📄 ${esc(a.sheet)}</span>` : ""}${a.book ? `<span class="bk">📖 교과서 ${esc(a.book)}쪽</span>` : ""}</span>
             </span>
             <span class="go">열기 →</span>
           </a>
@@ -89,8 +89,11 @@ const html = `<!doctype html>
   .body{flex:1;min-width:0}
   .t{display:block;font-weight:600}
   .d{display:block;font-size:13.5px;color:var(--muted);margin-top:2px}
-  .sh{display:inline-block;margin-top:5px;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;
+  .sh{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;
       border-radius:999px;padding:1px 9px;font-size:11.5px;font-weight:700}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+  .bk{display:inline-block;background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;
+    border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:700}
   .go{flex:none;font-size:13px;color:var(--blue);font-weight:600}
   .meta{display:block;padding:0 16px 10px;font-size:11.5px;color:#a1a1aa}
   footer{margin-top:44px;padding-top:22px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}

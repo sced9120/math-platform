@@ -41,6 +41,18 @@
   .q{font-weight:600;margin-top:10px}
   code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
   .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -76,7 +88,9 @@
 
   <section class="screen on">
     <div class="kicker">공통수학2 · 도형의 방정식</div>
-    <span class="sheet">📄 학습지 1-02 [생각 틔우기]·교과서 18p</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 1-02 [생각 틔우기] Q2·Q3</span></div>
+<!--TEACH:END-->
     <h1>직선 하나를 정하려면?</h1>
     <p>종이 위에 자를 대고 직선을 그으려면 최소한 무엇이 있어야 할까요?
        수학에서는 다음 <b>두 가지 중 하나</b>면 직선이 <b>딱 하나</b>로 정해집니다.</p>
@@ -101,6 +115,10 @@
 
   <section class="screen">
     <div class="kicker">점-기울기형</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-02 [생각 틔우기] Q5 (1)</span></div>
+    <div class="turn"><i>📖</i><span>교과서 18쪽 — 한 점과 기울기로 직선의 방정식을 세우는 부분을 함께 봅니다.</span></div>
+<!--TEACH:END-->
     <h1>한 점과 기울기로 세우는 식</h1>
     <p>기울기가 m 이고 점 (x₁, y₁) 을 지나는 직선 위의 <b>임의의 점 (x, y)</b> 를 생각해 봅시다.
        두 점으로 기울기를 계산하면 항상 m 이어야 하죠.</p>
@@ -120,6 +138,9 @@
 
   <section class="screen">
     <div class="kicker">두 점</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-02 [생각 틔우기] Q5 (2)</span></div>
+<!--TEACH:END-->
     <h1>두 점을 지나는 직선</h1>
     <p>두 점 A, B 를 <b>드래그</b> 해 보세요. 기울기를 먼저 구하고, 점-기울기형에 대입하면 끝입니다.</p>
     <div class="lab">
@@ -137,6 +158,9 @@
 
   <section class="screen">
     <div class="kicker">특별한 직선 · 일반형</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-02 [생각 틔우기] Q5 (3) 두 점 (2,1)·(2,5)</span></div>
+<!--TEACH:END-->
     <h1>축에 평행한 직선과 일반형</h1>
     <table>
       <tr><th>직선</th><th>방정식</th><th>기울기</th></tr>
@@ -160,6 +184,10 @@
 
   <section class="screen">
     <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span></div>
+    <div class="turn"><i>📖</i><span>교과서 19쪽 — [스스로 익히기] 문제를 해결합니다.</span></div>
+<!--TEACH:END-->
     <h1>정리</h1>
     <table>
       <tr><th>주어진 조건</th><th>직선의 방정식</th></tr>
@@ -180,6 +208,9 @@
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
        정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>

@@ -53,6 +53,18 @@
   code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
   .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
   .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -86,7 +98,9 @@
 
   <section class="screen on">
     <div class="kicker">공통수학2 · 원과 직선</div>
-    <span class="sheet">📄 학습지 2-02 [생각 틔우기] Q2</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-02 [생각 틔우기] Q2 (1)~(4)</span></div>
+<!--TEACH:END-->
     <h1>🎚 a 를 움직여라</h1>
     <p>원 <b>x² + y² = 8</b> 과 직선 <b>y = x + a</b> 입니다. 기울기는 1 로 고정이고 <b>a</b> 만 변합니다.
        슬라이더를 움직이며 <b>세 가지 위치 관계</b>를 모두 만들어 보세요.</p>
@@ -104,7 +118,9 @@
 
   <section class="screen">
     <div class="kicker">두 가지 방법</div>
-    <span class="sheet">학습지 2-02 · Q5 두 가지 판단 방법</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-02 [생각 틔우기] Q2 (7)</span></div>
+<!--TEACH:END-->
     <h1>거리로 볼까, 판별식으로 볼까</h1>
     <p>같은 상황을 <b>기하적으로</b>(중심과 직선 사이의 거리) 그리고 <b>대수적으로</b>(연립 후 판별식)
        판단해 봅시다. 두 방법이 <b>언제나 같은 답</b>을 주는지 확인하세요.</p>
@@ -136,7 +152,9 @@
 
   <section class="screen">
     <div class="kicker">확인</div>
-    <span class="sheet">학습지 2-02 · Q2 (4)(5)(6) a 의 범위 구하기</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span><span class="t-sheet">📄 학습지 2-02 [생각 틔우기] Q2 (4)(5)(6)</span></div>
+<!--TEACH:END-->
     <h1>a 의 범위를 말해 보자</h1>
     <p>원 <b>x² + y² = 8</b>, 직선 <b>y = x + a</b> 입니다. 앞 화면에서 관찰한 것을 바탕으로 답해 보세요.</p>
     <div id="quiz"></div>
@@ -145,7 +163,9 @@
 
   <section class="screen">
     <div class="kicker">예제 1</div>
-    <span class="sheet">학습지 2-02 · Q3 [예제1] 거리로 판단하기</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span><span class="t-sheet">📄 학습지 2-02 Q3 [예제 1] 거리로 판단</span></div>
+<!--TEACH:END-->
     <h1>중심이 원점이 아니라면?</h1>
     <p>원 <b>(x + 1)² + (y − 2)² = 8</b> 과 직선 <b>y = x − 1</b> 의 위치 관계를 판단해 봅시다.
        중심이 원점이 아니어도 방법은 똑같습니다 — <b>중심에서 직선까지의 거리</b>를 재면 됩니다.</p>
@@ -167,7 +187,9 @@
 
   <section class="screen">
     <div class="kicker">예제 2</div>
-    <span class="sheet">학습지 2-02 · Q4 [예제2] 판별식으로 범위 구하기</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span><span class="t-sheet">📄 학습지 2-02 Q4 [예제 2] 판별식으로 범위</span></div>
+<!--TEACH:END-->
     <h1>서로 다른 두 점에서 만날 k 의 범위</h1>
     <p>원 <b>x² + y² = 5</b> 와 직선 <b>y = 2x + k</b> 가 <b>서로 다른 두 점</b>에서 만나도록 하는
        실수 k 의 범위를 구해 봅시다. 슬라이더로 먼저 눈으로 찾고, 계산으로 확인하세요.</p>
@@ -195,6 +217,10 @@
 
   <section class="screen">
     <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 2-02 Q5 [스스로 정리하기]</span></div>
+    <div class="turn"><i>📖</i><span>교과서 36쪽 — [스스로 익히기] 문제를 해결합니다.</span></div>
+<!--TEACH:END-->
     <h1>한눈에 정리</h1>
     <table>
       <tr><th>위치 관계</th><th>교점</th><th>거리로</th><th>판별식으로</th></tr>
@@ -217,6 +243,9 @@
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">

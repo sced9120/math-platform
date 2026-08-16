@@ -41,6 +41,18 @@
   .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
   .q{font-weight:600;margin-top:10px}
   .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -76,7 +88,9 @@
 
   <section class="screen on">
     <div class="kicker">공통수학2 · 도형의 방정식</div>
-    <span class="sheet">📄 학습지 2-02 Q5 [스스로 정리하기]</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-02 Q5 [스스로 정리하기]</span></div>
+<!--TEACH:END-->
     <h1>원과 직선의 위치 관계</h1>
     <p>원과 직선은 <b>두 점에서 만나거나</b>, <b>한 점에서 접하거나</b>, <b>만나지 않습니다.</b>
        직선을 움직여(기울기 m, y절편 k) 세 경우를 모두 만들어 보세요. 원은 중심 O, 반지름 r 입니다.</p>
@@ -93,6 +107,9 @@
 
   <section class="screen">
     <div class="kicker">판정</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>거리 d 와 반지름 r 을 비교</h1>
     <p>핵심은 <b>원의 중심에서 직선까지의 거리 d</b> 와 <b>반지름 r</b> 의 대소입니다.
        (앞 활동의 ‘점과 직선 사이 거리’ 공식을 그대로 사용!)</p>
@@ -108,6 +125,9 @@
 
   <section class="screen">
     <div class="kicker">두 가지 방법</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span></div>
+<!--TEACH:END-->
     <h1>거리로 볼까, 판별식으로 볼까</h1>
     <p>같은 문제를 <b>기하(거리)</b>로도, <b>대수(판별식)</b>로도 풀 수 있습니다. 두 방법은 언제나 같은 답을 줘요.</p>
     <table>
@@ -125,6 +145,9 @@
 
   <section class="screen">
     <div class="kicker">정리 · 연습</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span></div>
+<!--TEACH:END-->
     <h1>스스로 확인</h1>
     <div class="card">
       <b>연습 1.</b> 원 x² + y² = 9 와 직선 y = x + k 가 <b>서로 다른 두 점에서 만나도록</b> 하는 k 의 범위는?<br>
@@ -146,6 +169,9 @@
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
        정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>

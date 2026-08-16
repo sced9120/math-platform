@@ -49,6 +49,18 @@
   code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
   .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
   .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -82,7 +94,9 @@
 
   <section class="screen on">
     <div class="kicker">공통수학2 · 원의 방정식</div>
-    <span class="sheet">📄 학습지 2-01 [생각 틔우기]·[실생활] 용접 로봇</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-01 [생각 틔우기] Q1 작도</span></div>
+<!--TEACH:END-->
     <h1>🧭 컴퍼스가 하는 일</h1>
     <p>중학교 작도에서 쓴 도구는 <b>눈금 없는 자와 컴퍼스</b>뿐이었습니다.
        컴퍼스는 정확히 무엇을 해 주는 도구일까요? 반지름을 바꾸고 <b>점 P 를 드래그</b>해 보세요.</p>
@@ -101,7 +115,9 @@
 
   <section class="screen">
     <div class="kicker">작도</div>
-    <span class="sheet">학습지 2-01 · 세 변의 길이로 삼각형 작도하기</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-01 [생각 틔우기] Q1 작도 과정</span></div>
+<!--TEACH:END-->
     <h1>두 원의 교점이 꼭짓점이 된다</h1>
     <p>밑변 <b>BC = 6</b> 이 주어졌습니다. B 를 중심으로 반지름 <b>r₁</b>, C 를 중심으로 반지름 <b>r₂</b> 인
        원을 그리면 그 <b>교점</b>이 세 번째 꼭짓점 A 입니다. 슬라이더를 움직여 보세요.</p>
@@ -119,7 +135,9 @@
 
   <section class="screen">
     <div class="kicker">결정 조건</div>
-    <span class="sheet">학습지 2-01 · 원을 결정지으려면 점이 몇 개 필요할까?</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-01 +Q3 원을 결정지으려면?</span></div>
+<!--TEACH:END-->
     <h1>점 몇 개면 원이 하나로 정해질까?</h1>
     <p>주어진 점을 <b>모두 지나는 원</b>을 그려 봅시다. <b>중심을 드래그</b>하면 조건을 만족하도록
        자동으로 조정됩니다. 점의 개수를 바꿔 가며 관찰하세요.</p>
@@ -144,9 +162,11 @@
 
   <section class="screen">
     <div class="kicker">실생활 적용</div>
-    <span class="sheet">학습지 2-01 · [실생활] 용접 로봇 궤적 교정</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-01 +Q4 [실생활] 용접 로봇</span></div>
+<!--TEACH:END-->
     <h1>🤖 로봇의 원형 궤적을 찾아라</h1>
-    <p>용접 로봇이 원형 트랙 위의 세 지점 <b>A(1, 7)</b>, <b>B(−5, 1)</b>, <b>C(3, −3)</b> 을 터치했습니다.
+    <p>용접 로봇이 원형 트랙 위의 세 지점 <b>A(1, 7)</b>, <b>B(−3, 5)</b>, <b>C(5, −1)</b> 을 터치했습니다.
        이 로봇이 도는 <b>원의 중심</b>은 어디일까요? <b>중심을 드래그</b>해 세 거리를 모두 같게 만들어 보세요.</p>
     <div class="lab">
       <svg id="s3" viewBox="0 0 400 400"></svg>
@@ -156,12 +176,15 @@
         <div class="win" id="s3w"></div>
       </div>
     </div>
-    <p class="hint">손으로 맞히기는 쉽지 않습니다 — 중심이 <b>정수 좌표가 아니거든요</b>.
+    <p class="hint">눈대중으로 “거의” 맞출 수는 있지만, <b>정확히</b> 맞았는지는 확신할 수 없습니다.
       이럴 때 <b>계산</b>이 필요합니다. 다음 화면에서 식으로 푸는 법을 봅시다.</p>
   </section>
 
   <section class="screen">
     <div class="kicker">계산으로 풀기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span><span class="t-sheet">📄 학습지 2-01 Q2 [예제 3] 세 점을 지나는 원</span></div>
+<!--TEACH:END-->
     <h1>세 점을 지나는 원, 식으로 구하기</h1>
     <div class="card">
       <b>방법 ① 일반형에 대입</b><br>
@@ -173,8 +196,8 @@
       중심을 (x, y) 로 놓고 <b>“A까지 거리 = B까지 거리”</b>, <b>“B까지 거리 = C까지 거리”</b> 를 세웁니다.
       제곱해서 정리하면 <b>일차식 두 개</b>가 나오고(제곱항이 지워짐!), 그 교점이 중심입니다.
     </div>
-    <div class="formula">A(1, 7), B(−5, 1), C(3, −3) &nbsp;→&nbsp;
-      중심 <b>(1/3, 5/3)</b>, 반지름 <b><span class="sqrt">260</span> / 3 ≈ 5.37</b></div>
+    <div class="formula">A(1, 7), B(−3, 5), C(5, −1) &nbsp;→&nbsp;
+      중심 <b>(1, 2)</b>, 반지름 <b>5</b></div>
     <p>일반형으로 쓰면 <code>3x² + 3y² − 2x − 10y − 78 = 0</code> 입니다.
       세 점을 대입해 정말 0 이 되는지 직접 확인해 보세요.</p>
     <div class="callout"><b>왜 제곱항이 지워질까?</b> “A까지 거리² = B까지 거리²” 에서 양변 모두 x² + y² 을 갖고 있어
@@ -182,12 +205,15 @@
     <p class="q">아래 ‘내 생각 적기’ 칸에 정리해 보세요.<br>
       (1) 원을 하나로 결정하려면 왜 <b>점 3개</b>가 필요한지, 수직이등분선으로 설명하세요.<br>
       (2) 세 점이 <b>한 직선 위</b>에 있으면 어떻게 될까요? 왜 그럴까요?<br>
-      (3) A(1, 7), B(−5, 1), C(3, −3) 을 지나는 원의 방정식을 <b>직접 계산</b>해 구하세요.</p>
+      (3) A(1, 7), B(−3, 5), C(5, −1) 을 지나는 원의 방정식을 <b>직접 계산</b>해 구하세요.</p>
   </section>
 
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
@@ -397,17 +423,17 @@
   // 화면 3: 용접 로봇 ---------------------------------------------------------
   (function(){
     var P=Plane(document.getElementById("s3"),-8,8), c=[4,-3];
-    var A=[1,7], B=[-5,1], C=[3,-3];
-    var TRUE=[1/3,5/3], TR=Math.sqrt(260)/3;
+    var A=[1,7], B=[-3,5], C=[5,-1];
+    var TRUE=[1,2], TR=5;
     var read=document.getElementById("s3r"), win=document.getElementById("s3w");
     function draw(){
       var hint=document.getElementById("s3b").checked;
       P.clear();P.grid();
       if(hint){
-        // AB 의 수직이등분선: x + y = 2 → 방향 (1,−1), 지나는 점 (1,1)
-        P.lineThrough([1,1],[1,-1],"#f59e0b",1.8,"6 4");
-        // AC 의 수직이등분선: x − 5y + 8 = 0 → 방향 (5,1), 지나는 점 (2,2)
-        P.lineThrough([2,2],[5,1],"#f59e0b",1.8,"6 4");
+        // AB 의 수직이등분선: 2x + y − 4 = 0 → 중점 (−1, 6), 방향 (1,−2)
+        P.lineThrough([-1,6],[1,-2],"#f59e0b",1.8,"6 4");
+        // AC 의 수직이등분선: x − 2y + 3 = 0 → 중점 (3, 3), 방향 (2,1)
+        P.lineThrough([3,3],[2,1],"#f59e0b",1.8,"6 4");
       }
       var dA=dist(c,A), dB=dist(c,B), dC=dist(c,C);
       P.circle(c[0],c[1],(dA+dB+dC)/3,"#2563eb",2.4,"4 4");
@@ -415,8 +441,8 @@
       P.seg(c[0],c[1],B[0],B[1],"#059669",1.8);
       P.seg(c[0],c[1],C[0],C[1],"#7c3aed",1.8);
       P.dot(A[0],A[1],"#e11d48","A(1, 7)",5.5);
-      P.dot(B[0],B[1],"#059669","B(−5, 1)",5.5);
-      P.dot(C[0],C[1],"#7c3aed","C(3, −3)",5.5,16);
+      P.dot(B[0],B[1],"#059669","B(−3, 5)",5.5);
+      P.dot(C[0],C[1],"#7c3aed","C(5, −1)",5.5,16);
       P.handle(c[0],c[1],"#2563eb");
       var spread=Math.max(dA,dB,dC)-Math.min(dA,dB,dC);
       read.innerHTML="중심 (<b>"+f1(c[0])+", "+f1(c[1])+"</b>)<br>"+
@@ -426,7 +452,7 @@
         "<span class='hint'>최대−최소 = "+f1(spread)+" (0 이 목표)</span>";
       if(spread<0.25){
         win.className="win on";
-        win.innerHTML="🎉 거의 찾았습니다! 정확한 중심은 <b>(1/3, 5/3) ≈ (0.33, 1.67)</b>, 반지름 <b>"+f1(TR)+"</b> 입니다.";
+        win.innerHTML="🎉 찾았습니다! 중심은 <b>(1, 2)</b>, 반지름은 <b>5</b> 입니다. 세 거리가 모두 5 가 되죠.";
       } else win.className="win";
     }
     P.onDrag(function(x,y){c=[Math.max(-7,Math.min(7,x)),Math.max(-7,Math.min(7,y))];draw();},0.05);

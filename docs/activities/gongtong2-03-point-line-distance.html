@@ -40,6 +40,18 @@
   .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
   .q{font-weight:600;margin-top:10px}
   .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -75,7 +87,9 @@
 
   <section class="screen on">
     <div class="kicker">공통수학2 · 도형의 방정식</div>
-    <span class="sheet">📄 학습지 1-02 [점과 직선 사이의 거리] 교과서 24p</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 1-02 [점과 직선 사이의 거리] Q2·Q3</span></div>
+<!--TEACH:END-->
     <h1>점과 직선 사이의 거리</h1>
     <p>먼저 <b>점과 점</b> 사이 거리부터. 두 점 A, B 를 <b>드래그</b> 하면, 직각삼각형의 두 변으로부터
        피타고라스 정리로 거리가 계산됩니다.</p>
@@ -90,6 +104,9 @@
 
   <section class="screen">
     <div class="kicker">핵심 아이디어</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>점에서 직선까지 = 수선의 길이</h1>
     <p>점 A 에서 직선 위의 여러 점까지 이어 보면, <b>수직으로 내린 선(수선)</b>이 가장 짧습니다.
        점 A 를 <b>드래그</b> 하며 파란 수선과 회색 선들을 비교해 보세요.</p>
@@ -104,6 +121,9 @@
 
   <section class="screen">
     <div class="kicker">쉬운 경우</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-02 [점과 직선 사이의 거리] Q4</span></div>
+<!--TEACH:END-->
     <h1>축에 평행한 직선까지의 거리</h1>
     <p>직선이 축에 평행하면 거리는 눈으로 바로 보입니다.</p>
     <ul class="tight">
@@ -116,6 +136,10 @@
 
   <section class="screen">
     <div class="kicker">거리 공식</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-02 Q5 [증명해보기]</span></div>
+    <div class="turn"><i>📖</i><span>교과서 24쪽 — 점과 직선 사이의 거리 공식의 증명을 함께 따라갑니다.</span></div>
+<!--TEACH:END-->
     <h1>점과 직선 사이 거리 공식</h1>
     <p>직선의 기울기 m 과 y절편 k 를 바꾸고(직선 <b>y = mx + k</b>, 즉 mx − y + k = 0),
        점 P 를 드래그해 보세요. 파란 수선과 거리 d 가 공식과 함께 실시간 계산됩니다.</p>
@@ -137,6 +161,9 @@
 
   <section class="screen">
     <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span></div>
+<!--TEACH:END-->
     <h1>정리 &amp; 증명의 큰 흐름</h1>
     <div class="card">
       <b>거리 공식</b> — 직선 <b>ax + by + c = 0</b> 과 점 (x₀, y₀) 사이 거리:
@@ -153,6 +180,9 @@
 
   <section class="screen">
     <div class="kicker">읽을거리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>데카르트, 그리고 필즈 메달</h1>
     <p class="prose">17세기 초 르네 데카르트는 “평면 위 한 점의 위치를 두 개의 수(좌표)로 나타내면,
       기하학 문제를 대수 방정식으로 바꿀 수 있지 않을까?”라는 발상을 합니다. 이것이 바로
@@ -171,6 +201,9 @@
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
        정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>

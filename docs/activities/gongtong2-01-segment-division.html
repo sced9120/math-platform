@@ -96,6 +96,18 @@
   .note-beyond { background:#faf5ff; border:1px solid #e9d5ff; border-radius:12px; padding:10px 14px;
                  margin:10px 0; font-size:13.5px; color:#5b21b6; }
   .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -131,24 +143,95 @@
 
   <!-- 0. 도입 -->
   <section class="screen on">
-    <div class="kicker">공통수학2 · 도형의 방정식</div>
-    <span class="sheet">📄 학습지 1-01 [탐구] 내분과 등분</span>
-    <h1>선분의 내분</h1>
-    <p>한 선분 위의 점 하나가 그 선분을 <b>두 조각</b>으로 나눕니다. 이 조각들의 길이 비율을
-       우리가 원하는 대로 <b>정확히</b> 맞추려면 어디에 점을 찍어야 할까요?</p>
+    <div class="kicker">생각 틔우기 · 균형점 찾기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 [탐구] 내분과 등분 · 받침점 찾기</span></div>
+<!--TEACH:END-->
+    <h1>⚖️ 받침점은 어디에 두어야 할까?</h1>
+    <p>막대 양 끝에 공을 올렸습니다. 균형을 이루는 <b>받침점</b>을 찾아봅시다.
+       무게를 바꿔 가며 관찰해 보세요.</p>
     <div class="card">
-      <dl class="def">
-        <dt>내분(內分)</dt><dd>선분을 그 위의 점을 경계로 하여 두 부분으로 나누는 일</dd>
-        <dt>등분(等分)</dt><dd>몫을 똑같이 나눔 (내분의 특별한 경우, 1 : 1)</dd>
-      </dl>
+      <b>보면서 답해 봅시다</b>
+      <ul class="tight" style="margin-bottom:0">
+        <li>두 공의 무게가 같을 때와 다를 때, 받침점의 위치가 달라지나요?</li>
+        <li>무게가 다르면 받침점은 <b>어느 쪽</b>에 가깝게 두어야 하나요?</li>
+        <li>그때 받침점은 막대를 <b>몇 대 몇</b>으로 나누고 있나요?</li>
+      </ul>
     </div>
-    <p class="q">🔑 생각해보기 &mdash; “똑같이 나눈다”는 아이디어를 “<b>m : n</b> 으로 나눈다”로 넓히면,
-       점의 위치를 어떻게 정할 수 있을까요? 오른쪽 &raquo; 로 넘기며 직접 움직여 봅시다.</p>
+
+    <svg id="lever-svg" viewBox="0 0 640 220" role="img" aria-label="지레 평형"></svg>
+
+    <div class="controls" style="margin-top:12px">
+      <div class="slider">
+        <label>왼쪽(A) 무게 <span><b id="lv-a">5</b> kg</span></label>
+        <input id="lv-arange" type="range" min="1" max="20" step="1" value="5" />
+      </div>
+      <div class="slider">
+        <label>오른쪽(B) 무게 <span><b id="lv-b">5</b> kg</span></label>
+        <input id="lv-brange" type="range" min="1" max="20" step="1" value="5" />
+      </div>
+      <div class="readout" id="lv-read"></div>
+    </div>
+    <div class="callout">
+      <b>핵심 발견:</b> 받침점은 무거운 쪽에 가깝습니다. 무게가 w<sub>A</sub> : w<sub>B</sub> 일 때,
+      받침점은 AB 를 <b>w<sub>B</sub> : w<sub>A</sub></b> (무게의 <b>반대</b> 비율)로 내분합니다.
+      5 kg 과 20 kg → 받침점은 A 로부터 <b>4 : 1</b> 지점!
+    </div>
   </section>
 
-  <!-- 1. 1차원 수직선 내분 -->
+  <!-- 6. 심화: 삼각형 무게중심 -->
+  <!-- 등분과 내분 (학습지 [탐구] Q1~Q3) -->
+  <section class="screen">
+    <div class="kicker">등분과 내분</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 [탐구] Q1~Q3 등분과 내분의 표기</span></div>
+<!--TEACH:END-->
+    <h1>✂️ 길이 30 을 나누어 보자</h1>
+    <div class="card">
+      <dl class="def">
+        <dt>등분(等分)</dt><dd>양을 <b>똑같이</b> 나눔</dd>
+        <dt>내분(內分)</dt><dd>선분을 그 위의 점을 경계로 하여 <b>두 부분</b>으로 나누는 일</dd>
+      </dl>
+    </div>
+
+    <p><b>①</b> 먼저 <b>똑같은 조각</b>으로 나눠 봅시다. 조각 길이가 자연수가 되는 등분은 몇 가지일까요?</p>
+    <svg id="eq-svg" viewBox="0 0 640 130" role="img" aria-label="길이 30 등분하기"></svg>
+    <div class="controls" style="margin-top:10px">
+      <div class="slider">
+        <label>몇 등분? <span><b id="eq-k">2</b> 등분</span></label>
+        <input id="eq-krange" type="range" min="1" max="30" step="1" value="2" />
+      </div>
+      <div class="readout" id="eq-read"></div>
+    </div>
+    <div class="card">
+      <b>찾은 등분</b> <span class="hint">(조각 길이가 자연수인 것만)</span>
+      <div id="eq-found" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+    <div class="win" id="eq-win">🎉 8 가지를 모두 찾았습니다. 등분이 되는 수는 곧 <b>30 의 약수</b>였네요!</div>
+
+    <p style="margin-top:20px"><b>②</b> 이번엔 <b>다르게</b> 나눠 봅시다.
+       파란 점을 <b>좌우로 끌어</b> 보세요. 두 조각의 길이가 어떤 비를 이루는지 봅시다.</p>
+    <svg id="rt-svg" viewBox="0 0 640 175" role="img" aria-label="선분을 두 부분으로 나누기"></svg>
+    <div class="readout" id="rt-read" style="margin-top:10px"></div>
+    <div class="card">
+      <b>왜 6 : 24 내분이라 하지 않고 1 : 4 내분이라 할까?</b>
+      <button class="reveal" id="rv-r" style="margin-left:8px">직접 확인한 뒤 열기</button>
+      <div class="ans" id="an-r">
+        <p style="margin:8px 0 0">위 그림의 <b>아래쪽 띠</b>를 보세요. 점을 6 에 두면 6 : 24 지만,
+        그 점은 <b>전체를 5 등분</b> 했을 때 <b>첫 번째 눈금</b>입니다. 즉 <b>1 : 4</b> 죠.<br>
+        비는 <b>같은 수를 곱하거나 나누어도 같은 점</b>을 가리킵니다
+        (6 : 24 = 3 : 12 = 2 : 8 = 1 : 4). 그래서 <b>가장 간단한 자연수 비</b>로 씁니다.<br>
+        <b>등분은 내분의 특별한 경우</b>였습니다 — m : n 내분점은 전체를 (m + n) 등분한
+        <b>m 번째 눈금</b>이니까요.</p>
+      </div>
+    </div>
+  </section>
+
   <section class="screen">
     <div class="kicker">1차원 · 수직선</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 [탐구] 수직선 위에서 내분 Q1~Q3</span></div>
+<!--TEACH:END-->
     <h1>수직선 위에서 내분</h1>
     <p>수직선 위 두 점 <span class="chip a">A(a)</span> <span class="chip b">B(b)</span> 사이를
        <b>m : n</b> 으로 내분하는 점 <span class="chip p">C</span> 를 찾아봅시다.
@@ -171,6 +254,9 @@
   <!-- 2. 2차원 좌표평면 내분 (핵심 인터랙티브) -->
   <section class="screen">
     <div class="kicker">2차원 · 좌표평면</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 [탐구] 좌표평면 위에서 내분 Q1~Q3</span></div>
+<!--TEACH:END-->
     <h1>좌표평면 위에서 내분</h1>
     <p><span class="chip a">A</span> 와 <span class="chip b">B</span> 를 직접 <b>드래그</b>하고,
        슬라이더로 <b>m : n</b> 을 바꿔 보세요. 내분점 <span class="chip p">P</span> 와 공식이 실시간으로 바뀝니다.</p>
@@ -195,6 +281,9 @@
   <!-- 3. 공식 정리 -->
   <section class="screen">
     <div class="kicker">일반화</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span><span class="t-sheet">📄 학습지 1-01 [일반화] Q4·Q5 내분점 공식</span></div>
+<!--TEACH:END-->
     <h1>내분점 공식</h1>
     <p>두 점 <b>A(x&#8321;, y&#8321;)</b>, <b>B(x&#8322;, y&#8322;)</b> 를 잇는 선분 AB 를
        <b>m : n</b> 으로 내분하는 점 P 는 다음과 같습니다.</p>
@@ -217,7 +306,60 @@
 
   <!-- 4. 외분 -->
   <section class="screen">
+    <div class="kicker">예제 · 삼각형의 무게중심</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-01 [예제] 삼각형의 무게중심</span></div>
+    <div class="turn"><i>📖</i><span>교과서 16쪽 — 삼각형의 무게중심 [예제] 를 함께 풀고, 17쪽 [스스로 익히기] 로 마무리합니다.</span></div>
+<!--TEACH:END-->
+    <h1>삼각형의 무게중심</h1>
+    <p>세 꼭짓점이 <b>A(x&#8321;, y&#8321;), B(x&#8322;, y&#8322;), C(x&#8323;, y&#8323;)</b> 인 삼각형의 무게중심 G 는
+       세 좌표의 <b>평균</b>입니다.</p>
+    <div class="formula">
+      G&nbsp;=&nbsp;(&nbsp;
+      <span class="frac"><span class="num">x&#8321; + x&#8322; + x&#8323;</span><span class="den">3</span></span>,&nbsp;
+      <span class="frac"><span class="num">y&#8321; + y&#8322; + y&#8323;</span><span class="den">3</span></span>
+      &nbsp;)
+    </div>
+    <div class="card">
+      <b>왜 평균일까?</b>
+      <button class="reveal" id="rv-g" style="margin-left:8px">먼저 생각해 본 뒤 열기</button>
+      <div class="ans" id="an-g">
+        <p style="margin:8px 0 0">무게중심은 <b>중선을 꼭짓점에서 2 : 1 로 내분</b>하는 점입니다.
+        변 BC 의 중점 M 은 ( (x&#8322;+x&#8323;)/2 , (y&#8322;+y&#8323;)/2 ) 이고,
+        선분 AM 을 <b>2 : 1</b> 로 내분하면<br>
+        <span class="hint">( 2&middot;M<sub>x</sub> + 1&middot;x&#8321; ) / (2 + 1) = ( (x&#8322;+x&#8323;) + x&#8321; ) / 3</span><br>
+        — 방금 배운 <b>내분점 공식</b>이 그대로 세 점의 평균을 만들어 냅니다.</p>
+      </div>
+    </div>
+
+    <h1 style="font-size:18px;margin-top:22px">한 걸음 더 &mdash; 무게가 다르다면?</h1>
+    <p>세 꼭짓점에 서로 다른 구슬을 올리면 전체 무게중심 G 는 어디일까요? 각 점의 좌표를
+       무게로 <b>가중평균</b> 하면 됩니다.</p>
+    <div class="formula">
+      G&nbsp;=&nbsp;(&nbsp;
+      <span class="frac"><span class="num">w&#8321;x&#8321; + w&#8322;x&#8322; + w&#8323;x&#8323;</span><span class="den">w&#8321; + w&#8322; + w&#8323;</span></span>,&nbsp;
+      <span class="frac"><span class="num">w&#8321;y&#8321; + w&#8322;y&#8322; + w&#8323;y&#8323;</span><span class="den">w&#8321; + w&#8322; + w&#8323;</span></span>
+      &nbsp;)
+    </div>
+    <div class="card">
+      <p style="margin-top:0"><b>심화 과제</b> &mdash; 아래 삼각형에서 전체 무게중심 G 를 구해 봅시다.</p>
+      <ul class="tight">
+        <li>A(0, 0) 에 <b>200 g</b>, &nbsp; B(6, 0) 에 <b>300 g</b>, &nbsp; C(0, 8) 에 <b>400 g</b></li>
+      </ul>
+      <svg id="tri-svg" viewBox="0 0 360 360" role="img" aria-label="삼각형 무게중심" style="max-width:320px"></svg>
+      <p class="hint">아래 <b>‘내 생각 적기’</b> 칸에 풀이 과정과, 무게가 클수록 G 가 어느 쪽으로 끌리는지 서술하세요.
+        (스스로 먼저 계산해 본 뒤, 필요하면 ‘AI 질문’ 탭에서 힌트를 받아도 좋아요.)</p>
+    </div>
+  </section>
+
+  
+
+  <!-- EXT:START -->
+  <section class="screen">
     <div class="kicker">추가 탐구 · 외분</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>선분의 연장선 위: 외분 <span class="beyond">교육과정 외 · 심화</span></h1>
     <div class="note-beyond"><b>잠깐!</b> ‘선분의 외분’은 2022 개정 교육과정에서 <b>빠진 내용</b>입니다.
       시험 범위가 아니라 <b>내분을 더 깊이 이해하기 위한 확장</b>으로 살펴봅니다. 부담 없이 구경하세요!</div>
@@ -250,59 +392,10 @@
 
   <!-- 5. 지레의 원리 -->
   <section class="screen">
-    <div class="kicker">실생활 연결 · 물리</div>
-    <h1>지레의 원리 = 내분</h1>
-    <p>막대 양 끝에 공을 올리면, 평형(균형)을 이루는 <b>받침점</b>은 두 공을 잇는 선분을 어떤 비율로 내분할까요?
-       무게를 바꿔 보세요.</p>
-
-    <svg id="lever-svg" viewBox="0 0 640 220" role="img" aria-label="지레 평형"></svg>
-
-    <div class="controls" style="margin-top:12px">
-      <div class="slider">
-        <label>왼쪽(A) 무게 <span><b id="lv-a">5</b> kg</span></label>
-        <input id="lv-arange" type="range" min="1" max="20" step="1" value="5" />
-      </div>
-      <div class="slider">
-        <label>오른쪽(B) 무게 <span><b id="lv-b">5</b> kg</span></label>
-        <input id="lv-brange" type="range" min="1" max="20" step="1" value="5" />
-      </div>
-      <div class="readout" id="lv-read"></div>
-    </div>
-    <div class="callout">
-      <b>핵심 발견:</b> 받침점은 무거운 쪽에 가깝습니다. 무게가 w<sub>A</sub> : w<sub>B</sub> 일 때,
-      받침점은 AB 를 <b>w<sub>B</sub> : w<sub>A</sub></b> (무게의 <b>반대</b> 비율)로 내분합니다.
-      5 kg 과 20 kg → 받침점은 A 로부터 <b>4 : 1</b> 지점!
-    </div>
-  </section>
-
-  <!-- 6. 심화: 삼각형 무게중심 -->
-  <section class="screen">
-    <div class="kicker">심화 탐구</div>
-    <h1>여러 무게의 무게중심</h1>
-    <p>세 꼭짓점에 서로 다른 구슬을 올리면 전체 무게중심 G 는 어디일까요? 각 점의 좌표를
-       무게로 <b>가중평균</b> 하면 됩니다.</p>
-    <div class="formula">
-      G&nbsp;=&nbsp;(&nbsp;
-      <span class="frac"><span class="num">w&#8321;x&#8321; + w&#8322;x&#8322; + w&#8323;x&#8323;</span><span class="den">w&#8321; + w&#8322; + w&#8323;</span></span>,&nbsp;
-      <span class="frac"><span class="num">w&#8321;y&#8321; + w&#8322;y&#8322; + w&#8323;y&#8323;</span><span class="den">w&#8321; + w&#8322; + w&#8323;</span></span>
-      &nbsp;)
-    </div>
-    <div class="card">
-      <p style="margin-top:0"><b>심화 과제</b> &mdash; 아래 삼각형에서 전체 무게중심 G 를 구해 봅시다.</p>
-      <ul class="tight">
-        <li>A(0, 0) 에 <b>200 g</b>, &nbsp; B(6, 0) 에 <b>300 g</b>, &nbsp; C(0, 8) 에 <b>400 g</b></li>
-      </ul>
-      <svg id="tri-svg" viewBox="0 0 360 360" role="img" aria-label="삼각형 무게중심" style="max-width:320px"></svg>
-      <p class="hint">아래 <b>‘내 생각 적기’</b> 칸에 풀이 과정과, 무게가 클수록 G 가 어느 쪽으로 끌리는지 서술하세요.
-        (스스로 먼저 계산해 본 뒤, 필요하면 ‘AI 질문’ 탭에서 힌트를 받아도 좋아요.)</p>
-    </div>
-  </section>
-
-  
-
-  <!-- EXT:START -->
-  <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
        정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
@@ -624,7 +717,141 @@
     // 무게중심 (숨김 힌트: 물음표로 표시하여 학생이 계산하도록)
     var t = el("text", { x: px(2.4), y: py(3.2), "font-size": 22, "font-weight": 800, fill: "#2563eb" });
     t.textContent = "G = ?"; svg.appendChild(t);
+
+    var rvg = document.getElementById("rv-g"), ang = document.getElementById("an-g");
+    rvg.addEventListener("click", function () {
+      ang.classList.toggle("on");
+      rvg.textContent = ang.classList.contains("on") ? "접기" : "먼저 생각해 본 뒤 열기";
+    });
   })();
+
+  // ── 등분과 내분 (학습지 [탐구] Q1~Q3) ─────────────────────────────────────
+  (function () {
+    var L = 30, X0 = 40, X1 = 600;
+    function px(v) { return X0 + (v / L) * (X1 - X0); }
+    function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+
+    // ① 등분 -----------------------------------------------------------------
+    var eqSvg = document.getElementById("eq-svg");
+    var eqRange = document.getElementById("eq-krange");
+    var eqRead = document.getElementById("eq-read");
+    var eqFound = document.getElementById("eq-found");
+    var eqWin = document.getElementById("eq-win");
+    var DIVISORS = [1, 2, 3, 5, 6, 10, 15, 30];
+    var found = {};
+
+    function drawEq() {
+      var k = +eqRange.value, w = L / k, ok = L % k === 0;
+      document.getElementById("eq-k").textContent = k;
+      while (eqSvg.firstChild) eqSvg.removeChild(eqSvg.firstChild);
+
+      for (var i = 0; i < k; i++) {
+        eqSvg.appendChild(el("rect", { x: px(i * w), y: 46, width: px((i + 1) * w) - px(i * w), height: 34,
+          fill: i % 2 ? "#dbeafe" : "#eff6ff", stroke: ok ? "#2563eb" : "#cbd5e1", "stroke-width": 1 }));
+      }
+      eqSvg.appendChild(el("rect", { x: X0, y: 46, width: X1 - X0, height: 34,
+        fill: "none", stroke: "#334155", "stroke-width": 2 }));
+      [0, L].forEach(function (v) {
+        var t = el("text", { x: px(v), y: 104, "font-size": 13, "font-weight": 700,
+          fill: "#52525b", "text-anchor": "middle" });
+        t.textContent = v; eqSvg.appendChild(t);
+      });
+      var lab = el("text", { x: (X0 + X1) / 2, y: 28, "font-size": 14, "font-weight": 800,
+        fill: ok ? "#059669" : "#e11d48", "text-anchor": "middle" });
+      lab.textContent = ok ? ("조각 하나의 길이 = " + w + "  ✓ 자연수")
+                           : ("조각 하나의 길이 = " + (Math.round(w * 100) / 100) + "…  ✗ 자연수가 아님");
+      eqSvg.appendChild(lab);
+
+      eqRead.innerHTML = "30 &divide; " + k + " = <b>" + (ok ? w : Math.round(w * 1000) / 1000) + "</b>"
+        + (ok ? " — 자연수 길이로 <b>" + k + " 등분</b> 됩니다." : " — 조각 길이가 자연수가 아니어서 등분이 안 됩니다.");
+      if (ok) found[k] = true;
+      renderFound();
+    }
+    function renderFound() {
+      eqFound.innerHTML = "";
+      DIVISORS.forEach(function (d) {
+        var s = document.createElement("span");
+        var hit = !!found[d];
+        s.textContent = hit ? (d + " 등분 (조각 " + (L / d) + ")") : "?";
+        s.style.cssText = "border-radius:999px;padding:3px 12px;font-size:12px;font-weight:700;border:1px solid "
+          + (hit ? "#6ee7b7;background:#ecfdf5;color:#065f46" : "#e4e4e7;background:#fafafa;color:#a1a1aa");
+        eqFound.appendChild(s);
+      });
+      eqWin.classList.toggle("on", Object.keys(found).length === DIVISORS.length);
+    }
+    eqRange.addEventListener("input", drawEq);
+    drawEq();
+
+    // ② 두 부분으로 나누기 ----------------------------------------------------
+    var rtSvg = document.getElementById("rt-svg");
+    var rtRead = document.getElementById("rt-read");
+    var p = 6;
+
+    function drawRt() {
+      var q = L - p, g = gcd(p, q) || 1, m = p / g, n = q / g;
+      while (rtSvg.firstChild) rtSvg.removeChild(rtSvg.firstChild);
+
+      // 위쪽 : 실제 두 조각
+      rtSvg.appendChild(el("rect", { x: px(0), y: 34, width: px(p) - px(0), height: 30,
+        fill: "#fee2e2", stroke: "#e11d48", "stroke-width": 1.5 }));
+      rtSvg.appendChild(el("rect", { x: px(p), y: 34, width: px(L) - px(p), height: 30,
+        fill: "#d1fae5", stroke: "#059669", "stroke-width": 1.5 }));
+      [[p / 2, p, "#e11d48"], [(p + L) / 2, q, "#059669"]].forEach(function (a) {
+        if (a[1] === 0) return;
+        var t = el("text", { x: px(a[0]), y: 54, "font-size": 13, "font-weight": 800,
+          fill: a[2], "text-anchor": "middle" });
+        t.textContent = a[1]; rtSvg.appendChild(t);
+      });
+
+      // 아래쪽 : (m + n) 등분한 띠 — 같은 점이 m 번째 눈금임을 보인다
+      var k = m + n, w = L / k;
+      for (var i = 0; i < k; i++) {
+        rtSvg.appendChild(el("rect", { x: px(i * w), y: 96, width: px((i + 1) * w) - px(i * w), height: 26,
+          fill: i < m ? "#fecdd3" : "#a7f3d0", stroke: "#94a3b8", "stroke-width": 1 }));
+      }
+      var cap = el("text", { x: (X0 + X1) / 2, y: 142, "font-size": 13, "font-weight": 700,
+        fill: "#52525b", "text-anchor": "middle" });
+      cap.textContent = "전체를 " + k + " 등분하면, 이 점은 " + m + " 번째 눈금 → " + m + " : " + n;
+      rtSvg.appendChild(cap);
+
+      // 눈금과 손잡이
+      for (var v = 0; v <= L; v++) {
+        rtSvg.appendChild(el("line", { x1: px(v), y1: 64, x2: px(v), y2: v % 5 === 0 ? 74 : 69,
+          stroke: "#cbd5e1", "stroke-width": 1 }));
+      }
+      var h = el("circle", { cx: px(p), cy: 49, r: 11, fill: "#2563eb", "fill-opacity": .2,
+        stroke: "#2563eb", "stroke-width": 2.5, class: "handle" });
+      rtSvg.appendChild(h);
+      var pt = el("text", { x: px(p), y: 22, "font-size": 13, "font-weight": 800,
+        fill: "#2563eb", "text-anchor": "middle" });
+      pt.textContent = p; rtSvg.appendChild(pt);
+
+      rtRead.innerHTML = "두 조각 = <b>" + p + " : " + q + "</b>"
+        + (g > 1 ? " &nbsp;→ 가장 간단한 자연수 비로 <b>" + m + " : " + n + "</b>"
+                 : " &nbsp;(이미 가장 간단한 비)")
+        + "<br><span class='hint'>" + p + " = 30 &times; " + m + " / " + k + " — 내분점 공식의 씨앗입니다.</span>";
+    }
+    function moveTo(evt) {
+      var r = rtSvg.getBoundingClientRect();
+      var vx = (evt.clientX - r.left) / r.width * 640;
+      var v = Math.round((vx - X0) / (X1 - X0) * L);
+      p = Math.max(0, Math.min(L, v));
+      drawRt();
+    }
+    var dragging = false;
+    rtSvg.addEventListener("pointerdown", function (e) { dragging = true; rtSvg.setPointerCapture(e.pointerId); moveTo(e); });
+    rtSvg.addEventListener("pointermove", function (e) { if (dragging) moveTo(e); });
+    rtSvg.addEventListener("pointerup", function () { dragging = false; });
+    rtSvg.addEventListener("pointercancel", function () { dragging = false; });
+    drawRt();
+
+    var rv = document.getElementById("rv-r"), an = document.getElementById("an-r");
+    rv.addEventListener("click", function () {
+      an.classList.toggle("on");
+      rv.textContent = an.classList.contains("on") ? "접기" : "직접 확인한 뒤 열기";
+    });
+  })();
+
 
   go(0);
 })();

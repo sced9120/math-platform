@@ -37,6 +37,18 @@
   .q{font-weight:600;margin-top:10px}
   .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:middle;margin-right:4px}
   .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
 
@@ -72,7 +84,9 @@
 
   <section class="screen on">
     <div class="kicker">공통수학2 · 도형의 이동</div>
-    <span class="sheet">📄 학습지 3-02 Q3~Q8 대칭이동</span>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 [생각 틔우기] Q3 점의 대칭이동</span></div>
+<!--TEACH:END-->
     <h1>대칭이동 — 점</h1>
     <p>파란 점 P 를 <b>드래그</b> 하면 네 가지 대칭점이 동시에 나타납니다. 부호와 자리가
        어떻게 바뀌는지 관찰하세요.</p>
@@ -92,6 +106,9 @@
 
   <section class="screen">
     <div class="kicker">정리 · 점</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 3-02 ▶ 움직이지 않는 점이 있었는가</span></div>
+<!--TEACH:END-->
     <h1>점 (x, y) 의 대칭이동</h1>
     <table>
       <tr><th>기준</th><th>이동한 점</th><th>규칙</th></tr>
@@ -105,6 +122,9 @@
 
   <section class="screen">
     <div class="kicker">도형의 대칭이동</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 Q5 도형의 대칭이동</span></div>
+<!--TEACH:END-->
     <h1>도형을 대칭시키기</h1>
     <p>비대칭인 <b>‘ㄱ’ 모양 깃발</b>(회색)을 기준별로 대칭시켜 봅니다(파랑). 버튼을 눌러 기준을 바꿔 보세요.</p>
     <div class="btns" style="margin-bottom:10px">
@@ -124,6 +144,10 @@
 
   <section class="screen">
     <div class="kicker">정리 · 도형</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 3-02 Q4 y = x 에 대한 대칭이동</span></div>
+    <div class="turn"><i>📖</i><span>교과서 48쪽 — (x, y) 가 (y, x) 로 옮겨지는 이유를 함께 증명합니다.</span></div>
+<!--TEACH:END-->
     <h1>도형 f(x, y) = 0 의 대칭이동</h1>
     <table>
       <tr><th>기준</th><th>이동한 도형</th></tr>
@@ -139,6 +163,9 @@
 
   <section class="screen">
     <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span><span class="t-sheet">📄 학습지 3-02 Q8 [도형의 대칭이동 정리]</span></div>
+<!--TEACH:END-->
     <h1>한눈에 정리</h1>
     <table>
       <tr><th>기준</th><th>점 (x,y)</th><th>도형 f(x,y)=0</th></tr>
@@ -156,6 +183,9 @@
   <!-- EXT:START -->
   <section class="screen">
     <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
        정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>

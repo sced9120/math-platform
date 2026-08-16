@@ -1,0 +1,1140 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공통수학2 Ⅰ단원 수업 진행표</title>
+<style>
+  /* 교탁 위에 올려 두고 곁눈으로 보는 런시트.
+     화면 성격을 나타내는 색은 활동 화면의 칩 색과 같게 맞췄다 — 종이와 화면이 같은 말을 하도록. */
+  :root{
+    --paper:#FCFCFE; --ink:#16181D; --dim:#5C6472; --rule:#DFE2E9;
+    --surface:#F4F5F8; --surface-2:#EDEFF4;
+    --book:#0E7A5A; --book-bg:#ECF7F2; --book-line:#9AD3BE;
+    --sheet:#8F5A10; --ask:#3B3FA8; --show:#5A6472;
+    --sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic","Segoe UI",sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,"Cascadia Mono",monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --paper:#101216; --ink:#E6E9EF; --dim:#98A1B2; --rule:#282D37;
+      --surface:#171A20; --surface-2:#1D2128;
+      --book:#5FD3AC; --book-bg:#12231D; --book-line:#2C5F4E;
+      --sheet:#E0A857; --ask:#9AA0F5; --show:#9AA4B4;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#101216; --ink:#E6E9EF; --dim:#98A1B2; --rule:#282D37;
+    --surface:#171A20; --surface-2:#1D2128;
+    --book:#5FD3AC; --book-bg:#12231D; --book-line:#2C5F4E;
+    --sheet:#E0A857; --ask:#9AA0F5; --show:#9AA4B4;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:56rem;margin:0 auto;padding:2.5rem 1.5rem 4rem;
+    display:flex;flex-direction:column;gap:2.25rem}
+  a{color:inherit}
+
+  /* 표제 */
+  .head{display:flex;flex-direction:column;gap:.7rem}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;color:var(--dim);
+    text-transform:uppercase}
+  h1{margin:0;font-size:1.95rem;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+  .lede{margin:0;color:var(--dim);font-size:.95rem;max-width:46rem}
+  .stats{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;font-family:var(--mono);
+    font-size:.78rem;color:var(--dim);font-variant-numeric:tabular-nums;
+    border-top:1px solid var(--rule);padding-top:.7rem;margin-top:.2rem}
+  .stats b{color:var(--ink);font-weight:700}
+
+  /* 범례 */
+  .legend{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center}
+  .tag{display:inline-block;font-family:var(--mono);font-size:.68rem;font-weight:700;
+    letter-spacing:.06em;padding:.1rem .5rem;border-radius:.25rem;border:1px solid currentColor;
+    margin-left:.5rem;vertical-align:.08em;white-space:nowrap}
+  .legend .tag{margin-left:0}
+  .tag--show{color:var(--show)} .tag--ask{color:var(--ask)} .tag--write{color:var(--sheet)}
+  .tag--book{color:var(--book)}
+  .legend .k{font-size:.8rem;color:var(--dim)}
+
+  /* 중단원 */
+  .unit{display:flex;flex-direction:column;gap:1.1rem}
+  .unit>h2{position:sticky;top:0;z-index:2;margin:0;padding:.75rem 0 .6rem;
+    background:var(--paper);border-bottom:2px solid var(--ink);
+    font-size:1.15rem;font-weight:800;letter-spacing:-.01em;
+    display:flex;align-items:baseline;justify-content:space-between;gap:1rem}
+  .cnt{font-family:var(--mono);font-size:.72rem;font-weight:600;color:var(--dim);letter-spacing:.06em}
+
+  /* 활동 */
+  .act{display:flex;flex-direction:column;gap:.55rem;break-inside:avoid}
+  .act-h{display:grid;grid-template-columns:auto 1fr;gap:.15rem .7rem;align-items:baseline}
+  .act-n{font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--dim);
+    letter-spacing:.08em;font-variant-numeric:tabular-nums}
+  .act-h h3{margin:0;font-size:1.08rem;font-weight:700;letter-spacing:-.01em}
+  .act-h h3 a{text-decoration:none;border-bottom:1.5px solid var(--rule);padding-bottom:.05em}
+  .act-h h3 a:hover,.act-h h3 a:focus-visible{border-bottom-color:currentColor}
+  .act-m{grid-column:2;margin:0;display:flex;flex-wrap:wrap;gap:.4rem;
+    font-size:.76rem;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+  .pg{color:var(--book);border:1px solid var(--book-line);border-radius:.25rem;padding:.05rem .45rem}
+  .ws{color:var(--sheet);opacity:.95}
+
+  /* 큐 목록 — 왼쪽 모노 레일 */
+  .cues{list-style:none;margin:0;padding:0 0 0 .1rem;display:flex;flex-direction:column}
+  .cue{display:grid;grid-template-columns:3.1rem 1fr;align-items:start;
+    padding:.42rem 0;border-left:1px solid var(--rule);position:relative}
+  .cue .n{font-family:var(--mono);font-size:.72rem;color:var(--dim);
+    font-variant-numeric:tabular-nums;padding-left:.75rem;padding-top:.1rem}
+  .cue .b{min-width:0}
+  .cue .t{margin:0;font-size:.94rem;font-weight:600;text-wrap:pretty}
+  .cue .sh{margin:.1rem 0 0;font-size:.8rem;color:var(--sheet);
+    font-variant-numeric:tabular-nums}
+
+  /* 종이로 넘어가는 순간 — 레일을 끊고 폭 전체를 먹는다 */
+  .cue--book{border-left:3px solid var(--book);background:var(--book-bg);
+    border-radius:0 .4rem .4rem 0;margin:.3rem 0;padding:.6rem 0 .65rem}
+  .cue--book .n{color:var(--book);font-weight:700;padding-left:.6rem}
+  .cue--book .t{padding-right:.9rem}
+  .cue--book .turn{margin:.2rem .9rem 0 0;font-size:.88rem;font-weight:700;color:var(--book);
+    text-wrap:pretty}
+  .cue--book .turn::before{content:"📖 ";font-weight:400}
+
+  footer{border-top:1px solid var(--rule);padding-top:1rem;font-size:.8rem;color:var(--dim)}
+
+  @media (max-width:34rem){
+    .cue{grid-template-columns:2.5rem 1fr}
+    .act-h{grid-template-columns:1fr}
+    .act-m,.act-h h3{grid-column:1}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  @media print{
+    :root{--paper:#fff;--ink:#000;--dim:#444;--rule:#bbb;--book-bg:#eef7f3}
+    body{font-size:10.5pt}
+    .wrap{max-width:none;padding:0;gap:1.4rem}
+    .unit>h2{position:static}
+    .act{page-break-inside:avoid}
+    .act-h h3 a{border:0}
+  }
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <p class="eyebrow">공통수학2 · 2022 개정 · 전인태</p>
+    <h1>Ⅰ. 도형의 방정식 &mdash; 수업 진행표</h1>
+    <p class="lede">활동 화면과 교과서만으로 수업을 진행하기 위한 표입니다.
+      화면 번호는 활동 안의 <b>스텝 점 번호</b>와 같습니다. 초록으로 끊긴 줄이
+      <b>교과서를 펴는 지점</b>이고, 무엇을 볼지까지 적혀 있습니다.
+      활동 제목을 누르면 그 활동이 열립니다.</p>
+    <p class="legend">
+      <span class="k">화면 성격</span>
+      <span class="tag tag--show">조작</span>
+      <span class="tag tag--ask">발문</span>
+      <span class="tag tag--write">학습지</span>
+      <span class="tag tag--book">교과서</span>
+    </p>
+    <p class="stats">
+      <span>활동 <b>18</b></span>
+      <span>화면 <b>115</b></span>
+      <span>교과서 전환 <b>18</b>회</span>
+      <span>학습지 <b>1 · 2 · 3</b></span>
+    </p>
+  </header>
+
+    <section class="unit">
+      <h2>Ⅰ-1. 평면좌표와 직선의 방정식<span class="cnt">활동 7</span></h2>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 1</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-00b-bulguksa-coordinate.html">불국사에서 좌표까지</a></h3>
+          <p class="act-m"><span class="pg">교과서 13쪽</span><span class="ws">학습지 1-01 [생각 틔우기]</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">1.1</span>
+          <div class="b">
+            <p class="t">🏯 석가탑과 다보탑, 얼마나 떨어져 있을까?<span class="tag tag--ask">발문</span></p>
+            <p class="sh">학습지 1-01 [생각 틔우기] Q1</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.2</span>
+          <div class="b">
+            <p class="t">수직선을 놓아 보자<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-01 [생각 틔우기] Q2</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">1.3</span>
+          <div class="b">
+            <p class="t">대웅전까지 재려면 한 줄로는 안 된다</p>
+            <p class="turn">교과서 13쪽 — 불국사 배치도 그림을 함께 보며 대웅전까지의 거리를 재어 봅니다.</p>
+            <p class="sh">학습지 1-01 [생각 틔우기] Q3·Q4</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.4</span>
+          <div class="b">
+            <p class="t">🧭 석가탑까지가 다보탑까지의 2배인 지점<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-01 [생각 틔우기] Q5</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.5</span>
+          <div class="b">
+            <p class="t">좌표를 놓으면 도형이 계산이 된다<span class="tag tag--write">학습지</span></p>
+            <p class="sh">학습지 1-01 [학습 목표 유추하기]</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.6</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 2</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-00-distance-two-points.html">두 점 사이의 거리</a></h3>
+          <p class="act-m"><span class="pg">교과서 14쪽</span><span class="ws">학습지 1-01 [일반화하기]·[연습하기]</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">2.1</span>
+          <div class="b">
+            <p class="t">두 점 사이의 거리<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-01 [일반화하기] Q1</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.2</span>
+          <div class="b">
+            <p class="t">좌표평면 위 두 점 사이의 거리<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-01 [일반화하기] Q2</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.3</span>
+          <div class="b">
+            <p class="t">거리로 삼각형의 모양 알아내기<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-01 (스스로 정리하기) 삼각형의 종류</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.4</span>
+          <div class="b">
+            <p class="t">두 점에서 같은 거리에 있는 점<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">2.5</span>
+          <div class="b">
+            <p class="t">정리</p>
+            <p class="turn">교과서 14쪽 — [예제 1] 을 함께 풀고 [스스로 익히기] 로 넘어갑니다.</p>
+            <p class="sh">학습지 1-01 [연습하기] Q1·Q2</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.6</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 3</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-00c-median-theorem.html">파푸스의 중선 정리</a></h3>
+          <p class="act-m"><span class="pg">교과서 14쪽</span><span class="ws">학습지 1-01 [증명하기] 중선 정리</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">3.1</span>
+          <div class="b">
+            <p class="t">📐 정말 항상 같을까?<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.2</span>
+          <div class="b">
+            <p class="t">좌표를 어디에 놓느냐가 전부다<span class="tag tag--ask">발문</span></p>
+            <p class="sh">학습지 1-01 [증명하기] 좌표를 어디에 놓을까</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">3.3</span>
+          <div class="b">
+            <p class="t">세 줄이면 끝난다</p>
+            <p class="turn">교과서 14쪽 — 중선 정리 증명의 빈칸을 학생들과 함께 채웁니다.</p>
+            <p class="sh">학습지 1-01 [증명하기]</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.4</span>
+          <div class="b">
+            <p class="t">이 문제의 진짜 주인공<span class="tag tag--ask">발문</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.5</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 4</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-01-segment-division.html">선분의 내분</a></h3>
+          <p class="act-m"><span class="pg">교과서 16~17쪽</span><span class="ws">학습지 1-01 [탐구] 내분과 등분</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">4.1</span>
+          <div class="b">
+            <p class="t">⚖️ 받침점은 어디에 두어야 할까?<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-01 [탐구] 내분과 등분 · 받침점 찾기</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.2</span>
+          <div class="b">
+            <p class="t">✂️ 길이 30 을 나누어 보자<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-01 [탐구] Q1~Q3 등분과 내분의 표기</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.3</span>
+          <div class="b">
+            <p class="t">수직선 위에서 내분<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-01 [탐구] 수직선 위에서 내분 Q1~Q3</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.4</span>
+          <div class="b">
+            <p class="t">좌표평면 위에서 내분<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-01 [탐구] 좌표평면 위에서 내분 Q1~Q3</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.5</span>
+          <div class="b">
+            <p class="t">내분점 공식<span class="tag tag--write">학습지</span></p>
+            <p class="sh">학습지 1-01 [일반화] Q4·Q5 내분점 공식</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">4.6</span>
+          <div class="b">
+            <p class="t">삼각형의 무게중심</p>
+            <p class="turn">교과서 16쪽 — 삼각형의 무게중심 [예제] 를 함께 풀고, 17쪽 [스스로 익히기] 로 마무리합니다.</p>
+            <p class="sh">학습지 1-01 [예제] 삼각형의 무게중심</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.7</span>
+          <div class="b">
+            <p class="t">선분의 연장선 위: 외분 교육과정 외 · 심화<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.8</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 5</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-02b-line-equation.html">직선의 방정식</a></h3>
+          <p class="act-m"><span class="pg">교과서 18~19쪽</span><span class="ws">학습지 1-02 [생각 틔우기]·Q5</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">5.1</span>
+          <div class="b">
+            <p class="t">직선 하나를 정하려면?<span class="tag tag--ask">발문</span></p>
+            <p class="sh">학습지 1-02 [생각 틔우기] Q2·Q3</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">5.2</span>
+          <div class="b">
+            <p class="t">한 점과 기울기로 세우는 식</p>
+            <p class="turn">교과서 18쪽 — 한 점과 기울기로 직선의 방정식을 세우는 부분을 함께 봅니다.</p>
+            <p class="sh">학습지 1-02 [생각 틔우기] Q5 (1)</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">5.3</span>
+          <div class="b">
+            <p class="t">두 점을 지나는 직선<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-02 [생각 틔우기] Q5 (2)</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">5.4</span>
+          <div class="b">
+            <p class="t">축에 평행한 직선과 일반형<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-02 [생각 틔우기] Q5 (3) 두 점 (2,1)·(2,5)</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">5.5</span>
+          <div class="b">
+            <p class="t">정리</p>
+            <p class="turn">교과서 19쪽 — [스스로 익히기] 문제를 해결합니다.</p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">5.6</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 6</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-02-parallel-perpendicular.html">두 직선의 평행과 수직</a></h3>
+          <p class="act-m"><span class="pg">교과서 20~23쪽</span><span class="ws">학습지 1-02 [평행·수직 조건]</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">6.1</span>
+          <div class="b">
+            <p class="t">두 직선의 평행과 수직<span class="tag tag--ask">발문</span></p>
+            <p class="sh">학습지 1-02 [중학교 개념 확장하기] Q1 평행선 공준</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">6.2</span>
+          <div class="b">
+            <p class="t">직선은 무엇으로 정해질까?<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">6.3</span>
+          <div class="b">
+            <p class="t">직선의 방정식 정리<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">6.4</span>
+          <div class="b">
+            <p class="t">평행: 기울기가 같다</p>
+            <p class="turn">교과서 20쪽 — 두 직선의 평행·일치 조건을 정리하고, 21쪽 [스스로 익히기] 를 풉니다.</p>
+            <p class="sh">학습지 1-02 평행 조건 Q2·Q3</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">6.5</span>
+          <div class="b">
+            <p class="t">수직: 기울기의 곱이 −1</p>
+            <p class="turn">교과서 22쪽 — 수직 조건과 [예제 1] 을 함께 다루고, 23쪽 [스스로 익히기] 를 풉니다.</p>
+            <p class="sh">학습지 1-02 [수직의 조건]</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">6.6</span>
+          <div class="b">
+            <p class="t">두 직선의 위치 관계<span class="tag tag--write">학습지</span></p>
+            <p class="sh">학습지 1-02 [스피드 연습문제]</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">6.7</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 7</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-03-point-line-distance.html">점과 직선 사이의 거리</a></h3>
+          <p class="act-m"><span class="pg">교과서 24쪽</span><span class="ws">학습지 1-02 [점과 직선 사이의 거리]</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">7.1</span>
+          <div class="b">
+            <p class="t">점과 직선 사이의 거리<span class="tag tag--ask">발문</span></p>
+            <p class="sh">학습지 1-02 [점과 직선 사이의 거리] Q2·Q3</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">7.2</span>
+          <div class="b">
+            <p class="t">점에서 직선까지 = 수선의 길이<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">7.3</span>
+          <div class="b">
+            <p class="t">축에 평행한 직선까지의 거리<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 1-02 [점과 직선 사이의 거리] Q4</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">7.4</span>
+          <div class="b">
+            <p class="t">점과 직선 사이 거리 공식</p>
+            <p class="turn">교과서 24쪽 — 점과 직선 사이의 거리 공식의 증명을 함께 따라갑니다.</p>
+            <p class="sh">학습지 1-02 Q5 [증명해보기]</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">7.5</span>
+          <div class="b">
+            <p class="t">정리 &amp;amp; 증명의 큰 흐름<span class="tag tag--write">학습지</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">7.6</span>
+          <div class="b">
+            <p class="t">데카르트, 그리고 필즈 메달<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">7.7</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+    </section>
+
+    <section class="unit">
+      <h2>Ⅰ-2. 원의 방정식<span class="cnt">활동 5</span></h2>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 1</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-04-circle-equation.html">원의 방정식</a></h3>
+          <p class="act-m"><span class="pg">교과서 30~33쪽</span><span class="ws">학습지 2-01 Q3·Q4 원의 방정식</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">1.1</span>
+          <div class="b">
+            <p class="t">원의 방정식<span class="tag tag--ask">발문</span></p>
+            <p class="sh">학습지 2-01 [생각 틔우기] Q2·Q3 원의 정의</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.2</span>
+          <div class="b">
+            <p class="t">표준형과 예시<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 2-01 Q4 [스스로 정리하기]</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.3</span>
+          <div class="b">
+            <p class="t">두 점을 지름의 양 끝으로<span class="tag tag--write">학습지</span></p>
+            <p class="sh">학습지 2-01 Q5 [예제 1] 지름의 양 끝점</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.4</span>
+          <div class="b">
+            <p class="t">일반형을 완전제곱으로<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 2-01 Q6 일반형과 C 의 값</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">1.5</span>
+          <div class="b">
+            <p class="t">정리</p>
+            <p class="turn">교과서 33쪽 — [스스로 익히기] 문제를 해결합니다.</p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.6</span>
+          <div class="b">
+            <p class="t">아폴로니오스의 원<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.7</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 2</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-04b-circle-three-points.html">세 점을 지나는 원</a></h3>
+          <p class="act-m"><span class="pg">교과서 32~33쪽</span><span class="ws">학습지 2-01 [생각 틔우기]·[실생활] 용접 로봇</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">2.1</span>
+          <div class="b">
+            <p class="t">🧭 컴퍼스가 하는 일<span class="tag tag--ask">발문</span></p>
+            <p class="sh">학습지 2-01 [생각 틔우기] Q1 작도</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.2</span>
+          <div class="b">
+            <p class="t">두 원의 교점이 꼭짓점이 된다<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 2-01 [생각 틔우기] Q1 작도 과정</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.3</span>
+          <div class="b">
+            <p class="t">점 몇 개면 원이 하나로 정해질까?<span class="tag tag--ask">발문</span></p>
+            <p class="sh">학습지 2-01 +Q3 원을 결정지으려면?</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.4</span>
+          <div class="b">
+            <p class="t">🤖 로봇의 원형 궤적을 찾아라<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 2-01 +Q4 [실생활] 용접 로봇</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.5</span>
+          <div class="b">
+            <p class="t">세 점을 지나는 원, 식으로 구하기<span class="tag tag--write">학습지</span></p>
+            <p class="sh">학습지 2-01 Q2 [예제 3] 세 점을 지나는 원</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.6</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 3</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-05c-circle-line-lab.html">a 를 움직여라 — 원과 직선 실험실</a></h3>
+          <p class="act-m"><span class="pg">교과서 34~36쪽</span><span class="ws">학습지 2-02 [생각 틔우기] Q2</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">3.1</span>
+          <div class="b">
+            <p class="t">🎚 a 를 움직여라<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 2-02 [생각 틔우기] Q2 (1)~(4)</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.2</span>
+          <div class="b">
+            <p class="t">거리로 볼까, 판별식으로 볼까<span class="tag tag--ask">발문</span></p>
+            <p class="sh">학습지 2-02 [생각 틔우기] Q2 (7)</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.3</span>
+          <div class="b">
+            <p class="t">a 의 범위를 말해 보자<span class="tag tag--write">학습지</span></p>
+            <p class="sh">학습지 2-02 [생각 틔우기] Q2 (4)(5)(6)</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.4</span>
+          <div class="b">
+            <p class="t">중심이 원점이 아니라면?<span class="tag tag--write">학습지</span></p>
+            <p class="sh">학습지 2-02 Q3 [예제 1] 거리로 판단</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.5</span>
+          <div class="b">
+            <p class="t">서로 다른 두 점에서 만날 k 의 범위<span class="tag tag--write">학습지</span></p>
+            <p class="sh">학습지 2-02 Q4 [예제 2] 판별식으로 범위</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">3.6</span>
+          <div class="b">
+            <p class="t">한눈에 정리</p>
+            <p class="turn">교과서 36쪽 — [스스로 익히기] 문제를 해결합니다.</p>
+            <p class="sh">학습지 2-02 Q5 [스스로 정리하기]</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.7</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 4</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-05-circle-line.html">원과 직선의 위치 관계</a></h3>
+          <p class="act-m"><span class="pg">교과서 34~36쪽</span><span class="ws">학습지 2-02 Q5 [스스로 정리하기]</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">4.1</span>
+          <div class="b">
+            <p class="t">원과 직선의 위치 관계<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 2-02 Q5 [스스로 정리하기]</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.2</span>
+          <div class="b">
+            <p class="t">거리 d 와 반지름 r 을 비교<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.3</span>
+          <div class="b">
+            <p class="t">거리로 볼까, 판별식으로 볼까<span class="tag tag--ask">발문</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.4</span>
+          <div class="b">
+            <p class="t">스스로 확인<span class="tag tag--write">학습지</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.5</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 5</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-05b-circle-tangent.html">원의 접선의 방정식</a></h3>
+          <p class="act-m"><span class="pg">교과서 37~40쪽</span><span class="ws">학습지 2-02 [접선의 방정식]</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">5.1</span>
+          <div class="b">
+            <p class="t">접선이란?<span class="tag tag--ask">발문</span></p>
+            <p class="sh">학습지 2-02 [접선의 방정식] Q1~Q3 접선의 개수</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">5.2</span>
+          <div class="b">
+            <p class="t">기울기 m 인 접선</p>
+            <p class="turn">교과서 37쪽 — 접선의 방정식을 세우는 두 가지 길을 함께 봅니다.</p>
+            <p class="sh">학습지 2-02 [접선의 방정식] (1) 기울기가 주어진 경우</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">5.3</span>
+          <div class="b">
+            <p class="t">원 위의 점에서의 접선<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 2-02 [접선의 방정식] (2) 원 위의 한 점</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">5.4</span>
+          <div class="b">
+            <p class="t">원 밖의 점에서 그은 접선<span class="tag tag--write">학습지</span></p>
+            <p class="sh">학습지 2-02 Q4 [예제 1] 원 밖의 점 (5, 0)</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">5.5</span>
+          <div class="b">
+            <p class="t">🕳 접선이 하나 사라졌다</p>
+            <p class="turn">교과서 40쪽 — [개념 탐구] 의 물음에 답하며 왜 접선을 놓쳤는지 확인합니다.</p>
+            <p class="sh">학습지 2-02 [개념 탐구] 놓친 접선</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">5.6</span>
+          <div class="b">
+            <p class="t">세 가지 접선 공식 정리</p>
+            <p class="turn">교과서 39쪽 — [스스로 익히기] 문제를 해결합니다.</p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">5.7</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+    </section>
+
+    <section class="unit">
+      <h2>Ⅰ-3. 도형의 이동<span class="cnt">활동 6</span></h2>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 1</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-06-translation.html">평행이동</a></h3>
+          <p class="act-m"><span class="pg">교과서 46~47쪽</span><span class="ws">학습지 3-01 Q1~Q5 평행이동</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">1.1</span>
+          <div class="b">
+            <p class="t">평행이동 — 점<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-01 [생각 틔우기] Q1 점의 평행이동</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.2</span>
+          <div class="b">
+            <p class="t">포물선을 옮기면?<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-01 Q3 포물선의 평행이동</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.3</span>
+          <div class="b">
+            <p class="t">원과 직선도 마찬가지<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-01 Q2 원의 평행이동</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">1.4</span>
+          <div class="b">
+            <p class="t">점은 +a, 도형은 −a — 왜 반대일까?</p>
+            <p class="turn">교과서 46쪽 — f(x, y) = 0 의 평행이동이 왜 f(x−a, y−b) = 0 이 되는지 논리 전개를 함께 봅니다.</p>
+            <p class="sh">학습지 3-01 Q4 도형의 평행이동</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">1.5</span>
+          <div class="b">
+            <p class="t">정리</p>
+            <p class="turn">교과서 47쪽 — [스스로 익히기] 문제를 해결합니다.</p>
+            <p class="sh">학습지 3-01 Q5 [예제 1]</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">1.6</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 2</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-06b-star-translation.html">⭐ 별 먹기 — 평행이동</a></h3>
+          <p class="act-m"><span class="pg">교과서 46~47쪽</span><span class="ws">학습지 3-01 Q1~Q4 · 데스모스 ‘동전 먹기’</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">2.1</span>
+          <div class="b">
+            <p class="t">⭐ 별 먹기 — 워밍업<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.2</span>
+          <div class="b">
+            <p class="t">직선으로 별 4개 모으기<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-01 Q4 도형의 평행이동</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.3</span>
+          <div class="b">
+            <p class="t">포물선으로 별 5개 모으기<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-01 Q3 포물선의 평행이동</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.4</span>
+          <div class="b">
+            <p class="t">원으로 별 4개 모으기<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-01 Q2 원의 평행이동</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.5</span>
+          <div class="b">
+            <p class="t">게임에서 배운 것<span class="tag tag--write">학습지</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">2.6</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 3</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-07-reflection.html">대칭이동</a></h3>
+          <p class="act-m"><span class="pg">교과서 48~51쪽</span><span class="ws">학습지 3-02 Q3~Q8 대칭이동</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">3.1</span>
+          <div class="b">
+            <p class="t">대칭이동 — 점<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-02 [생각 틔우기] Q3 점의 대칭이동</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.2</span>
+          <div class="b">
+            <p class="t">점 (x, y) 의 대칭이동<span class="tag tag--ask">발문</span></p>
+            <p class="sh">학습지 3-02 ▶ 움직이지 않는 점이 있었는가</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.3</span>
+          <div class="b">
+            <p class="t">도형을 대칭시키기<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-02 Q5 도형의 대칭이동</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">3.4</span>
+          <div class="b">
+            <p class="t">도형 f(x, y) = 0 의 대칭이동</p>
+            <p class="turn">교과서 48쪽 — (x, y) 가 (y, x) 로 옮겨지는 이유를 함께 증명합니다.</p>
+            <p class="sh">학습지 3-02 Q4 y = x 에 대한 대칭이동</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.5</span>
+          <div class="b">
+            <p class="t">한눈에 정리<span class="tag tag--write">학습지</span></p>
+            <p class="sh">학습지 3-02 Q8 [도형의 대칭이동 정리]</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">3.6</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 4</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-07b-star-reflection.html">⭐ 별 먹기 — 대칭이동</a></h3>
+          <p class="act-m"><span class="pg">교과서 48~51쪽</span><span class="ws">학습지 3-02 Q3·Q5~Q7 · [생각 키우기]</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">4.1</span>
+          <div class="b">
+            <p class="t">⭐ 별 먹기 — 점의 네 가지 대칭<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-02 [생각 틔우기] Q3</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.2</span>
+          <div class="b">
+            <p class="t">삼각형을 별 위로 — 최소 몇 번?<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-02 Q5 도형의 대칭이동</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.3</span>
+          <div class="b">
+            <p class="t">두 대칭을 이으면 무엇이 될까?<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-02 핵심질문 · 여러 번 겹치면?</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.4</span>
+          <div class="b">
+            <p class="t">원 (x−3)² + (y−2)² = 4 를 대칭시키기<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-02 Q6 원의 대칭이동</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.5</span>
+          <div class="b">
+            <p class="t">포물선 y = x² + 1 은 어떻게 될까?<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-02 Q7 포물선의 대칭이동</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.6</span>
+          <div class="b">
+            <p class="t">🔁 순서를 바꾸면 결과도 바뀔까?<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-02 [생각 키우기] 순서를 바꾸면?</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.7</span>
+          <div class="b">
+            <p class="t">한눈에 정리<span class="tag tag--write">학습지</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">4.8</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 5</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-07d-shortest-path.html">최단 경로 — 대칭이동의 쓸모</a></h3>
+          <p class="act-m"><span class="pg">교과서 51쪽</span><span class="ws">학습지 3-02 성취기준(상) · 최단 거리</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">5.1</span>
+          <div class="b">
+            <p class="t">🚶 강가에 물 뜨러 가기<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-02 Q10 [생각 키우기] (1)</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">5.2</span>
+          <div class="b">
+            <p class="t">B 를 강 건너로 뒤집으면?<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-02 Q10 (2)(3)</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">5.3</span>
+          <div class="b">
+            <p class="t">입사각 = 반사각<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">5.4</span>
+          <div class="b">
+            <p class="t">🎱 당구 — 한 쿠션 치기<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-02 Q10 (5) 강 건너편이라면?</p>
+          </div>
+        </li>
+        <li class="cue cue--book">
+          <span class="n">5.5</span>
+          <div class="b">
+            <p class="t">대칭이동으로 최단 거리 풀기</p>
+            <p class="turn">교과서 51쪽 — [스스로 익히기] 문제를 해결합니다.</p>
+            <p class="sh">학습지 3-02 Q10 (4) 최단 거리</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">5.6</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+      <article class="act">
+        <header class="act-h">
+          <span class="act-n">활동 6</span>
+          <h3><a href="https://sced9120.github.io/math-platform/activities/gongtong2-07c-tessellation.html">🧩 테셀레이션 공방</a></h3>
+          <p class="act-m"><span class="pg">교과서 47쪽</span><span class="ws">성취기준 ⑥⑦ 실생활 연결 · 데스모스 ‘테셀레이션’</span></p>
+        </header>
+        <ol class="cues">
+        <li class="cue">
+          <span class="n">6.1</span>
+          <div class="b">
+            <p class="t">🧩 테셀레이션 공방 — 평면을 빈틈없이<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-01 [실생활] (1) 빈틈없이 덮으려면</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">6.2</span>
+          <div class="b">
+            <p class="t">거울을 놓아 보자 — 반사<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-01 [실생활] (3) 대칭까지 쓴 무늬</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">6.3</span>
+          <div class="b">
+            <p class="t">90°씩 돌려 보자 — 회전<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">6.4</span>
+          <div class="b">
+            <p class="t">🎨 나만의 테셀레이션<span class="tag tag--show">조작</span></p>
+            <p class="sh">학습지 3-01 [실생활] (2)(4)</p>
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">6.5</span>
+          <div class="b">
+            <p class="t">테셀레이션 속의 수학<span class="tag tag--write">학습지</span></p>
+            
+          </div>
+        </li>
+        <li class="cue">
+          <span class="n">6.6</span>
+          <div class="b">
+            <p class="t">🔭 더 넓게, 더 깊게<span class="tag tag--show">조작</span></p>
+            
+          </div>
+        </li>
+        </ol>
+      </article>
+    </section>
+
+  <footer>학습지 1(도형의 방정식) · 2(원의 방정식) · 3(도형의 이동) 과 1:1 로 대응합니다.
+    활동을 고친 뒤에는 <code>node scripts/build-lesson-runsheet.mjs</code> 로 이 표를 다시 만드세요.</footer>
+</div>

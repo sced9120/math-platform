@@ -54,17 +54,8 @@ export default function ScreenResponse({
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // 화면이 바뀌면 그 화면에 저장돼 있던 내용으로 갈아 끼운다.
-  // screenKey 가 바뀔 때만 초기화한다(입력 중 saved 갱신으로 지워지지 않도록).
-  const savedRef = useRef(saved);
-  savedRef.current = saved;
-  useEffect(() => {
-    setText(savedRef.current?.text ?? "");
-    setImages(savedRef.current?.images ?? []);
-    setPending([]);
-    setSavedAt(null);
-    setError(null);
-  }, [screenKey]);
+  // 화면이 바뀌면 부모가 key={screenKey} 로 이 폼을 새로 만든다.
+  // 그래서 여기서 화면 전환을 따로 처리하지 않아도 입력값이 저절로 갈아 끼워진다.
 
   // 이미 올린 사진 미리보기 (비공개 버킷이라 서명 URL 이 필요하다)
   useEffect(() => {

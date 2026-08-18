@@ -262,6 +262,8 @@ export default function ActivityRunner({
       {/* 화면별 기록칸 — 지금 보고 있는 화면에 질문이 달려 있을 때만 뜬다 */}
       {tab === "run" && screenDriven && screen!.prompt && (
         <ScreenResponse
+          // 화면이 바뀌면 폼을 새로 만들어 그 화면의 답으로 갈아 끼운다
+          key={screen!.key}
           activityId={activity.id}
           screenKey={screen!.key}
           prompt={screen!.prompt}

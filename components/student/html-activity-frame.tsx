@@ -120,10 +120,6 @@ export default function HtmlActivityFrame({
   const ref = useRef<HTMLIFrameElement>(null);
   // 스크립트가 높이를 알려 주기 전까지 쓰는 임시 높이
   const [height, setHeight] = useState<number>(initialHeight ?? 600);
-  // onScreen 이 매 렌더 새 함수여도 리스너를 다시 달지 않도록 ref 로 들고 있는다
-  const onScreenRef = useRef(onScreen);
-  onScreenRef.current = onScreen;
-
   useEffect(() => {
     function onMessage(event: MessageEvent) {
       const frame = ref.current;
@@ -140,7 +136,7 @@ export default function HtmlActivityFrame({
 
       const screen = data.__activityScreen as ScreenInfo | undefined;
       if (screen && typeof screen === "object" && typeof screen.key === "string") {
-        onScreenRef.current?.({
+        onScreen?.({
           index: Number(screen.index) || 0,
           total: Number(screen.total) || 0,
           key: String(screen.key).slice(0, 40),
@@ -153,7 +149,8 @@ export default function HtmlActivityFrame({
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, []);
+    // onScreen 은 부모에서 안정된 함수(setState)를 넘긴다 — 매번 다시 달리지 않는다
+  }, [onScreen]);
 
   return (
     <iframe

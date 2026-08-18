@@ -26,6 +26,10 @@ create index if not exists screen_responses_activity_idx
 
 alter table public.screen_responses enable row level security;
 
+-- 두 번 실행해도 되도록 같은 이름이 있으면 먼저 지운다
+drop policy if exists "screen_responses_student_select_own" on public.screen_responses;
+drop policy if exists "screen_responses_teacher_all" on public.screen_responses;
+
 -- 학생은 자기 기록만, 교사는 전부(progress 와 같은 원칙).
 -- 쓰기는 아래 RPC 로만 하지만, 잘못 열리지 않도록 정책도 좁게 둔다.
 create policy "screen_responses_student_select_own"
@@ -37,6 +41,7 @@ create policy "screen_responses_teacher_all"
   using (public.is_teacher())
   with check (public.is_teacher());
 
+drop trigger if exists screen_responses_set_updated_at on public.screen_responses;
 create trigger screen_responses_set_updated_at
 before update on public.screen_responses
 for each row execute function public.set_updated_at();
@@ -122,6 +127,10 @@ grant execute on function public.save_screen_response(uuid, text, text, text, te
 insert into storage.buckets (id, name, public)
 values ('student-uploads', 'student-uploads', false)
 on conflict (id) do nothing;
+
+drop policy if exists "student_uploads_insert_own" on storage.objects;
+drop policy if exists "student_uploads_select_own_or_teacher" on storage.objects;
+drop policy if exists "student_uploads_delete_own_or_teacher" on storage.objects;
 
 create policy "student_uploads_insert_own" on storage.objects
   for insert to authenticated

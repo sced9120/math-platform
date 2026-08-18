@@ -13,6 +13,12 @@ type ProgressRow = {
   response_text: string | null;
 };
 
+type ScreenResponseRow = {
+  screen_key: string;
+  text: string | null;
+  images: string[] | null;
+};
+
 // 활동 실행 화면. 활동 데이터는 정답이 제거된 RPC(student_activities)로만 가져온다.
 export default async function StudentActivityPage({
   params,
@@ -35,14 +41,24 @@ export default async function StudentActivityPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: unit }, { data: progress }, { data: me }, allModels, limits] =
-    await Promise.all([
+  const [
+    { data: unit },
+    { data: progress },
+    { data: screenRows },
+    { data: me },
+    allModels,
+    limits,
+  ] = await Promise.all([
       supabase.from("units").select("id, title").eq("id", activity.unit_id).single(),
       supabase
         .from("progress")
         .select("completed, score, submission, response_text")
         .eq("activity_id", id)
         .maybeSingle<ProgressRow>(),
+      supabase
+        .from("screen_responses")
+        .select("screen_key, text, images")
+        .eq("activity_id", id),
       supabase
         .from("profiles")
         .select("ai_consent_at")
@@ -51,6 +67,15 @@ export default async function StudentActivityPage({
       getEnabledModels(),
       getAiLimits(),
     ]);
+
+  // 화면키 → 저장해 둔 기록 (기록칸이 열릴 때 그대로 채워진다)
+  const initialResponses: Record<string, { text: string; images: string[] }> =
+    Object.fromEntries(
+      ((screenRows as ScreenResponseRow[] | null) ?? []).map((r) => [
+        r.screen_key,
+        { text: r.text ?? "", images: r.images ?? [] },
+      ])
+    );
 
   // 학생 선택지로 쓸 최소 정보만 (provider는 서버가 검증하므로 노출 불필요)
   const models = allModels.map((m) => ({ model_id: m.model_id, label: m.label }));
@@ -70,6 +95,7 @@ export default async function StudentActivityPage({
       <ActivityRunner
         activity={activity}
         initialProgress={progress ?? null}
+        initialResponses={initialResponses}
         aiConsented={!!me?.ai_consent_at}
         initialTab={tab}
         models={models}

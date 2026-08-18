@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import {
+  compareScreenKeys,
+  screensToCell,
+  type ScreenAnswer,
+} from "@/lib/responses";
 
 export type ExportStudent = {
   id: string;
@@ -27,6 +32,15 @@ type ProgressRow = {
   submission: { answer?: string } | null;
   response_text: string | null;
   updated_at: string;
+};
+
+type ScreenRow = {
+  student_id: string;
+  activity_id: string;
+  screen_key: string;
+  prompt: string;
+  text: string;
+  images: string[] | null;
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -91,15 +105,23 @@ export default function ExportBuilder({
     const studentIds = [...selStudents];
     const activityIds = [...selActivities];
     const supabase = createClient();
-    const { data, error } = await supabase
-      .from("progress")
-      .select(
-        "student_id, activity_id, completed, score, submission, response_text, updated_at"
-      )
-      .in("student_id", studentIds)
-      .in("activity_id", activityIds);
+    const [{ data, error }, { data: screenData, error: screenError }] =
+      await Promise.all([
+        supabase
+          .from("progress")
+          .select(
+            "student_id, activity_id, completed, score, submission, response_text, updated_at"
+          )
+          .in("student_id", studentIds)
+          .in("activity_id", activityIds),
+        supabase
+          .from("screen_responses")
+          .select("student_id, activity_id, screen_key, prompt, text, images")
+          .in("student_id", studentIds)
+          .in("activity_id", activityIds),
+      ]);
 
-    if (error) {
+    if (error || screenError) {
       setError("기록 조회에 실패했습니다.");
       setBusy(false);
       return;
@@ -111,6 +133,23 @@ export default function ExportBuilder({
         p,
       ])
     );
+
+    // 화면별 기록을 (학생|활동) 으로 모아 화면 순서대로 정렬해 둔다
+    const screenMap = new Map<string, ScreenAnswer[]>();
+    for (const r of (screenData as ScreenRow[]) ?? []) {
+      const k = `${r.student_id}|${r.activity_id}`;
+      const list = screenMap.get(k) ?? [];
+      list.push({
+        key: r.screen_key,
+        prompt: r.prompt ?? "",
+        text: r.text ?? "",
+        images: r.images ?? [],
+      });
+      screenMap.set(k, list);
+    }
+    for (const list of screenMap.values()) {
+      list.sort((a, b) => compareScreenKeys(a.key, b.key));
+    }
     const pickedStudents = students.filter((s) => selStudents.has(s.id));
 
     // 활동 열 순서: 단원 순서 → 활동 순서. 열머리는 "단원번호-활동번호 활동명"
@@ -129,18 +168,24 @@ export default function ExportBuilder({
       return `활동${uIdx}-${aIdx} ${a.title}`;
     };
 
-    // 활동 셀 내용: 작성글·정답 제출을 하나의 칸에 담는다
-    const cellValue = (p?: ProgressRow): string => {
-      if (!p) return "";
+    // 활동 셀 내용: 정답 제출 + 화면별 기록을 하나의 칸에 담는다.
+    // 사진으로 낸 칸은 글 대신 "첨부파일 참고" 가 들어간다(screensToCell).
+    const cellValue = (p?: ProgressRow, screens?: ScreenAnswer[]): string => {
       const parts: string[] = [];
-      if (p.submission?.answer) {
+      if (p?.submission?.answer) {
         parts.push(
           `답: ${p.submission.answer}${p.score != null ? ` (${p.score}점)` : ""}`
         );
       }
-      if (p.response_text) parts.push(p.response_text);
-      if (parts.length === 0) return p.completed ? "완료" : "미완료";
-      return parts.join(" / ");
+      const screenText = screens ? screensToCell(screens) : "";
+      if (screenText) parts.push(screenText);
+      // 화면별 기록 이전에 쓴 옛 작성글도 함께 내보낸다
+      if (p?.response_text) parts.push(p.response_text);
+      if (parts.length === 0) {
+        if (!p) return "";
+        return p.completed ? "완료" : "미완료";
+      }
+      return parts.join("\n");
     };
 
     // 한 학생 = 한 행 (반 / 번호 / 이름 / 활동1-1 / 활동1-2 / ...)
@@ -156,7 +201,10 @@ export default function ExportBuilder({
           String(s.student_no),
           s.name,
           ...pickedActivities.map((a) =>
-            cellValue(progressMap.get(`${s.id}|${a.id}`))
+            cellValue(
+              progressMap.get(`${s.id}|${a.id}`),
+              screenMap.get(`${s.id}|${a.id}`)
+            )
           ),
         ]
           .map(csvEscape)
@@ -188,6 +236,10 @@ export default function ExportBuilder({
             : `CSV 다운로드 (학생 ${selStudents.size} × 활동 ${selActivities.size})`}
         </button>
       </div>
+      <p className="-mt-4 text-sm text-zinc-500">
+        학생이 사진으로 낸 칸에는 <b>첨부파일 참고</b> 라고 적힙니다. 사진 자체는
+        활동별 <b>제출 현황</b> 화면에서 보고 내려받을 수 있어요.
+      </p>
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="grid gap-6 lg:grid-cols-2">

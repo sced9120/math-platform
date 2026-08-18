@@ -177,6 +177,12 @@ docs/                           설계 문서 + activities/(활동 HTML) + index
 **데이터 구조**: 교과(subjects) → 단원(units) → 활동(activities) → 진행기록(progress)
 학생 프로필(`profiles`)은 학년·반·번호와 **담당 교사**(`teacher_id`)를 가집니다.
 
+**화면별 기록**: 활동 안의 화면마다 다른 질문을 달 수 있습니다(`screen_responses`).
+질문은 활동 HTML 의 `<section class="screen" data-key="s3" data-prompt="…">` 에 적고,
+질문이 없는 화면에는 기록칸이 뜨지 않습니다. 활동 맨 끝에는 늘 **자유 기록 화면**(`data-key="free"`)이 있고,
+자유 기록과 확장 탐구(`ext`) 화면은 **사진 첨부**도 됩니다(비공개 버킷 `student-uploads`).
+엑셀로 내려받을 때 사진으로 낸 칸은 **첨부파일 참고** 로 표시됩니다. 자세한 규칙은 `docs/04_HTML_ACTIVITY_PROMPT.md`.
+
 **활동 아카이브**: `docs/` 를 GitHub Pages 소스(`main` / `/docs`)로 지정하면
 활동 30개가 공개 사이트로 열립니다. 목차는 `node scripts/build-archive-index.mjs` 로 생성합니다.
 

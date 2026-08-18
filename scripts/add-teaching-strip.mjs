@@ -232,9 +232,11 @@ for (const [name, plan] of Object.entries(PLAN)) {
   }
 
   // 2) 화면별 칩
-  const parts = html.split(/(<section class="screen[^"]*">)/);
+  const parts = html.split(/(<section class="screen[^"]*"[^>]*>)/);
   // parts = [머리, 태그1, 본문1, 태그2, 본문2, ...]
-  const count = (parts.length - 1) / 2;
+  // 맨 끝 '자유 기록' 화면은 수업 진행 칩을 붙이지 않으므로 세지 않는다.
+  const freeTail = /data-key="free"/.test(parts[parts.length - 2] ?? "") ? 1 : 0;
+  const count = (parts.length - 1) / 2 - freeTail;
   if (count !== plan.length) {
     warn.push(`${name}: 화면 ${count}개인데 계획은 ${plan.length}개 — 건너뜀`);
     continue;

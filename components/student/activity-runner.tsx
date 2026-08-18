@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import GeoGebraEmbed from "@/components/student/geogebra-embed";
-import HtmlActivityFrame from "@/components/student/html-activity-frame";
+import HtmlActivityFrame, {
+  type ScreenInfo,
+} from "@/components/student/html-activity-frame";
 import SocraticChat from "@/components/student/socratic-chat";
 import FeedbackPanel from "@/components/student/feedback-panel";
+import ScreenResponse, {
+  FREE_KEY,
+  FREE_PROMPT,
+  type SavedResponse,
+} from "@/components/student/screen-response";
 import type { Activity } from "@/lib/types";
 
 type ProgressState = {
@@ -22,6 +29,7 @@ export type AiLimits = { socratic: number; feedback: number };
 export default function ActivityRunner({
   activity,
   initialProgress,
+  initialResponses,
   aiConsented,
   initialTab,
   models,
@@ -29,6 +37,7 @@ export default function ActivityRunner({
 }: {
   activity: Activity;
   initialProgress: ProgressState | null;
+  initialResponses: Record<string, SavedResponse>;
   aiConsented: boolean;
   initialTab?: string;
   models: AiModelOption[];
@@ -46,6 +55,11 @@ export default function ActivityRunner({
   const [consented, setConsented] = useState(aiConsented); // AI 탭 간 공유
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 활동 HTML 이 지금 보여 주고 있는 화면 (기록칸 질문을 고르는 기준)
+  const [screen, setScreen] = useState<ScreenInfo | null>(null);
+  // 화면키 → 저장된 기록
+  const [responses, setResponses] =
+    useState<Record<string, SavedResponse>>(initialResponses);
 
   // geogebra/content 유형: "학습 완료" 체크 (problem은 DB 함수 채점으로만 기록됨)
   async function markComplete() {
@@ -80,9 +94,34 @@ export default function ActivityRunner({
     response_prompt?: string;
   };
 
-  const hasResponse = typeof content.response_prompt === "string";
+  // 화면별 기록을 저장하면 그 활동은 완료로 기록된다(problem 은 채점 결과가 우선)
+  const handleSaved = useCallback(
+    (key: string, value: SavedResponse) => {
+      setResponses((prev) => ({ ...prev, [key]: value }));
+      if (activity.type !== "problem") {
+        setProgress((p) => ({
+          completed: true,
+          score: p?.score ?? null,
+          submission: p?.submission ?? null,
+          response_text: p?.response_text,
+        }));
+      }
+    },
+    [activity.type]
+  );
+
+  // 화면별 질문을 갖춘 활동인가 (옛 활동은 활동 전체에 질문 하나였다)
+  const screenDriven = activity.type === "html" && !!screen?.hasPrompts;
+  // html 활동은 iframe 이 화면 정보를 알려 줄 때까지 판단을 미룬다
+  // (미루지 않으면 옛 방식 기록칸이 잠깐 떴다 사라진다)
+  const legacyLayout = activity.type === "html" ? screen !== null && !screen.hasPrompts : true;
+  const hasLegacyPrompt = typeof content.response_prompt === "string";
+  // 옛 방식의 활동 단위 기록칸은 화면별 질문이 없을 때만 띄운다
+  const showLegacyResponse = hasLegacyPrompt && legacyLayout;
+  // 자유 기록칸: 화면별 질문을 갖춘 활동은 마지막 화면(HTML)에 이미 들어 있다
+  const showFreeBox = legacyLayout;
   // 글 작성란이 있으면 완료는 글 저장으로 처리 (별도 완료 버튼 숨김)
-  const showCompleteButton = !hasResponse;
+  const showCompleteButton = !hasLegacyPrompt;
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "run", label: "학습 활동" },
@@ -193,13 +232,15 @@ export default function ActivityRunner({
       {tab === "run" && activity.type === "html" && (
         <div className="flex flex-col gap-4">
           {/* sandbox: 스크립트만 허용 — 앱 세션/쿠키에는 접근 불가.
-              높이는 iframe 안에서 실제 콘텐츠를 재어 알려 준다(답변칸이 멀어지지 않도록). */}
+              높이와 "지금 열린 화면"은 iframe 안에서 재어 알려 준다
+              (답변칸이 멀어지지 않도록, 그리고 화면마다 질문이 바뀌도록). */}
           <HtmlActivityFrame
             html={content.html ?? ""}
             title={activity.title}
             initialHeight={content.height}
+            onScreen={setScreen}
           />
-          {showCompleteButton && (
+          {showCompleteButton && !screenDriven && (
             <CompleteButton
               completed={!!progress?.completed}
               busy={busy}
@@ -218,7 +259,21 @@ export default function ActivityRunner({
         />
       )}
 
-      {tab === "run" && hasResponse && (
+      {/* 화면별 기록칸 — 지금 보고 있는 화면에 질문이 달려 있을 때만 뜬다 */}
+      {tab === "run" && screenDriven && screen!.prompt && (
+        <ScreenResponse
+          activityId={activity.id}
+          screenKey={screen!.key}
+          prompt={screen!.prompt}
+          allowPhoto={screen!.photo}
+          saved={responses[screen!.key]}
+          onSaved={handleSaved}
+          tone={screen!.key === FREE_KEY ? "amber" : "blue"}
+        />
+      )}
+
+      {/* 옛 방식(활동 하나에 질문 하나) 활동을 위한 기록칸 */}
+      {tab === "run" && showLegacyResponse && (
         <ResponseSection
           activityId={activity.id}
           prompt={content.response_prompt!}
@@ -233,6 +288,19 @@ export default function ActivityRunner({
               }));
             }
           }}
+        />
+      )}
+
+      {/* 어떤 활동이든 마지막에는 자유 기록칸 */}
+      {tab === "run" && showFreeBox && (
+        <ScreenResponse
+          activityId={activity.id}
+          screenKey={FREE_KEY}
+          prompt={FREE_PROMPT}
+          allowPhoto
+          saved={responses[FREE_KEY]}
+          onSaved={handleSaved}
+          tone="amber"
         />
       )}
 

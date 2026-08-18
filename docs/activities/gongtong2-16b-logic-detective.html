@@ -79,7 +79,7 @@
 <div class="wrap">
   <div class="steps" id="steps"></div>
 
-  <section class="screen on">
+  <section class="screen on" data-key="s1">
     <div class="kicker">공통수학2 · 명제 활용</div>
     <h1>범인을 찾아라!</h1>
     <div class="news">
@@ -100,7 +100,7 @@
       감이 아니라 <b>논리</b>로 찾아봅시다!</div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s2" data-prompt="네 사람의 증언을 명제 기호로 옮겨 적어 보세요. 일상 문장을 기호로 바꿀 때 어려웠던 점도 함께 적어 주세요.">
     <div class="kicker">1단계 · 번역</div>
     <h1>증언을 명제로 옮기기</h1>
     <p>먼저 기호를 정합니다.</p>
@@ -118,7 +118,7 @@
     <p class="q">일상 언어를 <b>기호</b>로 바꾸는 것 — 이것이 수학적 모델링의 첫걸음입니다.</p>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s3" data-prompt="C와 D의 증언을 대우로 바꾼 과정을 적고, 그 결과 어떤 연쇄가 만들어졌는지 써 보세요.">
     <div class="kicker">2단계 · 대우</div>
     <h1>대우로 방향을 맞추기</h1>
     <p>C와 D의 증언은 부정(~)이 붙어 방향이 어긋나 있습니다. <b>대우</b>를 취하면
@@ -137,7 +137,7 @@
       { } , {r} , {r,p} , {r,p,q} , {r,p,q,s}. → 범인이 <b>2명</b>이면 답은 하나!</div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s4">
     <div class="kicker">3단계 · 직접 찾기</div>
     <h1>카드를 눌러 범인을 지목하세요</h1>
     <p>이름 카드를 눌러 <b>범인/무죄</b>를 바꿔 보세요. 네 증언이 모두 참이 되는 조합을 찾으면 성공!</p>
@@ -151,7 +151,7 @@
     <p class="hint" id="chainhint"></p>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s5" data-prompt="(1) 용의자 C와 D의 증언을 대우로 바꾼 과정을 쓰고, (2) 왜 범인이 A와 C 로 유일하게 결정되는지 연쇄 s⟹q⟹p⟹r 를 이용해 설명하세요. (3) 일상 문장을 명제 기호로 바꾸는 일이 왜 유용한지도 적어보세요.">
     <div class="kicker">정리</div>
     <h1>논리로 결론에 이르는 길</h1>
     <ol class="tight">
@@ -171,7 +171,7 @@
   
 
   <!-- EXT:START -->
-  <section class="screen">
+  <section class="screen" data-key="ext" data-prompt="용의자 중 한 명이 거짓말을 하고 있다면 어떻게 될까요? 누가 거짓말쟁이인지 모를 때 가능한 경우를 체계적으로 따지는 방법을 설계해 적어 보세요." data-photo="1">
     <div class="kicker">확장 탐구</div>
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
@@ -189,9 +189,20 @@
     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
       <b>🧗 도전 질문</b><br>만약 용의자 중 <b>한 명이 거짓말</b>을 하고 있다면 어떻게 될까요? 누가 거짓말쟁이인지 모른다고 할 때, 가능한 경우를 어떻게 체계적으로 따져볼 수 있을지 방법을 설계해 보세요.
     </div>
-    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 기록칸에 남겨 보세요. <b>공책에 쓴 것을 사진으로 올려도</b> 됩니다.</p>
   </section>
   <!-- EXT:END -->
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
 
   <div class="nav">
     <button class="btn" id="prev">&laquo; 이전</button>

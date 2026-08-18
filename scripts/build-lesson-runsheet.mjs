@@ -18,7 +18,7 @@ const MODE = { "t-show": ["조작", "show"], "t-ask": ["발문", "ask"],
 // ── 활동 파일에서 화면 정보 읽기 ───────────────────────────────────────────
 function screensOf(file) {
   const s = readFileSync(join(ACT, file), "utf8");
-  return s.split(/<section class="screen[^"]*">/).slice(1).map((raw) => {
+  return s.split(/<section class="screen[^"]*"[^>]*>/).slice(1).map((raw) => {
     const c = raw.split('<div class="nav"')[0];
     const h = c.match(/<h1>([\s\S]*?)<\/h1>/);
     const mo = c.match(/class="(t-(?:show|ask|write|book))"/);

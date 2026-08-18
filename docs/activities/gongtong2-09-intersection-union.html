@@ -70,7 +70,7 @@
 <div class="wrap">
   <div class="steps" id="steps"></div>
 
-  <section class="screen on">
+  <section class="screen on" data-key="s1">
     <div class="kicker">공통수학2 · 집합</div>
     <h1>교집합과 합집합</h1>
     <p>버튼을 눌러 영역을 강조해 보세요. <b>교집합 A∩B</b> 는 양쪽 모두에, <b>합집합 A∪B</b> 는 어느 한쪽에라도 속하는 원소입니다.</p>
@@ -89,7 +89,7 @@
     </div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s2">
     <div class="kicker">정의</div>
     <h1>정의 정리</h1>
     <table>
@@ -101,7 +101,7 @@
       A 와 B 는 서로소입니다.</div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s3">
     <div class="kicker">연산 법칙</div>
     <h1>교환 · 결합 · 분배법칙</h1>
     <table>
@@ -114,7 +114,7 @@
       기억하기 쉽습니다 (단, 집합은 <b>양방향 분배</b>가 모두 성립!).</div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s4" data-prompt="분배법칙 A∩(B∪C)=(A∩B)∪(A∩C) 를 벤 다이어그램으로 확인했습니다. 두 식이 같은 영역이 되는 과정을 자신의 말로 설명해 보세요.">
     <div class="kicker">벤 다이어그램으로 확인</div>
     <h1>분배법칙, 눈으로 확인하기</h1>
     <p>법칙은 외우는 게 아니라 <b>확인하는 것</b>입니다. 왼쪽 식과 오른쪽 식 버튼을 번갈아 눌러 보세요 —
@@ -135,7 +135,7 @@
     </div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s5" data-prompt="세 영역의 개수를 바꿔 보며 확인한 것을 바탕으로, n(A∪B) 를 구할 때 왜 n(A∩B) 를 빼는지 적어 보세요.">
     <div class="kicker">원소의 개수</div>
     <h1>n(A ∪ B) 세기</h1>
     <p>세 영역의 원소 개수를 바꿔 보세요. <b>겹치는 부분(A∩B)을 두 번 세지 않도록</b> 빼 주는 것이 핵심입니다.</p>
@@ -151,7 +151,7 @@
     <div class="formula">n(A∪B) = n(A) + n(B) − n(A∩B)</div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s6" data-prompt="n(A∪B)=n(A)+n(B)−n(A∩B) 가 성립하는 이유를 ‘겹치는 부분을 두 번 세지 않기’로 설명하고, 분배법칙을 벤 다이어그램으로 확인한 과정도 적어 보세요.">
     <div class="kicker">정리</div>
     <h1>정리</h1>
     <ul style="margin:6px 0;padding-left:20px">
@@ -167,7 +167,7 @@
   
 
   <!-- EXT:START -->
-  <section class="screen">
+  <section class="screen" data-key="ext" data-prompt="1부터 100까지의 자연수 중 2의 배수 또는 3의 배수는 몇 개일까요? 포함·배제로 계산한 과정을 적어 보세요." data-photo="1">
     <div class="kicker">확장 탐구</div>
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
@@ -185,9 +185,20 @@
     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
       <b>🧗 도전 질문</b><br>1부터 100까지의 자연수 중 <b>2의 배수 또는 3의 배수</b>는 몇 개일까요? 포함·배제로 계산해 보세요. (2의 배수 50, 3의 배수 33, 6의 배수 16)
     </div>
-    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 기록칸에 남겨 보세요. <b>공책에 쓴 것을 사진으로 올려도</b> 됩니다.</p>
   </section>
   <!-- EXT:END -->
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
 
   <div class="nav">
     <button class="btn" id="prev">&laquo; 이전</button>

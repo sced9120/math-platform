@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import SubmissionsTable, {
   type SubmissionRow,
 } from "@/components/teacher/submissions-table";
+import { compareScreenKeys, type ScreenAnswer } from "@/lib/responses";
 
 type StudentRow = {
   id: string;
@@ -18,6 +19,15 @@ type ProgressRow = {
   score: number | null;
   submission: { answer?: string } | null;
   response_text: string | null;
+  updated_at: string;
+};
+
+type ScreenRow = {
+  student_id: string;
+  screen_key: string;
+  prompt: string;
+  text: string;
+  images: string[] | null;
   updated_at: string;
 };
 
@@ -55,17 +65,39 @@ export default async function SubmissionsPage({
     studentQuery = studentQuery.in("class_no", activity.assigned_classes);
   }
 
-  const [{ data: students }, { data: progress }] = await Promise.all([
-    studentQuery.order("class_no").order("student_no"),
-    supabase
-      .from("progress")
-      .select("student_id, completed, score, submission, response_text, updated_at")
-      .eq("activity_id", id),
-  ]);
+  const [{ data: students }, { data: progress }, { data: screens }] =
+    await Promise.all([
+      studentQuery.order("class_no").order("student_no"),
+      supabase
+        .from("progress")
+        .select("student_id, completed, score, submission, response_text, updated_at")
+        .eq("activity_id", id),
+      supabase
+        .from("screen_responses")
+        .select("student_id, screen_key, prompt, text, images, updated_at")
+        .eq("activity_id", id),
+    ]);
 
   const progressMap = new Map(
     ((progress as ProgressRow[]) ?? []).map((p) => [p.student_id, p])
   );
+
+  // 학생별 화면 기록 (화면 순서대로)
+  const screenMap = new Map<string, ScreenAnswer[]>();
+  for (const r of (screens as ScreenRow[]) ?? []) {
+    const list = screenMap.get(r.student_id) ?? [];
+    list.push({
+      key: r.screen_key,
+      prompt: r.prompt ?? "",
+      text: r.text ?? "",
+      images: r.images ?? [],
+      updatedAt: r.updated_at,
+    });
+    screenMap.set(r.student_id, list);
+  }
+  for (const list of screenMap.values()) {
+    list.sort((a, b) => compareScreenKeys(a.key, b.key));
+  }
 
   const rows: SubmissionRow[] = ((students as StudentRow[]) ?? []).map((s) => {
     const p = progressMap.get(s.id);
@@ -78,6 +110,7 @@ export default async function SubmissionsPage({
       score: p?.score ?? null,
       answer: p?.submission?.answer ?? "",
       responseText: p?.response_text ?? "",
+      screens: screenMap.get(s.id) ?? [],
       updatedAt: p?.updated_at ?? "",
     };
   });

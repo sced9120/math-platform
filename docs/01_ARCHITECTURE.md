@@ -62,7 +62,8 @@ profiles          -- auth.users 확장. 학년/반/번호/이름/역할/비번�
 subjects          -- 교과: 제목/학년/순서/공개여부              (0010에서 추가)
 units             -- 단원: 교과소속(subject_id)/제목/학년/순서/공개여부
 activities        -- 활동: 단원소속/유형/콘텐츠(JSON)/순서/공개여부/대상반
-progress          -- 진행기록: 학생×활동, 완료여부/점수/제출내용/작성글/타임스탬프
+progress          -- 진행기록: 학생×활동, 완료여부/점수/제출내용/작성글(옛 방식)/타임스탬프
+screen_responses  -- 화면별 기록: 학생×활동×화면키, 질문/글/사진경로  (0012에서 추가)
 ai_usage          -- 학생별 일일 AI 호출 카운트 (비용 통제)
 ai_conversations  -- 저장한 AI 대화 (학생당 최대 5개, 본인만 접근)
 ai_secrets/models/limits/prompts -- AI 키·모델·한도·프롬프트 (관리자 설정)

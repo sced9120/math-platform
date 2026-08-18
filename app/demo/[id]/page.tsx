@@ -52,20 +52,20 @@ export default async function DemoActivityPage({
           </p>
         )}
 
-        {/* 서술 문항은 보여 주되, 저장되지 않음을 분명히 한다 */}
-        {content.response_prompt && (
-          <div className="mt-4 rounded-xl border border-zinc-200 bg-white p-4">
-            <p className="text-sm font-medium text-zinc-800">✏️ 내 생각 적기</p>
-            <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-600">
-              {content.response_prompt}
-            </p>
-            <textarea
-              readOnly
-              placeholder="체험판에서는 작성·저장할 수 없습니다. 실제 수업에서는 여기에 쓴 글이 저장되고, 선생님이 모아서 읽을 수 있어요."
-              className="mt-3 h-24 w-full cursor-not-allowed rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-500"
-            />
-          </div>
-        )}
+        {/* 기록칸은 보여 주되, 저장되지 않음을 분명히 한다.
+            실제 수업에서는 화면마다 그 화면에 맞는 질문이 여기 뜬다. */}
+        <div className="mt-4 rounded-xl border border-zinc-200 bg-white p-4">
+          <p className="text-sm font-medium text-zinc-800">✏️ 내 생각 적기</p>
+          <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-600">
+            실제 수업에서는 <b>화면마다 그 화면에 맞는 질문</b>이 여기에 뜨고, 맨 끝에는
+            오늘 수업에 대한 <b>자유 기록칸</b>(사진 첨부 가능)이 열립니다.
+          </p>
+          <textarea
+            readOnly
+            placeholder="체험판에서는 작성·저장할 수 없습니다. 실제 수업에서는 여기에 쓴 글이 저장되고, 선생님이 모아서 읽을 수 있어요."
+            className="mt-3 h-24 w-full cursor-not-allowed rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-500"
+          />
+        </div>
 
         <p className="mt-6 text-center text-xs text-zinc-400">
           이 활동은 <Link href="/demo" className="underline">체험판</Link> 으로 열렸습니다 · 저장되지 않습니다

@@ -260,9 +260,21 @@ const EXT = {
   },
 };
 
+// data-prompt 는 따옴표·꺾쇠를 뺀 평문이어야 한다(속성 안에 들어가므로)
+function attr(html) {
+  return String(html)
+    .replace(/<[^>]*>/g, "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function buildSection(e) {
   return `${MARK_START}
-  <section class="screen">
+  <section class="screen" data-key="ext" data-photo="1" data-prompt="${attr(e.q)}">
     <div class="kicker">확장 탐구</div>
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
@@ -280,7 +292,7 @@ function buildSection(e) {
     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
       <b>🧗 도전 질문</b><br>${e.q}
     </div>${e.extra ? "\n" + e.extra : ""}
-    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 기록칸에 남겨 보세요. <b>공책에 쓴 것을 사진으로 올려도</b> 됩니다.</p>
   </section>
   ${MARK_END}`;
 }
@@ -308,7 +320,9 @@ for (const [file, e] of Object.entries(EXT)) {
   }
 
   // 네비게이션 바로 앞에 삽입 = 마지막 화면
-  const navIdx = html.indexOf('<div class="nav">');
+  // 자유 기록 화면이 이미 붙어 있으면 그 앞에 넣는다(확장 탐구 → 자유 기록 순서 유지)
+  const freeIdx = html.indexOf("<!-- FREE:START -->");
+  const navIdx = freeIdx !== -1 ? freeIdx : html.indexOf('<div class="nav">');
   if (navIdx === -1) { console.error(`✗ nav 를 찾지 못함: ${file}`); continue; }
   html = html.slice(0, navIdx) + buildSection(e) + "\n\n  " + html.slice(navIdx);
 

@@ -91,7 +91,7 @@
 <div class="wrap">
   <div class="steps" id="steps"></div>
 
-  <section class="screen on">
+  <section class="screen on" data-key="s1">
     <div class="kicker">공통수학2 · 함수</div>
     <span class="sheet">📄 학습지 ‘함수 1. 함수’ [This is Robot World!]</span>
     <h1>🤖 로봇 월드 — 명령어로 움직이기</h1>
@@ -118,7 +118,7 @@
     <p class="hint">명령을 잘못 눌렀다면 <b>↺ 리셋</b> 으로 처음부터 다시 하면 됩니다.</p>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s2" data-prompt="turn_right() 를 turn_left() 만으로 만드는 방법을 적고, 왜 그렇게 되는지 설명해 보세요.">
     <div class="kicker">새 명령 만들기</div>
     <h1>오른쪽으로 도는 명령이 없다!</h1>
     <p>로봇에게는 <span class="mono">turn_left()</span> 뿐입니다. 그렇다면 <b>오른쪽으로 도는 명령</b>
@@ -145,7 +145,7 @@
       다음 화면부터 <span class="mono">turn_right()</span> 버튼을 쓸 수 있습니다.</div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s3">
     <div class="kicker">미션</div>
     <h1>⭐ 별을 먹자</h1>
     <p>이제 명령이 <b>세 개</b>입니다. 로봇을 움직여 <b>별 3개를 모두</b> 지나가게 하세요.
@@ -168,7 +168,7 @@
       프로그래밍이 곧 <b>‘무엇을 어떤 순서로 합성할까’</b> 를 정하는 일입니다.</p>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s4" data-prompt="turn_left() 를 4번 하면 왜 아무것도 하지 않은 것과 같아지나요? 5번, 6번일 때는 어떻게 되는지도 적어 보세요.">
     <div class="kicker">되돌아오기</div>
     <h1>turn_left() 를 여러 번 하면?</h1>
     <p>예거가 실수로 <span class="mono">turn_left()</span> 를 <b>5번</b> 하는 명령
@@ -193,7 +193,7 @@
       명령을 이어 붙이는 세계에도 이런 <b>규칙</b>이 있습니다.</div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s5">
     <div class="kicker">함수로 보기</div>
     <h1>‘명령어 → 행동’ 이 바로 함수다</h1>
     <p>지금까지 한 일을 수학의 눈으로 봅시다. <b>명령어의 모임</b>에서 <b>행동의 모임</b>으로,
@@ -211,7 +211,7 @@
     <div class="win" id="v4"></div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s6" data-prompt="(1) turn_right() 를 turn_left() 로 만든 과정을 ‘합성’이라는 말을 써서 설명하세요. (2) turn_left() 를 4번 하면 왜 항등함수가 되나요? (3) move()→turn_left() 와 turn_left()→move() 의 결과가 다른 이유를 합성의 순서로 설명하세요.">
     <div class="kicker">정리</div>
     <h1>정리</h1>
     <table>
@@ -237,7 +237,7 @@
   </section>
 
   <!-- EXT:START -->
-  <section class="screen">
+  <section class="screen" data-key="ext" data-prompt="로봇이 벽에 부딪히면 실패합니다. 이때 move() 는 모든 위치에서 정의되는 함수라고 할 수 있을까요? ‘정의역’이라는 말을 써서 설명해 보세요." data-photo="1">
     <div class="kicker">확장 탐구</div>
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
@@ -265,6 +265,17 @@
     <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요.</p>
   </section>
   <!-- EXT:END -->
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
 
   <div class="nav">
     <button class="btn" id="prev">&laquo; 이전</button>

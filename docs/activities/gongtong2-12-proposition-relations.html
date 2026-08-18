@@ -67,7 +67,7 @@
 <div class="wrap">
   <div class="steps" id="steps"></div>
 
-  <section class="screen on">
+  <section class="screen on" data-key="s1" data-prompt="약속을 어긴 경우는 어떤 상황이었나요? p → q 가 거짓이 되는 경우가 하나뿐인 까닭을 적어 보세요.">
     <div class="kicker">공통수학2 · 명제</div>
     <h1>‘p이면 q이다’ 는 언제 거짓일까?</h1>
     <p>A의 약속: <b>“내가 로또 1등에 당첨된다면(p), 너에게 2억을 줄게(q).”</b>
@@ -81,7 +81,7 @@
       (당첨됐는데 안 준 경우!) p 가 거짓이면(당첨 안 됨) 약속은 <b>깨지지 않아</b> 항상 참으로 봅니다.</div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s2">
     <div class="kicker">구성요소</div>
     <h1>가정과 결론, 그리고 반례</h1>
     <div class="card">
@@ -92,7 +92,7 @@
        명제 “x가 짝수이면(p), x는 4의 배수이다(q)” → <b class="no">거짓</b>, 반례 <code>x = 6</code> (짝수지만 4의 배수 아님).</p>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s3" data-prompt="원명제를 하나 정해 역·이·대우를 각각 쓰고, 각각의 참·거짓을 판단해 보세요.">
     <div class="kicker">역 · 이 · 대우</div>
     <h1>역 · 이 · 대우</h1>
     <p>원명제 <b>p → q</b> 로부터 세 가지 명제를 만듭니다. 예: p: “x = 2”, q: “x² = 4”.</p>
@@ -107,7 +107,7 @@
       반면 역과 이는 원명제와 참·거짓이 다를 수 있어요. 역과 이는 서로 대우 관계라 둘의 참·거짓은 같습니다.</div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s4">
     <div class="kicker">진리집합</div>
     <h1>p ⇒ q ⟺ P ⊂ Q</h1>
     <p>조건 p, q 의 진리집합을 P, Q 라 하면, 명제 <b>p → q 가 참</b> ⟺ <b>P ⊂ Q</b> (P 가 Q 안에 들어감).</p>
@@ -117,7 +117,7 @@
       <b>Pᶜ ⊃ Qᶜ</b> (여집합은 포함관계가 뒤집힘)로 설명됩니다.</div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s5" data-prompt="p ⇒ q 일 때 어느 쪽이 필요조건이고 어느 쪽이 충분조건인가요? 진리집합 P ⊂ Q 그림과 연결해 설명해 보세요.">
     <div class="kicker">필요 · 충분조건</div>
     <h1>필요조건과 충분조건</h1>
     <p><b>p ⇒ q</b> 일 때 (P ⊂ Q):</p>
@@ -131,7 +131,7 @@
       화살표가 <b>들어오는</b> q 는 <b>필</b>요조건. (작은 집합 → 큰 집합)</div>
   </section>
 
-  <section class="screen">
+  <section class="screen" data-key="s6" data-prompt="명제 ‘p→q’ 의 역·이·대우를 각각 쓰고, 원명제와 대우의 참·거짓이 항상 일치하는 이유를 진리집합 P ⊂ Q ⟺ Qᶜ ⊂ Pᶜ 로 설명하세요.">
     <div class="kicker">정리</div>
     <h1>정리</h1>
     <ul style="margin:6px 0;padding-left:20px">
@@ -147,7 +147,7 @@
   
 
   <!-- EXT:START -->
-  <section class="screen">
+  <section class="screen" data-key="ext" data-prompt="‘비가 오면 땅이 젖는다’의 역·이·대우를 쓰고 참·거짓을 판단해 보세요. 일상에서 역을 참으로 착각하는 예도 하나 들어 주세요." data-photo="1">
     <div class="kicker">확장 탐구</div>
     <h1>🔭 더 넓게, 더 깊게</h1>
     <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
@@ -165,9 +165,20 @@
     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
       <b>🧗 도전 질문</b><br>‘비가 오면 땅이 젖는다’의 역·이·대우를 각각 쓰고 참·거짓을 판단해 보세요. 우리가 일상에서 자주 저지르는 <b>역을 참으로 착각하는 오류</b>의 예도 하나 들어 보세요.
     </div>
-    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 ‘내 생각 적기’에 자유롭게 남겨 보세요.</p>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 기록칸에 남겨 보세요. <b>공책에 쓴 것을 사진으로 올려도</b> 됩니다.</p>
   </section>
   <!-- EXT:END -->
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
 
   <div class="nav">
     <button class="btn" id="prev">&laquo; 이전</button>

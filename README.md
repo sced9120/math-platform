@@ -122,6 +122,17 @@ npm run create-teacher -- teacher 김수학          # 일반 교사
 
 - 출력된 초기비밀번호로 로그인하면 **비밀번호 변경이 강제**됩니다.
 - 교사 계정은 강력한 비밀번호를 사용하세요 (전체 학생 데이터에 접근 가능).
+- **비밀번호를 잊었다면** — 대시보드의 "Reset password" 는 쓸 수 없습니다.
+  이 플랫폼은 이메일을 수집하지 않으려고 가상 주소(`<아이디>@school.local`)를 쓰는데,
+  그 기능은 메일을 보내는 방식이라 `Email address is invalid` 로 실패합니다. 대신:
+
+  ```bash
+  npm run reset-password -- --list     # 교사·관리자 아이디 확인
+  npm run reset-password -- admin      # 새 비밀번호를 만들어 화면에 출력
+  ```
+
+  재설정된 계정은 **다음 로그인 때 비밀번호를 다시 정하도록** 강제됩니다
+  (화면에 찍힌 임시 비밀번호가 그대로 남지 않게 하려는 것).
 - 스크립트를 못 쓰는 상황이면 수동으로도 가능:
   대시보드 **Authentication → Add user**로 `아이디@school.local` 생성(Auto confirm 체크) 후,
   SQL Editor에서 `insert into profiles (id, name, role) values ('<user id>', '이름', 'teacher');`

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "node --env-file=.env.local scripts/seed.mjs",
-    "create-teacher": "node --env-file=.env.local scripts/create-teacher.mjs"
+    "create-teacher": "node --env-file=.env.local scripts/create-teacher.mjs",
+    "reset-password": "node --env-file=.env.local scripts/reset-password.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.1",

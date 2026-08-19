@@ -34,7 +34,7 @@ function splitDataUrl(url: string): { mimeType: string; data: string } {
 // ---------- 텍스트 응답 (소크라테스 챗봇) ----------
 export async function callChat(
   call: Call,
-  params: { system: string; messages: ChatMessage[] }
+  params: { system: string; messages: ChatMessage[]; maxTokens?: number }
 ): Promise<string> {
   switch (call.provider) {
     case "openai":
@@ -93,12 +93,14 @@ function openaiExtra(model: string, effort: "low" | "medium") {
 
 async function openaiChat(
   model: string,
-  params: { system: string; messages: ChatMessage[] }
+  params: { system: string; messages: ChatMessage[]; maxTokens?: number }
 ): Promise<string> {
   const client = await openaiClient();
   const res = await client.chat.completions.create({
     model,
-    max_completion_tokens: 4000,
+    // GPT-5 계열은 이 예산 안에 '추론 토큰'까지 들어간다. 너무 작으면 추론이 다 써 버려
+    // 본문이 빈 채로 finish_reason=length 가 온다.
+    max_completion_tokens: params.maxTokens ?? 4000,
     ...openaiExtra(model, "low"),
     messages: [{ role: "system", content: params.system }, ...params.messages],
   });
@@ -140,7 +142,7 @@ async function geminiClient(): Promise<GoogleGenAI> {
 
 async function geminiChat(
   model: string,
-  params: { system: string; messages: ChatMessage[] }
+  params: { system: string; messages: ChatMessage[]; maxTokens?: number }
 ): Promise<string> {
   const ai = await geminiClient();
   const res = await ai.models.generateContent({
@@ -149,7 +151,7 @@ async function geminiChat(
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
     })),
-    config: { systemInstruction: params.system, maxOutputTokens: 4000 },
+    config: { systemInstruction: params.system, maxOutputTokens: params.maxTokens ?? 4000 },
   });
   return res.text ?? "";
 }
@@ -187,12 +189,12 @@ async function anthropicClient(): Promise<Anthropic> {
 
 async function anthropicChat(
   model: string,
-  params: { system: string; messages: ChatMessage[] }
+  params: { system: string; messages: ChatMessage[]; maxTokens?: number }
 ): Promise<string> {
   const client = await anthropicClient();
   const res = await client.messages.create({
     model,
-    max_tokens: 8000,
+    max_tokens: params.maxTokens ?? 8000,
     system: params.system,
     messages: params.messages,
   });

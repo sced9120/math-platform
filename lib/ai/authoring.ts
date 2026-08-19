@@ -125,9 +125,13 @@ export function validateChatHistory(v: unknown): ChatMessage[] | null {
   return out;
 }
 
+// 활동 하나가 6~7천 자쯤 나온다. GPT-5 계열은 이 예산에 추론 토큰까지 포함되므로
+// 넉넉히 잡지 않으면 추론이 다 써 버려 본문이 빈 채로 돌아온다(실측 확인).
+export const AUTHORING_MAX_TOKENS = 16000;
+
 export async function askAuthoring(
   call: AuthoringCall,
   messages: ChatMessage[]
 ): Promise<string> {
-  return callChat(call, { system: SYSTEM, messages });
+  return callChat(call, { system: SYSTEM, messages, maxTokens: AUTHORING_MAX_TOKENS });
 }

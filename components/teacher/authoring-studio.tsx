@@ -108,10 +108,31 @@ if(s.length&&![].some.call(s,function(x){return x.classList.contains("on");}))s[
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: next, model }),
       });
-      const data = await res.json();
+
+      // 시간이 다 되면 서버가 JSON 이 아니라 오류 HTML 을 돌려준다.
+      // 예전에는 이때 json() 이 터져 무조건 "네트워크 오류"로 보였다.
+      const raw = await res.text();
+      let data: { reply?: string; error?: string; remaining?: number } = {};
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        setMsgs(msgs);
+        setErr(
+          res.status === 504 || res.status === 408
+            ? "시간이 초과됐습니다. 만들 화면을 조금 더 단순하게 설명해 보세요."
+            : `서버가 응답을 제대로 주지 않았습니다 (${res.status}). ${raw.slice(0, 120)}`
+        );
+        return;
+      }
+
       if (!res.ok) {
-        setErr(data.error ?? "요청에 실패했습니다.");
+        setErr(data.error ?? `요청에 실패했습니다 (${res.status}).`);
         setMsgs(msgs); // 실패한 턴은 되돌린다
+        return;
+      }
+      if (!data.reply?.trim()) {
+        setMsgs(msgs);
+        setErr("AI 가 빈 답을 보냈습니다. 한 번 더 시도해 보세요.");
         return;
       }
       setMsgs([...next, { role: "assistant", content: data.reply }]);
@@ -257,7 +278,7 @@ if(s.length&&![].some.call(s,function(x){return x.classList.contains("on");}))s[
           ))}
           {busy && (
             <div className="mr-8 rounded-xl bg-zinc-100 px-3 py-2 text-sm text-zinc-500">
-              만드는 중…
+              만드는 중… <span className="text-zinc-400">보통 20~30초 걸립니다</span>
             </div>
           )}
           {err && (

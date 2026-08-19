@@ -3,6 +3,11 @@ import { askAuthoring, validateChatHistory } from "@/lib/ai/authoring";
 import { resolveModel } from "@/lib/ai/models";
 import { consumeQuota, isGuardError, requireAiUser } from "@/lib/ai/server";
 
+// 활동 하나를 만드는 데 20~30초쯤 걸린다(실측). 기본 제한(10~15초)으로는 잘려
+// 클라이언트가 504 HTML 을 받고 "네트워크 오류"로 보인다. 넉넉히 늘린다.
+// (Vercel Hobby 최대 60초. 그래도 모자라면 요금제를 올리거나 스트리밍으로 바꿔야 한다.)
+export const maxDuration = 60;
+
 // 교사용 '조작 활동 만들기' 챗봇 (서버 전용 — API 키는 여기서만 쓰인다)
 //
 // 학생용 기능과 다른 점

@@ -588,6 +588,14 @@ export default function ActivitiesManager({
                       >
                         미리보기
                       </Link>
+                      {a.type === "html" && (
+                        <Link
+                          href={`/teacher/activity/${a.id}/screens`}
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          화면 관리
+                        </Link>
+                      )}
                       <Link
                         href={`/teacher/activity/${a.id}/submissions`}
                         className="text-xs text-blue-600 hover:underline"

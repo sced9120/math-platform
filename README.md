@@ -78,20 +78,39 @@ cp .env.local.example .env.local
 
 Supabase 대시보드 **SQL Editor**에 [`supabase/setup.sql`](supabase/setup.sql)
 **전체를 한 번에** 붙여넣고 Run 하세요 (테이블·RLS 정책·함수가 모두 만들어집니다).
+그다음 **`0012` → `0013` → `0014` 를 순서대로** 이어서 실행하세요.
 
-> `supabase/setup.sql` 은 개별 마이그레이션(`supabase/migrations/0001~0011`)을 하나로 합친 파일입니다.
-> supabase CLI를 쓴다면 `supabase db push`.
+> `supabase/setup.sql` 은 `0001~0011` 까지만 합쳐 둔 파일이라, 그 뒤 마이그레이션은 따로 돌려야 합니다.
+> supabase CLI 로 하고 싶다면 `supabase init` 과 `supabase link --project-ref <ref>` 를 먼저 해야
+> `supabase db push` 가 동작합니다. 이 저장소에는 `config.toml` 이 없어 기본은 SQL Editor 방식입니다.
 
 **이미 운영 중인 분**은 `setup.sql` 을 다시 돌리지 말고, 아직 실행하지 않은 마이그레이션만
-`supabase/migrations/` 에서 번호 순으로 실행하세요. 최근 것은 다음 둘입니다.
+`supabase/migrations/` 에서 **번호 순으로** SQL Editor 에 붙여넣어 실행하세요.
+(이 저장소는 supabase CLI 를 쓰지 않습니다 — `config.toml` 이 없어 `supabase db push` 는 동작하지 않습니다.)
 
 | 파일 | 하는 일 |
 |---|---|
 | `0010_subjects.sql` | **교과(subjects)** 계층 추가 — 교과 → 단원 → 활동 |
 | `0011_student_owner.sql` | 학생에 **담당 교사** 지정 — 교사는 자기 학생만 보고 관리 |
+| `0012_screen_responses.sql` | 활동 **화면별 기록칸** + 사진 첨부 — 화면마다 다른 질문을 두고 답도 화면 단위로 저장. 비공개 버킷 `student-uploads` 도 이 SQL 이 만듭니다 |
+| `0013_activity_screens.sql` | 활동을 **화면 단위**로 (`activity_screens`) + 기록을 **질문 단위**로 확장. 학생용 조회 함수 `student_screens()` 가 정답을 걷어내고 내려줍니다 |
+| `0014_ai_authoring.sql` | 교사용 **조작 활동 만들기** 챗봇을 AI 기능에 추가 (일일 한도 기본 40회) |
 
 > `0011` 을 실행하면 기존 학생은 **가장 먼저 만들어진 교사/관리자**에게 자동 배정됩니다
 > (아무에게도 안 보이게 되는 것을 막기 위함). 이후 관리자 화면에서 확인할 수 있습니다.
+>
+> `0013` 은 `screen_responses` 의 기본키를 질문 단위로 바꿉니다. 기존 행은 `question_key = ''`
+> 로 남아 **그대로 읽히므로** 예전에 낸 답이 사라지지 않습니다.
+
+무엇까지 적용됐는지 확인하려면 SQL Editor 에서:
+
+```sql
+select to_regclass('public.screen_responses')  as "0012",
+       to_regclass('public.activity_screens')  as "0013",
+       (select count(*) from ai_limits where feature = 'authoring') as "0014";
+```
+
+`null` 또는 `0` 으로 나오는 번호부터 순서대로 실행하면 됩니다.
 
 ### 1-4. 관리자·교사 계정 만들기 (최초 1회)
 

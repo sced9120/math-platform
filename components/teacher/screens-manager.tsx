@@ -156,6 +156,8 @@ export default function ScreensManager({
         </p>
       )}
 
+      <StartScreenStructure activityId={activityId} />
+
       <ol className="flex flex-col gap-3">
         {screens.map((s, i) => (
           <li
@@ -242,6 +244,55 @@ export default function ScreensManager({
           </li>
         ))}
       </ol>
+    </div>
+  );
+}
+
+// 새 구조(화면 행)로 시작하기.
+// 화면이 하나라도 생기면 학생 화면은 그때부터 새 재생기를 쓰므로 되돌릴 일을 분명히 알린다.
+function StartScreenStructure({ activityId }: { activityId: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+
+  async function start() {
+    if (
+      !confirm(
+        "새 방식(화면 구성)으로 시작할까요?\n\n" +
+          "화면을 하나라도 만들면 학생에게는 그 화면들만 보입니다.\n" +
+          "지금 활동 HTML 은 지워지지 않지만 학생 화면에는 안 나옵니다.\n" +
+          "(화면을 모두 지우면 지금 방식으로 돌아옵니다)"
+      )
+    )
+      return;
+    setBusy(true);
+    const { error } = await createClient().from("activity_screens").insert({
+      activity_id: activityId,
+      screen_key: "s1",
+      order_index: 0,
+      type: "text",
+      title: "새 화면",
+      config: {},
+      questions: [],
+    });
+    setBusy(false);
+    if (error) alert("시작하지 못했습니다. 다시 시도하세요.");
+    else router.refresh();
+  }
+
+  return (
+    <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-4">
+      <p className="text-sm font-medium text-zinc-800">화면 구성으로 바꾸기 (새 방식)</p>
+      <p className="mt-1 text-sm text-zinc-600">
+        화면마다 유형(글·좌표평면·지오지브라·사진·직접 만든 조작)을 고르고, 질문을 버튼으로 붙일 수
+        있습니다. 조작 코드도 화면 단위라 한 화면이 깨져도 다른 화면은 멀쩡합니다.
+      </p>
+      <button
+        onClick={start}
+        disabled={busy}
+        className="mt-3 rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+      >
+        {busy ? "만드는 중..." : "화면 구성 시작하기"}
+      </button>
     </div>
   );
 }

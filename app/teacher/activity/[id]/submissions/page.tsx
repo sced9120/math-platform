@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import SubmissionsTable, {
   type SubmissionRow,
 } from "@/components/teacher/submissions-table";
-import { compareScreenKeys, type ScreenAnswer } from "@/lib/responses";
+import { compareAnswers, type ScreenAnswer } from "@/lib/responses";
 
 type StudentRow = {
   id: string;
@@ -25,9 +25,11 @@ type ProgressRow = {
 type ScreenRow = {
   student_id: string;
   screen_key: string;
+  question_key: string | null;
   prompt: string;
   text: string;
   images: string[] | null;
+  correct: boolean | null;
   updated_at: string;
 };
 
@@ -65,7 +67,7 @@ export default async function SubmissionsPage({
     studentQuery = studentQuery.in("class_no", activity.assigned_classes);
   }
 
-  const [{ data: students }, { data: progress }, { data: screens }] =
+  const [{ data: students }, { data: progress }, { data: screens }, { data: screenDefs }] =
     await Promise.all([
       studentQuery.order("class_no").order("student_no"),
       supabase
@@ -74,29 +76,45 @@ export default async function SubmissionsPage({
         .eq("activity_id", id),
       supabase
         .from("screen_responses")
-        .select("student_id, screen_key, prompt, text, images, updated_at")
+        .select("student_id, screen_key, question_key, prompt, text, images, correct, updated_at")
         .eq("activity_id", id),
+      // 화면 구성이 있는 소단원이면 활동 이름을 붙여 읽기 쉽게 한다
+      supabase
+        .from("activity_screens")
+        .select("screen_key, title, order_index")
+        .eq("activity_id", id)
+        .order("order_index"),
     ]);
+
+  const screenTitle = new Map(
+    ((screenDefs as { screen_key: string; title: string }[] | null) ?? []).map((s) => [
+      s.screen_key,
+      s.title,
+    ])
+  );
 
   const progressMap = new Map(
     ((progress as ProgressRow[]) ?? []).map((p) => [p.student_id, p])
   );
 
-  // 학생별 화면 기록 (화면 순서대로)
+  // 학생별 기록 (활동 순서 → 질문 순서)
   const screenMap = new Map<string, ScreenAnswer[]>();
   for (const r of (screens as ScreenRow[]) ?? []) {
     const list = screenMap.get(r.student_id) ?? [];
     list.push({
       key: r.screen_key,
+      questionKey: r.question_key ?? "",
+      screenTitle: screenTitle.get(r.screen_key),
       prompt: r.prompt ?? "",
       text: r.text ?? "",
       images: r.images ?? [],
+      correct: r.correct,
       updatedAt: r.updated_at,
     });
     screenMap.set(r.student_id, list);
   }
   for (const list of screenMap.values()) {
-    list.sort((a, b) => compareScreenKeys(a.key, b.key));
+    list.sort(compareAnswers);
   }
 
   const rows: SubmissionRow[] = ((students as StudentRow[]) ?? []).map((s) => {

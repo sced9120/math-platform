@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
-  compareScreenKeys,
+  compareAnswers,
   screensToCell,
   type ScreenAnswer,
 } from "@/lib/responses";
@@ -38,9 +38,11 @@ type ScreenRow = {
   student_id: string;
   activity_id: string;
   screen_key: string;
+  question_key: string | null;
   prompt: string;
   text: string;
   images: string[] | null;
+  correct: boolean | null;
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -116,7 +118,7 @@ export default function ExportBuilder({
           .in("activity_id", activityIds),
         supabase
           .from("screen_responses")
-          .select("student_id, activity_id, screen_key, prompt, text, images")
+          .select("student_id, activity_id, screen_key, question_key, prompt, text, images, correct")
           .in("student_id", studentIds)
           .in("activity_id", activityIds),
       ]);
@@ -141,14 +143,16 @@ export default function ExportBuilder({
       const list = screenMap.get(k) ?? [];
       list.push({
         key: r.screen_key,
+        questionKey: r.question_key ?? "",
         prompt: r.prompt ?? "",
         text: r.text ?? "",
         images: r.images ?? [],
+        correct: r.correct,
       });
       screenMap.set(k, list);
     }
     for (const list of screenMap.values()) {
-      list.sort((a, b) => compareScreenKeys(a.key, b.key));
+      list.sort(compareAnswers);
     }
     const pickedStudents = students.filter((s) => selStudents.has(s.id));
 

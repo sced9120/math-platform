@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
+  answerLabel,
   answerText,
-  screenLabel,
   screensToCell,
   UPLOAD_BUCKET,
   type ScreenAnswer,
@@ -237,13 +237,23 @@ export default function SubmissionsTable({
                 <div className="flex flex-col gap-3">
                   {r.screens.map((s) => (
                     <div
-                      key={s.key}
+                      key={`${s.key}|${s.questionKey ?? ""}`}
                       className="rounded-lg border border-zinc-200 bg-zinc-50 p-3"
                     >
                       <div className="mb-1 flex flex-wrap items-baseline gap-2">
                         <span className="rounded bg-zinc-200 px-1.5 py-0.5 text-xs font-semibold text-zinc-700">
-                          {screenLabel(s.key)}
+                          {answerLabel(s)}
                         </span>
+                        {s.correct === true && (
+                          <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs font-semibold text-green-700">
+                            정답
+                          </span>
+                        )}
+                        {s.correct === false && (
+                          <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-700">
+                            오답
+                          </span>
+                        )}
                         {s.prompt && (
                           <span className="text-xs text-zinc-500">{s.prompt}</span>
                         )}

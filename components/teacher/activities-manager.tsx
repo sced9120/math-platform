@@ -34,9 +34,18 @@ type FormState = {
   assignedClasses: number[]; // assignAll=false일 때 대상 반
 };
 
+// 예전 방식으로 만든 소단원인가 (콘텐츠가 소단원 자체에 들어 있는 경우)
+function hasLegacyContent(a: Activity): boolean {
+  const c = (a.content ?? {}) as Record<string, unknown>;
+  return ["materialId", "body", "question", "imagePath", "html", "response_prompt"].some(
+    (k) => !!c[k]
+  );
+}
+
 const EMPTY_FORM: FormState = {
   title: "",
-  type: "geogebra",
+  // 새 소단원은 안을 '활동'으로 채운다. 옛 유형은 예전 소단원을 고칠 때만 쓴다.
+  type: "html",
   order_index: 0,
   is_published: false,
   materialId: "",
@@ -116,6 +125,8 @@ export default function ActivitiesManager({
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 예전 방식(소단원 자체가 콘텐츠였던 시절) 설정은 평소엔 접어 둔다
+  const [showLegacy, setShowLegacy] = useState(false);
 
   const load = useCallback(async () => {
     const supabase = createClient();
@@ -134,6 +145,7 @@ export default function ActivitiesManager({
   function cancelEdit() {
     setEditingId(null);
     setForm(EMPTY_FORM);
+    setShowLegacy(false);
   }
 
   async function handleImageUpload(file: File) {
@@ -245,31 +257,33 @@ export default function ActivitiesManager({
         <form onSubmit={handleSave} className="flex flex-col gap-4">
           <div className="flex flex-wrap items-end gap-4">
             <div className="flex min-w-64 flex-1 flex-col gap-1">
-              <label className="text-sm font-medium text-zinc-700">활동명</label>
+              <label className="text-sm font-medium text-zinc-700">소단원 이름</label>
               <input
                 type="text"
                 required
-                placeholder="예: 이차함수 그래프 조작해 보기"
+                placeholder="예: 좌표평면과 두 점 사이의 거리"
                 value={form.title}
                 onChange={(e) => set("title", e.target.value)}
                 className={inputCls}
               />
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-zinc-700">유형</label>
-              <select
-                value={form.type}
-                onChange={(e) => set("type", e.target.value as ActivityType)}
-                className={inputCls}
-              >
-                {Object.entries(TYPE_LABELS).map(([v, label]) => (
-                  <option key={v} value={v}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {showLegacy && (
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-zinc-700">예전 유형</label>
+                <select
+                  value={form.type}
+                  onChange={(e) => set("type", e.target.value as ActivityType)}
+                  className={inputCls}
+                >
+                  {Object.entries(TYPE_LABELS).map(([v, label]) => (
+                    <option key={v} value={v}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-medium text-zinc-700">순서</label>
@@ -291,7 +305,10 @@ export default function ActivitiesManager({
             </label>
           </div>
 
-          {/* 유형별 입력 */}
+          {/* 예전 방식(소단원 자체가 콘텐츠였던 시절) 입력.
+              새 소단원은 안을 '활동'으로 채우므로 평소에는 접어 둔다. */}
+          {showLegacy && (
+          <>
           {form.type === "geogebra" && (
             <div className="flex flex-wrap gap-4 rounded-lg bg-zinc-50 p-4">
               <div className="flex min-w-64 flex-1 flex-col gap-1">
@@ -443,6 +460,9 @@ export default function ActivitiesManager({
             </div>
           )}
 
+          </>
+          )}
+
           {/* 공통: 대상 반 (부여하지 않은 반에는 활동이 보이지 않음) */}
           <div className="flex flex-col gap-2 rounded-lg border border-dashed border-zinc-300 p-4">
             <label className="text-sm font-medium text-zinc-700">공개 대상</label>
@@ -490,7 +510,8 @@ export default function ActivitiesManager({
             </div>
           </div>
 
-          {/* 공통: 학생 글 작성란 */}
+          {/* 예전 방식의 활동 단위 기록칸. 새 방식에서는 활동마다 질문을 붙인다. */}
+          {showLegacy && (
           <div className="flex flex-col gap-1 rounded-lg border border-dashed border-zinc-300 p-4">
             <label className="text-sm font-medium text-zinc-700">
               학생 글 작성란 안내문 (선택)
@@ -508,6 +529,15 @@ export default function ActivitiesManager({
               className={inputCls}
             />
           </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setShowLegacy((v) => !v)}
+            className="self-start text-xs text-zinc-500 hover:underline"
+          >
+            {showLegacy ? "예전 방식 설정 접기" : "예전 방식 설정 펼치기 (유형·내용·기록칸)"}
+          </button>
 
           <div className="flex gap-2">
             <button
@@ -606,6 +636,8 @@ export default function ActivitiesManager({
                         onClick={() => {
                           setEditingId(a.id);
                           setForm(formFromActivity(a));
+                          // 예전 방식으로 만든 소단원이면 그 설정을 펼쳐서 고칠 수 있게
+                          setShowLegacy(hasLegacyContent(a));
                           window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
                         className="text-xs text-zinc-600 hover:underline"

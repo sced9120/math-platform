@@ -16,6 +16,69 @@
   .muted{color:var(--muted)}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
   .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .formula{font-size:17px;text-align:center;padding:10px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  .frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 2px}
+  .frac .num{border-bottom:1.5px solid currentColor;padding:0 6px}.frac .den{padding:0 6px}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .handle{cursor:grab}.handle:active{cursor:grabbing}
+  .controls{display:flex;flex-direction:column;gap:12px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:700}
+  .badge.ok{background:#dcfce7;color:var(--emerald)}.badge.no{background:#f4f4f5;color:var(--muted)}
+  .badge.warn{background:#fef3c7;color:var(--amber)}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  ul.tight{margin:6px 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+</style>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
   .formula{font-size:18px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
   .frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 3px}
   .frac .num{border-bottom:1.5px solid currentColor;padding:0 8px}.frac .den{padding:0 8px}
@@ -54,14 +117,6 @@
   .turn i{font-style:normal;font-size:17px;line-height:1.3}
 </style>
 
-
-
-
-
-
-
-
-
 <!-- NAV:START -->
 <div id="archiveNav" style="display:none">
   <a href="../index.html">← 활동 목록</a>
@@ -85,7 +140,93 @@
 <div class="wrap">
   <div class="steps" id="steps"></div>
 
-  <section class="screen on" data-key="s1">
+<section class="screen on" data-key="s1" data-part="g0" data-prompt="기울기의 곱이 −1 이 되는 순간을 직접 찾아보고, 그때 두 직선이 왜 직각으로 만나는지 자신의 말로 설명해 보세요.">
+    <div class="kicker">수직</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-02 [수직의 조건]</span></div>
+    <div class="turn"><i>📖</i><span>교과서 22쪽 — 수직 조건과 [예제 1] 을 함께 다루고, 23쪽 [스스로 익히기] 를 풉니다.</span></div>
+<!--TEACH:END-->
+    <h1>수직: 기울기의 곱이 −1</h1>
+    <p>두 직선의 기울기를 바꿔, 곱 <b>m₁ · m₂</b> 가 <b>−1</b> 이 되는 순간을 찾아보세요. 그때 두 직선은 직각으로 만납니다.</p>
+    <div class="lab">
+      <svg id="s4" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label><span style="color:var(--rose)">m₁</span> <span><b id="s4m1">2</b></span></label>
+          <input id="s4m1r" type="range" min="-3" max="3" step="0.25" value="2"></div>
+        <div class="slider"><label><span style="color:var(--emerald)">m₂</span> <span><b id="s4m2">-0.5</b></span></label>
+          <input id="s4m2r" type="range" min="-3" max="3" step="0.25" value="-0.5"></div>
+        <div class="readout" id="s4read"></div>
+        <div class="hint">m₂ = −1/m₁ 일 때 수직. (예: m₁=2 → m₂=−0.5)</div>
+      </div>
+    </div>
+    <div class="card">
+      <b>왜 −1일까?</b> 기울기 m 인 직선의 방향을 90° 돌리면, 방향벡터 (1, m) → (−m, 1) 이 됩니다.
+      새 기울기는 1/(−m) = −1/m. 따라서 m₁ · m₂ = m · (−1/m) = <b>−1</b>.
+    </div>
+
+    <div class="card" style="border-color:#fca5a5;background:#fef2f2">
+      <b>⚠️ 이 조건을 쓸 수 없는 경우가 있습니다</b>
+      <p style="margin:8px 0">직선 <b>x = 2</b> 와 <b>y = 3</b> 은 누가 봐도 <b>수직</b>입니다.
+         그런데 위 슬라이더로는 이 두 직선을 만들 수 없습니다. 왜일까요?</p>
+      <button class="reveal" id="rvv" style="margin:2px 0 0">먼저 생각해 본 뒤 열기</button>
+      <div class="ans" id="anv">
+        <p style="margin:8px 0 0"><b>x = 2 는 기울기가 없습니다</b>(정의되지 않음).
+        m₁ · m₂ = −1 은 <b>두 직선 모두 기울기가 있을 때만</b> 쓸 수 있는 조건이에요.</p>
+        <table style="margin-top:10px">
+          <tr><th>두 직선이 수직인 경우</th><th>예</th><th>판정</th></tr>
+          <tr><td>둘 다 기울기가 있다</td><td>y = 2x, &nbsp;y = −½x + 1</td><td><b>m₁ m₂ = −1</b></td></tr>
+          <tr><td>하나는 x축에, 하나는 y축에 평행</td><td>x = 2, &nbsp;y = 3</td><td>공식 <b>사용 불가</b> — 그림으로 판단</td></tr>
+        </table>
+        <p style="margin:8px 0 0" class="hint">일반형 <code>a₁x + b₁y + c₁ = 0</code>, <code>a₂x + b₂y + c₂ = 0</code> 으로 쓰면
+        수직 조건이 <b>a₁a₂ + b₁b₂ = 0</b> 이 되어 이런 예외가 사라집니다.
+        x = 2 → (a,b) = (1,0), y = 3 → (a,b) = (0,1) 이므로 1·0 + 0·1 = 0 ✓</p>
+      </div>
+    </div>
+  </section>
+
+<section class="screen" data-key="s2" data-part="g0" data-prompt="직접 두 직선을 움직여 본 뒤, 두 직선이 (1) 평행할 조건과 (2) 수직일 조건을 기울기 m₁, m₂ 로 각각 정리하고, 왜 수직이면 기울기의 곱이 −1 이 되는지 자신의 말로 설명하세요.">
+    <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span><span class="t-sheet">📄 학습지 1-02 [스피드 연습문제]</span></div>
+<!--TEACH:END-->
+    <h1>두 직선의 위치 관계</h1>
+    <p>서로 다른 두 직선 y = m₁x + n₁, y = m₂x + n₂ 의 관계는 다음과 같이 판정합니다.</p>
+    <table>
+      <tr><th>관계</th><th>조건</th><th>교점</th></tr>
+      <tr><td>한 점에서 만남</td><td>m₁ ≠ m₂</td><td>1개</td></tr>
+      <tr><td><b>평행</b></td><td>m₁ = m₂, n₁ ≠ n₂</td><td>없음</td></tr>
+      <tr><td>일치</td><td>m₁ = m₂, n₁ = n₂</td><td>무수히 많음</td></tr>
+      <tr><td><b>수직</b></td><td>m₁ · m₂ = −1</td><td>1개(직각)</td></tr>
+    </table>
+    <p class="q">이제 아래 <b>‘내 생각 적기’</b> 칸에, 평행 조건과 수직 조건을 스스로 정리해 보세요.</p>
+    <div class="callout"><b>확인 문제</b> 직선 y = 2x + 3 에 <b>평행</b>하고 점 (1, 4) 를 지나는 직선, 그리고 <b>수직</b>이고 (1, 4) 를 지나는 직선의 방정식을 각각 구해보세요. (답을 먼저 스스로 → 필요하면 ‘AI 질문’ 탭)</p>
+  </section>
+
+<section class="screen" data-key="ext1" data-part="g0" data-prompt="y축에 평행한 직선 x = k 는 기울기가 없습니다. 이 직선과 수직인 직선은 무엇이고, ‘기울기의 곱 = −1’ 규칙을 왜 여기서 쓸 수 없는지 설명해 보세요." data-photo="1">
+    <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">도로·건물 설계, 컴퓨터 화면의 좌표계는 모두 수직인 두 축 위에 세워집니다. 게임에서 캐릭터를 90° 돌리는 것도 ‘수직 방향 찾기’이고, 로봇 팔의 자세 제어도 마찬가지예요.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">기울기 곱이 −1 이라는 조건은, 방향벡터 (1, m₁)과 (1, m₂)의 <b>내적이 0</b>이라는 말과 같습니다: 1·1 + m₁m₂ = 0. ‘수직 = 내적 0’ 은 3차원·n차원에서도 그대로 성립하는 <b>더 근본적인 정의</b>입니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>y축에 평행한 직선(x = k)은 기울기가 없습니다. 그렇다면 이 직선과 수직인 직선은 무엇이고, ‘기울기의 곱 = −1’ 규칙은 왜 여기서 쓸 수 없을까요?
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 기록칸에 남겨 보세요. <b>공책에 쓴 것을 사진으로 올려도</b> 됩니다.</p>
+  </section>
+
+<section class="screen" data-key="s3" data-part="g1">
     <div class="kicker">공통수학2 · 도형의 방정식</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 1-02 [점과 직선 사이의 거리] Q2·Q3</span></div>
@@ -102,7 +243,7 @@
     </div>
   </section>
 
-  <section class="screen" data-key="s2" data-prompt="점에서 직선에 이르는 여러 선을 비교해 보았습니다. 왜 수선이 가장 짧은지 자신의 말로 설명해 보세요.">
+<section class="screen" data-key="s4" data-part="g1" data-prompt="점에서 직선에 이르는 여러 선을 비교해 보았습니다. 왜 수선이 가장 짧은지 자신의 말로 설명해 보세요.">
     <div class="kicker">핵심 아이디어</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
@@ -119,7 +260,7 @@
     </div>
   </section>
 
-  <section class="screen" data-key="s3">
+<section class="screen" data-key="s5" data-part="g1">
     <div class="kicker">쉬운 경우</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-02 [점과 직선 사이의 거리] Q4</span></div>
@@ -134,7 +275,7 @@
       한 번에 계산하는 <b>공식</b>이 필요합니다. → 다음 화면</div>
   </section>
 
-  <section class="screen" data-key="s4" data-prompt="직선과 점을 움직이며 관찰한 것을 바탕으로, 거리 공식의 분자에 왜 절댓값이 붙고 분모에 왜 √(a² + b²) 이 오는지 설명해 보세요.">
+<section class="screen" data-key="s6" data-part="g1" data-prompt="직선과 점을 움직이며 관찰한 것을 바탕으로, 거리 공식의 분자에 왜 절댓값이 붙고 분모에 왜 √(a² + b²) 이 오는지 설명해 보세요.">
     <div class="kicker">거리 공식</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-02 Q5 [증명해보기]</span></div>
@@ -159,7 +300,7 @@
     </div>
   </section>
 
-  <section class="screen" data-key="s5" data-prompt="점 (2,3) 과 직선 3x−4y+1=0 사이의 거리를 공식으로 구하고, 이 거리가 ‘점에서 직선에 내린 수선의 길이’와 같은 이유를 설명하세요.">
+<section class="screen" data-key="s7" data-part="g1" data-prompt="점 (2,3) 과 직선 3x−4y+1=0 사이의 거리를 공식으로 구하고, 이 거리가 ‘점에서 직선에 내린 수선의 길이’와 같은 이유를 설명하세요.">
     <div class="kicker">정리</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-write">✍️ 학습지에 적기</span></div>
@@ -178,7 +319,7 @@
       (참고: d = |3·2 − 4·3 + 1| / √(9+16) = |−5|/5 = 1)</p>
   </section>
 
-  <section class="screen" data-key="s6">
+<section class="screen" data-key="s8" data-part="g1">
     <div class="kicker">읽을거리</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
@@ -196,10 +337,7 @@
     <div class="callout">오늘 배운 <b>거리 공식</b>이 바로 “기하(거리)를 대수(식)로 번역”한 대표적인 예입니다.</div>
   </section>
 
-  
-
-  <!-- EXT:START -->
-  <section class="screen" data-key="ext" data-prompt="두 평행선 3x − 4y + 1 = 0 과 3x − 4y − 9 = 0 사이의 거리를 구해 보세요. 어떻게 구했는지 과정도 함께 적어 보세요." data-photo="1">
+<section class="screen" data-key="ext2" data-part="g1" data-prompt="두 평행선 3x − 4y + 1 = 0 과 3x − 4y − 9 = 0 사이의 거리를 구해 보세요. 어떻게 구했는지 과정도 함께 적어 보세요." data-photo="1">
     <div class="kicker">확장 탐구</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
@@ -222,8 +360,8 @@
     </div>
     <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 기록칸에 남겨 보세요. <b>공책에 쓴 것을 사진으로 올려도</b> 됩니다.</p>
   </section>
-  <!-- EXT:END -->
-  <!-- FREE:START -->
+
+<!-- FREE:START -->
   <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
     <div class="kicker">마무리</div>
     <h1>✍️ 오늘 수업 자유 기록</h1>
@@ -234,17 +372,95 @@
   </section>
   <!-- FREE:END -->
 
-
   <div class="nav">
     <button class="btn" id="prev">&laquo; 이전</button>
-    <span class="tag" id="counter">1 / 6</span>
+    <span class="tag" id="counter">1 / 11</span>
     <button class="btn primary" id="next">다음 &raquo;</button>
   </div>
 </div>
 
 <script>
 (function(){
-  "use strict";
+"use strict";
+var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g0"]'));
+
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
+
+  // 공용 평면 헬퍼: domain [lo,hi] 대칭
+  function Plane(svg, lo, hi){
+    var S=400,pad=28;
+    function px(x){return pad+(x-lo)/(hi-lo)*(S-2*pad);}
+    function py(y){return (S-pad)-(y-lo)/(hi-lo)*(S-2*pad);}
+    return {
+      px:px, py:py, lo:lo, hi:hi, svg:svg,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){
+        for(var g=Math.ceil(lo);g<=hi;g++){
+          svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));
+          svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));
+        }
+        svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+        svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+      },
+      line:function(m,b,color,w){ // y=mx+b, 범위 클리핑
+        var x1=lo,y1=m*lo+b,x2=hi,y2=m*hi+b;
+        svg.appendChild(el("line",{x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2.5,"stroke-linecap":"round"}));
+      },
+      vline:function(x,color,w){svg.appendChild(el("line",{x1:px(x),y1:py(lo),x2:px(x),y2:py(hi),stroke:color,"stroke-width":w||2.5}));},
+      dot:function(x,y,color,label,r){
+        svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||6,fill:color}));
+        if(label){var t=el("text",{x:px(x)+9,y:py(y)-8,"font-size":13,"font-weight":700,fill:color});t.textContent=label;svg.appendChild(t);}
+      },
+      handle:function(x,y,color,name){
+        var c=el("circle",{cx:px(x),cy:py(y),r:11,fill:color,"fill-opacity":.18,stroke:color,"stroke-width":2,class:"handle"});
+        c.setAttribute("data-name",name);svg.appendChild(c);
+      },
+      onDrag:function(cb){
+        var dragging=null;
+        function toData(evt){
+          var r=svg.getBoundingClientRect();
+          var sx=(evt.clientX-r.left)/r.width*S, sy=(evt.clientY-r.top)/r.height*S;
+          var x=lo+(sx-pad)/(S-2*pad)*(hi-lo), y=lo+((S-pad)-sy)/(S-2*pad)*(hi-lo);
+          return {x:Math.max(lo,Math.min(hi,Math.round(x))),y:Math.max(lo,Math.min(hi,Math.round(y)))};
+        }
+        svg.addEventListener("pointerdown",function(e){var t=e.target;if(t&&t.getAttribute&&t.getAttribute("class")==="handle"){dragging=t.getAttribute("data-name");svg.setPointerCapture(e.pointerId);}});
+        svg.addEventListener("pointermove",function(e){if(dragging){cb(dragging,toData(e));}});
+        svg.addEventListener("pointerup",function(){dragging=null;});
+        svg.addEventListener("pointerleave",function(){dragging=null;});
+      }
+    };
+  }
+
+  
+  // 화면4: 수직 판정
+  (function(){
+    var P=Plane(document.getElementById("s4"),-6,6),m1=2,m2=-0.5;
+    var r1=document.getElementById("s4m1r"),r2=document.getElementById("s4m2r");
+    function draw(){P.clear();P.grid();P.line(m1,0,"#e11d48",2.5);P.line(m2,0,"#059669",2.5);P.dot(0,0,"#2563eb",null,4);
+      var prod=m1*m2,perp=Math.abs(prod+1)<1e-9;
+      document.getElementById("s4m1").textContent=m1;document.getElementById("s4m2").textContent=m2;
+      document.getElementById("s4read").innerHTML="m₁ · m₂ = "+fmt(m1)+" × "+fmt(m2)+" = <b>"+fmt(prod)+"</b><br>"+(perp?'<span class="badge ok">수직 ⟂</span> 직각으로 만납니다!':'<span class="badge no">아직 수직 아님</span> −1 에 맞춰보세요.');}
+    r1.oninput=function(){m1=parseFloat(r1.value);draw();};r2.oninput=function(){m2=parseFloat(r2.value);draw();};draw();
+  })();
+
+  // 접었다 펴는 답 --------------------------------------------------------------
+  (function(){
+    var rv=document.getElementById("rvv"), an=document.getElementById("anv");
+    if(!rv) return;
+    rv.addEventListener("click",function(){
+      an.classList.toggle("on");
+      rv.textContent = an.classList.contains("on") ? "접기" : "먼저 생각해 본 뒤 열기";
+    });
+  })();
+})();
+</script>
+<script>
+(function(){
+"use strict";
+var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g1"]'));
+
   var SVGNS="http://www.w3.org/2000/svg";
   function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
   function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
@@ -266,13 +482,8 @@
         svg.addEventListener("pointerup",function(){dragging=null;});svg.addEventListener("pointerleave",function(){dragging=null;});}
     };
   }
-  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
-  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
-  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
-  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
-  var dots=[].slice.call(stepsEl.children);
-  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
-  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  
+
 
   // 화면0: 두 점 거리
   (function(){
@@ -313,7 +524,17 @@
     mr.oninput=function(){m=parseFloat(mr.value);draw();};kr.oninput=function(){k=parseFloat(kr.value);draw();};
     P.onDrag(function(n,pt){Pt=pt;draw();});draw();
   })();
-
+})();
+</script>
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
   go(0);
 })();
 </script>

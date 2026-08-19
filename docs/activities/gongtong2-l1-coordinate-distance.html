@@ -1,0 +1,1145 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .handle{cursor:grab}.handle:active{cursor:grabbing}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:17px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
+  .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .handle{cursor:grab}.handle:active{cursor:grabbing}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .formula{font-size:18px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  .sqrt{border-top:1.5px solid currentColor;padding:0 3px;margin-left:.62em;position:relative;white-space:nowrap}
+  .sqrt::before{content:"√";position:absolute;left:-.62em;top:-.17em;font-size:1.12em;line-height:1;border:0}
+  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:700}
+  .badge.ok{background:#dcfce7;color:var(--emerald)}.badge.no{background:#f4f4f5;color:var(--muted)}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}p{margin:8px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .hint{font-size:12px;color:var(--muted)}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .handle{cursor:grab}.handle:active{cursor:grabbing}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .bar{height:22px;border-radius:6px;transition:width .12s}
+  .barwrap{background:#f4f4f5;border-radius:6px;overflow:hidden;margin:3px 0 8px}
+  .pk{border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;font-weight:700;padding:8px 8px;border-radius:9px;cursor:pointer;text-align:left}
+  .pk.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:7px 14px;border-radius:9px;cursor:pointer}
+  .step{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:10px 0}
+  .step.on{border-color:var(--blue)}
+  .ans{display:none}.ans.on{display:block;animation:fade .2s ease}
+  .formula{font-size:16px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+<section class="screen on" data-key="s1" data-part="g0">
+    <div class="kicker">공통수학2 · 평면좌표</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 1-01 [생각 틔우기] Q1</span></div>
+<!--TEACH:END-->
+    <h1>🏯 석가탑과 다보탑, 얼마나 떨어져 있을까?</h1>
+    <p>불국사 대웅전 앞에는 <b>석가탑</b>과 <b>다보탑</b>이 마주 서 있습니다.
+       아래 배치도를 보고 두 탑 사이의 거리를 말해 보세요.</p>
+    <svg id="m0" viewBox="0 0 400 230"></svg>
+    <div class="card">
+      <b>왜 선뜻 답하기 어려울까요?</b>
+      <button class="reveal" id="rv0" style="margin-left:8px">생각해 본 뒤 열기</button>
+      <div class="ans" id="an0">
+        <p style="margin:8px 0 0">그림에는 <b>기준이 없기</b> 때문입니다. 어디가 <b>0</b> 인지(원점),
+        <b>1</b> 이 얼마인지(단위)가 정해지지 않으면 “멀다/가깝다”만 말할 수 있을 뿐 <b>수로 답할 수 없습니다</b>.<br>
+        수학이 도형을 다루는 첫걸음은 <b>기준을 정하는 것</b> — 바로 <b>좌표</b>를 놓는 일입니다.</p>
+      </div>
+    </div>
+    <p class="hint">이 활동은 학습지 1-01 의 첫 질문과 이어집니다. 활동을 마친 뒤 학습지에 답을 적어 보세요.</p>
+  </section>
+
+<section class="screen" data-key="s2" data-part="g0" data-prompt="원점을 옮기면 두 탑의 좌표는 달라지는데 거리는 그대로였습니다. 그 까닭을 |b − a| 를 써서 설명해 보세요.">
+    <div class="kicker">1차원 — 수직선</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 [생각 틔우기] Q2</span></div>
+<!--TEACH:END-->
+    <h1>수직선을 놓아 보자</h1>
+    <p>두 탑을 잇는 선에 <b>수직선</b>을 놓았습니다. 그런데 <b>원점(0)을 어디에 둘지</b>는 우리 마음이죠.
+       슬라이더로 원점을 옮겨 보세요. 두 탑의 <b>좌표는 달라지지만</b>, 거리는 어떻게 되나요?</p>
+    <div class="lab">
+      <svg id="m1" viewBox="0 0 400 200"></svg>
+      <div class="controls">
+        <div class="slider"><label>원점을 어디에 둘까 <span><b id="m1ov">9</b></span></label><input id="m1o" type="range" min="0" max="18" step="1" value="9"></div>
+        <div class="readout" id="m1r"></div>
+        <div class="win win on" style="display:block">거리는 <b>언제나 18</b> 로 같습니다!</div>
+      </div>
+    </div>
+    <div class="formula">수직선 위 두 점 A(a), B(b) 사이의 거리 = <b>|b − a|</b></div>
+    <div class="callout"><b>중요한 발견</b> — 좌표는 우리가 <b>임의로</b> 정하지만, 거리는 좌표를 어떻게 잡든
+      <b>변하지 않습니다</b>. 그래서 계산이 가장 쉬워지는 자리에 원점을 놓아도 됩니다(뒤에 나올 증명에서 아주 유용해요).</div>
+  </section>
+
+<section class="screen" data-key="s3" data-part="g0" data-prompt="대웅전의 위치는 왜 수 하나로 말할 수 없나요? 가로·세로 두 수가 필요한 이유를 적어 보세요.">
+    <div class="kicker">2차원 — 좌표평면</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-01 [생각 틔우기] Q3·Q4</span></div>
+    <div class="turn"><i>📖</i><span>교과서 13쪽 — 불국사 배치도 그림을 함께 보며 대웅전까지의 거리를 재어 봅니다.</span></div>
+<!--TEACH:END-->
+    <h1>대웅전까지 재려면 한 줄로는 안 된다</h1>
+    <p>대웅전은 두 탑을 잇는 선 위에 있지 않습니다. 그래서 <b>수 하나</b>로는 위치를 말할 수 없고,
+       <b>가로·세로 두 수</b>가 필요합니다. <b>대웅전을 드래그</b>해 보세요.</p>
+    <div class="lab">
+      <svg id="m2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="m2r"></div>
+        <div class="formula" style="font-size:14px;margin:0">거리 = <span class="sqrt">(가로)² + (세로)²</span></div>
+      </div>
+    </div>
+    <p class="hint">가로 변(빨강)과 세로 변(초록)으로 <b>직각삼각형</b>이 생기고, 빗변이 우리가 찾는 거리입니다 —
+      중학교에서 배운 <b>피타고라스 정리</b> 그대로예요.</p>
+  </section>
+
+<section class="screen" data-key="s4" data-part="g0" data-prompt="석가탑까지가 다보탑까지의 2배가 되는 지점 P 를 찾았습니다. P 의 좌표가 어떻게 나왔는지 식으로 적어 보세요.">
+    <div class="kicker">데카르트의 자리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 [생각 틔우기] Q5</span></div>
+<!--TEACH:END-->
+    <h1>🧭 석가탑까지가 다보탑까지의 2배인 지점</h1>
+    <p>데카르트는 두 탑을 잇는 <b>일직선 사이</b>에 서 있고, <b>석가탑까지의 거리가 다보탑까지의 2배</b>입니다.
+       <b>P 를 드래그</b>해 그 자리를 찾아보세요.</p>
+    <div class="lab">
+      <svg id="m3" viewBox="0 0 400 200"></svg>
+      <div class="controls">
+        <div class="readout" id="m3r"></div>
+        <div class="win" id="m3w"></div>
+      </div>
+    </div>
+    <div class="callout"><b>이것이 바로 ‘내분’ 입니다.</b> 선분을 <b>2 : 1</b> 로 나누는 점을 찾은 것이죠.
+      석가탑 −9, 다보탑 9 이므로 <b>P = (2·9 + 1·(−9)) / (2 + 1) = 3</b>.
+      다음 활동 <b>‘선분의 내분’</b>에서 이 공식을 제대로 세워 봅니다.</div>
+  </section>
+
+<section class="screen" data-key="s5" data-part="g0" data-prompt="(1) 배치도만으로는 왜 두 탑 사이의 거리를 말할 수 없었나요? 무엇이 더 필요했는지 쓰세요. (2) 원점을 옮겨도 거리가 변하지 않는 이유를 |b − a| 로 설명하세요. (3) 대웅전과 석가탑 사이의 거리를 구하는 방법을 자신의 말로 서술하세요.">
+    <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span><span class="t-sheet">📄 학습지 1-01 [학습 목표 유추하기]</span></div>
+<!--TEACH:END-->
+    <h1>좌표를 놓으면 도형이 계산이 된다</h1>
+    <table>
+      <tr><th>질문</th><th>좌표 없이</th><th>좌표를 놓으면</th></tr>
+      <tr><td>두 탑 사이 거리</td><td>말할 수 없음</td><td>|b − a|</td></tr>
+      <tr><td>대웅전까지 거리</td><td>자로 재야 함</td><td><span class="sqrt">(x₂−x₁)² + (y₂−y₁)²</span></td></tr>
+      <tr><td>2 : 1 인 지점</td><td>눈대중</td><td>내분점 공식</td></tr>
+    </table>
+    <div class="callout"><b>17세기의 사고 전환</b> — 데카르트는 “평면 위 한 점을 <b>두 개의 수</b>로 나타내면
+      기하 문제를 대수 방정식으로 바꿀 수 있지 않을까?” 라고 생각했습니다.
+      이 발상 하나로 도형과 식이 <b>서로 번역 가능한 언어</b>가 되었고, 여기서 해석기하학이 태어났습니다.</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에 정리해 보세요.<br>
+      (1) 배치도만으로는 왜 거리를 말할 수 없었나요? 무엇이 더 필요했나요?<br>
+      (2) 원점을 옮겨도 <b>거리가 변하지 않는</b> 이유를 |b − a| 로 설명하세요.<br>
+      (3) 대웅전과 석가탑 사이의 거리를 구하는 방법을 <b>자신의 말로</b> 서술하세요.</p>
+  </section>
+
+<section class="screen" data-key="ext1" data-part="g0" data-prompt="지도 앱이 두 지점의 거리를 잴 때 Δx² + Δy² 를 써도 되는 까닭은 무엇이고, 언제부터 안 되기 시작할까요? 생각한 것을 자유롭게 적어 보세요." data-photo="1">
+    <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">문화재 실측과 3D 스캔, 지도 앱의 위도·경도, 게임 속 캐릭터 위치,
+          로봇의 팔 끝 좌표 — 모두 “기준을 정하고 수로 말하기”입니다. 기준이 다르면 좌표는 달라져도
+          <b>거리는 같다</b>는 성질이 이 모든 시스템을 신뢰할 수 있게 만듭니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">‘좌표를 바꿔도 변하지 않는 양’을 <b>불변량</b>이라 합니다.
+          거리는 평행이동·회전·대칭에 대한 불변량이에요. 현대 기하학은 아예 “어떤 변환에서 무엇이 불변인가”로
+          기하학의 종류를 나눕니다(클라인의 <b>에를랑겐 프로그램</b>).</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>
+      ① 지도 앱에서 두 지점의 거리를 잴 때, 지구는 평면이 아닌데 왜 <span class="sqrt">Δx² + Δy²</span> 를 써도 될까요?
+      언제부터 안 되기 시작할까요?<br>
+      ② 거리를 “가로 차이 + 세로 차이”로 재는 세상(택시 기하)에서는 ‘원’이 어떤 모양이 될까요?
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요.</p>
+  </section>
+
+<section class="screen" data-key="s6" data-part="g1">
+    <div class="kicker">공통수학2 · 도형의 방정식</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 [일반화하기] Q1</span></div>
+<!--TEACH:END-->
+    <h1>두 점 사이의 거리</h1>
+    <p>도형을 좌표로 다루려면 가장 먼저 <b>거리</b>를 잴 줄 알아야 합니다.
+       먼저 <b>수직선(1차원)</b> 위에서부터 시작해요.</p>
+    <div class="lab">
+      <svg id="g1s0" viewBox="0 0 640 150"></svg>
+      <div class="controls">
+        <div class="slider"><label>점 A 의 좌표 a <span><b id="s0a">-2</b></span></label><input id="s0ar" type="range" min="-8" max="8" step="1" value="-2"></div>
+        <div class="slider"><label>점 B 의 좌표 b <span><b id="s0b">5</b></span></label><input id="s0br" type="range" min="-8" max="8" step="1" value="5"></div>
+        <div class="readout" id="r0"></div>
+      </div>
+    </div>
+    <div class="formula">수직선 위 두 점 A(a), B(b) 사이의 거리 &nbsp;=&nbsp; <b>|b − a|</b></div>
+    <p class="hint">왜 절댓값일까요? 거리는 <b>방향과 관계없이 항상 0 이상</b>이기 때문입니다.
+      a &gt; b 여도 |b−a| 는 그대로 길이를 줍니다.</p>
+  </section>
+
+<section class="screen" data-key="s7" data-part="g1" data-prompt="A, B 를 움직이며 관찰한 것을 바탕으로, 두 점 사이의 거리가 왜 피타고라스 정리에서 나오는지 설명해 보세요.">
+    <div class="kicker">2차원으로</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 [일반화하기] Q2</span></div>
+<!--TEACH:END-->
+    <h1>좌표평면 위 두 점 사이의 거리</h1>
+    <p>A, B 를 <b>드래그</b> 해 보세요. 가로 변(빨강)과 세로 변(초록)으로 <b>직각삼각형</b>이 만들어지고,
+       빗변이 바로 우리가 구하는 거리입니다. → <b>피타고라스 정리!</b></p>
+    <div class="lab">
+      <svg id="g1s1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="r1"></div>
+        <div class="hint">가로 = |x₂−x₁|, 세로 = |y₂−y₁|</div>
+      </div>
+    </div>
+    <div class="formula">
+      AB = <span class="sqrt">(x₂ − x₁)² + (y₂ − y₁)²</span>
+    </div>
+  </section>
+
+<section class="screen" data-key="s8" data-part="g1" data-prompt="세 꼭짓점을 움직여 이등변삼각형과 직각삼각형을 각각 만들어 보고, 그때의 세 꼭짓점 좌표와 세 변의 길이를 적어 보세요.">
+    <div class="kicker">활용 · 도형 판정</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 (스스로 정리하기) 삼각형의 종류</span></div>
+<!--TEACH:END-->
+    <h1>거리로 삼각형의 모양 알아내기</h1>
+    <p>세 꼭짓점을 <b>드래그</b> 해 보세요. 세 변의 길이를 재어 <b>이등변삼각형</b>인지
+       <b>직각삼각형</b>인지 자동으로 판정합니다.</p>
+    <div class="lab">
+      <svg id="s2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="r2"></div>
+        <div class="hint">직각 판정은 피타고라스의 <b>역</b>: 가장 긴 변² = 나머지 두 변의 제곱합.</div>
+      </div>
+    </div>
+    <p class="hint">좌표만 알면 <b>자·각도기 없이</b> 도형의 성질을 알아낼 수 있어요. 이것이 좌표평면의 힘입니다.</p>
+  </section>
+
+<section class="screen" data-key="s9" data-part="g1" data-prompt="PA = PB 가 되는 점들을 모으면 어떤 도형이 되었나요? 왜 그런 도형이 되는지 자신의 말로 설명해 보세요.">
+    <div class="kicker">생각 넓히기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
+    <h1>두 점에서 같은 거리에 있는 점</h1>
+    <p>점 P 를 <b>드래그</b> 하며 <b>PA = PB</b> 가 되는 자리를 찾아보세요.
+       그런 점들을 모으면 어떤 도형이 될까요?</p>
+    <div class="lab">
+      <svg id="s3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="r3"></div>
+        <div class="hint">거의 같아지면 자취(주황 점선)가 나타납니다.</div>
+      </div>
+    </div>
+    <div class="callout">답은 <b>선분 AB 의 수직이등분선</b>! “거리가 같다”는 <b>조건</b>이
+      하나의 <b>도형(직선)</b>으로 바뀌었습니다. 이렇게 조건을 식과 도형으로 옮기는 것이
+      이 단원 전체의 큰 흐름이에요.</div>
+  </section>
+
+<section class="screen" data-key="s10" data-part="g1" data-prompt="두 점 사이의 거리 공식이 피타고라스 정리에서 어떻게 나오는지 자신의 말로 설명하고, 세 점 A(0,0), B(4,0), C(0,3) 으로 만든 삼각형의 세 변의 길이를 구해 어떤 삼각형인지 판정하세요.">
+    <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-01 [연습하기] Q1·Q2</span></div>
+    <div class="turn"><i>📖</i><span>교과서 14쪽 — [예제 1] 을 함께 풀고 [스스로 익히기] 로 넘어갑니다.</span></div>
+<!--TEACH:END-->
+    <h1>정리</h1>
+    <table>
+      <tr><th>상황</th><th>거리</th></tr>
+      <tr><td>수직선 위 A(a), B(b)</td><td><b>|b − a|</b></td></tr>
+      <tr><td>좌표평면 위 A(x₁,y₁), B(x₂,y₂)</td><td><b>√{(x₂−x₁)² + (y₂−y₁)²}</b></td></tr>
+      <tr><td>원점 O 와 A(x₁,y₁)</td><td>√(x₁² + y₁²)</td></tr>
+    </table>
+    <div class="callout"><b>다음 시간 예고</b> — 이 거리 공식을 이용하면, 선분을 원하는 비율로 나누는 점
+      (<b>내분점</b>)의 좌표도 구할 수 있습니다!</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, 두 점 사이의 거리 공식이 <b>피타고라스 정리</b>에서 어떻게 나오는지
+      자신의 말로 설명하고, 세 점 A(0,0), B(4,0), C(0,3) 으로 만든 삼각형의 세 변의 길이를 구해 보세요.</p>
+  </section>
+
+<section class="screen" data-key="ext2" data-part="g1" data-prompt="택시 거리에서 ‘한 점에서 거리가 3인 점의 모임’은 어떤 모양이었나요? 유클리드 거리와 비교해 왜 그런 모양이 되는지 설명해 보세요." data-photo="1">
+    <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">내비게이션이 알려 주는 거리는 직선거리가 아니라 <b>도로를 따라간 거리</b>입니다. 도시처럼 길이 격자로 난 곳에서는 <b>|Δx| + |Δy|</b>(택시 거리)가 더 현실적이에요. 배달 경로·지하철 환승 계산이 이 거리를 씁니다.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">거리를 3차원으로 늘리면 √(Δx² + Δy² + Δz²), n차원이면 제곱합의 제곱근으로 <b>그대로 일반화</b>됩니다. 수학에서는 ‘거리’를 ① 항상 0 이상 ② 같은 점끼리만 0 ③ 삼각부등식(돌아가면 멀다) 을 만족하는 것으로 <b>정의</b>하고, 이 조건만 지키면 무엇이든 거리로 인정합니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>유클리드 거리에서 ‘한 점에서 거리가 3인 점의 모임’은 원입니다. 그렇다면 <b>택시 거리</b>에서 같은 모임은 어떤 모양일까요? 아래에서 직접 확인해 보세요!
+    </div>
+    <div style="margin:14px 0 4px"><b>🚕 직접 해보기 — 택시 기하학</b></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="modebtn on" id="extTaxiCmp" style="border:1px solid var(--line);background:var(--blue);color:#fff;font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600">두 거리 비교</button>
+      <button class="modebtn" id="extTaxiCir" style="border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600">거리가 3인 점들 = ‘원’</button>
+    </div>
+    <div class="lab">
+      <svg id="extTaxi" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="extTaxiRead"></div>
+        <div class="hint">파란 점 A, B 를 드래그해 보세요. 주황은 <b>도로를 따라간 길(택시)</b>, 파랑은 <b>직선거리</b>입니다.</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 기록칸에 남겨 보세요. <b>공책에 쓴 것을 사진으로 올려도</b> 됩니다.</p>
+  </section>
+
+<section class="screen" data-key="s11" data-part="g2">
+    <div class="kicker">공통수학2 · 평면좌표</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
+    <h1>📐 정말 항상 같을까?</h1>
+    <p>삼각형 ABC 에서 변 BC 의 중점을 M 이라 할 때, 다음이 <b>언제나</b> 성립한다고 합니다.</p>
+    <div class="formula"><b>AB² + AC² = 2(AM² + BM²)</b></div>
+    <p><b>세 꼭짓점을 마음대로 드래그</b>해 보세요. 어떤 삼각형으로 만들어도 두 막대의 길이가 같은가요?</p>
+    <div class="lab">
+      <svg id="g2s0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="s0r"></div>
+        <div>
+          <div style="font-size:12.5px;font-weight:700;color:#e11d48">AB² + AC²</div>
+          <div class="barwrap"><div class="bar" id="b1" style="background:#e11d48;width:0"></div></div>
+          <div style="font-size:12.5px;font-weight:700;color:#059669">2(AM² + BM²)</div>
+          <div class="barwrap"><div class="bar" id="b2" style="background:#059669;width:0"></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="hint">아무리 찌그러뜨려도 두 값이 같습니다. 그런데 <b>왜</b> 그럴까요?
+      중학교식(논증 기하)으로 증명하려면 꽤 복잡합니다. 좌표를 쓰면 어떻게 될까요?</p>
+  </section>
+
+<section class="screen" data-key="s12" data-part="g2" data-prompt="세 가지 배치 중 어느 것이 계산이 가장 쉬웠나요? 그렇게 놓으면 무엇이 좋아지는지 적어 보세요.">
+    <div class="kicker">전략</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 1-01 [증명하기] 좌표를 어디에 놓을까</span></div>
+<!--TEACH:END-->
+    <h1>좌표를 어디에 놓느냐가 전부다</h1>
+    <p>앞 활동에서 배웠듯 <b>좌표는 우리가 정하는 것</b>이고, 어떻게 잡아도 거리는 변하지 않습니다.
+       그렇다면 <b>계산이 가장 쉬워지는 자리</b>에 놓으면 되겠죠. 세 가지 배치를 비교해 보세요.</p>
+    <div class="lab">
+      <svg id="g2s1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <button class="pk on" data-p="0">① 아무 데나 놓기</button>
+        <button class="pk" data-p="1">② B 를 원점에</button>
+        <button class="pk" data-p="2">③ M 을 원점 · BC 를 x축에</button>
+        <div class="readout" id="s1r"></div>
+      </div>
+    </div>
+    <div class="callout">③ 처럼 놓으면 <b>B(−c, 0), C(c, 0), M(0, 0)</b> 이 되어 부호가 딱 맞아떨어집니다.
+      학습지에서 <b>“직선 BC 를 x축, 점 M 을 원점”</b> 으로 잡으라고 한 이유예요.</div>
+  </section>
+
+<section class="screen" data-key="s13" data-part="g2" data-prompt="증명을 한 단계씩 스스로 해 본 뒤, 계산 과정에서 어떤 항이 지워졌는지 적어 보세요.">
+    <div class="kicker">증명</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-01 [증명하기]</span></div>
+    <div class="turn"><i>📖</i><span>교과서 14쪽 — 중선 정리 증명의 빈칸을 학생들과 함께 채웁니다.</span></div>
+<!--TEACH:END-->
+    <h1>세 줄이면 끝난다</h1>
+    <p>B(−c, 0), C(c, 0), M(0, 0), A(a, b) 로 놓습니다. 한 단계씩 스스로 해 본 뒤 열어 보세요.</p>
+
+    <div class="step" id="st1">
+      <b>1단계</b> — 왼쪽 AB² + AC² 을 a, b, c 로 나타내기
+      <button class="reveal" id="rv1">열기</button>
+      <div class="ans" id="an1">
+        <p style="margin:6px 0 0">AB² = (a − (−c))² + b² = <b>(a + c)² + b²</b><br>
+           AC² = (a − c)² + b²<br>
+           더하면 (a² + 2ac + c²) + (a² − 2ac + c²) + 2b² = <b>2a² + 2b² + 2c²</b>
+           &nbsp;<span class="hint">— 2ac 가 서로 지워집니다!</span></p>
+      </div>
+    </div>
+
+    <div class="step" id="st2">
+      <b>2단계</b> — 오른쪽 2(AM² + BM²) 을 a, b, c 로 나타내기
+      <button class="reveal" id="rv2">열기</button>
+      <div class="ans" id="an2">
+        <p style="margin:6px 0 0">AM² = (a − 0)² + (b − 0)² = <b>a² + b²</b><br>
+           BM² = (−c − 0)² + 0² = <b>c²</b><br>
+           2(AM² + BM²) = <b>2a² + 2b² + 2c²</b></p>
+      </div>
+    </div>
+
+    <div class="step" id="st3">
+      <b>3단계</b> — 두 결과를 비교하기
+      <button class="reveal" id="rv3">열기</button>
+      <div class="ans" id="an3">
+        <div class="formula">2a² + 2b² + 2c² &nbsp;=&nbsp; 2a² + 2b² + 2c² &nbsp; <b>∎</b></div>
+        <p style="margin:6px 0 0">양쪽이 <b>완전히 같은 식</b>이 되었습니다. 증명 끝!</p>
+      </div>
+    </div>
+
+    <p class="hint">위 화면의 삼각형을 다시 움직여 보면, a·b·c 값이 바뀌어도 두 식은 늘 같은 모양임을 확인할 수 있어요.</p>
+  </section>
+
+<section class="screen" data-key="s14" data-part="g2" data-prompt="(1) B(−c, 0), C(c, 0) 으로 놓았을 때 계산이 쉬워진 결정적인 이유는 무엇인가요? 어떤 항이 지워졌는지 쓰세요. (2) B(0, 0), C(2c, 0) 으로 놓았다면 어떻게 되는지 직접 계산해 비교하세요. (3) 이 정리가 실제로 어디에 쓰일지 하나만 찾아 적어 보세요.">
+    <div class="kicker">왜 교과서에 실렸을까</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span></div>
+<!--TEACH:END-->
+    <h1>이 문제의 진짜 주인공</h1>
+    <div class="card">
+      <b>중학교 방식(논증 기하)이라면?</b><br>
+      보조선을 긋고, 합동·닮음을 찾고, 피타고라스를 여러 번 적용해야 합니다.
+      게다가 예각·둔각·직각 삼각형을 <b>경우를 나눠</b> 다뤄야 하죠.
+    </div>
+    <div class="card" style="background:#eff6ff;border-color:#bfdbfe">
+      <b>좌표를 쓰면?</b><br>
+      경우를 나눌 필요가 <b>전혀 없습니다</b>. a, b, c 가 양수든 음수든 식은 그대로 성립하니까요.
+      게다가 <b>계산 세 줄</b>이면 끝납니다.
+    </div>
+    <div class="callout"><b>이 단원 전체의 메시지</b> — 좌표의 도입은 “계산을 조금 편하게”가 아니라
+      <b>기하 문제를 대수 문제로 완전히 바꿔 버리는</b> 패러다임의 전환이었습니다.
+      원점을 잘 고르면 계산이 극적으로 단순해진다는 것도 함께 배웠고요.</div>
+    <p class="q">아래 ‘내 생각 적기’ 칸에 정리해 보세요.<br>
+      (1) B(−c, 0), C(c, 0) 으로 놓았을 때 계산이 쉬워진 <b>결정적인 이유</b>는 무엇인가요? (힌트: 어떤 항이 지워졌나요?)<br>
+      (2) 만약 B(0, 0), C(2c, 0) 으로 놓았다면 어떻게 되는지 직접 계산해 비교해 보세요.<br>
+      (3) 이 정리가 실제로 어디에 쓰일지 하나만 찾아 적어 보세요.</p>
+  </section>
+
+<section class="screen" data-key="ext3" data-part="g2" data-prompt="BC 의 중점 대신 1 : 2 로 내분하는 점 P 를 잡으면 AB² + AC² 은 어떻게 표현될까요? 같은 방법으로 계산한 과정을 적어 보세요." data-photo="1">
+    <div class="kicker">확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
+<!--TEACH:END-->
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
+        <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">여러 번 측정한 위치의 <b>평균과 흩어짐</b>을 다룰 때 이 식이 그대로 나타납니다.
+          로봇이 같은 지점을 여러 번 짚어 오차를 줄일 때, 물리에서 물체의 <b>관성모멘트</b>를 무게중심 기준으로
+          바꿔 계산할 때(평행축 정리)도 똑같은 구조예요.</p>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
+        <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">이 정리는 사실 <b>평행사변형 법칙</b>과 같은 말입니다.
+          BC 를 대각선으로 하는 평행사변형을 그리면 “두 대각선 제곱의 합 = 네 변 제곱의 합”이 되죠.
+          이 성질은 벡터의 길이를 다루는 모든 공간에서 성립합니다.</p>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
+      <b>🧗 도전 질문</b><br>
+      ① BC 의 중점 대신 <b>1 : 2 로 내분하는 점</b> P 를 잡으면 AB² + AC² 은 AP, BP 로 어떻게 표현될까요?
+      같은 방법(BC 를 x축에)으로 직접 계산해 보세요.<br>
+      ② 삼각형의 <b>세 중선</b> 각각에 이 정리를 적용해 모두 더하면 어떤 예쁜 식이 나올까요?
+    </div>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요.</p>
+  </section>
+
+<!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 18</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g0"]'));
+
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function f1(v){return (Math.round(v*100)/100).toFixed(2);}
+  function num(v){var r=Math.round(v*100)/100;return r<0?"−"+(-r):""+r;}
+
+  // 아이콘 --------------------------------------------------------------------
+  function pagoda(svg,cx,by,s,color,label){
+    var g=el("g",{});
+    for(var i=0;i<3;i++){
+      var w=(30-i*7)*s, h=9*s, y=by-(i+1)*h-i*3*s;
+      g.appendChild(el("rect",{x:cx-w/2,y:y,width:w,height:h,rx:2,fill:color,opacity:0.85}));
+    }
+    g.appendChild(el("rect",{x:cx-3*s,y:by-46*s,width:6*s,height:10*s,fill:color}));
+    g.appendChild(el("rect",{x:cx-20*s,y:by,width:40*s,height:4*s,rx:2,fill:"#a8a29e"}));
+    if(label){var t=el("text",{x:cx,y:by+20*s,"font-size":13,"font-weight":800,fill:color,"text-anchor":"middle"});t.textContent=label;g.appendChild(t);}
+    svg.appendChild(g);
+  }
+  function hall(svg,cx,by,s,color,label){
+    var g=el("g",{});
+    g.appendChild(el("polygon",{points:(cx-40*s)+","+(by-26*s)+" "+cx+","+(by-44*s)+" "+(cx+40*s)+","+(by-26*s),fill:color,opacity:.85}));
+    g.appendChild(el("rect",{x:cx-32*s,y:by-26*s,width:64*s,height:26*s,fill:color,opacity:.55}));
+    g.appendChild(el("rect",{x:cx-42*s,y:by,width:84*s,height:4*s,rx:2,fill:"#a8a29e"}));
+    if(label){var t=el("text",{x:cx,y:by+20*s,"font-size":13,"font-weight":800,fill:color,"text-anchor":"middle"});t.textContent=label;g.appendChild(t);}
+    svg.appendChild(g);
+  }
+
+  // 화면 0: 배치도 (좌표 없음) ------------------------------------------------
+  (function(){
+    var svg=document.getElementById("m0");
+    svg.appendChild(el("rect",{x:0,y:0,width:400,height:230,fill:"#fafaf9"}));
+    hall(svg,200,72,1,"#7c3aed","대웅전");
+    pagoda(svg,110,190,1,"#e11d48","석가탑");
+    pagoda(svg,290,190,1,"#059669","다보탑");
+    var t=el("text",{x:200,y:176,"font-size":13,"font-weight":700,fill:"#a1a1aa","text-anchor":"middle"});
+    t.textContent="? 만큼 떨어져 있다";svg.appendChild(t);
+    svg.appendChild(el("line",{x1:130,y1:182,x2:270,y2:182,stroke:"#d4d4d8","stroke-width":1.6,"stroke-dasharray":"5 4"}));
+    document.getElementById("rv0").onclick=function(){
+      document.getElementById("an0").className="ans on";this.style.display="none";
+    };
+  })();
+
+  // 화면 1: 수직선 위 — 원점을 옮겨도 거리는 그대로 ---------------------------
+  (function(){
+    var svg=document.getElementById("m1"), o=9;
+    var S=[0], D=[18];                      // 세계 좌표(고정) — 원점을 9 에 두면 −9, 9
+    var read=document.getElementById("m1r");
+    function X(w){return 40+w*(320/18);}          // 세계좌표 → 화면
+    function draw(){
+      while(svg.firstChild)svg.removeChild(svg.firstChild);
+      svg.appendChild(el("line",{x1:20,y1:120,x2:380,y2:120,stroke:"#52525b","stroke-width":2}));
+      for(var w=0;w<=18;w++){
+        var x=X(w), lab=w-o;
+        svg.appendChild(el("line",{x1:x,y1:114,x2:x,y2:126,stroke:"#a1a1aa","stroke-width":1.4}));
+        if(lab%3!==0)continue;                 // 눈금은 1칸마다, 숫자는 3칸마다
+        var t=el("text",{x:x,y:142,"font-size":10.5,"font-weight":lab===0?800:600,
+          fill:lab===0?"#2563eb":"#a1a1aa","text-anchor":"middle"});
+        t.textContent=lab;svg.appendChild(t);
+      }
+      svg.appendChild(el("circle",{cx:X(o),cy:120,r:5,fill:"#2563eb"}));
+      pagoda(svg,X(S[0]),108,0.62,"#e11d48",null);
+      pagoda(svg,X(D[0]),108,0.62,"#059669",null);
+      var ts=el("text",{x:X(S[0]),y:170,"font-size":12,"font-weight":800,fill:"#e11d48","text-anchor":"middle"});
+      ts.textContent="석가탑 ("+num(S[0]-o)+")";svg.appendChild(ts);
+      var td=el("text",{x:X(D[0]),y:170,"font-size":12,"font-weight":800,fill:"#059669","text-anchor":"middle"});
+      td.textContent="다보탑 ("+num(D[0]-o)+")";svg.appendChild(td);
+      svg.appendChild(el("line",{x1:X(S[0]),y1:186,x2:X(D[0]),y2:186,stroke:"#2563eb","stroke-width":2.4}));
+      var tm=el("text",{x:(X(S[0])+X(D[0]))/2,y:180,"font-size":12,"font-weight":800,fill:"#2563eb","text-anchor":"middle"});
+      tm.textContent="18";svg.appendChild(tm);
+      document.getElementById("m1ov").textContent=o;
+      var a=S[0]-o, b=D[0]-o;
+      var av=a<0?"("+num(a)+")":num(a);   // 음수일 때만 괄호
+      read.innerHTML="석가탑 a = <b>"+num(a)+"</b><br>다보탑 b = <b>"+num(b)+"</b><br>|b − a| = |"+num(b)+" − "+av+"| = <b>18</b>";
+    }
+    document.getElementById("m1o").oninput=function(){o=parseInt(this.value,10);draw();};
+    draw();
+  })();
+
+  // 화면 2: 좌표평면 — 대웅전 드래그 ------------------------------------------
+  (function(){
+    var svg=document.getElementById("m2"), lo=-11, hi=11, pad=30, SZ=400;
+    var sc=(SZ-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}
+    function py(y){return (SZ-pad)-(y-lo)*sc;}
+    function ux(cx){return lo+(cx-pad)/sc;}
+    function uy(cy){return lo+((SZ-pad)-cy)/sc;}
+    var Sk=[-9,0], Db=[9,0], H=[-3,8];
+    var read=document.getElementById("m2r");
+    function draw(){
+      while(svg.firstChild)svg.removeChild(svg.firstChild);
+      for(var g=Math.ceil(lo);g<=hi;g++){
+        svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));
+        svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));
+      }
+      svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+      svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+      // 직각삼각형
+      svg.appendChild(el("line",{x1:px(Sk[0]),y1:py(Sk[1]),x2:px(H[0]),y2:py(Sk[1]),stroke:"#e11d48","stroke-width":2.4}));
+      svg.appendChild(el("line",{x1:px(H[0]),y1:py(Sk[1]),x2:px(H[0]),y2:py(H[1]),stroke:"#059669","stroke-width":2.4}));
+      svg.appendChild(el("line",{x1:px(Sk[0]),y1:py(Sk[1]),x2:px(H[0]),y2:py(H[1]),stroke:"#2563eb","stroke-width":2.8}));
+      pagoda(svg,px(Sk[0]),py(0),0.55,"#e11d48",null);
+      pagoda(svg,px(Db[0]),py(0),0.55,"#059669",null);
+      var t1=el("text",{x:px(Sk[0]),y:py(0)+20,"font-size":11.5,"font-weight":800,fill:"#e11d48","text-anchor":"middle"});
+      t1.textContent="석가탑(−9, 0)";svg.appendChild(t1);
+      var t2=el("text",{x:px(Db[0]),y:py(0)+20,"font-size":11.5,"font-weight":800,fill:"#059669","text-anchor":"middle"});
+      t2.textContent="다보탑(9, 0)";svg.appendChild(t2);
+      var gh=el("g",{"class":"handle"});
+      gh.appendChild(el("circle",{cx:px(H[0]),cy:py(H[1]),r:16,fill:"transparent"}));
+      gh.appendChild(el("circle",{cx:px(H[0]),cy:py(H[1]),r:8,fill:"#fff",stroke:"#7c3aed","stroke-width":3}));
+      svg.appendChild(gh);
+      var t3=el("text",{x:px(H[0]),y:py(H[1])-16,"font-size":12,"font-weight":800,fill:"#7c3aed","text-anchor":"middle"});
+      t3.textContent="대웅전("+num(H[0])+", "+num(H[1])+")";svg.appendChild(t3);
+      var dx=H[0]-Sk[0], dy=H[1]-Sk[1], d=Math.sqrt(dx*dx+dy*dy);
+      read.innerHTML="가로 = |"+num(H[0])+" − (−9)| = <b style='color:#e11d48'>"+f1(Math.abs(dx))+"</b><br>"+
+        "세로 = |"+num(H[1])+" − 0| = <b style='color:#059669'>"+f1(Math.abs(dy))+"</b><br>"+
+        "대웅전–석가탑 = <b style='font-size:17px'>"+f1(d)+"</b><br>"+
+        "<span class='hint'>대웅전–다보탑 = "+f1(Math.sqrt((H[0]-Db[0])*(H[0]-Db[0])+H[1]*H[1]))+"</span>";
+    }
+    (function(){
+      var down=false;
+      function pt(ev){var r=svg.getBoundingClientRect();
+        if(!r.width||!r.height)return [NaN,NaN];
+        return [ux((ev.clientX-r.left)*400/r.width), uy((ev.clientY-r.top)*400/r.height)];}
+      function move(ev){if(!down)return;ev.preventDefault();var p=pt(ev);
+        if(!isFinite(p[0]))return;
+        H=[Math.max(lo+1,Math.min(hi-1,Math.round(p[0]))),Math.max(1,Math.min(hi-1,Math.round(p[1])))];draw();}
+      svg.addEventListener("pointerdown",function(ev){down=true;svg.setPointerCapture(ev.pointerId);move(ev);});
+      svg.addEventListener("pointermove",move);
+      svg.addEventListener("pointerup",function(){down=false;});
+      svg.addEventListener("pointercancel",function(){down=false;});
+    })();
+    draw();
+  })();
+
+  // 화면 3: 데카르트의 자리 (2:1 내분) ----------------------------------------
+  (function(){
+    var svg=document.getElementById("m3"), p=1;
+    var Sx=-9, Dx=9, ANS=3;
+    var read=document.getElementById("m3r"), win=document.getElementById("m3w");
+    function X(w){return 40+(w-(-11))*(320/22);}
+    function ux(cx){return -11+(cx-40)*22/320;}
+    function draw(){
+      while(svg.firstChild)svg.removeChild(svg.firstChild);
+      svg.appendChild(el("line",{x1:20,y1:110,x2:380,y2:110,stroke:"#52525b","stroke-width":2}));
+      for(var w=-11;w<=11;w++){
+        var x=X(w);
+        svg.appendChild(el("line",{x1:x,y1:105,x2:x,y2:115,stroke:"#a1a1aa","stroke-width":1.3}));
+        if(w%3!==0)continue;                   // 숫자는 3칸마다
+        var t=el("text",{x:x,y:130,"font-size":10.5,"font-weight":w===0?800:600,fill:w===0?"#2563eb":"#a1a1aa","text-anchor":"middle"});
+        t.textContent=w;svg.appendChild(t);
+      }
+      svg.appendChild(el("line",{x1:X(Sx),y1:110,x2:X(Dx),y2:110,stroke:"#cbd5e1","stroke-width":4}));
+      svg.appendChild(el("line",{x1:X(Sx),y1:88,x2:X(p),y2:88,stroke:"#e11d48","stroke-width":3}));
+      svg.appendChild(el("line",{x1:X(p),y1:88,x2:X(Dx),y2:88,stroke:"#059669","stroke-width":3}));
+      pagoda(svg,X(Sx),100,0.5,"#e11d48",null);
+      pagoda(svg,X(Dx),100,0.5,"#059669",null);
+      var ts=el("text",{x:X(Sx),y:158,"font-size":11.5,"font-weight":800,fill:"#e11d48","text-anchor":"middle"});
+      ts.textContent="석가탑(−9)";svg.appendChild(ts);
+      var td=el("text",{x:X(Dx),y:158,"font-size":11.5,"font-weight":800,fill:"#059669","text-anchor":"middle"});
+      td.textContent="다보탑(9)";svg.appendChild(td);
+      var g=el("g",{"class":"handle"});
+      g.appendChild(el("circle",{cx:X(p),cy:110,r:16,fill:"transparent"}));
+      g.appendChild(el("circle",{cx:X(p),cy:110,r:8,fill:"#fff",stroke:"#2563eb","stroke-width":3}));
+      svg.appendChild(g);
+      var tp=el("text",{x:X(p),y:180,"font-size":12.5,"font-weight":800,fill:"#2563eb","text-anchor":"middle"});
+      tp.textContent="P("+num(p)+")";svg.appendChild(tp);
+      var sp=p-Sx, pd=Dx-p;
+      read.innerHTML="석가탑까지 <b style='color:#e11d48'>"+f1(sp)+"</b><br>다보탑까지 <b style='color:#059669'>"+f1(pd)+"</b><br>"+
+        "비 = <b>"+(pd>0.01?f1(sp/pd):"—")+"</b> : 1";
+      if(Math.abs(p-ANS)<0.05){
+        win.className="win on";
+        win.innerHTML="🎉 찾았습니다! P(3) — 석가탑까지 12, 다보탑까지 6 이니 <b>정확히 2배</b>. 선분을 <b>2 : 1</b> 로 나눈 점이에요.";
+      } else win.className="win";
+    }
+    (function(){
+      var down=false;
+      function move(ev){if(!down)return;ev.preventDefault();
+        var r=svg.getBoundingClientRect();if(!r.width)return;
+        var w=ux((ev.clientX-r.left)*400/r.width);
+        p=Math.max(Sx+0.2,Math.min(Dx-0.2,Math.round(w*20)/20));draw();}
+      svg.addEventListener("pointerdown",function(ev){down=true;svg.setPointerCapture(ev.pointerId);move(ev);});
+      svg.addEventListener("pointermove",move);
+      svg.addEventListener("pointerup",function(){down=false;});
+      svg.addEventListener("pointercancel",function(){down=false;});
+    })();
+    draw();
+  })();
+
+  
+
+})();
+</script>
+<script>
+(function(){
+"use strict";
+var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g1"]'));
+
+  var NS="http://www.w3.org/2000/svg";
+  function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+  function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
+  function Plane(svg,lo,hi){
+    var S=400,pad=28,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,lo:lo,hi:hi,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){for(var g=Math.ceil(lo);g<=hi;g++){svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));}
+        svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));},
+      seg:function(x1,y1,x2,y2,color,w,dash){var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2,"stroke-linecap":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(e("line",o));},
+      poly:function(P,color,fill){svg.appendChild(e("polygon",{points:P.map(function(p){return px(p.x)+","+py(p.y);}).join(" "),fill:fill||"none",stroke:color,"stroke-width":2.2,"stroke-linejoin":"round"}));},
+      dot:function(x,y,color,label,r){svg.appendChild(e("circle",{cx:px(x),cy:py(y),r:r||5,fill:color}));if(label){var t=e("text",{x:px(x)+9,y:py(y)-8,"font-size":12.5,"font-weight":700,fill:color});t.textContent=label;svg.appendChild(t);}},
+      handle:function(x,y,color,name){var c=e("circle",{cx:px(x),cy:py(y),r:11,fill:color,"fill-opacity":.18,stroke:color,"stroke-width":2,class:"handle"});c.setAttribute("data-name",name);svg.appendChild(c);},
+      onDrag:function(cb){var dragging=null;function toData(evt){var r=svg.getBoundingClientRect();var sx=(evt.clientX-r.left)/r.width*S,sy=(evt.clientY-r.top)/r.height*S;var x=lo+(sx-pad)/sc,y=lo+((S-pad)-sy)/sc;return{x:Math.max(lo,Math.min(hi,Math.round(x))),y:Math.max(lo,Math.min(hi,Math.round(y)))};}
+        svg.addEventListener("pointerdown",function(ev){var t=ev.target;if(t&&t.getAttribute&&t.getAttribute("class")==="handle"){dragging=t.getAttribute("data-name");svg.setPointerCapture(ev.pointerId);}});
+        svg.addEventListener("pointermove",function(ev){if(dragging)cb(dragging,toData(ev));});
+        svg.addEventListener("pointerup",function(){dragging=null;});svg.addEventListener("pointerleave",function(){dragging=null;});}
+    };
+  }
+  
+
+
+  // 화면0: 수직선
+  (function(){
+    var svg=document.getElementById("g1s0"),a=-2,b=5,lo=-9,hi=9,x0=40,x1=600,yy=70;
+    function px(v){return x0+(v-lo)/(hi-lo)*(x1-x0);}
+    function draw(){while(svg.firstChild)svg.removeChild(svg.firstChild);
+      svg.appendChild(e("line",{x1:x0-15,y1:yy,x2:x1+15,y2:yy,stroke:"#a1a1aa","stroke-width":2}));
+      for(var t=lo;t<=hi;t++){svg.appendChild(e("line",{x1:px(t),y1:yy-5,x2:px(t),y2:yy+5,stroke:"#d4d4d8"}));
+        var lb=e("text",{x:px(t),y:yy+22,"font-size":11,fill:"#a1a1aa","text-anchor":"middle"});lb.textContent=t;svg.appendChild(lb);}
+      svg.appendChild(e("line",{x1:px(a),y1:yy,x2:px(b),y2:yy,stroke:"#2563eb","stroke-width":6,"stroke-linecap":"round"}));
+      [[a,"A","#e11d48"],[b,"B","#059669"]].forEach(function(o){
+        svg.appendChild(e("circle",{cx:px(o[0]),cy:yy,r:7,fill:o[2]}));
+        var t1=e("text",{x:px(o[0]),y:yy-16,"font-size":14,"font-weight":700,fill:o[2],"text-anchor":"middle"});t1.textContent=o[1]+"("+o[0]+")";svg.appendChild(t1);});
+      var mid=e("text",{x:(px(a)+px(b))/2,y:yy+45,"font-size":15,"font-weight":800,fill:"#2563eb","text-anchor":"middle"});
+      mid.textContent="거리 = "+Math.abs(b-a);svg.appendChild(mid);
+      document.getElementById("s0a").textContent=a;document.getElementById("s0b").textContent=b;
+      document.getElementById("r0").innerHTML="AB = |b − a| = |"+b+" − ("+a+")| = <b>"+Math.abs(b-a)+"</b>";}
+    document.getElementById("s0ar").oninput=function(){a=+this.value;draw();};
+    document.getElementById("s0br").oninput=function(){b=+this.value;draw();};draw();
+  })();
+
+  // 화면1: 좌표평면 거리
+  (function(){
+    var P=Plane(document.getElementById("g1s1"),-7,7),A={x:-2,y:-1},B={x:3,y:3};
+    function draw(){P.clear();P.grid();
+      P.seg(A.x,A.y,B.x,A.y,"#e11d48",3);P.seg(B.x,A.y,B.x,B.y,"#059669",3);
+      P.seg(A.x,A.y,B.x,B.y,"#2563eb",3.2);
+      // 직각 표시
+      var s=(B.x>A.x?0.45:-0.45), t=(B.y>A.y?0.45:-0.45);
+      P.seg(B.x-s,A.y,B.x-s,A.y+t,"#94a3b8",1.5);P.seg(B.x-s,A.y+t,B.x,A.y+t,"#94a3b8",1.5);
+      P.handle(A.x,A.y,"#2563eb","A");P.handle(B.x,B.y,"#2563eb","B");
+      P.dot(A.x,A.y,"#2563eb","A("+A.x+","+A.y+")",4);P.dot(B.x,B.y,"#2563eb","B("+B.x+","+B.y+")",4);
+      var dx=Math.abs(B.x-A.x),dy=Math.abs(B.y-A.y),d=Math.hypot(dx,dy);
+      document.getElementById("r1").innerHTML="가로 <span style='color:#e11d48'>"+dx+"</span>, 세로 <span style='color:#059669'>"+dy+"</span><br>AB² = "+dx+"² + "+dy+"² = "+(dx*dx+dy*dy)+"<br>AB = <b>"+fmt(d)+"</b>";}
+    P.onDrag(function(n,pt){if(n==="A")A=pt;else B=pt;draw();});draw();
+  })();
+
+  // 화면2: 삼각형 판정
+  (function(){
+    var P=Plane(document.getElementById("s2"),-7,7),V={A:{x:-3,y:-2},B:{x:3,y:-2},C:{x:0,y:3}};
+    function draw(){P.clear();P.grid();
+      P.poly([V.A,V.B,V.C],"#2563eb","rgba(37,99,235,0.07)");
+      ["A","B","C"].forEach(function(k){P.handle(V[k].x,V[k].y,"#2563eb",k);P.dot(V[k].x,V[k].y,"#2563eb",k,4);});
+      var c=Math.hypot(V.A.x-V.B.x,V.A.y-V.B.y); // AB
+      var a=Math.hypot(V.B.x-V.C.x,V.B.y-V.C.y); // BC
+      var b=Math.hypot(V.C.x-V.A.x,V.C.y-V.A.y); // CA
+      var s=[a,b,c].slice().sort(function(p,q){return p-q;});
+      var eps=1e-9;
+      var isRight=Math.abs(s[0]*s[0]+s[1]*s[1]-s[2]*s[2])<1e-6;
+      var eqPairs=(Math.abs(a-b)<eps)||(Math.abs(b-c)<eps)||(Math.abs(a-c)<eps);
+      var isEquil=(Math.abs(a-b)<eps)&&(Math.abs(b-c)<eps);
+      var degen=Math.abs((V.B.x-V.A.x)*(V.C.y-V.A.y)-(V.C.x-V.A.x)*(V.B.y-V.A.y))<eps;
+      var tags="";
+      if(degen)tags='<span class="badge no">삼각형이 아님(한 직선 위)</span>';
+      else{
+        if(isEquil)tags+='<span class="badge ok">정삼각형</span> ';
+        else if(eqPairs)tags+='<span class="badge ok">이등변삼각형</span> ';
+        if(isRight)tags+='<span class="badge ok">직각삼각형</span>';
+        if(!tags)tags='<span class="badge no">일반 삼각형</span>';
+      }
+      document.getElementById("r2").innerHTML=
+        "AB = <b>"+fmt(c)+"</b><br>BC = <b>"+fmt(a)+"</b><br>CA = <b>"+fmt(b)+"</b><br><br>"+tags;}
+    P.onDrag(function(n,pt){V[n]=pt;draw();});draw();
+  })();
+
+  // 화면3: 수직이등분선
+  (function(){
+    var P=Plane(document.getElementById("s3"),-7,7),A={x:-3,y:-1},B={x:3,y:2},Pt={x:0,y:3};
+    function draw(){P.clear();P.grid();
+      var dA=Math.hypot(Pt.x-A.x,Pt.y-A.y),dB=Math.hypot(Pt.x-B.x,Pt.y-B.y);
+      var close=Math.abs(dA-dB)<0.35;
+      if(close){ // 수직이등분선 자취 표시
+        var mx=(A.x+B.x)/2,my=(A.y+B.y)/2,dx=B.x-A.x,dy=B.y-A.y;
+        // 방향 (-dy, dx)
+        var L=12;var nx=-dy,ny=dx,len=Math.hypot(nx,ny);nx/=len;ny/=len;
+        P.seg(mx-nx*L,my-ny*L,mx+nx*L,my+ny*L,"#f59e0b",2.5,"6 4");
+      }
+      P.seg(A.x,A.y,B.x,B.y,"#cbd5e1",2);
+      P.seg(Pt.x,Pt.y,A.x,A.y,"#e11d48",2.5);P.seg(Pt.x,Pt.y,B.x,B.y,"#059669",2.5);
+      P.dot(A.x,A.y,"#e11d48","A",5);P.dot(B.x,B.y,"#059669","B",5);
+      P.handle(Pt.x,Pt.y,"#2563eb","P");P.dot(Pt.x,Pt.y,"#2563eb","P",4);
+      document.getElementById("r3").innerHTML="PA = <b style='color:#e11d48'>"+fmt(dA)+"</b><br>PB = <b style='color:#059669'>"+fmt(dB)+"</b><br><br>"+
+        (close?'<span class="badge ok">PA ≈ PB — 자취 등장!</span>':'<span class="badge no">아직 달라요</span>');}
+    P.onDrag(function(n,pt){Pt=pt;draw();});draw();
+  })();
+
+  /* EXTJS:START */
+  // 확장: 택시 기하학
+  (function () {
+    var svg = document.getElementById("extTaxi");
+    if (!svg) return;
+    var P = Plane(svg, -6, 6);
+    var mode = "cmp", A = { x: -3, y: -2 }, B = { x: 2, y: 3 };
+    function draw() {
+      P.clear(); P.grid();
+      if (mode === "cmp") {
+        P.seg(A.x, A.y, B.x, A.y, "#f59e0b", 3.5);
+        P.seg(B.x, A.y, B.x, B.y, "#f59e0b", 3.5);
+        P.seg(A.x, A.y, B.x, B.y, "#2563eb", 3);
+        P.handle(A.x, A.y, "#2563eb", "A"); P.handle(B.x, B.y, "#2563eb", "B");
+        P.dot(A.x, A.y, "#2563eb", "A", 4); P.dot(B.x, B.y, "#2563eb", "B", 4);
+        var dx = Math.abs(B.x - A.x), dy = Math.abs(B.y - A.y);
+        document.getElementById("extTaxiRead").innerHTML =
+          "<span style='color:#2563eb'><b>유클리드</b></span> √(" + dx + "² + " + dy + "²) = <b>" + fmt(Math.hypot(dx, dy)) + "</b><br>" +
+          "<span style='color:#d97706'><b>택시</b></span> " + dx + " + " + dy + " = <b>" + (dx + dy) + "</b><br>" +
+          "<span class='hint'>택시 거리는 어떤 계단 경로로 가도 <b>항상 같습니다</b>.</span>";
+      } else {
+        var circle = [];
+        for (var i = 0; i < 120; i++) {
+          var t = i / 120 * 2 * Math.PI;
+          circle.push({ x: 3 * Math.cos(t), y: 3 * Math.sin(t) });
+        }
+        P.poly(circle, "#2563eb");
+        P.poly([{ x: 3, y: 0 }, { x: 0, y: 3 }, { x: -3, y: 0 }, { x: 0, y: -3 }], "#f59e0b");
+        P.dot(0, 0, "#27272a", null, 4);
+        document.getElementById("extTaxiRead").innerHTML =
+          "원점에서 거리가 <b>3</b>인 점들<br>" +
+          "<span style='color:#2563eb'><b>유클리드 → 원</b></span><br>" +
+          "<span style='color:#d97706'><b>택시 → 마름모!</b></span><br>" +
+          "<span class='hint'>‘거리’의 정의가 바뀌면 ‘원’의 모양도 바뀝니다.</span>";
+      }
+    }
+    P.onDrag(function (n, pt) { if (n === "A") A = pt; else B = pt; draw(); });
+    var bC = document.getElementById("extTaxiCmp"), bR = document.getElementById("extTaxiCir");
+    function pick(m) {
+      mode = m;
+      var on = m === "cmp" ? bC : bR, off = m === "cmp" ? bR : bC;
+      on.style.background = "#2563eb"; on.style.color = "#fff";
+      off.style.background = "#fff"; off.style.color = "#27272a";
+      draw();
+    }
+    bC.onclick = function () { pick("cmp"); };
+    bR.onclick = function () { pick("cir"); };
+    draw();
+  })();
+  /* EXTJS:END */
+})();
+</script>
+<script>
+(function(){
+"use strict";
+var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g2"]'));
+
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function f1(v){return (Math.round(v*100)/100).toFixed(2);}
+  function num(v){var r=Math.round(v*100)/100;return r<0?"−"+(-r):""+r;}
+  function d2(p,q){return (p[0]-q[0])*(p[0]-q[0])+(p[1]-q[1])*(p[1]-q[1]);}
+
+  function Plane(svg,lo,hi){
+    var S=400,pad=26,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}
+    function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,sc:sc,lo:lo,hi:hi,svg:svg,
+      ux:function(cx){return lo+(cx-pad)/sc;},
+      uy:function(cy){return lo+((S-pad)-cy)/sc;},
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){
+        for(var g=Math.ceil(lo);g<=hi;g++){
+          svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));
+          svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));
+        }
+        svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+        svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+      },
+      seg:function(x1,y1,x2,y2,color,w,dash){
+        var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2.2,"stroke-linecap":"round"};
+        if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));
+      },
+      poly:function(pts,stroke,fill,w){
+        svg.appendChild(el("polygon",{points:pts.map(function(p){return px(p[0])+","+py(p[1]);}).join(" "),
+          fill:fill||"none",stroke:stroke,"stroke-width":w||2.4,"stroke-linejoin":"round"}));
+      },
+      dot:function(x,y,color,label,r,dy){
+        svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||5,fill:color}));
+        if(label){var t=el("text",{x:px(x)+9,y:py(y)+(dy||-9),"font-size":12.5,"font-weight":800,fill:color});t.textContent=label;svg.appendChild(t);}
+      },
+      handle:function(x,y,color){
+        var g=el("g",{"class":"handle"});
+        g.appendChild(el("circle",{cx:px(x),cy:py(y),r:15,fill:"transparent"}));
+        g.appendChild(el("circle",{cx:px(x),cy:py(y),r:8,fill:"#fff",stroke:color,"stroke-width":3}));
+        svg.appendChild(g);
+      }
+    };
+  }
+
+  // 여러 점 중 가장 가까운 것을 잡아 끄는 헬퍼 --------------------------------
+  function multiDrag(P,getPts,setPt,after){
+    var svg=P.svg, cur=-1, down=false;
+    function pt(ev){
+      var r=svg.getBoundingClientRect();
+      if(!r.width||!r.height)return null;
+      return [P.ux((ev.clientX-r.left)*400/r.width), P.uy((ev.clientY-r.top)*400/r.height)];
+    }
+    function move(ev){
+      if(!down||cur<0)return;ev.preventDefault();
+      var p=pt(ev);if(!p||!isFinite(p[0]))return;
+      setPt(cur,[Math.round(p[0]*2)/2,Math.round(p[1]*2)/2]);after();
+    }
+    svg.addEventListener("pointerdown",function(ev){
+      var p=pt(ev);if(!p)return;
+      var pts=getPts(),best=1e9,bi=-1;
+      for(var i=0;i<pts.length;i++){
+        var d=(pts[i][0]-p[0])*(pts[i][0]-p[0])+(pts[i][1]-p[1])*(pts[i][1]-p[1]);
+        if(d<best){best=d;bi=i;}
+      }
+      if(best<=4){cur=bi;down=true;svg.setPointerCapture(ev.pointerId);move(ev);}
+    });
+    svg.addEventListener("pointermove",move);
+    svg.addEventListener("pointerup",function(){down=false;cur=-1;});
+    svg.addEventListener("pointercancel",function(){down=false;cur=-1;});
+  }
+
+  // 화면 0: 드래그로 확인 -----------------------------------------------------
+  (function(){
+    var P=Plane(document.getElementById("g2s0"),-8,8);
+    var pts=[[-1,6],[-5,-3],[6,-2]];   // A, B, C
+    var read=document.getElementById("s0r");
+    function draw(){
+      var A=pts[0],B=pts[1],C=pts[2],M=[(B[0]+C[0])/2,(B[1]+C[1])/2];
+      P.clear();P.grid();
+      P.poly(pts,"#2563eb","rgba(37,99,235,.08)",2.6);
+      P.seg(A[0],A[1],M[0],M[1],"#7c3aed",2.4,"5 4");
+      P.dot(M[0],M[1],"#7c3aed","M",5);
+      P.handle(A[0],A[1],"#2563eb");P.dot(A[0],A[1],"#2563eb","A",0.1);
+      P.handle(B[0],B[1],"#2563eb");P.dot(B[0],B[1],"#2563eb","B",0.1);
+      P.handle(C[0],C[1],"#2563eb");P.dot(C[0],C[1],"#2563eb","C",0.1);
+      var L=d2(A,B)+d2(A,C), R=2*(d2(A,M)+d2(B,M));
+      var mx=Math.max(L,R,1);
+      document.getElementById("b1").style.width=(L/mx*100)+"%";
+      document.getElementById("b2").style.width=(R/mx*100)+"%";
+      read.innerHTML="AB² + AC² = <b style='color:#e11d48'>"+f1(L)+"</b><br>"+
+        "2(AM² + BM²) = <b style='color:#059669'>"+f1(R)+"</b><br>"+
+        "<span class='hint'>차이 = "+f1(Math.abs(L-R))+"</span>";
+    }
+    multiDrag(P,function(){return pts;},function(i,p){
+      pts[i]=[Math.max(-7.5,Math.min(7.5,p[0])),Math.max(-7.5,Math.min(7.5,p[1]))];
+    },draw);
+    draw();
+  })();
+
+  // 화면 1: 세 가지 배치 ------------------------------------------------------
+  (function(){
+    var P=Plane(document.getElementById("g2s1"),-8,8), mode=0;
+    var read=document.getElementById("s1r");
+    var LAYOUT=[
+      { A:[-1,6],B:[-5,-3],C:[6,-2],
+        txt:"B(x₁, y₁), C(x₂, y₂), A(x₃, y₃)<br><span class='hint'>거리 식에 문자가 <b>6개</b>. 전개하면 항이 수십 개가 됩니다.</span>" },
+      { A:[1,6],B:[0,0],C:[7,1],
+        txt:"B(0, 0), C(x₂, y₂), A(x₃, y₃)<br><span class='hint'>문자가 <b>4개</b>로 줄었지만, C 가 여전히 비스듬합니다.</span>" },
+      { A:[2,6],B:[-5,0],C:[5,0],
+        txt:"B(−c, 0), C(c, 0), M(0, 0), A(a, b)<br><span class='hint'>문자가 <b>3개</b>! 게다가 M 이 원점이라 AM² = a² + b² 로 끝납니다.</span>" }
+    ];
+    function draw(){
+      var L=LAYOUT[mode], A=L.A,B=L.B,C=L.C, M=[(B[0]+C[0])/2,(B[1]+C[1])/2];
+      P.clear();P.grid();
+      P.poly([A,B,C],"#2563eb","rgba(37,99,235,.08)",2.6);
+      P.seg(A[0],A[1],M[0],M[1],"#7c3aed",2.4,"5 4");
+      P.dot(A[0],A[1],"#2563eb",mode===2?"A(a, b)":"A",5.5);
+      P.dot(B[0],B[1],"#2563eb",mode===2?"B(−c, 0)":"B",5.5,16);
+      P.dot(C[0],C[1],"#2563eb",mode===2?"C(c, 0)":"C",5.5,16);
+      P.dot(M[0],M[1],"#7c3aed",mode===2?"M(0, 0)":"M",5,16);
+      read.innerHTML=L.txt;
+    }
+    [].slice.call(document.querySelectorAll(".pk[data-p]")).forEach(function(b){
+      b.onclick=function(){
+        mode=parseInt(b.getAttribute("data-p"),10);
+        [].slice.call(document.querySelectorAll(".pk[data-p]")).forEach(function(o){o.className="pk"+(o===b?" on":"");});
+        draw();
+      };
+    });
+    draw();
+  })();
+
+  // 화면 2: 단계 공개 ---------------------------------------------------------
+  [1,2,3].forEach(function(k){
+    document.getElementById("rv"+k).onclick=function(){
+      document.getElementById("an"+k).className="ans on";
+      document.getElementById("st"+k).className="step on";
+      this.style.display="none";
+    };
+  });
+
+  
+
+})();
+</script>
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

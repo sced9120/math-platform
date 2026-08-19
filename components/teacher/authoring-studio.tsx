@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { nextScreenKey } from "@/lib/screens";
 
 // 조작 활동 만들기 — 왼쪽 챗봇 / 오른쪽 코드·미리보기 탭.
 //
@@ -8,6 +10,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 // 즉 챗봇에게 말로 시켜도 되고, 오른쪽에서 직접 손봐도 된다.
 type Msg = { role: "user" | "assistant"; content: string };
 type Model = { model_id: string; label: string };
+type ActivityOpt = { id: string; title: string; unit: string };
 
 const EXAMPLES = [
   "이차함수 y = a(x−p)² + q 에서 a, p, q 를 슬라이더로 바꾸면 그래프와 꼭짓점이 따라오는 화면",
@@ -21,6 +24,17 @@ function extractHtml(text: string): string | null {
   return blocks.length ? blocks[blocks.length - 1].trim() : null;
 }
 
+// 저장할 때 쓸 기본 제목 — 만든 화면의 <h1> 을 그대로 가져온다
+function guessTitle(html: string): string {
+  const m = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/);
+  return m ? m[1].replace(/<[^>]+>/g, "").trim().slice(0, 60) : "새 화면";
+}
+
+// 화면이 여러 개면 한 행에 몰아넣게 되므로 미리 알려 준다
+function countScreens(html: string): number {
+  return (html.match(/<section class="screen/g) ?? []).length;
+}
+
 // 코드블록을 걷어낸 설명만 — 대화창에는 이것만 보인다(코드는 오른쪽에 있으므로)
 function stripCode(text: string): string {
   const t = text.replace(/```(?:html)?\n[\s\S]*?```/g, "").trim();
@@ -31,10 +45,12 @@ export default function AuthoringStudio({
   aiConsented,
   models,
   dailyLimit,
+  activities,
 }: {
   aiConsented: boolean;
   models: Model[];
   dailyLimit: number;
+  activities: ActivityOpt[];
 }) {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -45,6 +61,12 @@ export default function AuthoringStudio({
   const [tab, setTab] = useState<"code" | "preview">("preview");
   const [code, setCode] = useState("");
   const [copied, setCopied] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [saveTo, setSaveTo] = useState(activities[0]?.id ?? "");
+  const [saveTitle, setSaveTitle] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState<{ id: string; title: string } | null>(null);
+  const [saveErr, setSaveErr] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -96,6 +118,9 @@ if(s.length&&![].some.call(s,function(x){return x.classList.contains("on");}))s[
       if (html) {
         setCode(html);
         setTab("preview");
+        setSaveTitle(guessTitle(html));
+        setSaved(null);
+        setSaveErr(null);
       }
     } catch {
       setErr("네트워크 오류가 발생했습니다.");
@@ -109,6 +134,55 @@ if(s.length&&![].some.call(s,function(x){return x.classList.contains("on");}))s[
     await navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  }
+
+  // 만든 화면을 활동에 붙인다.
+  // 쓰기 권한은 activity_screens 의 RLS(is_teacher)가 DB 에서 막아 준다.
+  async function save() {
+    if (!saveTo || !code.trim() || saving) return;
+    setSaving(true);
+    setSaveErr(null);
+    const supabase = createClient();
+    try {
+      // 화면키는 학생 기록이 붙는 값이다. 지금 있는 화면뿐 아니라
+      // 지워진 화면의 기록이 남아 있는 키까지 피해야 옛 답이 새 화면에 붙지 않는다.
+      // (docs/07_SCREEN_ARCHITECTURE.md — "화면키를 바꾸거나 재사용하지 않는다")
+      const [{ data: rows, error: readErr }, { data: used }] = await Promise.all([
+        supabase
+          .from("activity_screens")
+          .select("screen_key, order_index")
+          .eq("activity_id", saveTo),
+        supabase
+          .from("screen_responses")
+          .select("screen_key")
+          .eq("activity_id", saveTo),
+      ]);
+      if (readErr) throw new Error(readErr.message);
+
+      const existing = (rows ?? []) as { screen_key: string; order_index: number }[];
+      const taken = [
+        ...existing.map((r) => r.screen_key),
+        ...((used ?? []) as { screen_key: string }[]).map((r) => r.screen_key),
+      ];
+      const { error } = await supabase.from("activity_screens").insert({
+        activity_id: saveTo,
+        screen_key: nextScreenKey(taken),
+        order_index: existing.reduce((m, r) => Math.max(m, r.order_index + 1), 0),
+        type: "html",
+        title: saveTitle.trim() || guessTitle(code),
+        config: { html: code },
+        questions: [],
+      });
+      if (error) throw new Error(error.message);
+
+      const act = activities.find((a) => a.id === saveTo);
+      setSaved({ id: saveTo, title: act?.title ?? "활동" });
+      setSaveOpen(false);
+    } catch (e) {
+      setSaveErr(e instanceof Error ? e.message : "저장하지 못했습니다.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   if (!aiConsented) {
@@ -235,14 +309,99 @@ if(s.length&&![].some.call(s,function(x){return x.classList.contains("on");}))s[
               </button>
             ))}
           </div>
-          <button
-            onClick={copy}
-            disabled={!code}
-            className="rounded-lg border border-zinc-200 px-3 py-1 text-sm font-semibold text-zinc-700 disabled:opacity-40"
-          >
-            {copied ? "복사됨 ✓" : "복사"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={copy}
+              disabled={!code}
+              className="rounded-lg border border-zinc-200 px-3 py-1 text-sm font-semibold text-zinc-700 disabled:opacity-40"
+            >
+              {copied ? "복사됨 ✓" : "복사"}
+            </button>
+            <button
+              onClick={() => {
+                setSaveOpen((v) => !v);
+                setSaved(null);
+                setSaveErr(null);
+              }}
+              disabled={!code || activities.length === 0}
+              className="rounded-lg bg-emerald-600 px-3 py-1 text-sm font-semibold text-white disabled:opacity-40"
+            >
+              이 활동의 화면으로 저장
+            </button>
+          </div>
         </header>
+
+        {/* 저장 패널 */}
+        {saveOpen && (
+          <div className="space-y-2 border-b border-zinc-200 bg-emerald-50/60 p-3">
+            <label className="block text-xs font-semibold text-zinc-600">
+              어느 활동에 붙일까요?
+              <select
+                value={saveTo}
+                onChange={(e) => setSaveTo(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm font-normal"
+              >
+                {activities.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.unit} · {a.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-xs font-semibold text-zinc-600">
+              화면 제목
+              <input
+                value={saveTitle}
+                onChange={(e) => setSaveTitle(e.target.value)}
+                placeholder={guessTitle(code)}
+                className="mt-1 w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm font-normal"
+              />
+            </label>
+            {countScreens(code) > 1 && (
+              <p className="rounded-lg bg-amber-100 px-2 py-1.5 text-xs text-amber-900">
+                이 코드에는 화면이 {countScreens(code)}개 들어 있습니다. 한 화면으로 통째 저장됩니다.
+                화면을 따로 두려면 왼쪽에서 &ldquo;한 화면씩 만들어 줘&rdquo;라고 요청하세요.
+              </p>
+            )}
+            <p className="text-xs text-zinc-500">
+              활동 맨 뒤에 새 화면으로 붙습니다. 질문은 화면 관리에서 붙일 수 있습니다.
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={save}
+                disabled={saving || !saveTo}
+                className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-40"
+              >
+                {saving ? "저장 중…" : "저장"}
+              </button>
+              <button
+                onClick={() => setSaveOpen(false)}
+                className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-600"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        )}
+
+        {saved && (
+          <div className="flex flex-wrap items-center gap-2 border-b border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+            <span>
+              <b>{saved.title}</b> 에 화면을 추가했습니다.
+            </span>
+            <a
+              href={`/teacher/activity/${saved.id}/screens`}
+              className="font-semibold underline"
+            >
+              화면 관리로 이동 →
+            </a>
+          </div>
+        )}
+        {saveErr && (
+          <div className="border-b border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
+            저장하지 못했습니다 — {saveErr}
+          </div>
+        )}
 
         {!code ? (
           <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-zinc-400">

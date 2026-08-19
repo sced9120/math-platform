@@ -11,7 +11,7 @@ export default async function AuthoringPage() {
   if (!isStaff(profile.role)) redirect("/dashboard");
 
   const supabase = await createClient();
-  const [{ data: me }, models, limits] = await Promise.all([
+  const [{ data: me }, models, limits, { data: acts }] = await Promise.all([
     supabase
       .from("profiles")
       .select("ai_consent_at")
@@ -19,7 +19,28 @@ export default async function AuthoringPage() {
       .single<{ ai_consent_at: string | null }>(),
     getEnabledModels(),
     getAiLimits(),
+    // 만든 화면을 붙일 곳 — 단원별로 묶어 고르게 한다
+    supabase
+      .from("activities")
+      .select("id, title, order_index, units(title, order_index)")
+      .order("order_index"),
   ]);
+
+  type Row = {
+    id: string;
+    title: string;
+    order_index: number;
+    units: { title: string; order_index: number } | null;
+  };
+  const activities = ((acts ?? []) as unknown as Row[])
+    .map((a) => ({
+      id: a.id,
+      title: a.title,
+      unit: a.units?.title ?? "단원 없음",
+      unitOrder: a.units?.order_index ?? 999,
+      order: a.order_index,
+    }))
+    .sort((x, y) => x.unitOrder - y.unitOrder || x.order - y.order);
 
   return (
     <div className="flex h-[calc(100vh-8rem)] min-h-[36rem] flex-col">
@@ -33,6 +54,7 @@ export default async function AuthoringPage() {
         aiConsented={!!me?.ai_consent_at}
         models={models.map((m) => ({ model_id: m.model_id, label: m.label }))}
         dailyLimit={limits.authoring}
+        activities={activities}
       />
     </div>
   );

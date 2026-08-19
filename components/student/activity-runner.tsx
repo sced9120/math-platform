@@ -13,7 +13,9 @@ import ScreenResponse, {
   FREE_PROMPT,
   type SavedResponse,
 } from "@/components/student/screen-response";
+import ScreenPlayer, { type SavedByKey } from "@/components/student/screen-player";
 import type { Activity } from "@/lib/types";
+import type { Screen } from "@/lib/screens";
 
 type ProgressState = {
   completed: boolean;
@@ -30,6 +32,7 @@ export default function ActivityRunner({
   activity,
   initialProgress,
   initialResponses,
+  screens,
   aiConsented,
   initialTab,
   models,
@@ -37,7 +40,8 @@ export default function ActivityRunner({
 }: {
   activity: Activity;
   initialProgress: ProgressState | null;
-  initialResponses: Record<string, SavedResponse>;
+  initialResponses: SavedByKey;
+  screens: Screen[];
   aiConsented: boolean;
   initialTab?: string;
   models: AiModelOption[];
@@ -110,11 +114,14 @@ export default function ActivityRunner({
     [activity.type]
   );
 
+  // 화면 구성(activity_screens)이 있는 활동인가 — 있으면 새 재생기가 전부 맡는다
+  const screenBased = screens.length > 0;
   // 화면별 질문을 갖춘 활동인가 (옛 활동은 활동 전체에 질문 하나였다)
-  const screenDriven = activity.type === "html" && !!screen?.hasPrompts;
+  const screenDriven = !screenBased && activity.type === "html" && !!screen?.hasPrompts;
   // html 활동은 iframe 이 화면 정보를 알려 줄 때까지 판단을 미룬다
   // (미루지 않으면 옛 방식 기록칸이 잠깐 떴다 사라진다)
-  const legacyLayout = activity.type === "html" ? screen !== null && !screen.hasPrompts : true;
+  const legacyLayout =
+    screenBased ? false : activity.type === "html" ? screen !== null && !screen.hasPrompts : true;
   const hasLegacyPrompt = typeof content.response_prompt === "string";
   // 옛 방식의 활동 단위 기록칸은 화면별 질문이 없을 때만 띄운다
   const showLegacyResponse = hasLegacyPrompt && legacyLayout;
@@ -170,8 +177,29 @@ export default function ActivityRunner({
         />
       )}
 
-      {/* 유형별 실행 */}
-      {tab === "run" && activity.type === "geogebra" && (
+      {/* 화면 구성이 있는 활동 — 화면 넘김·질문을 플랫폼이 맡는다.
+          화면 행이 하나도 없으면 아래 예전 방식으로 돈다(기존 활동은 그대로). */}
+      {tab === "run" && screenBased && (
+        <ScreenPlayer
+          activityId={activity.id}
+          activityTitle={activity.title}
+          screens={screens}
+          initialResponses={responses}
+          onProgress={() => {
+            if (activity.type !== "problem") {
+              setProgress((p) => ({
+                completed: true,
+                score: p?.score ?? null,
+                submission: p?.submission ?? null,
+                response_text: p?.response_text,
+              }));
+            }
+          }}
+        />
+      )}
+
+      {/* 유형별 실행 (예전 방식) */}
+      {tab === "run" && !screenBased && activity.type === "geogebra" && (
         <div className="flex flex-col gap-4">
           <GeoGebraEmbed
             materialId={content.materialId ?? ""}
@@ -187,7 +215,7 @@ export default function ActivityRunner({
         </div>
       )}
 
-      {tab === "run" && activity.type === "content" && (
+      {tab === "run" && !screenBased && activity.type === "content" && (
         <div className="flex flex-col gap-4">
           <div className="whitespace-pre-wrap rounded-lg border border-zinc-200 bg-white p-6 leading-relaxed text-zinc-800">
             {content.body}
@@ -202,7 +230,7 @@ export default function ActivityRunner({
         </div>
       )}
 
-      {tab === "run" && activity.type === "image" && (
+      {tab === "run" && !screenBased && activity.type === "image" && (
         <div className="flex flex-col gap-4">
           <div className="rounded-lg border border-zinc-200 bg-white p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -229,7 +257,7 @@ export default function ActivityRunner({
         </div>
       )}
 
-      {tab === "run" && activity.type === "html" && (
+      {tab === "run" && !screenBased && activity.type === "html" && (
         <div className="flex flex-col gap-4">
           {/* sandbox: 스크립트만 허용 — 앱 세션/쿠키에는 접근 불가.
               높이와 "지금 열린 화면"은 iframe 안에서 재어 알려 준다
@@ -250,7 +278,7 @@ export default function ActivityRunner({
         </div>
       )}
 
-      {tab === "run" && activity.type === "problem" && (
+      {tab === "run" && !screenBased && activity.type === "problem" && (
         <ProblemPanel
           activityId={activity.id}
           question={content.question ?? ""}

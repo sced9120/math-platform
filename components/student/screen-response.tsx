@@ -30,6 +30,7 @@ function dataUrlToBlob(dataUrl: string): Blob {
 export default function ScreenResponse({
   activityId,
   screenKey,
+  questionKey = "",
   prompt,
   allowPhoto,
   saved,
@@ -38,6 +39,7 @@ export default function ScreenResponse({
 }: {
   activityId: string;
   screenKey: string;
+  questionKey?: string; // 화면에 질문이 여러 개일 때 구분 (없으면 화면 하나에 질문 하나)
   prompt: string;
   allowPhoto: boolean;
   saved: SavedResponse | undefined;
@@ -135,6 +137,7 @@ export default function ScreenResponse({
     const { error: rpcErr } = await supabase.rpc("save_screen_response", {
       p_activity_id: activityId,
       p_screen_key: screenKey,
+      p_question_key: questionKey,
       p_prompt: prompt,
       p_text: text,
       p_images: paths,

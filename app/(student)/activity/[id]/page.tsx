@@ -5,6 +5,7 @@ import ActivityRunner from "@/components/student/activity-runner";
 import { getEnabledModels } from "@/lib/ai/models";
 import { getAiLimits } from "@/lib/ai/server";
 import type { Activity } from "@/lib/types";
+import type { Screen } from "@/lib/screens";
 
 type ProgressRow = {
   completed: boolean;
@@ -15,8 +16,10 @@ type ProgressRow = {
 
 type ScreenResponseRow = {
   screen_key: string;
+  question_key: string | null;
   text: string | null;
   images: string[] | null;
+  correct: boolean | null;
 };
 
 // 활동 실행 화면. 활동 데이터는 정답이 제거된 RPC(student_activities)로만 가져온다.
@@ -45,6 +48,7 @@ export default async function StudentActivityPage({
     { data: unit },
     { data: progress },
     { data: screenRows },
+    { data: screenDefs },
     { data: me },
     allModels,
     limits,
@@ -57,8 +61,11 @@ export default async function StudentActivityPage({
         .maybeSingle<ProgressRow>(),
       supabase
         .from("screen_responses")
-        .select("screen_key, text, images")
+        .select("screen_key, question_key, text, images, correct")
         .eq("activity_id", id),
+      // 화면 구성이 있는 활동만 값이 있다(없으면 예전 방식으로 돈다).
+      // 단답·선택형의 정답은 이 RPC 가 걷어낸 뒤 내려준다.
+      supabase.rpc("student_screens", { p_activity_id: id }),
       supabase
         .from("profiles")
         .select("ai_consent_at")
@@ -68,14 +75,18 @@ export default async function StudentActivityPage({
       getAiLimits(),
     ]);
 
-  // 화면키 → 저장해 둔 기록 (기록칸이 열릴 때 그대로 채워진다)
-  const initialResponses: Record<string, { text: string; images: string[] }> =
-    Object.fromEntries(
-      ((screenRows as ScreenResponseRow[] | null) ?? []).map((r) => [
-        r.screen_key,
-        { text: r.text ?? "", images: r.images ?? [] },
-      ])
-    );
+  // 화면(+질문)키 → 저장해 둔 기록 (기록칸이 열릴 때 그대로 채워진다)
+  const initialResponses: Record<
+    string,
+    { text: string; images: string[]; correct?: boolean | null }
+  > = Object.fromEntries(
+    ((screenRows as ScreenResponseRow[] | null) ?? []).map((r) => [
+      r.question_key ? `${r.screen_key}|${r.question_key}` : r.screen_key,
+      { text: r.text ?? "", images: r.images ?? [], correct: r.correct },
+    ])
+  );
+
+  const screens = (screenDefs as Screen[] | null) ?? [];
 
   // 학생 선택지로 쓸 최소 정보만 (provider는 서버가 검증하므로 노출 불필요)
   const models = allModels.map((m) => ({ model_id: m.model_id, label: m.label }));
@@ -96,6 +107,7 @@ export default async function StudentActivityPage({
         activity={activity}
         initialProgress={progress ?? null}
         initialResponses={initialResponses}
+        screens={screens}
         aiConsented={!!me?.ai_consent_at}
         initialTab={tab}
         models={models}

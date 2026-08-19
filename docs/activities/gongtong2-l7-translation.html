@@ -1,6 +1,62 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .formula{font-size:17px;text-align:center;padding:12px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  .lab{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:12px}
+  .slider label{font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+  .slider input[type=range]{width:100%;accent-color:var(--blue)}
+  .readout{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  ul.tight{margin:6px 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  .big{font-size:20px;font-weight:800}
+  .sheet{display:inline-block;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;margin-bottom:6px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<style>
   :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed;--gold:#f59e0b}
   *{box-sizing:border-box}html,body{margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -55,11 +111,6 @@
 </style>
 
 
-
-
-
-
-
 <!-- NAV:START -->
 <div id="archiveNav" style="display:none">
   <a href="../index.html">← 활동 목록</a>
@@ -83,7 +134,97 @@
 <div class="wrap">
   <div class="steps" id="steps"></div>
 
-  <section class="screen on" data-key="s1">
+<section class="screen on" data-key="s1" data-part="g0">
+    <div class="kicker">공통수학2 · 도형의 이동</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-01 [생각 틔우기] Q1 점의 평행이동</span></div>
+<!--TEACH:END-->
+    <h1>평행이동 — 점</h1>
+    <p>점 (x, y) 를 x축으로 <b>a</b>, y축으로 <b>b</b> 만큼 옮기면 좌표에 그대로 <b>더합니다</b>.
+       슬라이더를 움직여 파란 점이 어떻게 이동하는지 보세요.</p>
+    <div class="lab">
+      <svg id="s0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>a (→) <span><b id="s0a">3</b></span></label><input id="s0ar" type="range" min="-5" max="5" step="1" value="3"></div>
+        <div class="slider"><label>b (↑) <span><b id="s0b">2</b></span></label><input id="s0br" type="range" min="-5" max="5" step="1" value="2"></div>
+        <div class="readout" id="s0read"></div>
+        <div class="formula" style="font-size:15px">(x, y) → (x + a, y + b)</div>
+      </div>
+    </div>
+  </section>
+
+<section class="screen" data-key="s2" data-part="g0" data-prompt="포물선 y = x² 을 (a, b) 만큼 옮겼더니 식이 어떻게 바뀌었나요? x 자리에 (x − a) 가 들어가는 것을 확인한 대로 적어 보세요.">
+    <div class="kicker">도형의 평행이동</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-01 Q3 포물선의 평행이동</span></div>
+<!--TEACH:END-->
+    <h1>포물선을 옮기면?</h1>
+    <p>포물선 y = x² 를 (a, b) 만큼 평행이동하면 <b>y = (x − a)² + b</b> 가 됩니다.
+       회색은 원래, 파랑은 옮긴 것. 부호에 주목하세요 — <b>x 자리에 (x − a)</b> 입니다!</p>
+    <div class="lab">
+      <svg id="s1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>a (→) <span><b id="s1a">2</b></span></label><input id="s1ar" type="range" min="-4" max="4" step="1" value="2"></div>
+        <div class="slider"><label>b (↑) <span><b id="s1b">1</b></span></label><input id="s1br" type="range" min="-4" max="4" step="1" value="1"></div>
+        <div class="readout" id="s1read"></div>
+      </div>
+    </div>
+  </section>
+
+<section class="screen" data-key="s3" data-part="g0">
+    <div class="kicker">도형의 평행이동</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-01 Q2 원의 평행이동</span></div>
+<!--TEACH:END-->
+    <h1>원과 직선도 마찬가지</h1>
+    <p>원 x² + y² = 4 를 (a, b) 만큼 옮기면 <b>(x − a)² + (y − b)² = 4</b>.
+       모든 도형이 같은 규칙 — <b>x → x−a, y → y−b</b> 로 바꿉니다.</p>
+    <div class="lab">
+      <svg id="s2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>a (→) <span><b id="s2a">2</b></span></label><input id="s2ar" type="range" min="-4" max="4" step="1" value="2"></div>
+        <div class="slider"><label>b (↑) <span><b id="s2b">-1</b></span></label><input id="s2br" type="range" min="-4" max="4" step="1" value="-1"></div>
+        <div class="readout" id="s2read"></div>
+      </div>
+    </div>
+  </section>
+
+<section class="screen" data-key="s4" data-part="g0" data-prompt="옮긴 도형 위의 점 (x, y) 를 되돌린 점이 원래 도형 위에 있다는 설명을 읽고, 점은 +a 인데 도형의 식은 −a 인 까닭을 자신의 말로 다시 써 보세요.">
+    <div class="kicker">왜?</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 3-01 Q4 도형의 평행이동</span></div>
+    <div class="turn"><i>📖</i><span>교과서 46쪽 — f(x, y) = 0 의 평행이동이 왜 f(x−a, y−b) = 0 이 되는지 논리 전개를 함께 봅니다.</span></div>
+<!--TEACH:END-->
+    <h1>점은 +a, 도형은 −a — 왜 반대일까?</h1>
+    <div class="card">
+      <p style="margin-top:0">옮긴 도형 위의 <b>새 점 (x, y)</b> 를 생각해 봅시다. 이 점은 원래 도형 위의 어떤 점을
+        (a, b) 만큼 민 것입니다. 그렇다면 <b>민 것을 되돌린 점 (x − a, y − b)</b> 는 <b>원래 도형 위</b>에 있어야 합니다.</p>
+      <div class="formula">원래 도형: f(x, y) = 0 &nbsp;→&nbsp; 옮긴 도형: <b>f(x − a, y − b) = 0</b></div>
+      <p style="margin-bottom:0">즉, <b>점</b>은 좌표를 앞으로(+) 밀지만, <b>방정식</b>에서는 되돌리는(−) 대입이 들어가므로 부호가 반대로 보입니다.</p>
+    </div>
+  </section>
+
+<section class="screen" data-key="s5" data-part="g0" data-prompt="도형 f(x,y)=0 을 x축으로 a, y축으로 b 만큼 평행이동하면 왜 f(x−a, y−b)=0 이 되는지, 부호가 반대인 이유를 예를 들어 설명하세요.">
+    <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 3-01 Q5 [예제 1]</span></div>
+    <div class="turn"><i>📖</i><span>교과서 47쪽 — [스스로 익히기] 문제를 해결합니다.</span></div>
+<!--TEACH:END-->
+    <h1>정리</h1>
+    <table>
+      <tr><th>대상</th><th>(a, b) 만큼 평행이동</th></tr>
+      <tr><td>점 (x, y)</td><td>(x + a, y + b)</td></tr>
+      <tr><td>방정식 f(x, y) = 0</td><td>f(x − a, y − b) = 0</td></tr>
+      <tr><td>직선 y = mx + n</td><td>y − b = m(x − a) + n</td></tr>
+      <tr><td>포물선 y = x²</td><td>y = (x − a)² + b</td></tr>
+      <tr><td>원 x² + y² = r²</td><td>(x − a)² + (y − b)² = r²</td></tr>
+    </table>
+    <p class="q">아래 ‘내 생각 적기’ 칸에, <b>점은 +a·+b, 도형은 −a·−b</b> 로 부호가 반대인 이유를 자신의 말로 설명해 보세요.</p>
+    <div class="callout"><b>더 나아가기</b> 이슬람 미술의 <b>테셀레이션</b>은 한 무늬를 평행이동·회전·반사로 반복해 만듭니다.
+      평행이동은 그 첫걸음이에요. 관심 있으면 회전변환도 탐구해 보세요!</div>
+  </section>
+
+<section class="screen" data-key="s6" data-part="g1">
     <div class="kicker">공통수학2 · 도형의 이동</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
@@ -104,7 +245,7 @@
     <p class="hint">별에 정확히 닿으면 별이 <b>노랗게</b> 채워집니다.</p>
   </section>
 
-  <section class="screen" data-key="s2" data-prompt="스테이지 1 을 클리어한 (a, b) 값을 적고, 옮긴 직선의 식을 y = (x − a) + b 꼴로 써 보세요.">
+<section class="screen" data-key="s7" data-part="g1" data-prompt="스테이지 1 을 클리어한 (a, b) 값을 적고, 옮긴 직선의 식을 y = (x − a) + b 꼴로 써 보세요.">
     <div class="kicker">스테이지 1</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-01 Q4 도형의 평행이동</span></div>
@@ -125,7 +266,7 @@
     <p class="hint">클리어했다면 <b>a, b 를 다르게 해서도</b> 클리어되는지 시험해 보세요. 직선에서는 답이 하나가 아닙니다 — 왜 그럴까요?</p>
   </section>
 
-  <section class="screen" data-key="s3" data-prompt="스테이지 2 를 클리어한 (a, b) 값을 적고, 그 값이 포물선의 꼭짓점과 어떤 관계인지 설명해 보세요.">
+<section class="screen" data-key="s8" data-part="g1" data-prompt="스테이지 2 를 클리어한 (a, b) 값을 적고, 그 값이 포물선의 꼭짓점과 어떤 관계인지 설명해 보세요.">
     <div class="kicker">스테이지 2</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-01 Q3 포물선의 평행이동</span></div>
@@ -146,7 +287,7 @@
     <p class="hint">포물선은 직선과 달리 <b>클리어하는 (a, b) 가 딱 하나</b>입니다. 꼭짓점의 위치가 곧 (a, b) 이기 때문이에요.</p>
   </section>
 
-  <section class="screen" data-key="s4">
+<section class="screen" data-key="s9" data-part="g1">
     <div class="kicker">스테이지 3</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-01 Q2 원의 평행이동</span></div>
@@ -167,55 +308,31 @@
     <p class="hint">반지름은 변하지 않습니다. 평행이동은 <b>모양과 크기를 그대로</b> 두고 위치만 바꾸는 이동이에요.</p>
   </section>
 
-  <section class="screen" data-key="s5" data-prompt="(1) 스테이지 1(직선)은 왜 클리어하는 (a, b) 가 여러 개이고, 스테이지 2(포물선)는 왜 하나뿐인가요? (2) 점은 +a, 도형의 식은 −a 로 부호가 반대인 이유를 자신의 말로 설명하세요.">
-    <div class="kicker">정리</div>
-    <!--TEACH:START-->
-    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span></div>
-<!--TEACH:END-->
-    <h1>게임에서 배운 것</h1>
-    <table>
-      <tr><th>대상</th><th>(a, b) 만큼 평행이동</th><th>게임에서</th></tr>
-      <tr><td>점 (x, y)</td><td>(x + a, y + b)</td><td>좌표에 <b>더한다</b></td></tr>
-      <tr><td>방정식 f(x, y) = 0</td><td>f(x − a, y − b) = 0</td><td>식에는 <b>빼서 넣는다</b></td></tr>
-      <tr><td>직선 y = mx + n</td><td>y = m(x − a) + n + b</td><td>답이 <b>여러 개</b></td></tr>
-      <tr><td>포물선 y = x²</td><td>y = (x − a)² + b</td><td>답이 <b>하나</b> (꼭짓점)</td></tr>
-      <tr><td>원 x² + y² = r²</td><td>(x − a)² + (y − b)² = r²</td><td>(a, b) = <b>새 중심</b></td></tr>
-    </table>
-    <div class="callout"><b>왜 점은 +a 인데 식은 −a 일까?</b><br>
-      옮긴 도형 위의 <b>새 점 (x, y)</b> 는, 원래 도형 위의 어떤 점을 (a, b) 만큼 민 결과입니다.
-      그러니 <b>민 것을 되돌린 점 (x − a, y − b)</b> 가 원래 도형 위에 있어야 하죠.
-      그래서 원래 식 f 에 <b>되돌린 좌표</b>를 넣어 f(x − a, y − b) = 0 이 됩니다.</div>
-    <p class="q">아래 ‘내 생각 적기’ 칸에 두 가지를 적어 보세요.<br>
-      (1) 스테이지 1(직선)은 왜 클리어하는 (a, b) 가 여러 개이고, 스테이지 2(포물선)는 왜 하나뿐인가요?<br>
-      (2) 점은 +a, 도형의 식은 −a 로 부호가 반대인 이유를 자신의 말로 설명해 보세요.</p>
-  </section>
-
-  <!-- EXT:START -->
-  <section class="screen" data-key="ext" data-prompt="원을 (3, −2) 만큼 옮긴 뒤 다시 (−3, 2) 만큼 옮기면 어떻게 될까요? ‘아무것도 하지 않는 이동’이 왜 필요한 개념인지도 함께 생각해 적어 보세요." data-photo="1">
+<section class="screen" data-key="ext" data-part="g2" data-prompt="도형을 (3, −2) 만큼 옮긴 뒤 다시 (−3, 2) 만큼 옮기면 어떻게 되나요? 식 f(x−a, y−b) 를 두 번 적용해 확인한 과정을 적어 보세요." data-photo="1">
     <div class="kicker">확장 탐구</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
 <!--TEACH:END-->
     <h1>🔭 더 넓게, 더 깊게</h1>
-    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.</p>
+    <p>배운 것을 <b>옆으로</b>(다른 분야와 잇기) 그리고 <b>아래로</b>(더 근본적인 이유로) 넓혀 봅시다.
+       정답을 맞히는 시간이 아니라 <b>생각을 키우는</b> 시간이에요.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0">
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px">
         <b style="color:#059669">↔ 수평 확장 · 어디에 쓰일까</b>
-        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">이 게임이 바로 <b>게임 개발</b>의 원리입니다. 캐릭터가 움직일 때 프로그램은 좌표에 이동량을 더하고, 카메라(화면)가 따라갈 때는 반대로 세상 전체를 <b>−a 만큼</b> 밀어 그립니다. 부호가 반대인 그 규칙이 실제 코드에 그대로 있어요.</p>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">게임 캐릭터가 걷고, 지도가 스크롤되고, 슬라이드가 넘어가는 모든 움직임이 평행이동입니다. 이미지 편집의 ‘레이어 옮기기’, 프레젠테이션의 애니메이션도 좌표에 벡터를 더하는 일이에요.</p>
       </div>
       <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:13px 15px">
         <b style="color:#7c3aed">↕ 수직 확장 · 더 근본으로</b>
-        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">스테이지 1에서 답이 여러 개였던 이유는, 직선 y = x 를 <b>자기 자신으로 되돌리는</b> 이동 (a, a) 가 무수히 많기 때문입니다. 도형을 자기 자신으로 보내는 이동들의 모임을 그 도형의 <b>대칭군</b>이라 부릅니다.</p>
+        <p style="margin:6px 0 0;font-size:14px;color:#3f3f46">평행이동은 <b>벡터 덧셈</b>입니다. (a₁,b₁)만큼 옮기고 다시 (a₂,b₂)만큼 옮기면 (a₁+a₂, b₁+b₂)만큼 옮긴 것과 같고, 반대로 옮기면 원래대로 돌아오죠. 이렇게 ‘합성이 되고, 항등원과 역원이 있는’ 구조를 수학에서는 <b>군(group)</b>이라 부릅니다.</p>
       </div>
     </div>
     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0">
-      <b>🧗 도전 질문</b><br>스테이지 3의 원을 (3, −2) 만큼 옮긴 뒤 다시 (−3, 2) 만큼 옮기면 어떻게 될까요?
-      식 f(x − a, y − b) = 0 을 두 번 적용해 확인하고, <b>‘아무것도 하지 않는 이동’</b>이 왜 필요한 개념인지 생각해 보세요.
+      <b>🧗 도전 질문</b><br>도형을 (3, −2)만큼 옮긴 뒤 다시 (−3, 2)만큼 옮기면 어떻게 될까요? 이것을 식 f(x−a, y−b) 로 두 번 적용해 확인해 보세요.
     </div>
-    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요.</p>
+    <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 기록칸에 남겨 보세요. <b>공책에 쓴 것을 사진으로 올려도</b> 됩니다.</p>
   </section>
-  <!-- EXT:END -->
-  <!-- FREE:START -->
+
+<!-- FREE:START -->
   <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
     <div class="kicker">마무리</div>
     <h1>✍️ 오늘 수업 자유 기록</h1>
@@ -226,17 +343,82 @@
   </section>
   <!-- FREE:END -->
 
-
   <div class="nav">
     <button class="btn" id="prev">&laquo; 이전</button>
-    <span class="tag" id="counter">1 / 6</span>
+    <span class="tag" id="counter">1 / 11</span>
     <button class="btn primary" id="next">다음 &raquo;</button>
   </div>
 </div>
 
 <script>
 (function(){
-  "use strict";
+"use strict";
+var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g0"]'));
+
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
+  function Plane(svg,lo,hi){
+    var S=400,pad=28,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,lo:lo,hi:hi,sc:sc,svg:svg,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){for(var g=Math.ceil(lo);g<=hi;g++){svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));}
+        svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));},
+      line:function(m,b,color,w,dash){var o={x1:px(lo),y1:py(m*lo+b),x2:px(hi),y2:py(m*hi+b),stroke:color,"stroke-width":w||2.5,"stroke-linecap":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));},
+      seg:function(x1,y1,x2,y2,color,w,dash){var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2,"stroke-linecap":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));},
+      circle:function(cx,cy,r,color,w,fill){svg.appendChild(el("circle",{cx:px(cx),cy:py(cy),r:r*sc,fill:fill||"none",stroke:color,"stroke-width":w||2.5}));},
+      plot:function(fn,color,w,dash){var pts=[];for(var i=0;i<=240;i++){var x=lo+(hi-lo)*i/240;var y=fn(x);if(isFinite(y))pts.push(px(x)+","+py(y));}
+        var o={points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.5,"stroke-linejoin":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("polyline",o));},
+      dot:function(x,y,color,label,r){svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||6,fill:color}));if(label){var t=el("text",{x:px(x)+9,y:py(y)-8,"font-size":13,"font-weight":700,fill:color});t.textContent=label;svg.appendChild(t);}}
+    };
+  }
+  
+
+
+  // 화면0: 점
+  (function(){
+    var P=Plane(document.getElementById("s0"),-7,7),a=3,b=2,O={x:1,y:1};
+    function draw(){P.clear();P.grid();var nx=O.x+a,ny=O.y+b;
+      P.seg(O.x,O.y,nx,ny,"#94a3b8",2,"4 4");
+      P.dot(O.x,O.y,"#94a3b8","(x, y)",5);P.dot(nx,ny,"#2563eb","(x+a, y+b)",6);
+      document.getElementById("s0a").textContent=a;document.getElementById("s0b").textContent=b;
+      document.getElementById("s0read").innerHTML="("+O.x+", "+O.y+") → (<b>"+nx+", "+ny+"</b>)";}
+    document.getElementById("s0ar").oninput=function(){a=parseFloat(this.value);draw();};
+    document.getElementById("s0br").oninput=function(){b=parseFloat(this.value);draw();};draw();
+  })();
+
+  // 화면1: 포물선
+  (function(){
+    var P=Plane(document.getElementById("s1"),-7,7),a=2,b=1;
+    function draw(){P.clear();P.grid();
+      P.plot(function(x){return x*x;},"#cbd5e1",2,"5 4");
+      P.plot(function(x){return (x-a)*(x-a)+b;},"#2563eb",2.8);
+      P.dot(0,0,"#94a3b8",null,4);P.dot(a,b,"#2563eb","꼭짓점("+a+","+b+")",5);
+      document.getElementById("s1a").textContent=a;document.getElementById("s1b").textContent=b;
+      document.getElementById("s1read").innerHTML="y = x² → <b>y = (x "+(a<0?"+ "+(-a):"− "+a)+")² "+(b<0?"− "+(-b):"+ "+b)+"</b>";}
+    document.getElementById("s1ar").oninput=function(){a=parseFloat(this.value);draw();};
+    document.getElementById("s1br").oninput=function(){b=parseFloat(this.value);draw();};draw();
+  })();
+
+  // 화면2: 원
+  (function(){
+    var P=Plane(document.getElementById("s2"),-7,7),a=2,b=-1;
+    function draw(){P.clear();P.grid();
+      P.circle(0,0,2,"#cbd5e1",2,"none");P.circle(a,b,2,"#2563eb",2.8);
+      P.dot(0,0,"#94a3b8",null,4);P.dot(a,b,"#2563eb","중심("+a+","+b+")",5);
+      document.getElementById("s2a").textContent=a;document.getElementById("s2b").textContent=b;
+      document.getElementById("s2read").innerHTML="x²+y²=4 → <b>(x "+(a<0?"+ "+(-a):"− "+a)+")² + (y "+(b<0?"+ "+(-b):"− "+b)+")² = 4</b>";}
+    document.getElementById("s2ar").oninput=function(){a=parseFloat(this.value);draw();};
+    document.getElementById("s2br").oninput=function(){b=parseFloat(this.value);draw();};draw();
+  })();
+})();
+</script>
+<script>
+(function(){
+"use strict";
+var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g1"]'));
+
   var SVGNS="http://www.w3.org/2000/svg";
   function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
   function sgn(v){return v<0?"− "+(-v):"+ "+v;}   // 식 안: y = x − 5
@@ -362,7 +544,39 @@
     label:function(a,b){return "<b>(x "+sgn(-a)+")² + (y "+sgn(-b)+")² = 9</b>";},
     clear:function(a,b){return "🎉 클리어! 중심 ("+num(a)+", "+num(b)+"), 반지름은 3 그대로.";}});
 
-  // 스테퍼 -------------------------------------------------------------------
+  
+
+})();
+</script>
+<script>
+(function(){
+"use strict";
+var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g2"]'));
+
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
+  function Plane(svg,lo,hi){
+    var S=400,pad=28,sc=(S-2*pad)/(hi-lo);
+    function px(x){return pad+(x-lo)*sc;}function py(y){return (S-pad)-(y-lo)*sc;}
+    return {px:px,py:py,lo:lo,hi:hi,sc:sc,svg:svg,
+      clear:function(){while(svg.firstChild)svg.removeChild(svg.firstChild);},
+      grid:function(){for(var g=Math.ceil(lo);g<=hi;g++){svg.appendChild(el("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9","stroke-width":1}));svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9","stroke-width":1}));}
+        svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));},
+      line:function(m,b,color,w,dash){var o={x1:px(lo),y1:py(m*lo+b),x2:px(hi),y2:py(m*hi+b),stroke:color,"stroke-width":w||2.5,"stroke-linecap":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));},
+      seg:function(x1,y1,x2,y2,color,w,dash){var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":w||2,"stroke-linecap":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));},
+      circle:function(cx,cy,r,color,w,fill){svg.appendChild(el("circle",{cx:px(cx),cy:py(cy),r:r*sc,fill:fill||"none",stroke:color,"stroke-width":w||2.5}));},
+      plot:function(fn,color,w,dash){var pts=[];for(var i=0;i<=240;i++){var x=lo+(hi-lo)*i/240;var y=fn(x);if(isFinite(y))pts.push(px(x)+","+py(y));}
+        var o={points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.5,"stroke-linejoin":"round"};if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("polyline",o));},
+      dot:function(x,y,color,label,r){svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||6,fill:color}));if(label){var t=el("text",{x:px(x)+9,y:py(y)-8,"font-size":13,"font-weight":700,fill:color});t.textContent=label;svg.appendChild(t);}}
+    };
+  }
+  
+
+})();
+</script>
+<script>
+(function(){
   var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
   var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
   var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");

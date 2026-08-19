@@ -17,7 +17,9 @@ const DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "docs", "activit
 // keys: 가져올 화면의 data-key (없으면 free 를 뺀 전체)
 // blocks: 가져올 스크립트 구획의 주석 라벨 (없으면 전체)
 const GROUPS = [
+  // ── 이미 합쳐 둔 묶음 (원본 파일이 지워졌으므로 다시 돌리지 않는다) ──────────
   {
+    done: true,
     out: "gongtong2-l1-coordinate-distance.html",
     parts: [
       { file: "gongtong2-00b-bulguksa-coordinate.html" },
@@ -26,6 +28,7 @@ const GROUPS = [
     ],
   },
   {
+    done: true,
     out: "gongtong2-l3-line-parallel.html",
     parts: [
       { file: "gongtong2-02b-line-equation.html" },
@@ -37,6 +40,7 @@ const GROUPS = [
     ],
   },
   {
+    done: true,
     out: "gongtong2-l4-perpendicular-distance.html",
     parts: [
       {
@@ -45,6 +49,39 @@ const GROUPS = [
         blocks: ["화면4", "접었다", "EXT"],
       },
       { file: "gongtong2-03-point-line-distance.html" },
+    ],
+  },
+
+  // ── Ⅰ-2 학습지 2-02 원과 직선 : 앞 차시(위치 관계) ────────────────────────
+  //    학습지 순서 Q1(직접 만들기) → Q2 탐구 → Q3·Q4 예제 → Q5 정리 → 연습
+  //    '거리로 볼까, 판별식으로 볼까'(05 의 s2)는 05c 의 정리와 겹쳐 뺀다.
+  {
+    out: "gongtong2-l5-circle-line.html",
+    parts: [
+      { file: "gongtong2-05-circle-line.html",     keys: ["s1"],        blocks: ["화면0"] },
+      { file: "gongtong2-05c-circle-line-lab.html", keys: ["s1","s2","s3","s4","s5","s6"] },
+      { file: "gongtong2-05-circle-line.html",     keys: ["s3","ext"],  blocks: [] },
+    ],
+  },
+
+  // ── Ⅰ-3 학습지 3-01 평행이동 : 개념 + 별 먹기 연습 ─────────────────────────
+  {
+    out: "gongtong2-l7-translation.html",
+    parts: [
+      { file: "gongtong2-06-translation.html",      keys: ["s1","s2","s3","s4","s5"] },
+      { file: "gongtong2-06b-star-translation.html", keys: ["s1","s2","s3","s4"] },
+      { file: "gongtong2-06-translation.html",      keys: ["ext"], blocks: [] },
+    ],
+  },
+
+  // ── Ⅰ-3 학습지 3-02 대칭이동 : 개념 + 별 먹기·합성·순서 ────────────────────
+  //    07b 의 마지막 '한눈에 정리'(s7)는 07 의 정리와 겹쳐 뺀다.
+  {
+    out: "gongtong2-l8-reflection.html",
+    parts: [
+      { file: "gongtong2-07-reflection.html",      keys: ["s1","s2","s3","s4","s5","s6"] },
+      { file: "gongtong2-07b-star-reflection.html", keys: ["s1","s2","s3","s4","s5","s6"] },
+      { file: "gongtong2-07-reflection.html",      keys: ["ext"], blocks: [] },
     ],
   },
 ];
@@ -109,7 +146,9 @@ function namespace(ids, prefix, ...texts) {
 }
 
 // ── 합치기 ───────────────────────────────────────────────────────────────────
+const only = process.argv.slice(2);
 for (const g of GROUPS) {
+  if (only.length ? !only.some((o) => g.out.includes(o)) : g.done) continue;
   const parsed = g.parts.map((p) => ({ ...p, doc: parse(p.file) }));
   const base = parsed[0].doc;
 

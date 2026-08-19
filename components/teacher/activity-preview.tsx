@@ -1,13 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import GeoGebraEmbed from "@/components/student/geogebra-embed";
-import HtmlActivityFrame from "@/components/student/html-activity-frame";
+import HtmlActivityFrame, {
+  type ScreenInfo,
+} from "@/components/student/html-activity-frame";
+import { FREE_KEY } from "@/components/student/screen-response";
 import type { Activity } from "@/lib/types";
 
 // 교사용 활동 미리보기 — 학생이 실제로 보는 화면을 그대로 렌더한다(읽기 전용).
 // 저장·채점·AI 없이 "결과물이 어떻게 보이는지"만 확인하는 용도.
 export default function ActivityPreview({ activity }: { activity: Activity }) {
+  // 활동 HTML 이 지금 보여 주는 화면 — 학생 화면처럼 화면마다 질문이 바뀐다
+  const [screen, setScreen] = useState<ScreenInfo | null>(null);
+  const screenDriven = activity.type === "html" && !!screen?.hasPrompts;
+
   const content = activity.content as {
     materialId?: string;
     height?: number;
@@ -69,6 +77,7 @@ export default function ActivityPreview({ activity }: { activity: Activity }) {
           html={content.html ?? ""}
           title={activity.title}
           initialHeight={content.height}
+          onScreen={setScreen}
         />
       )}
 
@@ -103,19 +112,66 @@ export default function ActivityPreview({ activity }: { activity: Activity }) {
         </div>
       )}
 
-      {/* 공통: 학생 글 작성란 (미리보기라 비활성) */}
-      {content.response_prompt && (
-        <div className="flex flex-col gap-2 rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <label className="text-sm font-medium text-zinc-900">
-            ✏️ {content.response_prompt}
-          </label>
-          <textarea
-            readOnly
-            rows={5}
-            placeholder="학생이 여기에 글을 작성해 저장합니다. (미리보기에서는 작성·저장할 수 없습니다)"
-            className="cursor-not-allowed rounded-md border border-zinc-200 bg-white p-3 text-sm text-zinc-500"
+      {/* 학생 기록칸 (미리보기라 비활성).
+          화면별 질문을 갖춘 활동은 지금 열린 화면의 질문을, 옛 활동은 활동 단위 질문을 보여 준다. */}
+      {screenDriven ? (
+        screen!.prompt ? (
+          <PreviewBox
+            prompt={screen!.prompt}
+            photo={screen!.photo}
+            badge={
+              screen!.key === FREE_KEY
+                ? "자유 기록 화면"
+                : `${screen!.index + 1}번째 화면`
+            }
           />
-        </div>
+        ) : (
+          <p className="rounded-lg border border-dashed border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-500">
+            이 화면에는 기록칸이 없습니다 — 조작·관찰만 하는 화면입니다.
+            <span className="ml-1 text-zinc-400">
+              (질문을 넣으려면 활동 HTML 의 이 화면에 data-prompt 를 추가하세요)
+            </span>
+          </p>
+        )
+      ) : (
+        content.response_prompt && <PreviewBox prompt={content.response_prompt} />
+      )}
+    </div>
+  );
+}
+
+// 미리보기용 기록칸 — 학생 화면과 같은 모양이되 입력은 막아 둔다
+function PreviewBox({
+  prompt,
+  photo,
+  badge,
+}: {
+  prompt: string;
+  photo?: boolean;
+  badge?: string;
+}) {
+  return (
+    <div
+      className={`flex flex-col gap-2 rounded-lg border p-4 ${
+        photo ? "border-amber-300 bg-amber-50" : "border-blue-200 bg-blue-50"
+      }`}
+    >
+      {badge && (
+        <span className="self-start rounded bg-white/70 px-2 py-0.5 text-xs font-semibold text-zinc-600">
+          {badge}
+        </span>
+      )}
+      <label className="text-sm font-medium text-zinc-900">✏️ {prompt}</label>
+      <textarea
+        readOnly
+        rows={5}
+        placeholder="학생이 여기에 글을 작성해 저장합니다. (미리보기에서는 작성·저장할 수 없습니다)"
+        className="cursor-not-allowed rounded-md border border-zinc-200 bg-white p-3 text-sm text-zinc-500"
+      />
+      {photo && (
+        <p className="text-xs text-zinc-500">
+          📷 이 화면은 학생이 사진(공책 촬영·PDF)으로도 낼 수 있습니다.
+        </p>
       )}
     </div>
   );

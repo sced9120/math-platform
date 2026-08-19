@@ -135,7 +135,7 @@ export default function SubmissionsTable({
           href={`/teacher/units/${unitId}`}
           className="text-sm text-blue-600 hover:underline"
         >
-          ← {unitTitle} 활동 관리
+          ← {unitTitle} 소단원 관리
         </Link>
         <div className="mt-1 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-zinc-900">

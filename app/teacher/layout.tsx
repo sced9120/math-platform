@@ -29,7 +29,7 @@ export default async function TeacherLayout({
               교과 관리
             </Link>
             <Link href="/teacher/units" className="hover:text-zinc-900">
-              단원/활동 관리
+              단원·소단원 관리
             </Link>
             <Link href="/teacher/progress" className="hover:text-zinc-900">
               진도 현황

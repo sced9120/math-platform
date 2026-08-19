@@ -42,7 +42,7 @@ export default async function TeacherActivityPreviewPage({
         href={`/teacher/units/${activity.unit_id}`}
         className="text-sm text-blue-600 hover:underline"
       >
-        ← {unit?.title ?? "단원"} 활동 관리
+        ← {unit?.title ?? "단원"} 소단원 관리
       </Link>
 
       <div className="mt-1 mb-4 flex flex-wrap items-center gap-2">

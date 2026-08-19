@@ -300,7 +300,7 @@ function StartScreenStructure({ activityId }: { activityId: string }) {
 function Back({ unitId, unitTitle }: { unitId: string; unitTitle: string }) {
   return (
     <Link href={`/teacher/units/${unitId}`} className="text-sm text-blue-600 hover:underline">
-      ← {unitTitle} 활동 관리
+      ← {unitTitle} 소단원 관리
     </Link>
   );
 }

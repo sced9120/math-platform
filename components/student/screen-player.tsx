@@ -1,17 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import GeoGebraEmbed from "@/components/student/geogebra-embed";
-import HtmlActivityFrame from "@/components/student/html-activity-frame";
-import PlaneCanvas from "@/components/student/plane-canvas";
 import GradedQuestion from "@/components/student/graded-question";
+import ScreenBody from "@/components/student/screen-body";
 import ScreenResponse, {
   FREE_KEY,
   FREE_PROMPT,
   type SavedResponse,
 } from "@/components/student/screen-response";
-import { DEFAULT_PLANE, type Screen } from "@/lib/screens";
+import type { Screen } from "@/lib/screens";
 
 export type SavedByKey = Record<string, SavedResponse & { correct?: boolean | null }>;
 
@@ -79,7 +76,7 @@ export default function ScreenPlayer({
       )}
 
       {/* 유형별 화면칸 */}
-      <ScreenBody screen={screen} activityTitle={activityTitle} />
+      <ScreenBody screen={screen} fallbackTitle={activityTitle} />
 
       {/* 질문칸 */}
       {screen.questions.map((q) =>
@@ -145,46 +142,4 @@ export default function ScreenPlayer({
     </div>
   );
 }
-
-function ScreenBody({ screen, activityTitle }: { screen: Screen; activityTitle: string }) {
-  const c = screen.config ?? {};
-  switch (screen.type) {
-    case "text":
-      return (
-        <div
-          className="rounded-lg border border-zinc-200 bg-white p-6 leading-relaxed text-zinc-800"
-          dangerouslySetInnerHTML={{ __html: c.body ?? "" }}
-        />
-      );
-    case "plane":
-      return <PlaneCanvas config={c.plane ?? DEFAULT_PLANE} />;
-    case "geogebra":
-      return <GeoGebraEmbed materialId={c.materialId ?? ""} height={c.height ?? 600} />;
-    case "image":
-      return (
-        <div className="rounded-lg border border-zinc-200 bg-white p-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={
-              createClient().storage.from("activity-files").getPublicUrl(c.imagePath ?? "").data
-                .publicUrl
-            }
-            alt={c.caption || screen.title || activityTitle}
-            className="mx-auto max-w-full rounded-md"
-          />
-          {c.caption && <p className="mt-3 text-center text-sm text-zinc-600">{c.caption}</p>}
-        </div>
-      );
-    case "html":
-    case "legacy":
-      return (
-        <HtmlActivityFrame
-          html={c.html ?? ""}
-          title={screen.title || activityTitle}
-          initialHeight={c.height}
-        />
-      );
-    default:
-      return null;
-  }
-}
+

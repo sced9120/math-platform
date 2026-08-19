@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ScreensManager from "@/components/teacher/screens-manager";
-import ScreensEditor from "@/components/teacher/screens-editor";
+import ActivityEditor from "@/components/teacher/activity-editor";
 import { parseActivityHtml } from "@/lib/activity-html";
 import type { Screen } from "@/lib/screens";
 
@@ -48,13 +48,13 @@ export default async function ScreensPage({
 
   if (screens.length > 0) {
     return (
-      <ScreensEditor
-        activityId={activity.id}
-        activityTitle={activity.title}
+      <ActivityEditor
+        unitActivityId={activity.id}
+        unitActivityTitle={activity.title}
         unitId={activity.unit_id}
         unitTitle={activity.units.title}
         initialScreens={screens}
-        otherActivities={(siblings as { id: string; title: string }[] | null) ?? []}
+        otherUnitActivities={(siblings as { id: string; title: string }[] | null) ?? []}
       />
     );
   }

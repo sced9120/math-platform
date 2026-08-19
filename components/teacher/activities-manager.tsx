@@ -240,7 +240,7 @@ export default function ActivitiesManager({
       {/* 활동 추가/수정 폼 */}
       <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
         <h3 className="mb-4 font-semibold text-zinc-900">
-          {editingId ? "활동 수정" : "새 활동 추가"}
+          {editingId ? "소단원 수정" : "새 소단원 추가"}
         </h3>
         <form onSubmit={handleSave} className="flex flex-col gap-4">
           <div className="flex flex-wrap items-end gap-4">
@@ -534,7 +534,7 @@ export default function ActivitiesManager({
       {/* 활동 목록 */}
       <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
         <h3 className="mb-4 font-semibold text-zinc-900">
-          활동 목록 ({activities.length}개)
+          소단원 목록 ({activities.length}개)
         </h3>
         {activities.length === 0 ? (
           <p className="text-sm text-zinc-500">아직 활동이 없습니다. 위에서 추가하세요.</p>

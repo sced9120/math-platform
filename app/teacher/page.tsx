@@ -24,7 +24,7 @@ export default async function TeacherPage() {
           href="/teacher/units"
           className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-blue-400"
         >
-          <h3 className="mb-1 font-semibold text-zinc-900">단원/활동 관리</h3>
+          <h3 className="mb-1 font-semibold text-zinc-900">단원·소단원 관리</h3>
           <p className="text-sm text-zinc-500">
             단원 만들기 · GeoGebra/자료/문제 활동 구성 · 공개 설정
           </p>

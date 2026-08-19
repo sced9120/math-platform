@@ -78,7 +78,7 @@ cp .env.local.example .env.local
 
 Supabase 대시보드 **SQL Editor**에 [`supabase/setup.sql`](supabase/setup.sql)
 **전체를 한 번에** 붙여넣고 Run 하세요 (테이블·RLS 정책·함수가 모두 만들어집니다).
-그다음 **`0012` → `0013` → `0014` 를 순서대로** 이어서 실행하세요.
+그다음 **`0012` → `0013` → `0014` → `0015` 를 순서대로** 이어서 실행하세요.
 
 > `supabase/setup.sql` 은 `0001~0011` 까지만 합쳐 둔 파일이라, 그 뒤 마이그레이션은 따로 돌려야 합니다.
 > supabase CLI 로 하고 싶다면 `supabase init` 과 `supabase link --project-ref <ref>` 를 먼저 해야
@@ -95,6 +95,7 @@ Supabase 대시보드 **SQL Editor**에 [`supabase/setup.sql`](supabase/setup.sq
 | `0012_screen_responses.sql` | 활동 **화면별 기록칸** + 사진 첨부 — 화면마다 다른 질문을 두고 답도 화면 단위로 저장. 비공개 버킷 `student-uploads` 도 이 SQL 이 만듭니다 |
 | `0013_activity_screens.sql` | 활동을 **화면 단위**로 (`activity_screens`) + 기록을 **질문 단위**로 확장. 학생용 조회 함수 `student_screens()` 가 정답을 걷어내고 내려줍니다 |
 | `0014_ai_authoring.sql` | 교사용 **조작 활동 만들기** 챗봇을 AI 기능에 추가 (일일 한도 기본 40회) |
+| `0015_ai_usage_authoring.sql` | 위와 한 쌍 — `ai_usage` 쪽 제약도 넓힙니다. **0014 만 실행하면 제작 챗봇이 500 으로 실패합니다** |
 
 > `0011` 을 실행하면 기존 학생은 **가장 먼저 만들어진 교사/관리자**에게 자동 배정됩니다
 > (아무에게도 안 보이게 되는 것을 막기 위함). 이후 관리자 화면에서 확인할 수 있습니다.
@@ -107,7 +108,10 @@ Supabase 대시보드 **SQL Editor**에 [`supabase/setup.sql`](supabase/setup.sq
 ```sql
 select to_regclass('public.screen_responses')  as "0012",
        to_regclass('public.activity_screens')  as "0013",
-       (select count(*) from ai_limits where feature = 'authoring') as "0014";
+       (select count(*) from ai_limits where feature = 'authoring') as "0014",
+       (select count(*) from pg_constraint
+         where conname = 'ai_usage_feature_check'
+           and pg_get_constraintdef(oid) like '%authoring%')             as "0015";
 ```
 
 `null` 또는 `0` 으로 나오는 번호부터 순서대로 실행하면 됩니다.

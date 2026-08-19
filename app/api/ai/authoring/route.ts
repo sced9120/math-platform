@@ -3,10 +3,10 @@ import { askAuthoring, validateChatHistory } from "@/lib/ai/authoring";
 import { resolveModel } from "@/lib/ai/models";
 import { consumeQuota, isGuardError, requireAiUser } from "@/lib/ai/server";
 
-// 활동 하나를 만드는 데 20~30초쯤 걸린다(실측). 기본 제한(10~15초)으로는 잘려
+// 활동 하나를 만드는 데 20~35초쯤 걸린다(실측). 기본 제한(10~15초)으로는 잘려
 // 클라이언트가 504 HTML 을 받고 "네트워크 오류"로 보인다. 넉넉히 늘린다.
-// (Vercel Hobby 최대 60초. 그래도 모자라면 요금제를 올리거나 스트리밍으로 바꿔야 한다.)
-export const maxDuration = 60;
+// (유료 요금제 기준. 무료라면 60 이 상한이다.)
+export const maxDuration = 120;
 
 // 교사용 '조작 활동 만들기' 챗봇 (서버 전용 — API 키는 여기서만 쓰인다)
 //
@@ -43,7 +43,22 @@ export async function POST(request: Request) {
     );
   }
 
-  const remaining = await consumeQuota(guard.userId, "authoring");
+  // consumeQuota 는 DB 오류를 그대로 던진다. 감싸지 않으면 500 HTML 이 나가
+  // 클라이언트가 이유를 볼 수 없다(실제로 그렇게 막혔다).
+  let remaining: number | null;
+  try {
+    remaining = await consumeQuota(guard.userId, "authoring");
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json(
+      {
+        error: msg.includes("ai_usage_feature_check")
+          ? "사용량 표가 아직 이 기능을 모릅니다. supabase/migrations/0015_ai_usage_authoring.sql 을 SQL Editor 에서 실행해 주세요."
+          : `사용량을 기록하지 못했습니다 — ${msg}`,
+      },
+      { status: 500 }
+    );
+  }
   if (remaining === null) {
     return NextResponse.json(
       { error: "오늘 사용 한도를 다 썼습니다. 내일 다시 시도해 주세요." },

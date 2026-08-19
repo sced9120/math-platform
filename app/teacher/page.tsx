@@ -51,6 +51,16 @@ export default async function TeacherPage() {
         </Link>
 
         <Link
+          href="/teacher/authoring"
+          className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-blue-400"
+        >
+          <h3 className="mb-1 font-semibold text-zinc-900">🛠 조작 활동 만들기</h3>
+          <p className="text-sm text-zinc-500">
+            만들고 싶은 화면을 말로 설명하면 AI 가 HTML 을 만들어 줍니다 · 미리보기로 고쳐 완성
+          </p>
+        </Link>
+
+        <Link
           href="/teacher/export"
           className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-blue-400"
         >

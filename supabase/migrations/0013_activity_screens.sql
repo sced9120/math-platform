@@ -263,3 +263,9 @@ $$;
 
 revoke all on function public.submit_screen_answer(uuid, text, text, text) from public;
 grant execute on function public.submit_screen_answer(uuid, text, text, text) to authenticated;
+
+-- 6. 예전 5인자 save_screen_response 정리 ---------------------------------------
+-- 0012 의 함수는 인자가 5개, 위의 새 함수는 6개다. 이름이 같아 둘 다 남아 있으면
+-- 인자를 5개만 준 호출에서 "어느 함수인지 못 고르겠다"는 오류가 날 수 있다.
+-- 지금은 앱이 항상 6개를 보내므로 예전 것을 지운다.
+drop function if exists public.save_screen_response(uuid, text, text, text, text[]);

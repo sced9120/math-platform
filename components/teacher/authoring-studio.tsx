@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { nextScreenKey } from "@/lib/screens";
+import AiConsent from "@/components/student/ai-consent";
 
 // 조작 활동 만들기 — 왼쪽 챗봇 / 오른쪽 코드·미리보기 탭.
 //
@@ -52,6 +53,7 @@ export default function AuthoringStudio({
   dailyLimit: number;
   activities: ActivityOpt[];
 }) {
+  const [consented, setConsented] = useState(aiConsented);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -185,10 +187,15 @@ if(s.length&&![].some.call(s,function(x){return x.classList.contains("on");}))s[
     }
   }
 
-  if (!aiConsented) {
+  // 교사도 처음 한 번은 동의해야 한다. 학생 화면까지 갈 필요 없이 여기서 바로 한다.
+  if (!consented) {
     return (
-      <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-        AI 기능 사용에 먼저 동의해 주세요. 학생 화면의 AI 기능에서 동의하면 여기서도 쓸 수 있습니다.
+      <div className="max-w-2xl space-y-3">
+        <p className="text-sm text-zinc-600">
+          이 도구는 선생님이 적은 <b>설명만</b> AI 에 보냅니다. 학생 기록은 보내지 않습니다.
+          하루 <b>{dailyLimit}회</b>까지 쓸 수 있습니다.
+        </p>
+        <AiConsent onConsent={() => setConsented(true)} />
       </div>
     );
   }

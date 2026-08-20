@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireProfile } from "@/lib/auth";
+import ArchivePublish from "@/components/teacher/archive-publish";
 
 // 교사 대시보드 — 관리 메뉴 진입점 (권한 가드는 layout에서 처리)
 export default async function TeacherPage() {
@@ -10,6 +11,7 @@ export default async function TeacherPage() {
     <div>
       <h2 className="mb-6 text-lg font-semibold text-zinc-900">관리 메뉴</h2>
       <div className="grid gap-4 sm:grid-cols-2">
+        <ArchivePublish />
         <Link
           href="/teacher/students"
           className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-blue-400"

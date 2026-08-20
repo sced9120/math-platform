@@ -1,0 +1,48 @@
+# 아카이브 목차(docs/index.html) 자동 갱신
+#
+# 플랫폼의 "지금 내보내기" 버튼은 활동 HTML 과 activities.json 만 커밋한다.
+# 목차는 레지스트리 + activities.json + 파일 크기를 읽어 만들어야 하므로 여기서 돌린다.
+# (DB 접근이 없으므로 비밀값이 필요 없다)
+name: 아카이브 목차 갱신
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/activities/**"
+      - "docs/activities.json"
+      - "scripts/gongtong2-registry.mjs"
+      - "scripts/build-archive-index.mjs"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: archive-index
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # 이 워크플로가 만든 커밋으로 다시 돌지 않게 (무한 반복 방지)
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 목차 생성
+        run: node scripts/build-archive-index.mjs
+
+      - name: 바뀐 게 있으면 커밋
+        run: |
+          if git diff --quiet -- docs/index.html; then
+            echo "목차에 바뀐 내용 없음"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html
+          git commit -m "아카이브 목차 갱신 (자동)"
+          git push

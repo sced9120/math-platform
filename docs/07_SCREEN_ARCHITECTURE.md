@@ -128,6 +128,29 @@ alter table public.screen_responses add column question_key text not null defaul
 
 1단계만으로는 보이는 변화가 없으므로 **1+2 를 한 묶음**으로 진행한다.
 
+## 6-2. 아카이브의 방향을 뒤집는다 (2026-08-20)
+
+예전에는 `docs/activities/*.html` 이 원본이고 DB 가 사본이었다.
+화면 구성으로 만든 활동은 **DB 에서 태어나므로** 원본이 될 파일이 없어, 그대로 두면 아카이브가 뒤처진다.
+
+```
+예전   docs/activities/*.html  →  build-gongtong2.mjs  →  DB
+지금   DB  →  export-archive.mjs  →  docs/activities/screens-*.html + docs/activities.json
+```
+
+- `scripts/export-archive.mjs` — 공개된 소단원의 화면을 **단일 HTML** 로 뽑는다.
+  좌표평면은 React 를 쓸 수 없으므로 같은 그림을 그리는 **순수 JS 렌더러**를 이 스크립트가 함께 심는다.
+- `docs/activities.json` — 기계가 읽는 목록(다른 교사가 가져갈 때 쓴다). 정답은 들어가지 않는다.
+- `scripts/build-archive-index.mjs` 가 이 json 을 읽어 목차에 함께 싣는다.
+- 화면 구성이 없는 **옛 소단원은 기존 HTML 파일을 그대로 둔다**(건드리지 않는다).
+
+내보내는 순서
+
+```
+node --env-file=.env.local scripts/export-archive.mjs
+node scripts/build-archive-index.mjs
+```
+
 ## 7. 작업 시 주의
 
 - 새 스키마·렌더러·편집기라 학생 화면이 흔들릴 수 있다. **브랜치에서 진행하고 확인 후 합친다.**

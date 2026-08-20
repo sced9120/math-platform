@@ -74,6 +74,37 @@ export async function getDemoSubject(): Promise<{
   return { subject, units: unitList, activities };
 }
 
+// 화면 구성이 있는 소단원의 활동 목록 (공개된 것만).
+// 질문의 정답(answer·tolerance)은 여기서 걷어낸다 — 체험판은 채점하지 않는다.
+export async function getDemoScreens(activityId: string): Promise<DemoScreen[]> {
+  const db = createAdminClient();
+  const { data } = await db
+    .from("activity_screens")
+    .select("screen_key, order_index, type, title, config, questions, sheet")
+    .eq("activity_id", activityId)
+    .order("order_index");
+
+  return ((data as DemoScreen[] | null) ?? []).map((s) => ({
+    ...s,
+    questions: (s.questions ?? []).map((q) => {
+      const { answer: _a, tolerance: _t, ...safe } = q as Record<string, unknown>;
+      void _a;
+      void _t;
+      return safe as DemoScreen["questions"][number];
+    }),
+  }));
+}
+
+export type DemoScreen = {
+  screen_key: string;
+  order_index: number;
+  type: string;
+  title: string;
+  config: Record<string, unknown>;
+  questions: { id: string; type: string; prompt: string; photo?: boolean; choices?: string[] }[];
+  sheet: string;
+};
+
 // 체험용 활동 하나 (공개된 것만)
 export async function getDemoActivity(id: string): Promise<
   | (DemoActivity & { unitTitle: string; subjectTitle: string })

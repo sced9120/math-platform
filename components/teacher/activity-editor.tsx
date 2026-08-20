@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import ScreenBody from "@/components/student/screen-body";
+import ScreenLibrary from "@/components/teacher/screen-library";
 import {
   DEFAULT_PLANE,
   QUESTION_TYPE_LABEL,
@@ -41,6 +42,7 @@ export default function ActivityEditor({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const [libraryOpen, setLibraryOpen] = useState(false);
 
   const cur = screens[selected];
   // 타자 칠 때마다 저장하지 않도록 잠깐 모았다 보낸다
@@ -91,6 +93,33 @@ export default function ActivityEditor({
     if (error) return setError("활동을 추가하지 못했습니다.");
     setScreens((prev) => [...prev, data]);
     setSelected(screens.length);
+    router.refresh();
+  }
+
+  // 다른 소단원의 활동을 사본으로 가져온다 (원본은 건드리지 않는다)
+  async function copyFrom(src: Screen) {
+    setBusy(true);
+    setError(null);
+    const { data, error } = await supabase
+      .from("activity_screens")
+      .insert({
+        activity_id: unitActivityId,
+        screen_key: nextScreenKey(screens.map((s) => s.screen_key)),
+        order_index: screens.length,
+        type: src.type,
+        title: src.title,
+        config: src.config,
+        questions: src.questions,
+        sheet: src.sheet,
+        teach: src.teach,
+      })
+      .select("*")
+      .single<Screen>();
+    setBusy(false);
+    if (error) return setError("가져오지 못했습니다.");
+    setScreens((prev) => [...prev, data]);
+    setSelected(screens.length);
+    setLibraryOpen(false);
     router.refresh();
   }
 
@@ -196,7 +225,22 @@ export default function ActivityEditor({
             + {SCREEN_TYPE_LABEL[t]}
           </button>
         ))}
+        <button
+          onClick={() => setLibraryOpen((v) => !v)}
+          disabled={busy}
+          className="rounded-md border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+        >
+          📚 다른 활동에서 가져오기
+        </button>
       </div>
+
+      {libraryOpen && (
+        <ScreenLibrary
+          currentActivityId={unitActivityId}
+          onPick={copyFrom}
+          onClose={() => setLibraryOpen(false)}
+        />
+      )}
 
       {!cur ? (
         <p className="rounded-xl border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500">

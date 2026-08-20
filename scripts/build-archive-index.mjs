@@ -5,7 +5,7 @@
 //   /                                   → 이 목차
 //   /activities/gongtong2-....html      → 활동(로그인 없이 바로 조작 가능)
 // 활동 HTML 은 외부 의존성이 없어 그대로 열면 동작한다.
-import { writeFileSync, existsSync, statSync } from "node:fs";
+import { writeFileSync, readFileSync, existsSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { SUBJECT, UNITS, REG } from "./gongtong2-registry.mjs";
@@ -50,6 +50,50 @@ ${items}
         </ul>
       </section>`;
 }).join("\n\n");
+
+// 화면 구성(DB)에서 내보낸 소단원도 목차에 싣는다.
+// scripts/export-archive.mjs 가 docs/activities.json 을 만들어 두면 여기서 읽는다.
+let exportedSection = "";
+{
+  const manifestPath = join(docs, "activities.json");
+  if (existsSync(manifestPath)) {
+    const items = (JSON.parse(readFileSync(manifestPath, "utf8")).items ?? []).filter(
+      (x) => !x.legacy && x.file && existsSync(join(docs, x.file))
+    );
+    const byUnit = new Map();
+    for (const it of items) {
+      if (!byUnit.has(it.unit)) byUnit.set(it.unit, []);
+      byUnit.get(it.unit).push(it);
+    }
+    exportedSection = [...byUnit.entries()]
+      .map(([unitTitle, list]) => {
+        const cards = list
+          .map((it, i) => {
+            total++;
+            const kb = (statSync(join(docs, it.file)).size / 1024).toFixed(0);
+            return `        <li class="card">
+          <a href="${esc(it.file)}">
+            <span class="no">${i + 1}</span>
+            <span class="body">
+              <span class="t">${esc(it.title)}</span>
+              <span class="d">활동 ${it.screens?.length ?? 0}개</span>
+            </span>
+            <span class="go">열기 →</span>
+          </a>
+          <span class="meta">${kb}KB · 단일 HTML</span>
+        </li>`;
+          })
+          .join("\n");
+        return `      <section class="unit">
+        <h2>${esc(unitTitle)} <span class="cnt">소단원 ${list.length}개</span></h2>
+        <ul class="cards">
+${cards}
+        </ul>
+      </section>`;
+      })
+      .join("\n\n");
+  }
+}
 
 const html = `<!doctype html>
 <html lang="ko">
@@ -130,6 +174,8 @@ const html = `<!doctype html>
     </p>
 
 ${sections}
+
+${exportedSection}
 
     <footer>
       <h3>이 자료에 대하여</h3>

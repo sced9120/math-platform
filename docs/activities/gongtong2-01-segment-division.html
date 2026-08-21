@@ -237,22 +237,38 @@
        <b>m : n</b> 으로 내분하는 점 <span class="chip p">C</span> 를 찾아봅시다.
        슬라이더를 움직이며 규칙을 발견해 보세요.</p>
 
-    <svg id="line-svg" viewBox="0 0 640 150" role="img" aria-label="수직선 내분"></svg>
+    <p><b>학습지 Q1</b> — A 에서 B 까지를 <b>같은 길이의 블록</b>으로 채우면 몇 개가 필요할까요?
+       블록 개수를 바꿔 보세요.</p>
+
+    <svg id="line-svg" viewBox="0 0 640 190" role="img" aria-label="수직선 내분"></svg>
 
     <div class="controls" style="margin-top:12px">
       <div class="slider">
-        <label>내분비 &nbsp;<span>m : n = <b id="l-m">2</b> : <b id="l-n">1</b></span></label>
-        <input id="l-mn" type="range" min="1" max="9" step="1" value="2" />
-        <div class="hint">m 을 키우면 점 C 가 B 쪽으로, n 을 키우면 A 쪽으로 다가갑니다. (여기선 n = 1 고정, m 조절)</div>
+        <label>A 의 좌표 a <span><b id="l-a">1</b></span></label>
+        <input id="l-ar" type="range" min="-4" max="4" step="1" value="1" />
+      </div>
+      <div class="slider">
+        <label>B 의 좌표 b <span><b id="l-b">8</b></span></label>
+        <input id="l-br" type="range" min="5" max="12" step="1" value="8" />
+      </div>
+      <div class="slider">
+        <label>앞쪽 블록 수 m <span><b id="l-m">2</b></span></label>
+        <input id="l-mr" type="range" min="1" max="8" step="1" value="2" />
+      </div>
+      <div class="slider">
+        <label>뒤쪽 블록 수 n <span><b id="l-n">1</b></span></label>
+        <input id="l-nr" type="range" min="1" max="8" step="1" value="1" />
       </div>
       <div class="readout" id="l-read"></div>
+      <div class="hint">블록 <b>m + n</b> 개로 채우고, 앞에서 <b>m</b> 개 되는 자리가 내분점 C 입니다.</div>
     </div>
 
-    <p class="q">C 의 좌표를 <b>a, b, m, n</b> 으로 나타내면? 값을 바꿔 보며 규칙을 예상해 보세요.</p>
+    <p class="q">블록 한 개의 길이는 <b>(b − a) / (m + n)</b> 입니다.
+       그렇다면 C 의 좌표를 <b>a, b, m, n</b> 으로 어떻게 쓸 수 있을까요?</p>
   </section>
 
   <!-- 2. 2차원 좌표평면 내분 (핵심 인터랙티브) -->
-  <section class="screen" data-key="s4">
+  <section class="screen" data-key="s4" data-prompt="점 P 를 찾으려면 무엇을 알아야 했나요? x좌표들의 관계와 y좌표들의 관계를 각각 관찰해 적어 보세요.">
     <div class="kicker">2차원 · 좌표평면</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-01 [탐구] 좌표평면 위에서 내분 Q1~Q3</span></div>
@@ -260,6 +276,8 @@
     <h1>좌표평면 위에서 내분</h1>
     <p><span class="chip a">A</span> 와 <span class="chip b">B</span> 를 직접 <b>드래그</b>하고,
        슬라이더로 <b>m : n</b> 을 바꿔 보세요. 내분점 <span class="chip p">P</span> 와 공식이 실시간으로 바뀝니다.</p>
+    <p><b>학습지 Q1</b> — P 를 찾으려면 무엇을 알아야 할까요? 세 점에서 <b>두 축으로 내린 점선</b>을 보세요.
+       <b>x축 위에서도, y축 위에서도 똑같이 m : n</b> 으로 나뉩니다. 그래서 좌표를 따로따로 구할 수 있습니다.</p>
 
     <div class="lab">
       <svg id="plane-svg" viewBox="0 0 400 400" role="img" aria-label="좌표평면 내분"></svg>
@@ -300,6 +318,18 @@
         <li><b>중점</b>은 m : n = 1 : 1 인 경우 → P = ( (x&#8321;+x&#8322;)/2 , (y&#8321;+y&#8322;)/2 )</li>
         <li>m 이 클수록 P 는 <b>B 에 가깝고</b>, n 이 클수록 <b>A 에 가깝습니다.</b></li>
       </ul>
+    </div>
+    <!-- 학습지 5쪽 ▶ 맨 앞 [생각 틔우기] Q5 되짚기 -->
+    <div class="callout">
+      <b>▶ 맨 앞 [생각 틔우기] Q5 를 다시 보자</b><br>
+      데카르트는 석가탑까지의 거리가 다보탑까지의 <b>2배</b>인 자리에 서 있었습니다.
+      석가탑 <b>−9</b>, 다보탑 <b>9</b> 일 때 데카르트는 어느 좌표에 서 있을까요?
+      이제 내분점 공식으로 확인할 수 있습니다.
+      <div class="formula" style="margin-top:8px">
+        P = (2·9 + 1·(−9)) / (2 + 1) = 9/3 = <b>3</b>
+      </div>
+      <span class="hint">석가탑에서 멀고 다보탑에 가까우므로 2 : 1 내분입니다.
+        그때는 눈대중으로 찾았지만, 이제는 계산으로 정확히 구합니다.</span>
     </div>
     <p class="q">앞 화면으로 돌아가 슬라이더를 움직이며, 화면에 뜬 P 값이 이 공식과 일치하는지 확인해 보세요.</p>
   </section>
@@ -478,45 +508,79 @@
   }
   function fmt(v) { return Math.round(v * 100) / 100; }
 
-  /* ---------- 화면 2: 1차원 수직선 ---------- */
+  /* ---------- 화면 2: 1차원 수직선 (학습지 [탐구] 수직선 위에서 내분) ----------
+     학습지의 장치를 그대로 옮긴다: A~B 를 같은 길이의 블록으로 채우고,
+     앞에서 m 개 되는 자리가 내분점이라는 것을 눈으로 본다.                        */
   (function () {
     var svg = document.getElementById("line-svg");
-    var a = 1, b = 8, n = 1;             // A(1), B(8), n 고정
-    var m = 2;
-    var x0 = 60, x1 = 580, y = 80;       // 픽셀 좌표
-    var lo = 0, hi = 9;
+    var a = 1, b = 8, m = 2, n = 1;
+    var x0 = 60, x1 = 580, y = 96;
+    var lo = -5, hi = 13;
     function px(val) { return x0 + (val - lo) / (hi - lo) * (x1 - x0); }
-    var lm = document.getElementById("l-m"), ln = document.getElementById("l-n");
-    var read = document.getElementById("l-read");
-    var range = document.getElementById("l-mn");
+    var out = {
+      a: document.getElementById("l-a"), b: document.getElementById("l-b"),
+      m: document.getElementById("l-m"), n: document.getElementById("l-n"),
+      read: document.getElementById("l-read")
+    };
 
     function draw() {
       while (svg.firstChild) svg.removeChild(svg.firstChild);
+      var k = (b - a) / (m + n);   // 블록 한 개의 길이
+
+      // 수직선 + 눈금
       svg.appendChild(el("line", { x1: x0 - 20, y1: y, x2: x1 + 20, y2: y, stroke: "#a1a1aa", "stroke-width": 2 }));
       for (var t = lo; t <= hi; t++) {
         svg.appendChild(el("line", { x1: px(t), y1: y - 5, x2: px(t), y2: y + 5, stroke: "#d4d4d8", "stroke-width": 1 }));
         var lab = el("text", { x: px(t), y: y + 22, "text-anchor": "middle", "font-size": 11, fill: "#a1a1aa" });
         lab.textContent = t; svg.appendChild(lab);
       }
-      var c = (m * b + n * a) / (m + n);
-      // AC, CB 굵은 선
+
+      // 블록 채우기 — 앞 m 개는 빨강, 뒤 n 개는 초록
+      for (var i = 0; i < m + n; i++) {
+        var s = a + k * i, e = a + k * (i + 1);
+        svg.appendChild(el("rect", {
+          x: px(s) + 1, y: y - 30, width: Math.max(0, px(e) - px(s) - 2), height: 24, rx: 3,
+          fill: i < m ? "#e11d48" : "#059669", "fill-opacity": .22,
+          stroke: i < m ? "#e11d48" : "#059669", "stroke-width": 1
+        }));
+        var num = el("text", { x: (px(s) + px(e)) / 2, y: y - 13, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: i < m ? "#e11d48" : "#059669" });
+        num.textContent = i + 1; svg.appendChild(num);
+      }
+
+      var c = a + k * m;           // = (m·b + n·a)/(m+n)
       svg.appendChild(el("line", { x1: px(a), y1: y, x2: px(c), y2: y, stroke: "#e11d48", "stroke-width": 5, "stroke-linecap": "round" }));
       svg.appendChild(el("line", { x1: px(c), y1: y, x2: px(b), y2: y, stroke: "#059669", "stroke-width": 5, "stroke-linecap": "round" }));
+
+      // AC : CB 표시
+      var t1 = el("text", { x: (px(a) + px(c)) / 2, y: y + 46, "text-anchor": "middle", "font-size": 12, "font-weight": 700, fill: "#e11d48" });
+      t1.textContent = "AC = 블록 " + m + "개"; svg.appendChild(t1);
+      var t2 = el("text", { x: (px(c) + px(b)) / 2, y: y + 46, "text-anchor": "middle", "font-size": 12, "font-weight": 700, fill: "#059669" });
+      t2.textContent = "CB = 블록 " + n + "개"; svg.appendChild(t2);
+
       point(px(a), y, "#e11d48", "A", a);
       point(px(b), y, "#059669", "B", b);
       point(px(c), y, "#2563eb", "C", fmt(c));
-      lm.textContent = m; ln.textContent = n;
-      read.innerHTML = "C = <b>(" + fmt(c) + ")</b> &nbsp;=&nbsp; (m·b + n·a)/(m+n) = (" +
-        m + "·" + b + " + " + n + "·" + a + ") / " + (m + n);
+
+      out.a.textContent = a; out.b.textContent = b;
+      out.m.textContent = m; out.n.textContent = n;
+      out.read.innerHTML =
+        "전체 길이 = b − a = <b>" + fmt(b - a) + "</b><br>" +
+        "블록 " + (m + n) + "개로 채우면 한 개 = <b>" + fmt(k) + "</b><br>" +
+        "C = a + (블록 한 개) × m = " + a + " + " + fmt(k) + " × " + m + " = <b>" + fmt(c) + "</b><br>" +
+        "<span class='hint'>정리하면 C = (m·b + n·a) / (m + n)</span>";
     }
     function point(x, yy, color, name, val) {
       svg.appendChild(el("circle", { cx: x, cy: yy, r: 6, fill: color }));
-      var t1 = el("text", { x: x, y: yy - 14, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: color });
-      t1.textContent = name; svg.appendChild(t1);
-      var t2 = el("text", { x: x, y: yy - 30, "text-anchor": "middle", "font-size": 11, fill: "#71717a" });
-      t2.textContent = "(" + val + ")"; svg.appendChild(t2);
+      var t1 = el("text", { x: x, y: yy + 66, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: color });
+      t1.textContent = name + "(" + val + ")"; svg.appendChild(t1);
     }
-    range.addEventListener("input", function () { m = parseInt(range.value, 10); draw(); });
+    function bind(id, set) {
+      document.getElementById(id).addEventListener("input", function () { set(parseInt(this.value, 10)); draw(); });
+    }
+    bind("l-ar", function (v) { a = v; if (b <= a) b = a + 1; });
+    bind("l-br", function (v) { b = v; if (b <= a) a = b - 1; });
+    bind("l-mr", function (v) { m = v; });
+    bind("l-nr", function (v) { n = v; });
     draw();
   })();
 
@@ -554,6 +618,30 @@
       t.textContent = label + " (" + fmt(p.x) + ", " + fmt(p.y) + ")";
       svg.appendChild(t);
     }
+    // A, P, B 에서 두 축으로 수선을 내리고, 축 위에 생긴 세 점을 표시한다.
+    // 축 위의 세 점도 A→P : P→B = m : n 으로 나뉜다 — 이것이 좌표 공식의 근거다.
+    function project(A, P, B) {
+      var axisY = py(0), axisX = px(0);
+      [[A, "#e11d48"], [P, "#2563eb"], [B, "#059669"]].forEach(function (o) {
+        var p = o[0], color = o[1];
+        svg.appendChild(el("line", { x1: px(p.x), y1: py(p.y), x2: px(p.x), y2: axisY,
+          stroke: color, "stroke-width": 1.2, "stroke-dasharray": "4 4", "stroke-opacity": .8 }));
+        svg.appendChild(el("line", { x1: px(p.x), y1: py(p.y), x2: axisX, y2: py(p.y),
+          stroke: color, "stroke-width": 1.2, "stroke-dasharray": "4 4", "stroke-opacity": .55 }));
+        svg.appendChild(el("circle", { cx: px(p.x), cy: axisY, r: 4, fill: color }));
+        svg.appendChild(el("circle", { cx: axisX, cy: py(p.y), r: 4, fill: color }));
+      });
+      // x축 위에서 같은 비로 나뉜 것을 굵게
+      svg.appendChild(el("line", { x1: px(A.x), y1: axisY, x2: px(P.x), y2: axisY, stroke: "#e11d48", "stroke-width": 4, "stroke-opacity": .55 }));
+      svg.appendChild(el("line", { x1: px(P.x), y1: axisY, x2: px(B.x), y2: axisY, stroke: "#059669", "stroke-width": 4, "stroke-opacity": .55 }));
+      svg.appendChild(el("line", { x1: axisX, y1: py(A.y), x2: axisX, y2: py(P.y), stroke: "#e11d48", "stroke-width": 4, "stroke-opacity": .55 }));
+      svg.appendChild(el("line", { x1: axisX, y1: py(P.y), x2: axisX, y2: py(B.y), stroke: "#059669", "stroke-width": 4, "stroke-opacity": .55 }));
+      var lx = el("text", { x: (px(A.x) + px(B.x)) / 2, y: axisY + 20, "text-anchor": "middle", "font-size": 11.5, "font-weight": 700, fill: "#3f3f46" });
+      lx.textContent = "x축에서도 " + m + " : " + n; svg.appendChild(lx);
+      var ly = el("text", { x: axisX - 8, y: (py(A.y) + py(B.y)) / 2, "text-anchor": "end", "font-size": 11.5, "font-weight": 700, fill: "#3f3f46" });
+      ly.textContent = "y축에서도 " + m + " : " + n; svg.appendChild(ly);
+    }
+
     function handle(p, color, name) {
       var c = el("circle", { cx: px(p.x), cy: py(p.y), r: 11, fill: color, "fill-opacity": .18, stroke: color, "stroke-width": 2, class: "handle" });
       c.setAttribute("data-name", name);
@@ -574,6 +662,9 @@
         // AP, PB 강조
         svg.appendChild(el("line", { x1: px(A.x), y1: py(A.y), x2: px(P.x), y2: py(P.y), stroke: "#e11d48", "stroke-width": 4, "stroke-opacity": .5 }));
         svg.appendChild(el("line", { x1: px(B.x), y1: py(B.y), x2: px(P.x), y2: py(P.y), stroke: "#059669", "stroke-width": 4, "stroke-opacity": .5 }));
+        // 학습지 [탐구] 2차원 평면 위에서 내분 — 축으로 내린 수선.
+        // x축·y축 위에서도 똑같이 m : n 으로 나뉜다는 것이 이 화면의 핵심이다.
+        if (opts.project) project(A, P, B);
         dot(P, "#2563eb", opts.external ? "Q" : "P");
       }
       handle(A, "#e11d48", "A");
@@ -625,12 +716,17 @@
   (function () {
     var mEl = document.getElementById("p-m"), nEl = document.getElementById("p-n"), read = document.getElementById("p-read");
     var plane = makePlane({
-      svgId: "plane-svg", m0: 2, n0: 1, external: false,
+      svgId: "plane-svg", m0: 2, n0: 1, external: false, project: true,
       onDraw: function (P, A, B, m, n) {
         mEl.textContent = m; nEl.textContent = n;
-        read.innerHTML = "AP : PB = <b>" + m + " : " + n + "</b><br>" +
-          "P = ( (m·x&#8322;+n·x&#8321;)/(m+n) , (m·y&#8322;+n·y&#8321;)/(m+n) )<br>" +
-          "&nbsp;&nbsp;= <b>(" + fmt(P.x) + ", " + fmt(P.y) + ")</b>";
+        // 학습지 순서대로: x좌표들의 관계 → y좌표들의 관계 → 점 P
+        read.innerHTML =
+          "AP : PB = <b>" + m + " : " + n + "</b><br><br>" +
+          "<b>x좌표</b> " + fmt(A.x) + " → " + fmt(P.x) + " → " + fmt(B.x) + "<br>" +
+          "&nbsp;&nbsp;x = (m·x&#8322; + n·x&#8321;)/(m+n) = (" + m + "·" + fmt(B.x) + " + " + n + "·" + fmt(A.x) + ")/" + (m + n) + " = <b>" + fmt(P.x) + "</b><br><br>" +
+          "<b>y좌표</b> " + fmt(A.y) + " → " + fmt(P.y) + " → " + fmt(B.y) + "<br>" +
+          "&nbsp;&nbsp;y = (m·y&#8322; + n·y&#8321;)/(m+n) = (" + m + "·" + fmt(B.y) + " + " + n + "·" + fmt(A.y) + ")/" + (m + n) + " = <b>" + fmt(P.y) + "</b><br><br>" +
+          "P = <b>(" + fmt(P.x) + ", " + fmt(P.y) + ")</b>";
       }
     });
     document.getElementById("p-mrange").addEventListener("input", function () { plane.setM(parseInt(this.value, 10)); });

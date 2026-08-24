@@ -26,9 +26,28 @@ async function requireTeacher() {
   return { user, role: me.role as "teacher" | "admin" };
 }
 
-// 이 학생을 다룰 권한이 있는가 (관리자는 전부, 교사는 자기 담당만)
+// 이 학생을 내 목록에 담고 있는가 (관리자는 전부).
 // service role 클라이언트는 RLS 를 우회하므로 여기서 직접 확인해야 한다.
-async function canManage(
+async function isMyStudent(
+  admin: ReturnType<typeof createAdminClient>,
+  actor: { user: { id: string }; role: "teacher" | "admin" },
+  studentId: string
+): Promise<boolean> {
+  if (actor.role === "admin") return true;
+  const { data } = await admin
+    .from("teacher_students")
+    .select("teacher_id")
+    .eq("teacher_id", actor.user.id)
+    .eq("student_id", studentId)
+    .maybeSingle();
+  return !!data;
+}
+
+// 계정 자체를 없앨 수 있는가 — 만든 사람(또는 관리자)만.
+// 0016 부터 한 학생을 여러 교사가 담을 수 있으므로 "담당"은 삭제 근거가 못 된다.
+// (담고 있던 교사가 지우면 다른 반 선생님의 학생까지 함께 사라진다)
+// 내 목록에서 빼는 것은 teacher_students 에서 그 줄만 지우면 된다.
+async function canDeleteAccount(
   admin: ReturnType<typeof createAdminClient>,
   actor: { user: { id: string }; role: "teacher" | "admin" },
   studentId: string
@@ -122,7 +141,7 @@ export async function POST(request: Request) {
       ...row,
       role: "student",
       must_change_password: true,
-      teacher_id: actor.user.id, // 만든 교사가 담당 — 그 교사의 목록에만 뜬다
+      teacher_id: actor.user.id, // 만든 사람 — 계정 삭제 권한의 근거
     });
 
     if (profileError) {
@@ -131,6 +150,14 @@ export async function POST(request: Request) {
       results.push({ studentId, name: row.name, ok: false, error: "프로필 생성 실패" });
       continue;
     }
+
+    // 만든 사람의 목록에 바로 담아 둔다. 다른 교사는 "전체 학생"에서 골라 담는다.
+    await admin
+      .from("teacher_students")
+      .upsert(
+        { teacher_id: actor.user.id, student_id: created.user.id },
+        { onConflict: "teacher_id,student_id", ignoreDuplicates: true }
+      );
 
     results.push({ studentId, name: row.name, password, ok: true });
   }
@@ -173,9 +200,9 @@ export async function PATCH(request: Request) {
       { status: 400 }
     );
   }
-  if (!(await canManage(admin, actor, userId))) {
+  if (!(await isMyStudent(admin, actor, userId))) {
     return NextResponse.json(
-      { error: "내가 담당하는 학생만 관리할 수 있습니다." },
+      { error: "내 목록에 있는 학생만 관리할 수 있습니다." },
       { status: 403 }
     );
   }
@@ -225,9 +252,13 @@ export async function DELETE(request: Request) {
   if (!target || target.role !== "student") {
     return NextResponse.json({ error: "학생 계정만 삭제할 수 있습니다." }, { status: 400 });
   }
-  if (!(await canManage(admin, actor, userId))) {
+  if (!(await canDeleteAccount(admin, actor, userId))) {
     return NextResponse.json(
-      { error: "내가 담당하는 학생만 관리할 수 있습니다." },
+      {
+        error:
+          "계정 삭제는 그 계정을 만든 교사나 관리자만 할 수 있습니다. " +
+          "내 목록에서만 빼려면 '내 목록에서 빼기'를 쓰세요.",
+      },
       { status: 403 }
     );
   }

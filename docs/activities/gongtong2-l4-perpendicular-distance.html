@@ -140,7 +140,52 @@
 <div class="wrap">
   <div class="steps" id="steps"></div>
 
-<section class="screen on" data-key="s9" data-part="g2" data-prompt="두 증명 중 더 잘 이해되는 쪽을 골라, 왜 m₁ · m₂ = −1 이 되는지 자신의 말로 설명해 보세요. 다른 쪽 증명은 어디가 달랐나요?">
+<section class="screen on" data-key="s1" data-part="g0" data-prompt="기울기의 곱이 −1 이 되는 순간을 직접 찾아보고, 그때 두 직선이 왜 직각으로 만나는지 자신의 말로 설명해 보세요.">
+    <div class="kicker">수직</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-02 [수직의 조건]</span></div>
+    <div class="turn"><i>📖</i><span>교과서 22쪽 — 수직 조건과 [예제 1] 을 함께 다루고, 23쪽 [스스로 익히기] 를 풉니다.</span></div>
+<!--TEACH:END-->
+    <h1>수직: 기울기의 곱이 −1</h1>
+    <p>두 직선의 기울기를 바꿔, 곱 <b>m₁ · m₂</b> 가 <b>−1</b> 이 되는 순간을 찾아보세요. 그때 두 직선은 직각으로 만납니다.</p>
+    <div class="lab">
+      <svg id="s4" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label><span style="color:var(--rose)">m₁</span> <span><b id="s4m1">2</b></span></label>
+          <input id="s4m1r" type="range" min="-3" max="3" step="0.25" value="2"></div>
+        <div class="slider"><label><span style="color:var(--emerald)">m₂</span> <span><b id="s4m2">-0.5</b></span></label>
+          <input id="s4m2r" type="range" min="-3" max="3" step="0.25" value="-0.5"></div>
+        <div class="readout" id="s4read"></div>
+        <div class="hint">m₂ = −1/m₁ 일 때 수직. (예: m₁=2 → m₂=−0.5)</div>
+      </div>
+    </div>
+    <div class="card">
+      <b>규칙을 찾았나요?</b> 두 직선이 직각으로 만나는 순간, 기울기의 곱은 늘 같은 값이 됩니다.
+      여러 값으로 바꿔 가며 확인해 보세요.
+      <br><span class="hint">왜 하필 그 값인지는 <b>다음 화면</b>에서 두 가지 방법으로 증명합니다.</span>
+    </div>
+
+    <div class="card" style="border-color:#fca5a5;background:#fef2f2">
+      <b>⚠️ 이 조건을 쓸 수 없는 경우가 있습니다</b>
+      <p style="margin:8px 0">직선 <b>x = 2</b> 와 <b>y = 3</b> 은 누가 봐도 <b>수직</b>입니다.
+         그런데 위 슬라이더로는 이 두 직선을 만들 수 없습니다. 왜일까요?</p>
+      <button class="reveal" id="rvv" style="margin:2px 0 0">먼저 생각해 본 뒤 열기</button>
+      <div class="ans" id="anv">
+        <p style="margin:8px 0 0"><b>x = 2 는 기울기가 없습니다</b>(정의되지 않음).
+        m₁ · m₂ = −1 은 <b>두 직선 모두 기울기가 있을 때만</b> 쓸 수 있는 조건이에요.</p>
+        <table style="margin-top:10px">
+          <tr><th>두 직선이 수직인 경우</th><th>예</th><th>판정</th></tr>
+          <tr><td>둘 다 기울기가 있다</td><td>y = 2x, &nbsp;y = −½x + 1</td><td><b>m₁ m₂ = −1</b></td></tr>
+          <tr><td>하나는 x축에, 하나는 y축에 평행</td><td>x = 2, &nbsp;y = 3</td><td>공식 <b>사용 불가</b> — 그림으로 판단</td></tr>
+        </table>
+        <p style="margin:8px 0 0" class="hint">일반형 <code>a₁x + b₁y + c₁ = 0</code>, <code>a₂x + b₂y + c₂ = 0</code> 으로 쓰면
+        수직 조건이 <b>a₁a₂ + b₁b₂ = 0</b> 이 되어 이런 예외가 사라집니다.
+        x = 2 → (a,b) = (1,0), y = 3 → (a,b) = (0,1) 이므로 1·0 + 0·1 = 0 ✓</p>
+      </div>
+    </div>
+  </section>
+
+<section class="screen" data-key="s9" data-part="g2" data-prompt="두 증명 중 더 잘 이해되는 쪽을 골라, 왜 m₁ · m₂ = −1 이 되는지 자신의 말로 설명해 보세요. 다른 쪽 증명은 어디가 달랐나요?">
     <div class="kicker">왜 −1 일까</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-02 [수직의 조건] 두 가지 방식</span></div>
@@ -170,49 +215,6 @@
     <p class="q">두 증명 중 더 잘 이해되는 쪽을 골라, 왜 m₁ · m₂ = −1 인지 자신의 말로 적어 보세요.</p>
   </section>
 
-<section class="screen" data-key="s1" data-part="g0" data-prompt="기울기의 곱이 −1 이 되는 순간을 직접 찾아보고, 그때 두 직선이 왜 직각으로 만나는지 자신의 말로 설명해 보세요.">
-    <div class="kicker">수직</div>
-    <!--TEACH:START-->
-    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-02 [수직의 조건]</span></div>
-    <div class="turn"><i>📖</i><span>교과서 22쪽 — 수직 조건과 [예제 1] 을 함께 다루고, 23쪽 [스스로 익히기] 를 풉니다.</span></div>
-<!--TEACH:END-->
-    <h1>수직: 기울기의 곱이 −1</h1>
-    <p>두 직선의 기울기를 바꿔, 곱 <b>m₁ · m₂</b> 가 <b>−1</b> 이 되는 순간을 찾아보세요. 그때 두 직선은 직각으로 만납니다.</p>
-    <div class="lab">
-      <svg id="s4" viewBox="0 0 400 400"></svg>
-      <div class="controls">
-        <div class="slider"><label><span style="color:var(--rose)">m₁</span> <span><b id="s4m1">2</b></span></label>
-          <input id="s4m1r" type="range" min="-3" max="3" step="0.25" value="2"></div>
-        <div class="slider"><label><span style="color:var(--emerald)">m₂</span> <span><b id="s4m2">-0.5</b></span></label>
-          <input id="s4m2r" type="range" min="-3" max="3" step="0.25" value="-0.5"></div>
-        <div class="readout" id="s4read"></div>
-        <div class="hint">m₂ = −1/m₁ 일 때 수직. (예: m₁=2 → m₂=−0.5)</div>
-      </div>
-    </div>
-    <div class="card">
-      <b>왜 −1일까?</b> 기울기 m 인 직선의 방향을 90° 돌리면, 방향벡터 (1, m) → (−m, 1) 이 됩니다.
-      새 기울기는 1/(−m) = −1/m. 따라서 m₁ · m₂ = m · (−1/m) = <b>−1</b>.
-    </div>
-
-    <div class="card" style="border-color:#fca5a5;background:#fef2f2">
-      <b>⚠️ 이 조건을 쓸 수 없는 경우가 있습니다</b>
-      <p style="margin:8px 0">직선 <b>x = 2</b> 와 <b>y = 3</b> 은 누가 봐도 <b>수직</b>입니다.
-         그런데 위 슬라이더로는 이 두 직선을 만들 수 없습니다. 왜일까요?</p>
-      <button class="reveal" id="rvv" style="margin:2px 0 0">먼저 생각해 본 뒤 열기</button>
-      <div class="ans" id="anv">
-        <p style="margin:8px 0 0"><b>x = 2 는 기울기가 없습니다</b>(정의되지 않음).
-        m₁ · m₂ = −1 은 <b>두 직선 모두 기울기가 있을 때만</b> 쓸 수 있는 조건이에요.</p>
-        <table style="margin-top:10px">
-          <tr><th>두 직선이 수직인 경우</th><th>예</th><th>판정</th></tr>
-          <tr><td>둘 다 기울기가 있다</td><td>y = 2x, &nbsp;y = −½x + 1</td><td><b>m₁ m₂ = −1</b></td></tr>
-          <tr><td>하나는 x축에, 하나는 y축에 평행</td><td>x = 2, &nbsp;y = 3</td><td>공식 <b>사용 불가</b> — 그림으로 판단</td></tr>
-        </table>
-        <p style="margin:8px 0 0" class="hint">일반형 <code>a₁x + b₁y + c₁ = 0</code>, <code>a₂x + b₂y + c₂ = 0</code> 으로 쓰면
-        수직 조건이 <b>a₁a₂ + b₁b₂ = 0</b> 이 되어 이런 예외가 사라집니다.
-        x = 2 → (a,b) = (1,0), y = 3 → (a,b) = (0,1) 이므로 1·0 + 0·1 = 0 ✓</p>
-      </div>
-    </div>
-  </section>
 
 <section class="screen" data-key="s2" data-part="g0" data-prompt="직접 두 직선을 움직여 본 뒤, 두 직선이 (1) 평행할 조건과 (2) 수직일 조건을 기울기 m₁, m₂ 로 각각 정리하고, 왜 수직이면 기울기의 곱이 −1 이 되는지 자신의 말로 설명하세요.">
     <div class="kicker">정리</div>

@@ -261,6 +261,125 @@
       기울기부터 차례로 구해 보고, 왜 ‘한 점 + 기울기’ 만으로 직선이 하나로 정해지는지 설명해 보세요.</p>
   </section>
 
+
+
+
+<section class="screen" data-key="s9" data-part="g1" data-prompt="두 직선이 평행할 때 기울기와 y절편은 각각 어떠했나요? 관찰한 것을 m₁, m₂, n₁, n₂ 로 정리해 보세요.">
+    <div class="kicker">위치 관계</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-02 두 직선의 위치 관계</span></div>
+<!--TEACH:END-->
+    <h1>두 직선의 위치 관계</h1>
+    <p>두 직선의 기울기 <b>m₁, m₂</b> 와 y절편 <b>n₁, n₂</b> 를 바꿔 보세요. 위치 관계가 실시간으로 판정됩니다.</p>
+    <div class="lab">
+      <svg id="g1s3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label><span style="color:var(--rose)">직선①</span> 기울기 m₁ <span><b id="s3m1">1</b></span></label>
+          <input id="s3m1r" type="range" min="-3" max="3" step="0.5" value="1"></div>
+        <div class="slider"><label><span style="color:var(--rose)">①</span> y절편 n₁ <span><b id="s3n1">-1</b></span></label>
+          <input id="s3n1r" type="range" min="-5" max="5" step="1" value="-1"></div>
+        <div class="slider"><label><span style="color:var(--emerald)">직선②</span> 기울기 m₂ <span><b id="s3m2">2</b></span></label>
+          <input id="s3m2r" type="range" min="-3" max="3" step="0.5" value="2"></div>
+        <div class="slider"><label><span style="color:var(--emerald)">②</span> y절편 n₂ <span><b id="s3n2">2</b></span></label>
+          <input id="s3n2r" type="range" min="-5" max="5" step="1" value="2"></div>
+        <div class="readout" id="s3read"></div>
+      </div>
+    </div>
+    <p class="hint">두 직선이 <b>평행</b> ⟺ 기울기가 같고(y절편은 다름): m₁ = m₂, n₁ ≠ n₂. 기울기·절편 모두 같으면 <b>일치</b>.</p>
+  </section>
+
+<section class="screen" data-key="s10" data-part="g2" data-prompt="유클리드의 제5공준을 읽고, ‘평행’이란 무엇인지 자신의 생각을 적어 보세요. ‘만나지 않는다’와 ‘기울기가 같다’는 어떤 관계일까요?">
+    <div class="kicker">평행이란 무엇인가</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-02 유클리드 제5공준</span></div>
+<!--TEACH:END-->
+    <h1>📜 유클리드의 다섯 번째 약속</h1>
+    <div class="callout">
+      <b>제5공준(평행선 공준)</b><br>
+      임의의 직선이 두 직선과 교차할 때, 교차되는 각의 <b>내각의 합이 두 직각(180°)보다 작으면</b>,
+      두 직선을 계속 연장하면 <b>그쪽에서 교차한다</b>.
+    </div>
+    <p>아래에서 두 번째 직선을 기울여 보세요. 내각의 합 <b>α + β</b> 가 180° 에서 조금만 벗어나도
+       두 직선은 <b>언젠가 만납니다</b>. 정확히 180° 일 때만 영원히 만나지 않습니다.</p>
+    <div class="lab">
+      <svg id="p5-svg" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider">
+          <label>아래 직선의 각 β <span><b id="p5-b">90</b>°</span></label>
+          <input id="p5-br" type="range" min="60" max="120" step="1" value="90" />
+        </div>
+        <div class="readout" id="p5-read"></div>
+        <div class="hint">가로지르는 직선(회색)이 두 직선과 만드는 같은 쪽 내각입니다.</div>
+      </div>
+    </div>
+    <div class="card">
+      <p style="margin-top:0">이 약속은 <b>2000년 동안</b> 수학자들을 괴롭혔습니다.
+        “너무 당연해 보이니 다른 공준으로 증명할 수 있지 않을까?” 하고 수없이 시도했지만 모두 실패했죠.
+        19세기에 이르러 <b>이 공준을 버린 기하학</b>(비유클리드 기하)도 모순 없이 성립한다는 것이 밝혀졌습니다.
+        지구 위처럼 휜 공간에서는 ‘평행선’이 아예 없기도 합니다.</p>
+    </div>
+    <p class="q">그렇다면 <b>평행</b>이란 무엇일까요? 아래 기록칸에 자신의 말로 적어 보세요.
+      ‘만나지 않는다’ 와 ‘기울기가 같다’ 는 어떤 관계인지도 함께 생각해 보세요.</p>
+  </section>
+
+<section class="screen" data-key="s11" data-part="g2" data-prompt="평행 조건과 일치 조건을 정리하고, 두 조건이 어디에서 갈라지는지 적어 보세요.">
+    <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-02 평행 조건 정리 / 일치와의 차이</span></div>
+    <div class="turn"><i>📖</i><span>교과서 20쪽 — 두 직선의 평행·일치 조건을 정리합니다.</span></div>
+<!--TEACH:END-->
+    <h1>평행 조건 · 일치 조건</h1>
+    <p>두 직선 <b>y = m₁x + n₁</b>, <b>y = m₂x + n₂</b> 의 위치 관계는 이렇게 갈립니다.</p>
+    <table>
+      <tr><th>위치 관계</th><th>기울기</th><th>y절편</th><th>공통점 개수</th></tr>
+      <tr><td><b>한 점에서 만남</b></td><td>m₁ ≠ m₂</td><td>상관없음</td><td>1개</td></tr>
+      <tr><td><b>평행</b></td><td>m₁ = m₂</td><td>n₁ ≠ n₂</td><td>0개</td></tr>
+      <tr><td><b>일치</b></td><td>m₁ = m₂</td><td>n₁ = n₂</td><td>무수히 많음</td></tr>
+    </table>
+    <div class="callout">
+      <b>평행과 일치는 어디서 갈라질까?</b><br>
+      둘 다 <b>기울기는 같습니다</b>. 갈라지는 곳은 <b>y절편</b>, 즉 <b>상수항</b> 하나뿐입니다.
+      기울기가 같다는 것은 “방향이 같다”는 뜻이고, y절편이 다르다는 것은 “서로 떨어져 있다”는 뜻입니다.
+      방향만 같고 떨어져 있으면 <b>평행</b>, 떨어진 거리마저 0 이면 <b>일치</b>입니다.
+    </div>
+    <div class="card">
+      <p style="margin-top:0"><b>일반형으로 보면</b> — 두 직선 a₁x + b₁y + c₁ = 0, a₂x + b₂y + c₂ = 0 에 대해</p>
+      <ul class="tight">
+        <li><b>평행</b>: a₁ : a₂ = b₁ : b₂ <b>≠</b> c₁ : c₂</li>
+        <li><b>일치</b>: a₁ : a₂ = b₁ : b₂ <b>=</b> c₁ : c₂</li>
+      </ul>
+      <p style="margin-bottom:0"><span class="hint">일반형은 <b>기울기가 없는 직선(x = k)</b> 까지 함께 다룰 수 있어서 편합니다.</span></p>
+    </div>
+    <p class="q">평행 조건과 일치 조건을 스스로 정리하고, 두 조건이 <b>어디에서 갈라지는지</b> 적어 보세요.</p>
+  </section>
+
+<section class="screen" data-key="s12" data-part="g2" data-prompt="주어진 직선들과 평행하려면 어떤 조건이 필요한가요? 식 하나를 골라, 그 직선과 평행한 직선을 실제로 하나 써 보고 왜 평행인지 설명하세요.">
+    <div class="kicker">연습</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 적기</span><span class="t-sheet">📄 학습지 1-02 [예제1] 평행 조건</span></div>
+<!--TEACH:END-->
+    <h1>이 직선과 평행하려면?</h1>
+    <p>아래 식을 <b>두 개 눌러</b> 비교해 보세요. 두 직선이 평행인지 일치인지 한 점에서 만나는지 판정합니다.</p>
+    <div id="pr-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0"></div>
+    <div class="lab">
+      <svg id="pr-svg" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="pr-read">비교할 식을 두 개 고르세요.</div>
+        <button class="btn" id="pr-reset" style="border:1px solid var(--line);background:#fff;font:inherit;padding:6px 10px;border-radius:8px;cursor:pointer">다시 고르기</button>
+      </div>
+    </div>
+    <div class="card">
+      <p style="margin-top:0"><b>생각해 볼 것</b></p>
+      <ul class="tight">
+        <li>③ <b>x = 4</b> 와 평행한 직선은 어떻게 써야 할까요? 기울기로 말할 수 있나요?</li>
+        <li>④ 와 ⑤ 는 겉모습이 다른데 왜 같은 직선일까요?</li>
+        <li>기울기가 같은 두 식을 골랐는데 <b>일치</b>가 떴다면, 무엇을 바꾸면 평행이 될까요?</li>
+      </ul>
+    </div>
+    <p class="q">주어진 식들과 <b>평행하려면 어떤 조건</b>이 필요한지 적어 보세요.
+      식 하나를 골라 그 직선과 평행한 직선을 실제로 하나 쓰고, 왜 평행인지 설명해 보세요.</p>
+  </section>
+
 <section class="screen" data-key="ext" data-part="g0" data-prompt="세 점 A, B, C 가 한 직선 위에 있을 조건을 기울기로 써 보세요. 두 점의 x좌표가 같다면 그 조건은 어떻게 바꿔야 할까요?" data-photo="1">
     <div class="kicker">확장 탐구</div>
     <!--TEACH:START-->
@@ -283,34 +402,6 @@
       <b>🧗 도전 질문</b><br>세 점 A, B, C 가 <b>한 직선 위에 있을 조건</b>을 기울기로 써 보세요. 만약 두 점의 x좌표가 같다면 그 조건은 어떻게 바꿔야 할까요?
     </div>
     <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 기록칸에 남겨 보세요. <b>공책에 쓴 것을 사진으로 올려도</b> 됩니다.</p>
-  </section>
-
-
-
-
-<section class="screen" data-key="s9" data-part="g1" data-prompt="두 직선이 평행할 때 기울기와 y절편은 각각 어떠했나요? 관찰한 것을 m₁, m₂, n₁, n₂ 로 정리해 보세요.">
-    <div class="kicker">평행</div>
-    <!--TEACH:START-->
-    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-02 평행 조건 Q2·Q3</span></div>
-    <div class="turn"><i>📖</i><span>교과서 20쪽 — 두 직선의 평행·일치 조건을 정리하고, 21쪽 [스스로 익히기] 를 풉니다.</span></div>
-<!--TEACH:END-->
-    <h1>평행: 기울기가 같다</h1>
-    <p>두 직선의 기울기 <b>m₁, m₂</b> 와 y절편 <b>n₁, n₂</b> 를 바꿔 보세요. 위치 관계가 실시간으로 판정됩니다.</p>
-    <div class="lab">
-      <svg id="g1s3" viewBox="0 0 400 400"></svg>
-      <div class="controls">
-        <div class="slider"><label><span style="color:var(--rose)">직선①</span> 기울기 m₁ <span><b id="s3m1">1</b></span></label>
-          <input id="s3m1r" type="range" min="-3" max="3" step="0.5" value="1"></div>
-        <div class="slider"><label><span style="color:var(--rose)">①</span> y절편 n₁ <span><b id="s3n1">-1</b></span></label>
-          <input id="s3n1r" type="range" min="-5" max="5" step="1" value="-1"></div>
-        <div class="slider"><label><span style="color:var(--emerald)">직선②</span> 기울기 m₂ <span><b id="s3m2">2</b></span></label>
-          <input id="s3m2r" type="range" min="-3" max="3" step="0.5" value="2"></div>
-        <div class="slider"><label><span style="color:var(--emerald)">②</span> y절편 n₂ <span><b id="s3n2">2</b></span></label>
-          <input id="s3n2r" type="range" min="-5" max="5" step="1" value="2"></div>
-        <div class="readout" id="s3read"></div>
-      </div>
-    </div>
-    <p class="hint">두 직선이 <b>평행</b> ⟺ 기울기가 같고(y절편은 다름): m₁ = m₂, n₁ ≠ n₂. 기울기·절편 모두 같으면 <b>일치</b>.</p>
   </section>
 
 <!-- FREE:START -->
@@ -518,6 +609,146 @@ var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g1"]'));
     draw();
   })();
 
+})();
+</script>
+<script>
+/* 새로 붙인 화면들 (제5공준 · 평행 연습) — 자기 화면만 쓰므로 따로 둔다 */
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+function fmt(v){var r=Math.round(v*100)/100;return r===0?0:r;}
+
+// ── 제5공준: 내각의 합이 180°에서 벗어나면 두 직선은 만난다 ────────────────
+(function(){
+  var svg=document.getElementById("p5-svg"); if(!svg) return;
+  var S=400, cx=200;
+  var yTop=120, yBot=280;          // 두 직선이 가로지르는 직선과 만나는 지점
+  var beta=90;                      // 아래 직선의 각(도)
+  var out=document.getElementById("p5-b"), read=document.getElementById("p5-read");
+
+  function draw(){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    var alpha=90;                   // 위 직선은 가로지르는 직선과 직각으로 고정
+    // 가로지르는 직선(횡단선) — 세로
+    svg.appendChild(e("line",{x1:cx,y1:20,x2:cx,y2:S-20,stroke:"#a1a1aa","stroke-width":2}));
+    // 위 직선: 수평
+    svg.appendChild(e("line",{x1:20,y1:yTop,x2:S-20,y2:yTop,stroke:"#e11d48","stroke-width":3}));
+    // 아래 직선: beta 만큼 기울인다
+    var rad=beta*Math.PI/180, L=1000;
+    var dx=Math.cos(rad-Math.PI/2), dy=Math.sin(rad-Math.PI/2);
+    svg.appendChild(e("line",{x1:cx-dx*L,y1:yBot-dy*L,x2:cx+dx*L,y2:yBot+dy*L,
+      stroke:"#059669","stroke-width":3}));
+
+    // 내각 표시(오른쪽 방향)
+    svg.appendChild(e("path",{d:"M "+(cx+26)+" "+yTop+" A 26 26 0 0 1 "+cx+" "+(yTop+26),
+      fill:"none",stroke:"#e11d48","stroke-width":1.6}));
+    var ta=e("text",{x:cx+34,y:yTop+24,"font-size":12,"font-weight":700,fill:"#e11d48"});
+    ta.textContent="α = 90°"; svg.appendChild(ta);
+    var tb=e("text",{x:cx+34,y:yBot-14,"font-size":12,"font-weight":700,fill:"#059669"});
+    tb.textContent="β = "+beta+"°"; svg.appendChild(tb);
+
+    var sum=alpha+beta;
+    // 두 직선의 교점 — 아래 직선이 위 직선(y=yTop)과 만나는 x
+    var meet=null;
+    if(Math.abs(dy)>1e-9){ var t=(yTop-yBot)/dy; meet=cx+dx*t; }
+    if(meet!==null && Math.abs(sum-180)>0.5){
+      var inside = meet>20 && meet<S-20;
+      if(inside){
+        svg.appendChild(e("circle",{cx:meet,cy:yTop,r:6,fill:"#2563eb"}));
+        var tm=e("text",{x:meet,y:yTop-12,"text-anchor":"middle","font-size":12,"font-weight":700,fill:"#2563eb"});
+        tm.textContent="여기서 만남"; svg.appendChild(tm);
+      }else{
+        var side = meet<0 ? "왼" : "오른";
+        var tf=e("text",{x:S/2,y:40,"text-anchor":"middle","font-size":12.5,"font-weight":700,fill:"#2563eb"});
+        tf.textContent="화면 밖 "+side+"쪽에서 만납니다 (x ≈ "+fmt(meet)+")"; svg.appendChild(tf);
+      }
+    }
+
+    out.textContent=beta;
+    if(Math.abs(sum-180)<0.5){
+      read.innerHTML="α + β = <b>180°</b><br><b>평행</b> — 아무리 연장해도 만나지 않습니다.";
+    }else{
+      read.innerHTML="α + β = <b>"+sum+"°</b> ("+(sum<180?"180°보다 작음":"180°보다 큼")+")<br>"+
+        "두 직선을 연장하면 <b>"+(sum<180?"오른":"왼")+"쪽</b>에서 만납니다."+
+        "<br><span class='hint'>제5공준이 말하는 그대로입니다.</span>";
+    }
+  }
+  document.getElementById("p5-br").addEventListener("input",function(){beta=parseInt(this.value,10);draw();});
+  draw();
+})();
+
+// ── 평행 연습: 식 두 개를 골라 위치 관계 판정 ─────────────────────────────
+(function(){
+  var svg=document.getElementById("pr-svg"); if(!svg) return;
+  // m 이 null 이면 세로선 x = k
+  var LINES=[
+    {t:"① y = 3x − 2",        m:3,    n:-2},
+    {t:"② 6x − 2y − 4 = 0",   m:3,    n:-2},
+    {t:"③ x = 4",             m:null, k:4},
+    {t:"④ y = 3x + 1",        m:3,    n:1},
+    {t:"⑤ −3x + y − 1 = 0",   m:3,    n:1},
+    {t:"⑥ y = −½x + 2",       m:-0.5, n:2}
+  ];
+  var pick=[];
+  var box=document.getElementById("pr-chips"), read=document.getElementById("pr-read");
+  var S=400,pad=28,lo=-6,hi=6,sc=(S-2*pad)/(hi-lo);
+  function px(x){return pad+(x-lo)*sc;} function py(y){return S-pad-(y-lo)*sc;}
+
+  function draw(){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    for(var g=Math.ceil(lo);g<=hi;g++){
+      svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9"}));
+      svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+    }
+    svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+    svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+    var colors=["#e11d48","#059669"];
+    pick.forEach(function(i,j){
+      var L=LINES[i];
+      if(L.m===null) svg.appendChild(e("line",{x1:px(L.k),y1:py(lo),x2:px(L.k),y2:py(hi),stroke:colors[j],"stroke-width":3}));
+      else svg.appendChild(e("line",{x1:px(lo),y1:py(L.m*lo+L.n),x2:px(hi),y2:py(L.m*hi+L.n),stroke:colors[j],"stroke-width":3}));
+    });
+    render();
+  }
+
+  function verdict(){
+    if(pick.length<2) return "비교할 식을 두 개 고르세요.";
+    var A=LINES[pick[0]], B=LINES[pick[1]];
+    if(A.m===null&&B.m===null)
+      return A.k===B.k ? "<b>일치</b> — 같은 세로선입니다." : "<b>평행</b> — 둘 다 y축에 평행한 세로선이고 x 값이 다릅니다.";
+    if(A.m===null||B.m===null)
+      return "<b>한 점에서 만남</b> — 하나는 기울기가 없는 세로선입니다.";
+    if(A.m!==B.m) return "<b>한 점에서 만남</b> — 기울기가 "+fmt(A.m)+" 와 "+fmt(B.m)+" 로 다릅니다.";
+    return A.n===B.n
+      ? "<b>일치</b> — 기울기도 "+fmt(A.m)+" 로 같고 y절편도 "+fmt(A.n)+" 로 같습니다. 겉모습만 다른 같은 직선입니다."
+      : "<b>평행</b> — 기울기가 "+fmt(A.m)+" 로 같고 y절편이 "+fmt(A.n)+" 와 "+fmt(B.n)+" 로 다릅니다.";
+  }
+  function render(){
+    [].slice.call(box.children).forEach(function(b,i){
+      var on=pick.indexOf(i)>-1;
+      b.style.background=on?"#2563eb":"#fff";
+      b.style.color=on?"#fff":"#27272a";
+      b.style.borderColor=on?"#2563eb":"#e4e4e7";
+    });
+    read.innerHTML=verdict();
+  }
+
+  LINES.forEach(function(L,i){
+    var b=document.createElement("button");
+    b.textContent=L.t;
+    b.style.cssText="border:1px solid #e4e4e7;background:#fff;font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600";
+    b.onclick=function(){
+      var at=pick.indexOf(i);
+      if(at>-1) pick.splice(at,1);
+      else { pick.push(i); if(pick.length>2) pick.shift(); }
+      draw();
+    };
+    box.appendChild(b);
+  });
+  document.getElementById("pr-reset").onclick=function(){pick=[];draw();};
+  draw();
+})();
 })();
 </script>
 <script>

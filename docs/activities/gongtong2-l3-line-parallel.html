@@ -245,13 +245,16 @@
 <!--TEACH:END-->
     <h1>정리</h1>
     <table>
-      <tr><th>주어진 조건</th><th>직선의 방정식</th></tr>
-      <tr><td>기울기 m, 점 (x₁, y₁)</td><td>y − y₁ = m(x − x₁)</td></tr>
-      <tr><td>기울기 m, y절편 n</td><td>y = mx + n</td></tr>
-      <tr><td>두 점 (x₁,y₁), (x₂,y₂), x₁≠x₂</td><td>y − y₁ = {(y₂−y₁)/(x₂−x₁)}(x − x₁)</td></tr>
-      <tr><td>두 점의 x좌표가 같을 때</td><td>x = x₁</td></tr>
-      <tr><td>모든 직선(일반형)</td><td>ax + by + c = 0</td></tr>
+      <tr><th>주어진 것</th><th>직선의 방정식</th></tr>
+      <tr><td>기울기 m, 점 (x₁, y₁)</td><td><b>y − y₁ = m(x − x₁)</b></td></tr>
+      <tr><td>기울기 m, y절편 n</td><td><b>y = mx + n</b></td></tr>
+      <tr><td>두 점 (x₁,y₁),(x₂,y₂), x₁≠x₂</td><td>y − y₁ = <span class="frac"><span class="num">y₂−y₁</span><span class="den">x₂−x₁</span></span>(x − x₁)</td></tr>
+      <tr><td>x축에 평행 (기울기 0)</td><td><b>y = k</b></td></tr>
+      <tr><td>y축에 평행 (기울기 없음)</td><td><b>x = k</b></td></tr>
+      <tr><td>모든 직선 (일반형)</td><td><b>ax + by + c = 0</b></td></tr>
     </table>
+    <div class="callout">일차방정식 <b>ax + by + c = 0</b> (a, b 중 적어도 하나 ≠ 0) 은 항상 하나의 직선을 나타냅니다.
+      b ≠ 0 이면 y = −(a/b)x − c/b 로 정리되어 <b>기울기 −a/b</b> 의 직선입니다.</div>
     <div class="callout"><b>다음 시간 예고</b> — 이제 직선을 식으로 쓸 수 있으니,
       <b>두 직선의 관계</b>(평행·수직)를 기울기로 판정해 봅시다!</div>
     <p class="q">아래 ‘내 생각 적기’ 칸에, 두 점 (1, 2), (3, 8) 을 지나는 직선의 방정식을
@@ -282,65 +285,8 @@
     <p style="font-size:12px;color:#52525b">막히면 <b>‘AI 질문’ 탭</b>에서 힌트를 얻어도 좋아요. 생각한 내용은 아래 기록칸에 남겨 보세요. <b>공책에 쓴 것을 사진으로 올려도</b> 됩니다.</p>
   </section>
 
-<section class="screen" data-key="s6" data-part="g1">
-    <div class="kicker">공통수학2 · 도형의 방정식</div>
-    <!--TEACH:START-->
-    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 1-02 [중학교 개념 확장하기] Q1 평행선 공준</span></div>
-<!--TEACH:END-->
-    <h1>두 직선의 평행과 수직</h1>
-    <p>직선 하나를 결정하는 가장 작은 정보는 무엇일까요? 그리고 두 직선이
-       <b>나란히</b> 가거나 <b>직각으로</b> 만나는 것을, 식만 보고 알 수 있을까요?</p>
-    <div class="lab">
-      <svg id="g1s0" viewBox="0 0 400 400"></svg>
-      <div class="controls">
-        <div class="slider"><label>기울기 m <span><b id="g1s0m">2</b></span></label>
-          <input id="g1s0mr" type="range" min="-4" max="4" step="0.5" value="2"></div>
-        <div class="slider"><label>y절편 n <span><b id="s0n">1</b></span></label>
-          <input id="s0nr" type="range" min="-5" max="5" step="1" value="1"></div>
-        <div class="readout" id="s0read"></div>
-        <div class="hint">기울기 = x가 1 늘 때 y의 증가량, y절편 = x=0에서의 y값.</div>
-      </div>
-    </div>
-    <p class="q">직선 <b>y = mx + n</b> 은 기울기 m 과 y절편 n, 이 두 수로 완전히 정해집니다.</p>
-  </section>
 
-<section class="screen" data-key="s7" data-part="g1" data-prompt="기울기가 고정된 직선이 점을 따라다니는 것을 보았습니다. 직선 하나를 정하는 데 필요한 최소한의 정보가 무엇인지 적어 보세요.">
-    <div class="kicker">직선의 결정</div>
-    <!--TEACH:START-->
-    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
-<!--TEACH:END-->
-    <h1>직선은 무엇으로 정해질까?</h1>
-    <p><b>① 기울기 + 한 점.</b> 기울기가 3 으로 고정된 직선이, 파란 점을 지나도록 늘 따라옵니다.
-       점을 <b>드래그</b> 해 보세요 — 그래도 직선은 <b>하나뿐</b>입니다.</p>
-    <div class="lab">
-      <svg id="g1s1" viewBox="0 0 400 400"></svg>
-      <div class="controls">
-        <div class="readout" id="s1read"></div>
-        <div class="card" style="margin:0">
-          <b>② 두 점 (−1, 1), (0, −1)</b><br>
-          기울기 m = <span class="frac"><span class="num">−1 − 1</span><span class="den">0 − (−1)</span></span> = <b>−2</b><br>
-          y절편 = −1 → <b>y = −2x − 1</b>
-        </div>
-      </div>
-    </div>
-  </section>
 
-<section class="screen" data-key="s8" data-part="g1">
-    <div class="kicker">일반화</div>
-    <!--TEACH:START-->
-    <div class="teach"><span class="t-show">🖥 보여주며 조작</span></div>
-<!--TEACH:END-->
-    <h1>직선의 방정식 정리</h1>
-    <table>
-      <tr><th>주어진 것</th><th>직선의 방정식</th></tr>
-      <tr><td>기울기 m, 점 (x₁, y₁)</td><td><b>y − y₁ = m(x − x₁)</b></td></tr>
-      <tr><td>두 점 (x₁,y₁),(x₂,y₂), x₁≠x₂</td><td>y − y₁ = <span class="frac"><span class="num">y₂−y₁</span><span class="den">x₂−x₁</span></span>(x − x₁)</td></tr>
-      <tr><td>x축에 평행 (기울기 0)</td><td><b>y = k</b></td></tr>
-      <tr><td>y축에 평행 (기울기 없음)</td><td><b>x = k</b></td></tr>
-    </table>
-    <div class="callout">일차방정식 <b>ax + by + c = 0</b> (a, b 중 적어도 하나 ≠ 0) 은 항상 하나의 직선을 나타냅니다.
-      b ≠ 0 이면 y = −(a/b)x − c/b 로 정리되어 <b>기울기 −a/b</b> 의 직선입니다.</div>
-  </section>
 
 <section class="screen" data-key="s9" data-part="g1" data-prompt="두 직선이 평행할 때 기울기와 y절편은 각각 어떠했나요? 관찰한 것을 m₁, m₂, n₁, n₂ 로 정리해 보세요.">
     <div class="kicker">평행</div>
@@ -549,23 +495,7 @@ var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g1"]'));
   }
 
   
-  // 화면0: y=mx+n
-  (function(){
-    var P=Plane(document.getElementById("g1s0"),-6,6),m=2,n=1;
-    var mr=document.getElementById("g1s0mr"),nr=document.getElementById("s0nr");
-    function draw(){P.clear();P.grid();P.line(m,n,"#2563eb",3);P.dot(0,n,"#e11d48","y절편 "+n,5);
-      document.getElementById("g1s0m").textContent=m;document.getElementById("s0n").textContent=n;
-      document.getElementById("s0read").innerHTML="직선: <b>y = "+m+"x "+(n<0?"− "+(-n):"+ "+n)+"</b><br>기울기 <b>"+m+"</b>, y절편 <b>"+n+"</b>";}
-    mr.oninput=function(){m=parseFloat(mr.value);draw();};nr.oninput=function(){n=parseFloat(nr.value);draw();};draw();
-  })();
 
-  // 화면1: 기울기3 + 드래그 점
-  (function(){
-    var P=Plane(document.getElementById("g1s1"),-6,6),pt={x:1,y:2};
-    function draw(){P.clear();P.grid();var b=pt.y-3*pt.x;P.line(3,b,"#2563eb",2.5);P.handle(pt.x,pt.y,"#2563eb","p");P.dot(pt.x,pt.y,"#2563eb",null,4);
-      document.getElementById("s1read").innerHTML="기울기 3, 점 ("+pt.x+", "+pt.y+")<br>→ <b>y − "+pt.y+" = 3(x − "+pt.x+")</b><br>→ y = 3x "+(b<0?"− "+(-b):"+ "+b);}
-    P.onDrag(function(name,d){pt=d;draw();});draw();
-  })();
 
   // 화면3: 평행 판정
   (function(){

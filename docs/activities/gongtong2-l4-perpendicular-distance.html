@@ -146,8 +146,9 @@
     <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-02 [수직의 조건]</span></div>
     <div class="turn"><i>📖</i><span>교과서 22쪽 — 수직 조건과 [예제 1] 을 함께 다루고, 23쪽 [스스로 익히기] 를 풉니다.</span></div>
 <!--TEACH:END-->
-    <h1>수직: 기울기의 곱이 −1</h1>
-    <p>두 직선의 기울기를 바꿔, 곱 <b>m₁ · m₂</b> 가 <b>−1</b> 이 되는 순간을 찾아보세요. 그때 두 직선은 직각으로 만납니다.</p>
+    <h1>직각으로 만나는 순간을 찾아라</h1>
+    <p>두 직선의 기울기를 이리저리 바꿔 보세요. <b>직각으로 만나는 순간</b> 그림에 직각 표시가 뜹니다.
+       그때 <b>기울기의 곱</b>이 얼마인지 눈여겨보세요.</p>
     <div class="lab">
       <svg id="s4" viewBox="0 0 400 400"></svg>
       <div class="controls">
@@ -196,6 +197,7 @@
     <div class="btns">
       <button class="modebtn on" id="pf-rot">① 90° 돌려 보기</button>
       <button class="modebtn" id="pf-pyt">② 피타고라스 정리</button>
+      <button class="modebtn" id="pf-sim">③ 닮은 직각삼각형</button>
     </div>
     <div class="lab">
       <svg id="pf-svg" viewBox="0 0 400 400"></svg>
@@ -232,6 +234,40 @@
     </table>
     <p class="q">이제 아래 <b>‘내 생각 적기’</b> 칸에, 평행 조건과 수직 조건을 스스로 정리해 보세요.</p>
     <div class="callout"><b>확인 문제</b> 직선 y = 2x + 3 에 <b>평행</b>하고 점 (1, 4) 를 지나는 직선, 그리고 <b>수직</b>이고 (1, 4) 를 지나는 직선의 방정식을 각각 구해보세요. (답을 먼저 스스로 → 필요하면 ‘AI 질문’ 탭)</p>
+  </section>
+
+<section class="screen" data-key="s10" data-part="g2" data-prompt="빠르게 판단할 때 무엇을 먼저 보았나요? 기울기가 없는 직선(x = k)이 섞여 있을 때는 어떻게 했는지도 적어 보세요.">
+    <div class="kicker">스피드 연습</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">🙋 묻고 답하며</span><span class="t-sheet">📄 학습지 1-02 [스피드 연습문제] 주어진 두 직선의 관계 파악</span></div>
+<!--TEACH:END-->
+    <h1>⚡ 스피드 연습 — 두 직선의 관계</h1>
+    <p>두 직선을 보고 <b>평행 · 수직 · 일치 · 그 외</b> 중 하나를 고르세요. 바로 채점됩니다.</p>
+    <div id="sp-card" class="card" style="text-align:center;font-size:18px;font-weight:700"></div>
+    <div class="btns" style="justify-content:center">
+      <button class="modebtn" data-sp="평행">평행</button>
+      <button class="modebtn" data-sp="수직">수직</button>
+      <button class="modebtn" data-sp="일치">일치</button>
+      <button class="modebtn" data-sp="그 외">그 외</button>
+    </div>
+    <div class="readout" id="sp-read">문제를 풀어 보세요.</div>
+    <div class="lab" style="margin-top:12px">
+      <svg id="sp-svg" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="sp-score"></div>
+        <button class="btn" id="sp-next">다음 문제 »</button>
+        <button class="btn" id="sp-again">처음부터</button>
+        <div class="hint">답을 고르면 그림이 함께 나옵니다. 먼저 <b>식만 보고</b> 판단해 보세요.</div>
+      </div>
+    </div>
+    <div class="card">
+      <b>빠르게 보는 요령</b>
+      <ul class="tight">
+        <li>먼저 <b>기울기</b>부터 — 같으면 평행 아니면 일치, 다르면 만남</li>
+        <li>기울기가 다르면 <b>곱이 −1</b> 인지 확인 → 수직</li>
+        <li><b>x = k</b> 처럼 기울기가 없는 직선은 공식이 안 통합니다. <b>y = c</b> 와만 수직입니다</li>
+      </ul>
+    </div>
   </section>
 
 <section class="screen" data-key="ext1" data-part="g0" data-prompt="y축에 평행한 직선 x = k 는 기울기가 없습니다. 이 직선과 수직인 직선은 무엇이고, ‘기울기의 곱 = −1’ 규칙을 왜 여기서 쓸 수 없는지 설명해 보세요." data-photo="1">
@@ -298,7 +334,23 @@
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-02 [점과 직선 사이의 거리] Q4</span></div>
 <!--TEACH:END-->
     <h1>축에 평행한 직선까지의 거리</h1>
-    <p>직선이 축에 평행하면 거리는 눈으로 바로 보입니다.</p>
+    <p>직선이 축에 평행하면 거리는 눈으로 바로 보입니다.
+       <b>점 P 를 끌어</b> 옮기고, 직선도 움직여 보세요.</p>
+    <div class="btns">
+      <button class="modebtn on" id="ax-v">세로선 x = k</button>
+      <button class="modebtn" id="ax-h">가로선 y = k</button>
+    </div>
+    <div class="lab">
+      <svg id="ax-svg" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider">
+          <label>직선의 위치 k <span><b id="ax-k">2</b></span></label>
+          <input id="ax-kr" type="range" min="-5" max="5" step="1" value="2" />
+        </div>
+        <div class="readout" id="ax-read"></div>
+        <div class="hint">파란 점 P 를 끌어 보세요. 수선은 언제나 축에 <b>나란한 방향</b>으로 놓입니다.</div>
+      </div>
+    </div>
     <ul class="tight">
       <li>점 (x₀, y₀) 와 직선 <b>x = k</b> 사이 거리 = <b>|x₀ − k|</b></li>
       <li>점 (x₀, y₀) 와 직선 <b>y = k</b> 사이 거리 = <b>|y₀ − k|</b></li>
@@ -342,11 +394,27 @@
       <b>거리 공식</b> — 직선 <b>ax + by + c = 0</b> 과 점 (x₀, y₀) 사이 거리:
       <div class="formula" style="margin:8px 0">d = |a x₀ + b y₀ + c| / <span class="sqrt">a² + b²</span></div>
     </div>
-    <p><b>증명 아이디어 (두 가지)</b></p>
-    <ul class="tight">
-      <li><b>① 수선의 발 직접 구하기:</b> 점에서 직선에 수직인 직선을 세워 교점(수선의 발) H 를 구하고, PH 의 길이를 계산 → 정리하면 위 공식.</li>
-      <li><b>② 넓이 이용:</b> 점과 직선 위 두 점으로 삼각형을 만들고, 넓이를 (밑변)×(높이)/2 로 두 번 계산해 높이(=거리)를 역산.</li>
-    </ul>
+    <p><b>증명 두 가지</b> — 버튼을 누르면 그림이 바뀌고, 아래에 증명 과정이 이어집니다.</p>
+    <div class="btns">
+      <button class="modebtn on" id="dp-foot">① 수선의 발을 직접 구하기</button>
+      <button class="modebtn" id="dp-para">② 평행선으로 옮기기</button>
+    </div>
+    <div class="lab">
+      <svg id="dp-svg" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider">
+          <label>점 P 의 x좌표 <span><b id="dp-px">2</b></span></label>
+          <input id="dp-pxr" type="range" min="-4" max="5" step="1" value="2" />
+        </div>
+        <div class="slider">
+          <label>점 P 의 y좌표 <span><b id="dp-py">3</b></span></label>
+          <input id="dp-pyr" type="range" min="-4" max="5" step="1" value="3" />
+        </div>
+        <div class="readout" id="dp-read"></div>
+        <div class="hint">직선은 3x − 4y + 1 = 0 으로 고정해 두었습니다.</div>
+      </div>
+    </div>
+    <div class="card" id="dp-note"></div>
     <p class="q">아래 ‘내 생각 적기’ 칸에서 점 (2, 3) 과 직선 3x − 4y + 1 = 0 사이 거리를 공식으로 구해보세요.
       (참고: d = |3·2 − 4·3 + 1| / √(9+16) = |−5|/5 = 1)</p>
   </section>
@@ -470,10 +538,45 @@ var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g0"]'));
   (function(){
     var P=Plane(document.getElementById("s4"),-6,6),m1=2,m2=-0.5;
     var r1=document.getElementById("s4m1r"),r2=document.getElementById("s4m2r");
+    var NSVG="http://www.w3.org/2000/svg";
+    var svgEl=document.getElementById("s4");
+    function add(n,a){var x=document.createElementNS(NSVG,n);for(var k in a)x.setAttribute(k,a[k]);svgEl.appendChild(x);return x;}
+    // 화면 좌표로 옮기는 헬퍼 (Plane 과 같은 규칙: -6~6, 여백 30)
+    var LO=-6,HI=6,PAD=30,SZ=400,SC=(SZ-2*PAD)/(HI-LO);
+    function gx(x){return PAD+(x-LO)*SC;} function gy(y){return SZ-PAD-(y-LO)*SC;}
+    function tag(x,y,text,color,anchor){
+      var t=add("text",{x:gx(x),y:gy(y),"font-size":12.5,"font-weight":700,fill:color,"text-anchor":anchor||"start"});
+      t.textContent=text; return t;
+    }
     function draw(){P.clear();P.grid();P.line(m1,0,"#e11d48",2.5);P.line(m2,0,"#059669",2.5);P.dot(0,0,"#2563eb",null,4);
       var prod=m1*m2,perp=Math.abs(prod+1)<1e-9;
+
+      // 각 직선 위에 기울기를 적어 둔다 (직선을 따라가다 화면 안쪽 지점에)
+      function slopeLabel(m,color,name){
+        var x=(Math.abs(m)<=1)?4.6:4.6/Math.abs(m), y=m*x;
+        tag(x,y,name+" = "+fmt(m),color);
+      }
+      slopeLabel(m1,"#e11d48","m₁"); slopeLabel(m2,"#059669","m₂");
+
+      // 수직이면 원점에 직각 표시
+      if(perp){
+        var q=0.9;
+        var d1=q/Math.hypot(1,m1), d2=q/Math.hypot(1,m2);
+        var a={x:d1,y:d1*m1}, b={x:d2,y:d2*m2};
+        add("polyline",{points:gx(a.x)+","+gy(a.y)+" "+gx(a.x+b.x)+","+gy(a.y+b.y)+" "+gx(b.x)+","+gy(b.y),
+          fill:"none",stroke:"#2563eb","stroke-width":2.2});
+        tag(0.35,-1.35,"90°","#2563eb");
+      }
+      // 곱한 값을 그림 위쪽에 크게
+      var box=add("rect",{x:gx(LO)+6,y:gy(HI)+6,width:170,height:26,rx:8,
+        fill:perp?"#dcfce7":"#f4f4f5",stroke:perp?"#059669":"#e4e4e7"});
+      void box;
+      var t=add("text",{x:gx(LO)+16,y:gy(HI)+24,"font-size":13,"font-weight":800,
+        fill:perp?"#059669":"#52525b"});
+      t.textContent="m₁ × m₂ = "+fmt(prod)+(perp?"  (직각!)":"");
+
       document.getElementById("s4m1").textContent=m1;document.getElementById("s4m2").textContent=m2;
-      document.getElementById("s4read").innerHTML="m₁ · m₂ = "+fmt(m1)+" × "+fmt(m2)+" = <b>"+fmt(prod)+"</b><br>"+(perp?'<span class="badge ok">수직 ⟂</span> 직각으로 만납니다!':'<span class="badge no">아직 수직 아님</span> −1 에 맞춰보세요.');}
+      document.getElementById("s4read").innerHTML="m₁ · m₂ = "+fmt(m1)+" × "+fmt(m2)+" = <b>"+fmt(prod)+"</b><br>"+(perp?'<span class="badge ok">수직 ⟂</span> 직각으로 만납니다!':'<span class="badge no">아직 직각이 아닙니다</span> 계속 바꿔 보세요.');}
     r1.oninput=function(){m1=parseFloat(r1.value);draw();};r2.oninput=function(){m2=parseFloat(r2.value);draw();};draw();
   })();
 
@@ -573,7 +676,8 @@ var ROSE="#e11d48", EM="#059669", BLUE="#2563eb", GREY="#a1a1aa";
 
 var mode="rot", m1=2;
 var read=document.getElementById("pf-read"), note=document.getElementById("pf-note");
-var bRot=document.getElementById("pf-rot"), bPyt=document.getElementById("pf-pyt");
+var bRot=document.getElementById("pf-rot"), bPyt=document.getElementById("pf-pyt"),
+    bSim=document.getElementById("pf-sim");
 
 function grid(){
   for(var g=Math.ceil(lo);g<=hi;g++){
@@ -625,7 +729,7 @@ function draw(){
     note.innerHTML="<b>① 90° 돌려 보기</b> — 수직은 <b>방향을 90° 돌린 것</b>입니다. "+
       "방향벡터 (1, m) 을 왼쪽으로 90° 돌리면 (−m, 1) 이 되고, 그 기울기는 1/(−m) = −1/m 입니다. "+
       "그래서 두 기울기의 곱은 항상 −1 입니다. <span class='hint'>돌리는 규칙 (x, y) → (−y, x) 는 Ⅰ-3 도형의 이동에서 다시 만납니다.</span>";
-  }else{
+  }else if(mode==="pyt"){
     // 직선 x = 1 위의 두 점 A(1, m1), B(1, m2) 로 직각삼각형 OAB
     var A={x:1,y:m1}, B={x:1,y:m2};
     svg.appendChild(e("line",{x1:px(1),y1:py(lo),x2:px(1),y2:py(hi),stroke:GREY,"stroke-width":1.4,"stroke-dasharray":"5 4"}));
@@ -655,6 +759,50 @@ function draw(){
       "A(1, m₁), B(1, m₂) 로 직각삼각형 OAB 를 만듭니다.<br>"+
       "(1 + m₁²) + (1 + m₂²) = (m₁ − m₂)² = m₁² − 2m₁m₂ + m₂²<br>"+
       "양변에서 m₁², m₂² 를 지우면 <b>2 = −2 m₁ m₂</b> → <b>m₁ m₂ = −1</b>";
+  } else {
+    // ③ 닮은 직각삼각형 — 교점 A 에서 오른쪽으로 1 만큼 간 세로선을 긋는다
+    var A={x:0,y:0};                    // 두 직선의 교점(원점)
+    var H={x:1,y:0};                    // A 에서 오른쪽으로 1
+    var B={x:1,y:m1};                   // 세로선과 직선①의 교점
+    var C={x:1,y:m2};                   // 세로선과 직선②의 교점
+    svg.appendChild(e("line",{x1:px(1),y1:py(lo),x2:px(1),y2:py(hi),stroke:GREY,"stroke-width":1.4,"stroke-dasharray":"5 4"}));
+    // 두 작은 직각삼각형 ABH, AHC
+    svg.appendChild(e("polygon",{points:px(A.x)+","+py(A.y)+" "+px(H.x)+","+py(H.y)+" "+px(B.x)+","+py(B.y),
+      fill:"rgba(225,29,72,.10)",stroke:ROSE,"stroke-width":1.8}));
+    svg.appendChild(e("polygon",{points:px(A.x)+","+py(A.y)+" "+px(H.x)+","+py(H.y)+" "+px(C.x)+","+py(C.y),
+      fill:"rgba(5,150,105,.10)",stroke:EM,"stroke-width":1.8}));
+    // H 의 직각 표시
+    var s=0.28;
+    svg.appendChild(e("polyline",{points:px(1-s)+","+py(0)+" "+px(1-s)+","+py(s*(m1>0?1:-1))+" "+px(1)+","+py(s*(m1>0?1:-1)),
+      fill:"none",stroke:BLUE,"stroke-width":1.5}));
+    // A 의 직각 표시(두 직선 사이)
+    var q=0.8, d1=q/Math.hypot(1,m1), d2=q/Math.hypot(1,m2);
+    var a1={x:d1,y:d1*m1}, a2={x:d2,y:d2*m2};
+    svg.appendChild(e("polyline",{points:px(a1.x)+","+py(a1.y)+" "+px(a1.x+a2.x)+","+py(a1.y+a2.y)+" "+px(a2.x)+","+py(a2.y),
+      fill:"none",stroke:BLUE,"stroke-width":2}));
+    svg.appendChild(e("circle",{cx:px(0),cy:py(0),r:5,fill:"#27272a"})); label(0,0,"A","#27272a",-16,16);
+    svg.appendChild(e("circle",{cx:px(H.x),cy:py(H.y),r:4.5,fill:"#27272a"})); label(H.x,H.y,"H","#27272a",6,18);
+    svg.appendChild(e("circle",{cx:px(B.x),cy:py(B.y),r:5,fill:ROSE})); label(B.x,B.y,"B",ROSE);
+    svg.appendChild(e("circle",{cx:px(C.x),cy:py(C.y),r:5,fill:EM})); label(C.x,C.y,"C",EM,6,16);
+    // 변의 길이 표시
+    label(0.5,0,"1","#27272a",-4,18);
+    label(1,m1/2,fmt(m1),ROSE,8,4);
+    label(1,m2/2,fmt(-m2),EM,8,4);
+
+    read.innerHTML=
+      "AH = <b>1</b><br>"+
+      "HB = <b>"+fmt(m1)+"</b> &nbsp;(직선①의 기울기)<br>"+
+      "HC = <b>"+fmt(-m2)+"</b> &nbsp;(직선②의 기울기의 부호를 바꾼 것)<br><br>"+
+      "△ABH ∽ △CAH 이므로<br>"+
+      "&nbsp;&nbsp;AH : HB = HC : AH<br>"+
+      "&nbsp;&nbsp;1 : "+fmt(m1)+" = "+fmt(-m2)+" : 1<br><br>"+
+      "→ "+fmt(m1)+" × "+fmt(-m2)+" = <b>1</b>";
+    note.innerHTML="<b>③ 닮은 직각삼각형</b> — 교점 A 에서 오른쪽으로 <b>1</b> 만큼 간 곳에 세로선을 긋습니다. "+
+      "그 세로선이 두 직선과 만나는 점이 B, C 이고, 발이 H 입니다.<br>"+
+      "두 직선이 <b>수직</b>이면 ∠BAC = 90° 이고, ∠AHB = ∠CHA = 90° 이므로 "+
+      "<b>△ABH 와 △CAH 는 닮음</b>입니다(두 각이 같음).<br>"+
+      "닮음비에서 AH : HB = HC : AH → 1 : m₁ = (−m₂) : 1 → "+
+      "m₁ × (−m₂) = 1 → <b>m₁ m₂ = −1</b>";
   }
   document.getElementById("pf-m1").textContent=fmt(m1);
 }
@@ -663,10 +811,217 @@ function pick(m){
   mode=m;
   bRot.className="modebtn"+(m==="rot"?" on":"");
   bPyt.className="modebtn"+(m==="pyt"?" on":"");
+  bSim.className="modebtn"+(m==="sim"?" on":"");
   draw();
 }
 bRot.onclick=function(){pick("rot");};
 bPyt.onclick=function(){pick("pyt");};
+bSim.onclick=function(){pick("sim");};
+
+// ── 스피드 연습: 두 직선의 관계 판정 ───────────────────────────────────────
+(function(){
+  var card=document.getElementById("sp-card"); if(!card) return;
+  // m 이 null 이면 세로선 x = k
+  var Q=[
+    {a:{t:"y = 2x + 1",m:2,n:1},      b:{t:"y = 2x − 3",m:2,n:-3},      ans:"평행"},
+    {a:{t:"y = 3x − 1",m:3,n:-1},     b:{t:"y = −⅓x + 2",m:-1/3,n:2},   ans:"수직"},
+    {a:{t:"2x − y + 4 = 0",m:2,n:4},  b:{t:"y = 2x + 4",m:2,n:4},       ans:"일치"},
+    {a:{t:"x = 3",m:null,k:3},        b:{t:"y = −2",m:0,n:-2},          ans:"수직"},
+    {a:{t:"y = x + 2",m:1,n:2},       b:{t:"y = −2x + 1",m:-2,n:1},     ans:"그 외"},
+    {a:{t:"x = 1",m:null,k:1},        b:{t:"x = 4",m:null,k:4},         ans:"평행"}
+  ];
+  var i=0, score=0, done=0, answered=false;
+  var read=document.getElementById("sp-read"), scoreEl=document.getElementById("sp-score");
+  var svg=document.getElementById("sp-svg");
+  var S=400,pad=28,lo=-6,hi=6,sc=(S-2*pad)/(hi-lo);
+  function px(x){return pad+(x-lo)*sc;} function py(y){return S-pad-(y-lo)*sc;}
+  function put(L,color){
+    if(L.m===null) svg.appendChild(e("line",{x1:px(L.k),y1:py(lo),x2:px(L.k),y2:py(hi),stroke:color,"stroke-width":3}));
+    else svg.appendChild(e("line",{x1:px(lo),y1:py(L.m*lo+L.n),x2:px(hi),y2:py(L.m*hi+L.n),stroke:color,"stroke-width":3}));
+  }
+  function drawPair(show){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    for(var g=Math.ceil(lo);g<=hi;g++){
+      svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9"}));
+      svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+    }
+    svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+    svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+    if(show){ put(Q[i].a,"#e11d48"); put(Q[i].b,"#059669"); }
+    else{
+      var t=e("text",{x:S/2,y:S/2,"text-anchor":"middle","font-size":13,fill:"#a1a1aa"});
+      t.textContent="답을 고르면 그림이 나옵니다"; svg.appendChild(t);
+    }
+  }
+  function show(){
+    answered=false;
+    card.innerHTML="<span style='color:#e11d48'>"+Q[i].a.t+"</span>"+
+      " <span style='color:#a1a1aa;font-weight:400'>와</span> "+
+      "<span style='color:#059669'>"+Q[i].b.t+"</span>";
+    read.innerHTML="관계를 고르세요. ("+(i+1)+" / "+Q.length+")";
+    scoreEl.innerHTML="맞힌 개수 <b>"+score+"</b> / 푼 개수 "+done;
+    drawPair(false);
+  }
+  [].slice.call(document.querySelectorAll("[data-sp]")).forEach(function(b){
+    b.onclick=function(){
+      if(answered) return;
+      answered=true; done++;
+      var ok=b.getAttribute("data-sp")===Q[i].ans;
+      if(ok) score++;
+      read.innerHTML=(ok?"<span class='badge ok'>정답</span>":"<span class='badge warn'>다시 보기</span>")+
+        " 정답은 <b>"+Q[i].ans+"</b> 입니다."+
+        (Q[i].a.m===null||Q[i].b.m===null ? "<br><span class='hint'>기울기가 없는 직선이 섞여 있어 곱셈 공식은 쓸 수 없습니다.</span>" : "");
+      scoreEl.innerHTML="맞힌 개수 <b>"+score+"</b> / 푼 개수 "+done;
+      drawPair(true);
+    };
+  });
+  document.getElementById("sp-next").onclick=function(){ i=(i+1)%Q.length; show(); };
+  document.getElementById("sp-again").onclick=function(){ i=0;score=0;done=0; show(); };
+  show();
+})();
+
+// ── 축에 평행한 직선까지의 거리 (끌어서 확인) ──────────────────────────────
+(function(){
+  var svg=document.getElementById("ax-svg"); if(!svg) return;
+  var vertical=true, k=2, P={x:-2,y:3}, dragging=false;
+  var S=400,pad=28,lo=-6,hi=6,sc=(S-2*pad)/(hi-lo);
+  function px(x){return pad+(x-lo)*sc;} function py(y){return S-pad-(y-lo)*sc;}
+  var read=document.getElementById("ax-read");
+  function draw(){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    for(var g=Math.ceil(lo);g<=hi;g++){
+      svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9"}));
+      svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+    }
+    svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+    svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+    var F = vertical ? {x:k,y:P.y} : {x:P.x,y:k};   // 수선의 발
+    if(vertical) svg.appendChild(e("line",{x1:px(k),y1:py(lo),x2:px(k),y2:py(hi),stroke:"#059669","stroke-width":3}));
+    else svg.appendChild(e("line",{x1:px(lo),y1:py(k),x2:px(hi),y2:py(k),stroke:"#059669","stroke-width":3}));
+    svg.appendChild(e("line",{x1:px(P.x),y1:py(P.y),x2:px(F.x),y2:py(F.y),stroke:"#2563eb","stroke-width":3,"stroke-dasharray":"6 4"}));
+    // 발에서의 직각 표시
+    var s=0.4, sx=(P.x>=F.x?1:-1), sy=(P.y>=F.y?1:-1);
+    if(vertical) svg.appendChild(e("polyline",{points:px(F.x+s*sx)+","+py(F.y)+" "+px(F.x+s*sx)+","+py(F.y+s)+" "+px(F.x)+","+py(F.y+s),fill:"none",stroke:"#2563eb","stroke-width":1.5}));
+    else svg.appendChild(e("polyline",{points:px(F.x)+","+py(F.y+s*sy)+" "+px(F.x+s)+","+py(F.y+s*sy)+" "+px(F.x+s)+","+py(F.y),fill:"none",stroke:"#2563eb","stroke-width":1.5}));
+    svg.appendChild(e("circle",{cx:px(F.x),cy:py(F.y),r:5,fill:"#059669"}));
+    svg.appendChild(e("circle",{cx:px(P.x),cy:py(P.y),r:12,fill:"#2563eb","fill-opacity":.18,stroke:"#2563eb","stroke-width":2,class:"handle"}));
+    svg.appendChild(e("circle",{cx:px(P.x),cy:py(P.y),r:5,fill:"#2563eb"}));
+    var t=e("text",{x:px(P.x)+10,y:py(P.y)-9,"font-size":12.5,"font-weight":700,fill:"#2563eb"});
+    t.textContent="P("+P.x+", "+P.y+")"; svg.appendChild(t);
+    var d = vertical ? Math.abs(P.x-k) : Math.abs(P.y-k);
+    var tm=e("text",{x:(px(P.x)+px(F.x))/2,y:(py(P.y)+py(F.y))/2-8,"text-anchor":"middle","font-size":13,"font-weight":800,fill:"#2563eb"});
+    tm.textContent=d; svg.appendChild(tm);
+    document.getElementById("ax-k").textContent=k;
+    read.innerHTML = vertical
+      ? "직선 <b>x = "+k+"</b><br>거리 = |x₀ − k| = |"+P.x+" − "+k+"| = <b>"+d+"</b><br><span class='hint'>y좌표는 거리와 아무 상관이 없습니다.</span>"
+      : "직선 <b>y = "+k+"</b><br>거리 = |y₀ − k| = |"+P.y+" − "+k+"| = <b>"+d+"</b><br><span class='hint'>x좌표는 거리와 아무 상관이 없습니다.</span>";
+  }
+  function toData(ev){
+    var r=svg.getBoundingClientRect();
+    var sx=(ev.clientX-r.left)/r.width*S, sy=(ev.clientY-r.top)/r.height*S;
+    return {x:Math.max(lo,Math.min(hi,Math.round(lo+(sx-pad)/sc))),
+            y:Math.max(lo,Math.min(hi,Math.round(lo+(S-pad-sy)/sc)))};
+  }
+  svg.addEventListener("pointerdown",function(ev){
+    var t=ev.target;
+    if(t&&t.getAttribute&&t.getAttribute("class")==="handle"){dragging=true;svg.setPointerCapture(ev.pointerId);}
+  });
+  svg.addEventListener("pointermove",function(ev){ if(dragging){P=toData(ev);draw();} });
+  svg.addEventListener("pointerup",function(){dragging=false;});
+  svg.addEventListener("pointerleave",function(){dragging=false;});
+  document.getElementById("ax-kr").addEventListener("input",function(){k=parseInt(this.value,10);draw();});
+  var bv=document.getElementById("ax-v"), bh=document.getElementById("ax-h");
+  bv.onclick=function(){vertical=true;bv.className="modebtn on";bh.className="modebtn";draw();};
+  bh.onclick=function(){vertical=false;bh.className="modebtn on";bv.className="modebtn";draw();};
+  draw();
+})();
+
+// ── 점과 직선 사이의 거리 — 증명 두 가지 ──────────────────────────────────
+(function(){
+  var svg=document.getElementById("dp-svg"); if(!svg) return;
+  var A=3,B=-4,C=1;                 // 직선 3x − 4y + 1 = 0
+  var mode="foot", P={x:2,y:3};
+  var S=400,pad=28,lo=-5,hi=6,sc=(S-2*pad)/(hi-lo);
+  function px(x){return pad+(x-lo)*sc;} function py(y){return S-pad-(y-lo)*sc;}
+  var read=document.getElementById("dp-read"), note=document.getElementById("dp-note");
+  var bF=document.getElementById("dp-foot"), bP=document.getElementById("dp-para");
+  function lineY(x,c){return (A*x+c)/(-B);}   // ax+by+c=0 → y = (ax+c)/(-b)
+
+  function draw(){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    for(var g=Math.ceil(lo);g<=hi;g++){
+      svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9"}));
+      svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+    }
+    svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+    svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+    // 직선 ℓ
+    svg.appendChild(e("line",{x1:px(lo),y1:py(lineY(lo,C)),x2:px(hi),y2:py(lineY(hi,C)),stroke:"#059669","stroke-width":3}));
+    var tl=e("text",{x:px(hi)-6,y:py(lineY(hi,C))-8,"text-anchor":"end","font-size":12,"font-weight":700,fill:"#059669"});
+    tl.textContent="ℓ: 3x − 4y + 1 = 0"; svg.appendChild(tl);
+
+    var val=A*P.x+B*P.y+C, den=Math.hypot(A,B), d=Math.abs(val)/den;
+    var H={x:P.x-A*val/(den*den), y:P.y-B*val/(den*den)};   // 수선의 발
+
+    if(mode==="foot"){
+      svg.appendChild(e("line",{x1:px(P.x),y1:py(P.y),x2:px(H.x),y2:py(H.y),stroke:"#2563eb","stroke-width":3}));
+      svg.appendChild(e("circle",{cx:px(H.x),cy:py(H.y),r:5,fill:"#2563eb"}));
+      var t1=e("text",{x:px(H.x)+8,y:py(H.y)+18,"font-size":12,"font-weight":700,fill:"#2563eb"});
+      t1.textContent="H"; svg.appendChild(t1);
+      read.innerHTML=
+        "P("+P.x+", "+P.y+")<br>"+
+        "a x₀ + b y₀ + c = 3·"+P.x+" − 4·"+P.y+" + 1 = <b>"+val+"</b><br>"+
+        "√(a² + b²) = √(9 + 16) = <b>5</b><br><br>"+
+        "d = |"+val+"| / 5 = <b>"+fmt(d)+"</b>";
+      note.innerHTML="<b>① 수선의 발을 직접 구하기 (교과서 방식)</b><br>"+
+        "점 P 를 지나고 ℓ 에 <b>수직</b>인 직선을 세웁니다. ℓ 의 기울기가 a/(−b) 이므로 "+
+        "수직인 직선의 기울기는 그 역수의 부호를 바꾼 값입니다.<br>"+
+        "두 식을 연립해 <b>수선의 발 H</b> 의 좌표를 구하고, 두 점 사이의 거리 공식으로 PH 를 계산합니다.<br>"+
+        "정리하면 <b>d = |a x₀ + b y₀ + c| / √(a² + b²)</b> 가 나옵니다. "+
+        "<span class='hint'>계산은 길지만 “거리 = 수선의 길이” 라는 정의를 그대로 따라간 증명입니다.</span>";
+    }else{
+      // 평행선으로 옮기기: P 를 지나고 ℓ 과 평행한 직선 ℓ'
+      var C2=-(A*P.x+B*P.y);
+      svg.appendChild(e("line",{x1:px(lo),y1:py(lineY(lo,C2)),x2:px(hi),y2:py(lineY(hi,C2)),
+        stroke:"#e11d48","stroke-width":2.5,"stroke-dasharray":"7 5"}));
+      var t2=e("text",{x:px(lo)+6,y:py(lineY(lo,C2))-8,"font-size":12,"font-weight":700,fill:"#e11d48"});
+      t2.textContent="ℓ′ (P 를 지나고 ℓ 과 평행)"; svg.appendChild(t2);
+      // 두 평행선 사이 거리 = 수선
+      svg.appendChild(e("line",{x1:px(P.x),y1:py(P.y),x2:px(H.x),y2:py(H.y),stroke:"#2563eb","stroke-width":3}));
+      // 두 직선이 y축과 만나는 점 — 비례 관계를 보여 준다
+      svg.appendChild(e("circle",{cx:px(0),cy:py(lineY(0,C)),r:4.5,fill:"#059669"}));
+      svg.appendChild(e("circle",{cx:px(0),cy:py(lineY(0,C2)),r:4.5,fill:"#e11d48"}));
+      svg.appendChild(e("line",{x1:px(0),y1:py(lineY(0,C)),x2:px(0),y2:py(lineY(0,C2)),
+        stroke:"#a1a1aa","stroke-width":2}));
+      var gap=Math.abs(C2-C)/Math.abs(B);
+      var t3=e("text",{x:px(0)-8,y:(py(lineY(0,C))+py(lineY(0,C2)))/2,"text-anchor":"end","font-size":12,"font-weight":700,fill:"#52525b"});
+      t3.textContent="y축에서 "+fmt(gap); svg.appendChild(t3);
+      read.innerHTML=
+        "ℓ : 3x − 4y + 1 = 0<br>"+
+        "ℓ′: 3x − 4y + "+fmt(C2)+" = 0 &nbsp;(P 를 지남)<br><br>"+
+        "상수항의 차 = |"+fmt(C2)+" − 1| = <b>"+fmt(Math.abs(C2-C))+"</b><br>"+
+        "두 평행선 사이 거리 = "+fmt(Math.abs(C2-C))+" / 5 = <b>"+fmt(d)+"</b>";
+      note.innerHTML="<b>② 평행선으로 옮기기</b><br>"+
+        "점 P 를 지나고 ℓ 과 <b>평행</b>한 직선 ℓ′ 을 긋습니다. 평행하므로 <b>a, b 는 그대로</b>이고 "+
+        "상수항만 바뀌어 ℓ′: a x + b y − (a x₀ + b y₀) = 0 입니다.<br>"+
+        "이제 구하려는 거리는 <b>두 평행선 사이의 거리</b>와 같습니다. "+
+        "두 직선이 축과 만나는 점으로 <b>닮은 직각삼각형</b>을 만들면, 빗변과 밑변의 비가 "+
+        "√(a² + b²) : |b| 로 나옵니다.<br>"+
+        "그 비례식에서 <b>d = |a x₀ + b y₀ + c| / √(a² + b²)</b> 를 얻습니다. "+
+        "<span class='hint'>학습지가 말한 “비례식에서는 문자 하나를 만들면 도움이 된다” 가 이 대목입니다.</span>";
+    }
+    document.getElementById("dp-px").textContent=P.x;
+    document.getElementById("dp-py").textContent=P.y;
+    svg.appendChild(e("circle",{cx:px(P.x),cy:py(P.y),r:5,fill:"#2563eb"}));
+    var tp=e("text",{x:px(P.x)+9,y:py(P.y)-9,"font-size":12.5,"font-weight":700,fill:"#2563eb"});
+    tp.textContent="P("+P.x+", "+P.y+")"; svg.appendChild(tp);
+  }
+  document.getElementById("dp-pxr").addEventListener("input",function(){P.x=parseInt(this.value,10);draw();});
+  document.getElementById("dp-pyr").addEventListener("input",function(){P.y=parseInt(this.value,10);draw();});
+  bF.onclick=function(){mode="foot";bF.className="modebtn on";bP.className="modebtn";draw();};
+  bP.onclick=function(){mode="para";bP.className="modebtn on";bF.className="modebtn";draw();};
+  draw();
+})();
 document.getElementById("pf-m1r").addEventListener("input",function(){m1=parseFloat(this.value);draw();});
 draw();
 })();

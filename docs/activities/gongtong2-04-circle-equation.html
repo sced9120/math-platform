@@ -93,7 +93,39 @@
 <div class="wrap">
   <div class="steps" id="steps"></div>
 
-  <section class="screen on" data-key="s1" data-prompt="반지름과 점 P 를 움직여 보았습니다. 컴퍼스가 지켜 주는 조건이 무엇인지, 원의 정의와 연결해 적어 보세요.">
+  <section class="screen on" data-key="s2">
+    <div class="kicker">작도</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-01 [생각 틔우기] Q1 작도 과정</span></div>
+<!--TEACH:END-->
+    <h1>✂️ 세 선분으로 삼각형 작도하기</h1>
+    <p>세 변의 길이가 주어졌습니다. 중학교에서 배운 대로 <b>눈금 없는 자와 컴퍼스</b>만으로 삼각형을 그려 봅시다.</p>
+    <p><b>세 선분 중 두 개를 골라 보세요.</b> 고른 두 선분이 <b>컴퍼스의 벌린 폭(반지름)</b> 이 되고,
+       남은 하나는 자로 그은 <b>밑변</b>이 됩니다.</p>
+    <div id="tri-chips" class="btns"></div>
+    <div class="lab">
+      <svg id="cs1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="readout" id="cs1r"></div>
+        <div class="slider"><label>선분 ① 길이 <span><b id="tri-l0">6</b></span></label>
+          <input id="tri-r0" type="range" min="2" max="10" step="0.5" value="6"></div>
+        <div class="slider"><label>선분 ② 길이 <span><b id="tri-l1">5</b></span></label>
+          <input id="tri-r1" type="range" min="2" max="10" step="0.5" value="5"></div>
+        <div class="slider"><label>선분 ③ 길이 <span><b id="tri-l2">4</b></span></label>
+          <input id="tri-r2" type="range" min="2" max="10" step="0.5" value="4"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>컴퍼스는 무엇을 해 주었나요?</b> 컴퍼스로 그린 자국은
+      <b>“한 점에서 같은 거리에 있는 점을 모두 모아 놓은 것”</b> 입니다.
+      그래서 두 원이 만나는 자리는 <b>B 에서도 정해진 거리, C 에서도 정해진 거리</b>인 유일한 점 —
+      그것이 세 번째 꼭짓점 A 입니다.
+    </div>
+    <p class="hint">길이를 바꿔 <b>교점이 사라지는</b> 순간도 만들어 보세요.
+      두 반지름의 합이 밑변보다 짧거나, 차가 밑변보다 길면 원이 만나지 않습니다 — <b>삼각형의 결정 조건</b>입니다.</p>
+  </section>
+
+  <section class="screen" data-key="s1" data-prompt="반지름과 점 P 를 움직여 보았습니다. 컴퍼스가 지켜 주는 조건이 무엇인지, 원의 정의와 연결해 적어 보세요.">
     <div class="kicker">공통수학2 · 원의 방정식</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-01 [생각 틔우기] Q1 작도에 쓴 도구</span></div>
@@ -112,26 +144,6 @@
       컴퍼스는 “중심에서 거리가 항상 같다”는 조건을 손으로 구현하는 도구입니다.<br>
       이 정의를 <b>식으로 번역</b>하면 그대로 원의 방정식이 됩니다:
       <span class="sqrt">(x − a)² + (y − b)²</span> = r &nbsp;→&nbsp; <b>(x − a)² + (y − b)² = r²</b></div>
-  </section>
-
-  <section class="screen" data-key="s2">
-    <div class="kicker">작도</div>
-    <!--TEACH:START-->
-    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-01 [생각 틔우기] Q1 작도 과정</span></div>
-<!--TEACH:END-->
-    <h1>두 원의 교점이 꼭짓점이 된다</h1>
-    <p>밑변 <b>BC = 6</b> 이 주어졌습니다. B 를 중심으로 반지름 <b>r₁</b>, C 를 중심으로 반지름 <b>r₂</b> 인
-       원을 그리면 그 <b>교점</b>이 세 번째 꼭짓점 A 입니다. 슬라이더를 움직여 보세요.</p>
-    <div class="lab">
-      <svg id="cs1" viewBox="0 0 400 400"></svg>
-      <div class="controls">
-        <div class="slider"><label>r₁ (B 에서) <span><b id="cs1r1v">5</b></span></label><input id="cs1r1" type="range" min="1" max="9" step="0.5" value="5"></div>
-        <div class="slider"><label>r₂ (C 에서) <span><b id="cs1r2v">4</b></span></label><input id="cs1r2" type="range" min="1" max="9" step="0.5" value="4"></div>
-        <div class="readout" id="cs1r"></div>
-      </div>
-    </div>
-    <p class="hint">교점이 <b>사라지는</b> 순간이 있습니다. 언제일까요? — 두 반지름의 합이 밑변보다 짧거나,
-      차가 밑변보다 길면 원이 만나지 않습니다. 이것이 바로 <b>삼각형의 결정 조건</b>이에요.</p>
   </section>
 
   <section class="screen" data-key="s3">
@@ -570,39 +582,81 @@
     draw();
   })();
 
-  // 화면 1: 두 원의 교점으로 삼각형 작도 --------------------------------------
+  // 화면 1: 세 선분으로 삼각형 작도 --------------------------------------------
+  // 학습지 [생각 틔우기] Q1 — 세 선분 중 둘을 고르면 그 길이가 컴퍼스의 반지름이 되고,
+  // 남은 하나가 밑변이 된다. 어느 것을 골라도 같은 삼각형이 나온다(SSS).
   (function(){
-    var P=Plane(document.getElementById("cs1"),-8,8), r1=5, r2=4;
-    var B=[-3,-2], C=[3,-2], d=6;
+    var svgEl=document.getElementById("cs1"); if(!svgEl) return;
+    var P=Plane(svgEl,-8,8);
+    var L=[6,5,4];            // 세 선분의 길이
+    var pickIdx=[1,2];        // 반지름으로 고른 두 선분 (기본: ②③)
     var read=document.getElementById("cs1r");
+    var chips=document.getElementById("tri-chips");
+    var NAME=["①","②","③"], COLOR=["#7c3aed","#e11d48","#059669"];
+
+    function baseIdx(){ return [0,1,2].filter(function(i){return pickIdx.indexOf(i)<0;})[0]; }
+
     function draw(){
       P.clear();P.grid();
-      P.circle(B[0],B[1],r1,"#e11d48",1.8,"5 4");
-      P.circle(C[0],C[1],r2,"#059669",1.8,"5 4");
-      // B(−3,−2), C(3,−2) 로 x=0 에 대칭이므로 두 교점은 세로선 x = (r₁²−r₂²)/(2d) 위에 있다
-      var X=(r1*r1-r2*r2)/(2*d);
+      var bi=baseIdx(), d=L[bi];
+      var r1=L[pickIdx[0]], r2=L[pickIdx[1]];
+      var B=[-d/2,-2], C=[d/2,-2];
+
+      // 밑변 (자로 그은 선분)
+      P.seg(B[0],B[1],C[0],C[1],COLOR[bi],3.2);
+      P.dot(B[0],B[1],COLOR[bi],"B",5.5,16);
+      P.dot(C[0],C[1],COLOR[bi],"C",5.5,16);
+
+      // 컴퍼스 자국 — 고른 두 선분의 길이를 반지름으로, 밑변의 양 끝점에 고정
+      P.circle(B[0],B[1],r1,COLOR[pickIdx[0]],1.8,"5 4");
+      P.circle(C[0],C[1],r2,COLOR[pickIdx[1]],1.8,"5 4");
+
+      var X=(r1*r1-r2*r2)/(2*d) + B[0] + d/2 - d/2;   // B 기준 x 좌표
+      X = B[0] + (r1*r1 - r2*r2 + d*d)/(2*d);
       var h2=r1*r1-(X-B[0])*(X-B[0]);
-      P.dot(B[0],B[1],"#e11d48","B(−3, −2)",5.5,16);
-      P.dot(C[0],C[1],"#059669","C(3, −2)",5.5,16);
-      P.seg(B[0],B[1],C[0],C[1],"#27272a",2.6);
+      var okSum = r1+r2 > d, okDiff = Math.abs(r1-r2) < d;
+
       if(h2>0.0001){
         var A=[X,B[1]+Math.sqrt(h2)];
-        P.seg(B[0],B[1],A[0],A[1],"#e11d48",2.6);
-        P.seg(C[0],C[1],A[0],A[1],"#059669",2.6);
-        P.dot(A[0],A[1],"#2563eb","A("+f1(A[0])+", "+f1(A[1])+")",6);
-        read.innerHTML="r₁ = <b>"+r1+"</b>, r₂ = <b>"+r2+"</b>, BC = <b>6</b><br>"+
-          "<span class='badge on'>삼각형이 만들어집니다</span><br>"+
-          "<span class='hint'>r₁ + r₂ = "+(r1+r2)+" > 6 이고 |r₁ − r₂| = "+Math.abs(r1-r2)+" < 6</span>";
+        P.seg(B[0],B[1],A[0],A[1],COLOR[pickIdx[0]],2.8);
+        P.seg(C[0],C[1],A[0],A[1],COLOR[pickIdx[1]],2.8);
+        P.dot(A[0],A[1],"#2563eb","A",6);
+        read.innerHTML=
+          "밑변 <b style='color:"+COLOR[bi]+"'>"+NAME[bi]+" = "+L[bi]+"</b> (자로 긋기)<br>"+
+          "컴퍼스 <b style='color:"+COLOR[pickIdx[0]]+"'>"+NAME[pickIdx[0]]+" = "+r1+"</b> (B 에서), "+
+          "<b style='color:"+COLOR[pickIdx[1]]+"'>"+NAME[pickIdx[1]]+" = "+r2+"</b> (C 에서)<br><br>"+
+          "<span class='badge on'>두 원의 교점 A 가 세 번째 꼭짓점</span>";
       } else {
-        read.innerHTML="r₁ = <b>"+r1+"</b>, r₂ = <b>"+r2+"</b>, BC = <b>6</b><br>"+
-          "<span class='badge out'>교점이 없습니다</span><br>"+
-          "<span class='hint'>"+(r1+r2<d?"두 반지름의 합("+(r1+r2)+")이 6보다 작아요":"두 반지름의 차("+Math.abs(r1-r2)+")가 6보다 커요")+"</span>";
+        read.innerHTML=
+          "밑변 <b>"+NAME[bi]+" = "+L[bi]+"</b>, 반지름 "+r1+" 과 "+r2+"<br><br>"+
+          "<span class='badge out'>두 원이 만나지 않습니다</span><br>"+
+          "<span class='hint'>"+(!okSum
+            ? "두 반지름의 합("+(r1+r2)+")이 밑변("+d+")보다 짧습니다"
+            : "두 반지름의 차("+Math.abs(r1-r2)+")가 밑변("+d+")보다 깁니다")+
+          " — 이런 세 길이로는 삼각형을 만들 수 없습니다.</span>";
       }
-      document.getElementById("cs1r1v").textContent=r1;
-      document.getElementById("cs1r2v").textContent=r2;
+      // 칩 상태 갱신
+      [].slice.call(chips.children).forEach(function(b,i){
+        var on=pickIdx.indexOf(i)>-1;
+        b.className="modebtn"+(on?" on":"");
+        b.textContent=NAME[i]+" "+L[i]+(on?" (컴퍼스)":" (밑변)");
+      });
+      for(var i=0;i<3;i++) document.getElementById("tri-l"+i).textContent=L[i];
     }
-    document.getElementById("cs1r1").oninput=function(){r1=parseFloat(this.value);draw();};
-    document.getElementById("cs1r2").oninput=function(){r2=parseFloat(this.value);draw();};
+
+    for(var i=0;i<3;i++){
+      (function(k){
+        var b=document.createElement("button");
+        b.className="modebtn";
+        b.onclick=function(){
+          if(pickIdx.indexOf(k)>-1) return;      // 이미 고른 것은 그대로
+          pickIdx=[pickIdx[1],k];                // 가장 오래된 것을 밀어낸다
+          draw();
+        };
+        chips.appendChild(b);
+        document.getElementById("tri-r"+k).oninput=function(){L[k]=parseFloat(this.value);draw();};
+      })(i);
+    }
     draw();
   })();
 

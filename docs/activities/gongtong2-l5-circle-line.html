@@ -151,26 +151,8 @@
 <div class="wrap">
   <div class="steps" id="steps"></div>
 
-<section class="screen on" data-key="s1" data-part="g0" data-prompt="직선을 움직여 세 가지 위치 관계를 모두 만들어 보았습니다. 각 경우에 기울기 m 과 y절편 k 를 어떻게 잡았는지 예를 들어 적어 보세요.">
-    <div class="kicker">공통수학2 · 도형의 방정식</div>
-    <!--TEACH:START-->
-    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-02 [생각 틔우기] Q1 세 경우를 직접 만들기</span></div>
-<!--TEACH:END-->
-    <h1>원과 직선의 위치 관계</h1>
-    <p>원과 직선은 <b>두 점에서 만나거나</b>, <b>한 점에서 접하거나</b>, <b>만나지 않습니다.</b>
-       직선을 움직여(기울기 m, y절편 k) 세 경우를 모두 만들어 보세요. 원은 중심 O, 반지름 r 입니다.</p>
-    <div class="lab">
-      <svg id="g0s0" viewBox="0 0 400 400"></svg>
-      <div class="controls">
-        <div class="slider"><label>반지름 r <span><b id="g0s0r">3</b></span></label><input id="s0rr" type="range" min="1" max="5" step="0.5" value="3"></div>
-        <div class="slider"><label>기울기 m <span><b id="s0m">0.5</b></span></label><input id="s0mr" type="range" min="-3" max="3" step="0.25" value="0.5"></div>
-        <div class="slider"><label>y절편 k <span><b id="s0k">-4</b></span></label><input id="s0kr" type="range" min="-7" max="7" step="0.5" value="-4"></div>
-        <div class="readout" id="s0read"></div>
-      </div>
-    </div>
-  </section>
 
-<section class="screen" data-key="s2" data-part="g1" data-prompt="a 를 움직여 세 가지 위치 관계를 모두 만들어 보았습니다. 각각 어떤 a 값에서 그렇게 되었는지 적어 보세요.">
+<section class="screen on" data-key="s2" data-part="g1" data-prompt="a 를 움직여 세 가지 위치 관계를 모두 만들어 보았습니다. 각각 어떤 a 값에서 그렇게 되었는지 적어 보세요.">
     <div class="kicker">공통수학2 · 원과 직선</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 2-02 [생각 틔우기] Q2 (1)~(4)</span></div>
@@ -399,22 +381,6 @@ var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g0"]'));
     };
   }
   
-  // 화면0: 원과 직선 위치관계
-  (function(){
-    var P=Plane(document.getElementById("g0s0"),-6,6),r=3,m=0.5,k=-4;
-    function draw(){P.clear();P.grid();P.circle(0,0,r,"#2563eb",2.5);P.dot(0,0,"#2563eb","O",4);P.line(m,k,"#334155",2.5);
-      var d=Math.abs(k)/Math.hypot(m,-1); // |k|/√(m²+1)
-      var badge,note;
-      var disc=r*r*(1+m*m)-k*k;
-      if(disc>1e-9){var a=1+m*m,b=2*m*k,c=k*k-r*r;var xr=Math.sqrt(b*b-4*a*c);var x1=(-b+xr)/(2*a),x2=(-b-xr)/(2*a);P.dot(x1,m*x1+k,"#e11d48",null,5);P.dot(x2,m*x2+k,"#e11d48",null,5);badge='<span class="badge two">두 점에서 만남</span>';note="d &lt; r";}
-      else if(disc>-1e-9){var x0=-m*k/(1+m*m);P.dot(x0,m*x0+k,"#d97706","접점",5);badge='<span class="badge tan">접함</span>';note="d = r";}
-      else{badge='<span class="badge none">만나지 않음</span>';note="d &gt; r";}
-      document.getElementById("g0s0r").textContent=r;document.getElementById("s0m").textContent=m;document.getElementById("s0k").textContent=k;
-      document.getElementById("s0read").innerHTML=badge+"<br>d = "+fmt(d)+", r = "+r+" ("+note+")";}
-    document.getElementById("s0rr").oninput=function(){r=parseFloat(this.value);draw();};
-    document.getElementById("s0mr").oninput=function(){m=parseFloat(this.value);draw();};
-    document.getElementById("s0kr").oninput=function(){k=parseFloat(this.value);draw();};draw();
-  })();
 
 })();
 </script>

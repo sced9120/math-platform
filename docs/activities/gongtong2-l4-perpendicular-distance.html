@@ -140,7 +140,37 @@
 <div class="wrap">
   <div class="steps" id="steps"></div>
 
-<section class="screen on" data-key="s1" data-part="g0" data-prompt="기울기의 곱이 −1 이 되는 순간을 직접 찾아보고, 그때 두 직선이 왜 직각으로 만나는지 자신의 말로 설명해 보세요.">
+<section class="screen on" data-key="s9" data-part="g2" data-prompt="두 증명 중 더 잘 이해되는 쪽을 골라, 왜 m₁ · m₂ = −1 이 되는지 자신의 말로 설명해 보세요. 다른 쪽 증명은 어디가 달랐나요?">
+    <div class="kicker">왜 −1 일까</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 1-02 [수직의 조건] 두 가지 방식</span></div>
+<!--TEACH:END-->
+    <h1>수직 조건, 두 가지로 증명하기</h1>
+    <p>두 직선이 수직이면 왜 <b>기울기의 곱이 −1</b> 일까요? 서로 다른 두 방법으로 확인해 봅시다.
+       버튼을 누르면 <b>그림과 식이 함께</b> 바뀝니다.</p>
+    <div class="btns">
+      <button class="modebtn on" id="pf-rot">① 90° 돌려 보기</button>
+      <button class="modebtn" id="pf-pyt">② 피타고라스 정리</button>
+    </div>
+    <div class="lab">
+      <svg id="pf-svg" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider">
+          <label>기울기 m₁ <span><b id="pf-m1">2</b></span></label>
+          <input id="pf-m1r" type="range" min="0.5" max="3" step="0.25" value="2" />
+        </div>
+        <div class="readout" id="pf-read"></div>
+        <div class="hint">m₁ 을 바꿔도 결론은 늘 같습니다 — 그래서 <b>공식</b>이 됩니다.</div>
+      </div>
+    </div>
+    <div class="card" id="pf-note"></div>
+    <p class="hint">학습지 [수직의 조건] 의 <b>대수적 방식</b>이 ② 입니다.
+      수직은 “기울어진 정도의 차이가 90°” 라서 <b>직선의 위치와 상관이 없고</b>,
+      그래서 계산하기 편하도록 두 직선을 <b>원점으로 옮겨</b> 놓고 따집니다.</p>
+    <p class="q">두 증명 중 더 잘 이해되는 쪽을 골라, 왜 m₁ · m₂ = −1 인지 자신의 말로 적어 보세요.</p>
+  </section>
+
+<section class="screen" data-key="s1" data-part="g0" data-prompt="기울기의 곱이 −1 이 되는 순간을 직접 찾아보고, 그때 두 직선이 왜 직각으로 만나는지 자신의 말로 설명해 보세요.">
     <div class="kicker">수직</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 1-02 [수직의 조건]</span></div>
@@ -524,6 +554,119 @@ var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g1"]'));
     mr.oninput=function(){m=parseFloat(mr.value);draw();};kr.oninput=function(){k=parseFloat(kr.value);draw();};
     P.onDrag(function(n,pt){Pt=pt;draw();});draw();
   })();
+})();
+</script>
+<script>
+/* 수직 조건의 두 가지 증명 — 버튼을 누르면 그림과 식이 함께 바뀐다 */
+(function(){
+"use strict";
+var svg=document.getElementById("pf-svg"); if(!svg) return;
+var NS="http://www.w3.org/2000/svg";
+function e(n,a){var x=document.createElementNS(NS,n);for(var k in a)x.setAttribute(k,a[k]);return x;}
+function fmt(v){var r=Math.round(v*1000)/1000;return String(r===0?0:r);}
+
+var S=400,pad=30,lo=-4,hi=4,sc=(S-2*pad)/(hi-lo);
+function px(x){return pad+(x-lo)*sc;} function py(y){return S-pad-(y-lo)*sc;}
+var ROSE="#e11d48", EM="#059669", BLUE="#2563eb", GREY="#a1a1aa";
+
+var mode="rot", m1=2;
+var read=document.getElementById("pf-read"), note=document.getElementById("pf-note");
+var bRot=document.getElementById("pf-rot"), bPyt=document.getElementById("pf-pyt");
+
+function grid(){
+  for(var g=Math.ceil(lo);g<=hi;g++){
+    svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9"}));
+    svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+  }
+  svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+  svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+}
+function line(m,color,w){
+  // y = m x (원점을 지나는 직선)
+  svg.appendChild(e("line",{x1:px(lo),y1:py(m*lo),x2:px(hi),y2:py(m*hi),stroke:color,"stroke-width":w||2.5}));
+}
+function label(x,y,text,color,dx,dy){
+  var t=e("text",{x:px(x)+(dx||6),y:py(y)+(dy||-6),"font-size":12.5,"font-weight":700,fill:color});
+  t.textContent=text; svg.appendChild(t);
+}
+function arrow(x,y,color){
+  svg.appendChild(e("line",{x1:px(0),y1:py(0),x2:px(x),y2:py(y),stroke:color,"stroke-width":3.5,"stroke-linecap":"round"}));
+  svg.appendChild(e("circle",{cx:px(x),cy:py(y),r:5,fill:color}));
+}
+
+function draw(){
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  grid();
+  var m2=-1/m1;
+  line(m1,ROSE); line(m2,EM);
+
+  if(mode==="rot"){
+    // 방향벡터 (1, m1) 을 90° 돌리면 (−m1, 1)
+    arrow(1,m1,ROSE);   label(1,m1,"(1, "+fmt(m1)+")",ROSE);
+    arrow(-m1,1,EM);    label(-m1,1,"(−"+fmt(m1)+", 1)",EM,-8,-8);
+    // 90° 호
+    var r=42, a0=Math.atan2(m1,1), a1=Math.atan2(1,-m1);
+    var x0=px(0)+r*Math.cos(a0), y0=py(0)-r*Math.sin(a0);
+    var x1=px(0)+r*Math.cos(a1), y1=py(0)-r*Math.sin(a1);
+    svg.appendChild(e("path",{d:"M "+x0+" "+y0+" A "+r+" "+r+" 0 0 0 "+x1+" "+y1,
+      fill:"none",stroke:BLUE,"stroke-width":2}));
+    var t=e("text",{x:px(0)+8,y:py(0)-r-8,"font-size":12.5,"font-weight":700,fill:BLUE});
+    t.textContent="90°"; svg.appendChild(t);
+
+    read.innerHTML=
+      "직선 ①의 <b>방향</b>: (1, "+fmt(m1)+")<br>"+
+      "90° 돌리면: (x, y) → (−y, x)<br>"+
+      "&nbsp;&nbsp;(1, "+fmt(m1)+") → <b>(−"+fmt(m1)+", 1)</b><br><br>"+
+      "새 기울기 = <span class='frac'><span class='num'>1</span><span class='den'>−"+fmt(m1)+"</span></span>"+
+      " = <b>"+fmt(m2)+"</b><br><br>"+
+      "m₁ · m₂ = "+fmt(m1)+" × "+fmt(m2)+" = <b>−1</b>";
+    note.innerHTML="<b>① 90° 돌려 보기</b> — 수직은 <b>방향을 90° 돌린 것</b>입니다. "+
+      "방향벡터 (1, m) 을 왼쪽으로 90° 돌리면 (−m, 1) 이 되고, 그 기울기는 1/(−m) = −1/m 입니다. "+
+      "그래서 두 기울기의 곱은 항상 −1 입니다. <span class='hint'>돌리는 규칙 (x, y) → (−y, x) 는 Ⅰ-3 도형의 이동에서 다시 만납니다.</span>";
+  }else{
+    // 직선 x = 1 위의 두 점 A(1, m1), B(1, m2) 로 직각삼각형 OAB
+    var A={x:1,y:m1}, B={x:1,y:m2};
+    svg.appendChild(e("line",{x1:px(1),y1:py(lo),x2:px(1),y2:py(hi),stroke:GREY,"stroke-width":1.4,"stroke-dasharray":"5 4"}));
+    svg.appendChild(e("polygon",{points:px(0)+","+py(0)+" "+px(A.x)+","+py(A.y)+" "+px(B.x)+","+py(B.y),
+      fill:"rgba(37,99,235,.08)",stroke:BLUE,"stroke-width":2}));
+    svg.appendChild(e("circle",{cx:px(0),cy:py(0),r:5,fill:"#27272a"}));
+    label(0,0,"O","#27272a",-16,16);
+    svg.appendChild(e("circle",{cx:px(A.x),cy:py(A.y),r:5,fill:ROSE}));
+    label(A.x,A.y,"A(1, "+fmt(m1)+")",ROSE);
+    svg.appendChild(e("circle",{cx:px(B.x),cy:py(B.y),r:5,fill:EM}));
+    label(B.x,B.y,"B(1, "+fmt(m2)+")",EM,6,16);
+    // 원점의 직각 표시
+    var d1=1/Math.hypot(1,m1), d2=1/Math.hypot(1,m2), q=0.5;
+    var p1={x:q*d1,y:q*d1*m1}, p2={x:q*d2,y:q*d2*m2};
+    svg.appendChild(e("polyline",{points:px(p1.x)+","+py(p1.y)+" "+px(p1.x+p2.x)+","+py(p1.y+p2.y)+" "+px(p2.x)+","+py(p2.y),
+      fill:"none",stroke:BLUE,"stroke-width":1.6}));
+
+    var oa2=1+m1*m1, ob2=1+m2*m2, ab2=(m1-m2)*(m1-m2);
+    read.innerHTML=
+      "OA² = 1² + "+fmt(m1)+"² = <b>"+fmt(oa2)+"</b><br>"+
+      "OB² = 1² + ("+fmt(m2)+")² = <b>"+fmt(ob2)+"</b><br>"+
+      "AB² = ("+fmt(m1)+" − ("+fmt(m2)+"))² = <b>"+fmt(ab2)+"</b><br><br>"+
+      "직각이면 OA² + OB² = AB²<br>"+
+      "&nbsp;&nbsp;OA² + OB² = <b>"+fmt(oa2+ob2)+"</b><br>"+
+      "&nbsp;&nbsp;AB² = <b>"+fmt(ab2)+"</b> &nbsp;✓ 같습니다";
+    note.innerHTML="<b>② 피타고라스 정리</b> — 두 직선을 원점으로 옮기고, x = 1 에서 만나는 두 점 "+
+      "A(1, m₁), B(1, m₂) 로 직각삼각형 OAB 를 만듭니다.<br>"+
+      "(1 + m₁²) + (1 + m₂²) = (m₁ − m₂)² = m₁² − 2m₁m₂ + m₂²<br>"+
+      "양변에서 m₁², m₂² 를 지우면 <b>2 = −2 m₁ m₂</b> → <b>m₁ m₂ = −1</b>";
+  }
+  document.getElementById("pf-m1").textContent=fmt(m1);
+}
+
+function pick(m){
+  mode=m;
+  bRot.className="modebtn"+(m==="rot"?" on":"");
+  bPyt.className="modebtn"+(m==="pyt"?" on":"");
+  draw();
+}
+bRot.onclick=function(){pick("rot");};
+bPyt.onclick=function(){pick("pyt");};
+document.getElementById("pf-m1r").addEventListener("input",function(){m1=parseFloat(this.value);draw();});
+draw();
 })();
 </script>
 <script>

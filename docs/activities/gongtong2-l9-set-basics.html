@@ -1,0 +1,678 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed;--gold:#f59e0b}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .lab{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .readout{font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .rbtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;padding:8px 6px;border-radius:9px;cursor:pointer;transition:all .12s}
+  .rb:hover{border-color:var(--blue);color:var(--blue)}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .rb.got{background:#fef3c7;border-color:#fcd34d;color:#92400e}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  td.l,th.l{text-align:left}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .q{font-weight:600;margin-top:10px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .set{font-size:15px;font-weight:700;color:var(--blue)}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:17px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  select{font:inherit;font-size:14px;padding:7px 9px;border:1px solid var(--line);border-radius:9px;background:#fff;width:100%}
+  ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .judge{display:inline-block;border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;font-weight:700;
+    padding:5px 12px;border-radius:8px;cursor:pointer;margin-right:5px}
+  .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .chip{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 12px;
+    font-size:13px;font-weight:700;margin:3px 4px 3px 0;background:#fff;cursor:pointer}
+  .chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .grid16{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+  .cell{border:1px solid var(--line);border-radius:8px;padding:6px 2px;font-size:11.5px;
+    text-align:center;background:#fafafa;color:#a1a1aa;font-weight:700;min-height:30px}
+  .cell.got{background:#fef3c7;border-color:#fcd34d;color:#92400e}
+  .cell.now{background:var(--blue);border-color:var(--blue);color:#fff}
+  .ox{cursor:pointer;font-weight:800;font-size:15px}
+  .ox.o{color:var(--emerald)}.ox.x{color:var(--rose)}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on" data-key="s1" data-prompt="‘애매하다’고 답한 기준을 분명해지도록 고쳐 써 보세요. (예: 키가 큰 → 키가 ____ cm 이상인)">
+    <div class="kicker">공통수학2 · 집합과 명제</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 4-01 [생각 틔우기] 우리 반을 나눠 보자</span></div>
+    <!--TEACH:END-->
+    <h1>🙋 우리 반을 나눠 보자</h1>
+    <p>아래 기준으로 우리 반 학생을 나누려고 합니다. <b>모임이 분명하게 정해지는 것</b>과
+       <b>사람마다 답이 갈리는 것</b>을 구분해 보세요. 기준마다 버튼을 눌러 판단합니다.</p>
+    <table id="t1">
+      <tr><th style="width:44px">　</th><th class="l">기준</th><th style="width:170px">분명 / 애매</th></tr>
+    </table>
+    <div class="win" id="w1"></div>
+    <div class="card">
+      <b>애매한 기준을 고쳐 봅시다</b>
+      <p style="margin:8px 0 0">‘애매하다’고 답한 기준은 <b>말을 바꾸면</b> 분명해집니다. 어떻게 고칠 수 있을까요?</p>
+      <button class="reveal" id="rv1" style="margin-top:8px">먼저 스스로 고쳐 본 뒤 열기</button>
+      <div class="ans" id="an1">
+        <ul class="tight">
+          <li>키가 <b>큰</b> 학생 → 키가 <b>170 cm 이상인</b> 학생 &nbsp;<span class="hint">기준값을 정해 준다</span></li>
+          <li>노래를 <b>잘하는</b> 학생 → <b>교내 가창 평가 90점 이상인</b> 학생 &nbsp;<span class="hint">잴 수 있는 것으로 바꾼다</span></li>
+        </ul>
+        <p style="margin:8px 0 0">공통점은 <b>“누가 판단해도 답이 같아지도록”</b> 만들었다는 것입니다.</p>
+      </div>
+    </div>
+    <div class="callout"><b>그렇다면</b> — 어떤 모임이 ‘집합’이 되기 위해 꼭 필요한 것은 무엇일까요?
+      아래 기록칸에 한 문장으로 적어 보세요.</div>
+  </section>
+
+  <section class="screen" data-key="s2">
+    <div class="kicker">스스로 정리하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 4-01 [스스로 정리하기] 교과서 65~66쪽</span></div>
+    <div class="turn"><i>📖</i><span>교과서 65~66쪽 — 용어의 뜻을 함께 채웁니다. 앞 화면의 판단이 그대로 정의가 됩니다.</span></div>
+    <!--TEACH:END-->
+    <h1>집합이란 무엇인가</h1>
+    <div class="formula">어떤 <b>기준에 따라 대상을 분명하게 정할 수 있는 모임</b> → <b>집합</b></div>
+    <p>‘분명하게’ 가 핵심입니다. <b>누가 판단해도 답이 같아야</b> 집합입니다.</p>
+    <table>
+      <tr><th style="width:180px">용어</th><th class="l">뜻</th></tr>
+      <tr><td><b>집합</b></td><td class="l">대상을 분명하게 정할 수 있는 모임</td></tr>
+      <tr><td><b>원소</b></td><td class="l">집합을 이루는 하나하나의 대상</td></tr>
+      <tr><td><b>a ∈ A</b></td><td class="l">a 는 집합 A 의 원소이다 &nbsp;<span class="hint">a 는 A 에 <b>속한다</b></span></td></tr>
+      <tr><td><b>b ∉ B</b></td><td class="l">b 는 집합 B 의 원소가 아니다</td></tr>
+      <tr><td><b>유한집합</b></td><td class="l">원소가 유한개인 집합 &nbsp;<span class="hint">예) {1, 2, 5, 10}</span></td></tr>
+      <tr><td><b>무한집합</b></td><td class="l">원소가 무수히 많은 집합 &nbsp;<span class="hint">예) 자연수 전체의 집합</span></td></tr>
+      <tr><td><b>공집합 ∅</b></td><td class="l">원소가 하나도 없는 집합. <b>n(∅) = 0</b></td></tr>
+      <tr><td><b>n(A)</b></td><td class="l">유한집합 A 의 <b>원소의 개수</b></td></tr>
+    </table>
+    <div class="callout"><b>주의</b> — ∅ 와 {∅} 는 다릅니다.
+      ∅ 는 <b>빈 상자</b>, {∅} 는 <b>빈 상자가 하나 들어 있는 상자</b>. 그래서 n(∅) = 0, n({∅}) = 1 입니다.</div>
+  </section>
+
+  <section class="screen" data-key="s3" data-prompt="원소나열법·조건제시법·벤 다이어그램은 각각 어떤 상황에서 편리했나요? (원소가 아주 많다면? 규칙이 있다면? 관계를 보고 싶다면?)">
+    <div class="kicker">집합을 나타내는 방법</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 4-01 Q1 세 가지 방법으로 나타내기</span></div>
+    <!--TEACH:END-->
+    <h1>같은 집합, 세 가지 옷</h1>
+    <p>‘10의 약수의 집합 A’ 를 세 가지 방법으로 나타내 봅시다.
+       아래에서 집합을 바꿔 가며 <b>어떤 방법이 편한지</b> 비교해 보세요.</p>
+    <div class="lab">
+      <svg id="v3" viewBox="0 0 400 300"></svg>
+      <div class="controls">
+        <select id="sel3">
+          <option value="d10">10의 약수의 집합</option>
+          <option value="d12">12의 약수의 집합</option>
+          <option value="p20">20보다 작은 소수의 집합</option>
+          <option value="m5">100 이하의 5의 배수의 집합</option>
+          <option value="n10">10 이하의 자연수의 집합</option>
+        </select>
+        <div class="readout" id="r3"></div>
+      </div>
+    </div>
+    <table>
+      <tr><th style="width:130px">방법</th><th class="l">언제 편리한가</th></tr>
+      <tr><td><b>원소나열법</b></td><td class="l">원소가 <b>적을 때</b>. 무엇이 들어 있는지 한눈에 보인다.</td></tr>
+      <tr><td><b>조건제시법</b></td><td class="l">원소가 <b>아주 많거나 규칙이 있을 때</b>. 100 이하의 5의 배수를 다 쓰기는 힘들다.</td></tr>
+      <tr><td><b>벤 다이어그램</b></td><td class="l">집합 사이의 <b>관계</b>(포함·겹침)를 보고 싶을 때.</td></tr>
+    </table>
+  </section>
+
+  <section class="screen" data-key="s4">
+    <div class="kicker">연습하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 4-01 ■[연습하기] 다음 중 집합인 것</span></div>
+    <!--TEACH:END-->
+    <h1>이 모임은 집합일까?</h1>
+    <p>다음 중 <b>집합인 것</b>을 모두 찾고, 집합인 것은 원소를 모두 써 봅시다.
+       각 줄에서 <b>집합 / 집합 아님</b>을 눌러 판단하세요.</p>
+    <table id="t4">
+      <tr><th style="width:44px">　</th><th class="l">모임</th><th style="width:190px">집합인가?</th></tr>
+    </table>
+    <div class="win" id="w4"></div>
+    <div class="card">
+      <b>원소까지 확인하기</b>
+      <button class="reveal" id="rv4" style="margin-left:8px">판단을 마친 뒤 열기</button>
+      <div class="ans" id="an4">
+        <table>
+          <tr><th class="l">모임</th><th>집합?</th><th class="l">원소</th></tr>
+          <tr><td class="l">(1) 20보다 작은 소수의 모임</td><td>○</td><td class="l">2, 3, 5, 7, 11, 13, 17, 19</td></tr>
+          <tr><td class="l">(2) 우리나라의 큰 강의 모임</td><td>×</td><td class="l">‘큰’ 의 기준이 없다</td></tr>
+          <tr><td class="l">(3) 12의 약수의 모임</td><td>○</td><td class="l">1, 2, 3, 4, 6, 12</td></tr>
+          <tr><td class="l">(4) √2 에 가까운 유리수의 모임</td><td>×</td><td class="l">‘가깝다’ 의 기준이 없다</td></tr>
+        </table>
+        <p style="margin:8px 0 0" class="hint">(2)·(4) 도 <b>기준을 정해 주면</b> 집합이 됩니다.
+          예) 길이가 400 km 이상인 강 / |x − √2| &lt; 0.01 인 유리수 x.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s5" data-prompt="네 집합의 원소의 개수 n(A) 를 구하고, 특히 x² + 1 = 0 인 실수의 집합과 { ∅ } 의 개수를 왜 그렇게 보았는지 적어 보세요.">
+    <div class="kicker">원소의 개수</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 4-01 Q2 원소의 개수 n(A)</span></div>
+    <!--TEACH:END-->
+    <h1>n(A) 를 구해 보자</h1>
+    <p>다음 집합의 원소의 개수 <b>n(A)</b> 를 구하시오. 먼저 스스로 세어 본 뒤 열어 확인하세요.</p>
+    <table>
+      <tr><th class="l" style="width:52%">집합</th><th>n(A)</th><th class="l">이유</th></tr>
+      <tr><td class="l">A = { x | x 는 24의 약수 }</td>
+          <td><button class="reveal" data-a="8">?</button></td>
+          <td class="l hint">1, 2, 3, 4, 6, 8, 12, 24</td></tr>
+      <tr><td class="l">A = { x | x<sup>2</sup> + 1 = 0 인 실수 }</td>
+          <td><button class="reveal" data-a="0">?</button></td>
+          <td class="l hint">실수 범위에서 해가 없다 → A = ∅</td></tr>
+      <tr><td class="l">A = { ∅ }</td>
+          <td><button class="reveal" data-a="1">?</button></td>
+          <td class="l hint">원소가 ∅ 하나 들어 있다</td></tr>
+      <tr><td class="l">A = { x | x 는 100 이하의 5의 배수 }</td>
+          <td><button class="reveal" data-a="20">?</button></td>
+          <td class="l hint">5 × 1 부터 5 × 20 까지</td></tr>
+    </table>
+    <div class="callout">두 번째와 세 번째를 나란히 보세요.
+      <b>∅ 는 원소가 0개</b>, <b>{ ∅ } 는 원소가 1개</b>입니다. 이 차이가 시험에 자주 나옵니다.</div>
+  </section>
+
+  <section class="screen" data-key="s6" data-prompt="포켓몬 16가지 조합을 모두 찾았나요? 아무도 데려가지 않는 경우와 넷 다 데려가는 경우도 부분집합인 까닭을 적어 보세요.">
+    <div class="kicker">탐구 · 부분집합</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 4-01 ■[탐구] 전체집합의 일부분, 부분집합</span></div>
+    <!--TEACH:END-->
+    <h1>🔴 당신은 포켓몬 트레이너!</h1>
+    <p>오박사 센터 <b>U</b>(전체집합) = { 피카츄, 파이리, 꼬부기, 이상해씨 }.
+       기호로는 피카츄 = <b>a</b>, 파이리 = <b>b</b>, 꼬부기 = <b>c</b>, 이상해씨 = <b>d</b> 입니다.</p>
+    <div class="callout"><b>[부분집합]</b> 함께할 포켓몬을 원하는 만큼 선택하세요.
+      <b>선택하지 않아도 됩니다.</b> 몇 가지 조합이 나올까요?</div>
+    <div class="lab">
+      <div>
+        <div id="mons"></div>
+        <div class="readout" id="r6" style="margin-top:10px"></div>
+        <div class="win" id="w6" style="margin-top:10px"></div>
+      </div>
+      <div class="controls">
+        <div class="hint" style="font-weight:700;color:var(--ink)">찾은 조합 <span id="c6">0</span> / 16</div>
+        <div class="grid16" id="g6"></div>
+        <button class="reveal" id="rs6">처음부터 다시</button>
+      </div>
+    </div>
+    <div class="card">
+      <b>[진부분집합]</b> 이번에는 오박사 센터에 <b>적어도 한 마리를 남기고</b> 출발하는 멤버를 꾸려 봅시다.
+      <p style="margin:8px 0 0">넷을 <b>모두</b> 데려가는 조합만 빼면 됩니다. 그래서 <b>16 − 1 = 15</b> 가지.
+        이렇게 <b>자기 자신을 뺀</b> 부분집합을 <b>진부분집합</b>이라 합니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s7">
+    <div class="kicker">개념 정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 4-01 [개념 정리] 교과서 68쪽</span></div>
+    <div class="turn"><i>📖</i><span>교과서 68쪽 — 부분집합 · 서로 같은 집합 · 진부분집합. ⊂ 와 ∈ 의 차이를 꼭 짚습니다.</span></div>
+    <!--TEACH:END-->
+    <h1>부분집합 · 서로 같은 집합 · 진부분집합</h1>
+    <table>
+      <tr><th style="width:190px">용어</th><th class="l">뜻</th></tr>
+      <tr><td><b>부분집합</b><br>A ⊂ B</td>
+          <td class="l">A 의 <b>모든</b> 원소가 B 에 속한다.
+            <span class="hint">∅ 과 자기 자신도 항상 부분집합이다.</span></td></tr>
+      <tr><td><b>서로 같은 집합</b><br>A = B</td>
+          <td class="l">A ⊂ B 이고 B ⊂ A. <span class="hint">원소가 완전히 같다.</span></td></tr>
+      <tr><td><b>진부분집합</b></td>
+          <td class="l">A ⊂ B 이면서 <b>A ≠ B</b>. <span class="hint">자기 자신은 뺀다.</span></td></tr>
+    </table>
+    <div class="card">
+      <b>⊂ 와 ∈ 은 무엇이 다를까?</b>
+      <p style="margin:8px 0 0">A = { 1, 2, 3 } 일 때</p>
+      <ul class="tight">
+        <li><b>1 ∈ A</b> — 1 은 <b>원소</b>다. 원소와 집합 사이의 기호가 <b>∈</b>.</li>
+        <li><b>{ 1 } ⊂ A</b> — { 1 } 은 <b>집합</b>이다. 집합과 집합 사이의 기호가 <b>⊂</b>.</li>
+        <li><b>1 ⊂ A</b> (×), <b>{ 1 } ∈ A</b> (×) — 둘 다 잘못된 표기.</li>
+      </ul>
+      <p style="margin:8px 0 0" class="hint">왼쪽이 <b>낱개</b>면 ∈, 왼쪽이 <b>묶음</b>이면 ⊂ 이라고 기억하세요.</p>
+    </div>
+    <div class="callout"><b>∅ ⊂ A 는 항상 참</b>입니다. “∅ 의 모든 원소가 A 에 속한다” 인데,
+      ∅ 에는 원소가 하나도 없으므로 어길 원소 자체가 없기 때문입니다.</div>
+  </section>
+
+  <section class="screen" data-key="s8" data-prompt="{ 1, 2, 3 } 의 부분집합 8개와 진부분집합 7개를 모두 써 보세요.">
+    <div class="kicker">예제 1</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 4-01 [예제1] {1,2,3} 의 부분집합·진부분집합</span></div>
+    <!--TEACH:END-->
+    <h1>[예제 1] 집합 A = { 1, 2, 3 } 의 부분집합</h1>
+    <p>원소마다 <b>넣는다(○) / 안 넣는다(×)</b> 두 갈래로 갈립니다.
+       표의 ○ × 를 <b>눌러 바꿔 가며</b> 8가지를 모두 만들어 보세요.</p>
+    <table id="t8">
+      <tr><th style="width:52px">1</th><th style="width:52px">2</th><th style="width:52px">3</th><th class="l">그때의 부분집합</th></tr>
+    </table>
+    <div class="win" id="w8"></div>
+    <div class="card">
+      <b>답</b>
+      <button class="reveal" id="rv8" style="margin-left:8px">표를 다 채운 뒤 열기</button>
+      <div class="ans" id="an8">
+        <p style="margin:8px 0 0"><b>부분집합 (8개)</b> :
+          ∅, {1}, {2}, {3}, {1,2}, {1,3}, {2,3}, {1,2,3}</p>
+        <p style="margin:8px 0 0"><b>진부분집합 (7개)</b> :
+          위에서 <b>{1,2,3} 을 뺀</b> 나머지</p>
+        <p style="margin:8px 0 0" class="hint">원소가 3개 → 갈림길이 3번 → 2 × 2 × 2 = <b>2<sup>3</sup> = 8</b> 가지.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s9" data-prompt="A = { 1, 2, 3, 4, 5 } 에 대한 네 가지 개수를 구하고, 각각 어떤 방법으로 구했는지 함께 적어 보세요.">
+    <div class="kicker">개수 세기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 4-01 Q5 A = {1,2,3,4,5} 의 개수</span></div>
+    <!--TEACH:END-->
+    <h1>A = { 1, 2, 3, 4, 5 } 일 때</h1>
+    <p>다음을 구하고, <b>구한 방법을 함께</b> 적어 봅시다. 스스로 세어 본 뒤 열어 확인하세요.</p>
+    <table>
+      <tr><th class="l" style="width:40%">구하는 것</th><th style="width:90px">개수</th><th class="l">생각하는 방법</th></tr>
+      <tr><td class="l">부분집합의 개수</td>
+          <td><button class="reveal" data-a="32">?</button></td>
+          <td class="l hint">원소 5개가 각각 ○ × 두 갈래 → 2<sup>5</sup></td></tr>
+      <tr><td class="l">진부분집합의 개수</td>
+          <td><button class="reveal" data-a="31">?</button></td>
+          <td class="l hint">자기 자신 하나를 뺀다 → 2<sup>5</sup> − 1</td></tr>
+      <tr><td class="l">3 을 반드시 포함하는 부분집합</td>
+          <td><button class="reveal" data-a="16">?</button></td>
+          <td class="l hint">3 은 넣기로 <b>고정</b>. 나머지 4개만 갈린다 → 2<sup>4</sup></td></tr>
+      <tr><td class="l">1 을 포함하지 않는 부분집합</td>
+          <td><button class="reveal" data-a="16">?</button></td>
+          <td class="l hint">1 은 빼기로 <b>고정</b>. 나머지 4개만 갈린다 → 2<sup>4</sup></td></tr>
+    </table>
+    <div class="callout"><b>고정하면 갈림길이 줄어든다</b> — 이것이 개수 문제의 핵심입니다.
+      “반드시 포함”이든 “포함하지 않음”이든, 그 원소는 <b>갈리지 않으므로</b> 지수에서 빠집니다.</div>
+  </section>
+
+  <section class="screen" data-key="s10" data-prompt="원소가 n 개인 집합의 부분집합의 개수와 진부분집합의 개수를 어떻게 구할지, 그 까닭과 함께 설명해 보세요.">
+    <div class="kicker">일반화</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 4-01 Q6 원소가 n 개일 때</span></div>
+    <!--TEACH:END-->
+    <h1>원소가 n 개라면?</h1>
+    <p>원소마다 <b>넣는다 / 안 넣는다</b> 두 갈래. 원소가 n 개면 갈림길이 n 번이므로
+       <b>2 를 n 번 곱한 만큼</b>입니다.</p>
+    <div class="lab">
+      <svg id="tree" viewBox="0 0 400 280"></svg>
+      <div class="controls">
+        <div class="slider"><label>원소의 개수 n = <b id="nlab">3</b></label>
+          <input id="nr" type="range" min="1" max="6" step="1" value="3" style="width:100%"></div>
+        <div class="readout" id="r10"></div>
+      </div>
+    </div>
+    <div class="formula">부분집합의 개수 = <b>2<sup>n</sup></b> &nbsp;&nbsp;/&nbsp;&nbsp;
+      진부분집합의 개수 = <b>2<sup>n</sup> − 1</b></div>
+    <div class="card">
+      <b>왜 −1 일까?</b>
+      <p style="margin:8px 0 0">진부분집합은 <b>자기 자신을 뺀</b> 부분집합이므로,
+        모든 원소를 다 넣은 경우 <b>딱 하나</b>만 제외합니다. 그래서 −1 입니다.
+        <span class="hint">∅ 은 진부분집합에 그대로 포함됩니다 (A 가 공집합이 아닐 때).</span></p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="ext" data-photo="1" data-prompt="특정 원소를 반드시 포함하거나 포함하지 않는 조건이 여러 개 붙으면 개수가 어떻게 변하는지, 직접 세어 본 결과와 함께 설명해 보세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">개념 확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 4-01 [스스로 익히기] 교과서 69쪽</span></div>
+    <!--TEACH:END-->
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>A = { 1, 2, 3, 4, 5, 6 } 에 대하여 조건을 <b>겹쳐</b> 보세요. 조건 하나마다 원소 하나가 <b>고정</b>됩니다.</p>
+    <div class="lab">
+      <div>
+        <div id="extb"></div>
+        <div class="readout" id="rext" style="margin-top:10px"></div>
+      </div>
+      <div class="controls">
+        <div class="readout"><b>규칙</b><br>
+          고정된 원소 k 개<br>→ 남은 갈림길 (6 − k) 번<br>→ 개수 <b>2<sup>6−k</sup></b></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>더 생각해 볼 것</b>
+      <ul class="tight">
+        <li>‘1 <b>또는</b> 2 를 포함하는’ 부분집합은 몇 개일까요? <span class="hint">전체에서 ‘둘 다 없는’ 것을 빼 보세요.</span></li>
+        <li>원소가 n 개인 집합의 부분집합을 모두 모으면, 그 자체로 또 하나의 집합이 됩니다. 원소가 몇 개일까요?</li>
+        <li>교과서 69쪽 문제를 해결하고, 막힌 곳을 아래에 적어 두세요.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 12</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var SVGNS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function clear(s){while(s.firstChild)s.removeChild(s.firstChild);}
+function txt(s,x,y,t,o){var e=el("text",{x:x,y:y,"font-size":(o&&o.size)||13,
+  "text-anchor":(o&&o.anchor)||"middle",fill:(o&&o.fill)||"#27272a",
+  "font-weight":(o&&o.weight)||400});e.textContent=t;s.appendChild(e);return e;}
+
+/* ── 화면1 : 분명 / 애매 ───────────────────────────────── */
+(function(){
+  var rows=[
+    {m:"㉠",t:"안경을 쓴 학생",clear:true,why:"쓰고 있는지 보면 바로 알 수 있다."},
+    {m:"㉡",t:"키가 큰 학생",clear:false,why:"‘크다’ 의 기준이 사람마다 다르다."},
+    {m:"㉢",t:"3월생인 학생",clear:true,why:"생일이 정해져 있으므로 답이 하나다."},
+    {m:"㉣",t:"노래를 잘하는 학생",clear:false,why:"‘잘한다’ 는 듣는 사람마다 다르다."},
+    {m:"㉤",t:"학번이 짝수인 학생",clear:true,why:"학번을 2로 나누어 보면 된다."}
+  ];
+  var tb=document.getElementById("t1"),done=0;
+  rows.forEach(function(r,i){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td><b>'+r.m+'</b></td><td class="l">'+r.t+'</td><td></td>';
+    var cell=tr.children[2];
+    ["분명","애매"].forEach(function(lab,k){
+      var b=document.createElement("button");
+      b.className="judge";b.textContent=lab;
+      b.onclick=function(){
+        var right=(k===0)===r.clear;
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        var w=cell.parentNode.querySelector(".why");
+        if(!w){w=document.createElement("div");w.className="why hint";cell.parentNode.children[1].appendChild(w);}
+        w.innerHTML=right?"✓ "+r.why:"다시 생각해 볼까요? 누가 판단해도 답이 같은가요?";
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;check();}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
+  function check(){
+    var w=document.getElementById("w1");
+    if(done===rows.length){w.className="win on";
+      w.innerHTML="🎉 다섯 기준을 모두 판단했습니다. 애매한 것은 ㉡ 과 ㉣ — <b>기준이 정해지지 않은</b> 표현이었습니다.";}
+  }
+})();
+
+/* ── 화면3 : 세 가지 표현 ─────────────────────────────── */
+(function(){
+  var DATA={
+    d10:{n:"10의 약수의 집합 A",el:[1,2,5,10],cond:"x 는 10의 약수",best:"원소나열법"},
+    d12:{n:"12의 약수의 집합 A",el:[1,2,3,4,6,12],cond:"x 는 12의 약수",best:"원소나열법"},
+    p20:{n:"20보다 작은 소수의 집합 A",el:[2,3,5,7,11,13,17,19],cond:"x 는 20보다 작은 소수",best:"조건제시법"},
+    m5:{n:"100 이하의 5의 배수의 집합 A",el:[5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100],
+        cond:"x 는 100 이하의 5의 배수",best:"조건제시법"},
+    n10:{n:"10 이하의 자연수의 집합 A",el:[1,2,3,4,5,6,7,8,9,10],cond:"x 는 10 이하의 자연수",best:"조건제시법"}
+  };
+  var svg=document.getElementById("v3"),sel=document.getElementById("sel3"),ro=document.getElementById("r3");
+  function draw(){
+    var d=DATA[sel.value];clear(svg);
+    svg.appendChild(el("ellipse",{cx:200,cy:150,rx:165,ry:105,fill:"#eff6ff",stroke:"#2563eb","stroke-width":2}));
+    txt(svg,44,44,"A",{size:20,weight:700,fill:"#2563eb"});
+    var n=d.el.length, perRow=n>12?7:(n>6?4:3);
+    var rows=Math.ceil(n/perRow), cell=Math.min(46,300/perRow);
+    d.el.forEach(function(v,i){
+      var r=Math.floor(i/perRow), c=i%perRow, inRow=Math.min(perRow,n-r*perRow);
+      var x=200+(c-(inRow-1)/2)*cell, y=150+(r-(rows-1)/2)*(n>12?26:34);
+      svg.appendChild(el("circle",{cx:x,cy:y,r:n>12?9:13,fill:"#fff",stroke:"#2563eb","stroke-width":1.5}));
+      txt(svg,x,y+(n>12?3.5:4.5),v,{size:n>12?9:12,weight:700,fill:"#2563eb"});
+    });
+    var listing = n>12 ? "{ "+d.el.slice(0,3).join(", ")+", … , "+d.el[n-1]+" }" : "{ "+d.el.join(", ")+" }";
+    ro.innerHTML=
+      "<b>① 원소나열법</b><br>&nbsp;&nbsp;A = "+listing+"<br><br>"+
+      "<b>② 조건제시법</b><br>&nbsp;&nbsp;A = { x | "+d.cond+" }<br><br>"+
+      "<b>③ 벤 다이어그램</b><br>&nbsp;&nbsp;<span class='hint'>왼쪽 그림</span><br><br>"+
+      "n(A) = <b>"+n+"</b><br>"+
+      "<span class='hint'>여기서는 <b>"+d.best+"</b> 이 가장 편합니다.</span>";
+  }
+  sel.onchange=draw;draw();
+})();
+
+/* ── 화면4 : 집합인가? ────────────────────────────────── */
+(function(){
+  var rows=[
+    {t:"(1) 20보다 작은 소수의 모임",ok:true,why:"소수의 뜻이 분명하다."},
+    {t:"(2) 우리나라의 큰 강의 모임",ok:false,why:"‘큰’ 의 기준이 없다."},
+    {t:"(3) 12의 약수의 모임",ok:true,why:"약수는 나누어떨어지는지로 정해진다."},
+    {t:"(4) √2 에 가까운 유리수의 모임",ok:false,why:"‘가깝다’ 의 기준이 없다."}
+  ];
+  var tb=document.getElementById("t4"),done=0;
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td></td><td class="l">'+r.t+'</td><td></td>';
+    var cell=tr.children[2];
+    ["집합","집합 아님"].forEach(function(lab,k){
+      var b=document.createElement("button");b.className="judge";b.textContent=lab;
+      b.onclick=function(){
+        var right=(k===0)===r.ok;
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        tr.children[0].innerHTML=right?"✓":"…";
+        var w=tr.children[1].querySelector(".why");
+        if(!w){w=document.createElement("div");w.className="why hint";tr.children[1].appendChild(w);}
+        w.textContent=right?r.why:"기준이 사람마다 달라지지는 않나요?";
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
+          if(done===rows.length){var W=document.getElementById("w4");W.className="win on";
+            W.innerHTML="🎉 모두 맞혔습니다. 집합이 <b>아닌</b> 것들의 공통점은 ‘큰·가까운’ 같은 <b>기준 없는 말</b>이었습니다.";}}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── 화면5·9 : 정답 밝히기 버튼 ────────────────────────── */
+[].slice.call(document.querySelectorAll("button.reveal[data-a]")).forEach(function(b){
+  b.onclick=function(){b.textContent=b.getAttribute("data-a");b.style.color="#2563eb";b.style.fontSize="16px";};
+});
+
+/* ── 화면6 : 포켓몬 부분집합 ──────────────────────────── */
+(function(){
+  var MON=[{n:"피카츄",k:"a",e:"⚡"},{n:"파이리",k:"b",e:"🔥"},{n:"꼬부기",k:"c",e:"💧"},{n:"이상해씨",k:"d",e:"🌱"}];
+  var pick=[false,false,false,false],found={},box=document.getElementById("mons"),
+      ro=document.getElementById("r6"),grid=document.getElementById("g6"),cnt=document.getElementById("c6");
+  MON.forEach(function(m,i){
+    var b=document.createElement("button");b.className="chip";b.textContent=m.e+" "+m.n+" ("+m.k+")";
+    b.onclick=function(){pick[i]=!pick[i];b.className="chip"+(pick[i]?" on":"");upd();};
+    box.appendChild(b);
+  });
+  var cells=[];
+  for(var m=0;m<16;m++){(function(mask){
+    var d=document.createElement("div");d.className="cell";d.textContent=label(mask);
+    grid.appendChild(d);cells.push(d);})(m);}
+  function label(mask){
+    var s=[];for(var i=0;i<4;i++)if(mask&(1<<i))s.push(MON[i].k);
+    return s.length?"{"+s.join(",")+"}":"∅";
+  }
+  function cur(){var m=0;for(var i=0;i<4;i++)if(pick[i])m|=(1<<i);return m;}
+  function upd(){
+    var m=cur();found[m]=true;
+    cells.forEach(function(c,i){c.className="cell"+(i===m?" now":(found[i]?" got":""));});
+    var k=Object.keys(found).length;cnt.textContent=k;
+    var names=[];for(var i=0;i<4;i++)if(pick[i])names.push(MON[i].n);
+    ro.innerHTML="내가 고른 집합 = <b>"+label(m)+"</b>"+
+      (names.length?" &nbsp;<span class='hint'>"+names.join(", ")+"</span>":" &nbsp;<span class='hint'>아무도 데려가지 않음 — 이것도 부분집합입니다</span>")+
+      "<br>원소의 개수 = <b>"+names.length+"</b>";
+    var W=document.getElementById("w6");
+    if(k===16){W.className="win on";
+      W.innerHTML="🎉 16가지를 모두 찾았습니다! 포켓몬 <b>한 마리마다</b> ‘데려간다 / 안 데려간다’ 두 갈래 → "+
+        "2 × 2 × 2 × 2 = <b>2<sup>4</sup> = 16</b> 가지.";}
+  }
+  document.getElementById("rs6").onclick=function(){
+    pick=[false,false,false,false];found={};
+    [].slice.call(box.children).forEach(function(b){b.className="chip";});
+    document.getElementById("w6").className="win";upd();
+  };
+  upd();
+})();
+
+/* ── 화면8 : {1,2,3} 부분집합 표 ──────────────────────── */
+(function(){
+  var tb=document.getElementById("t8"),made={};
+  for(var r=0;r<8;r++){(function(row){
+    var tr=document.createElement("tr"),st=[false,false,false];
+    for(var c=0;c<3;c++){(function(col){
+      var td=document.createElement("td");
+      var s=document.createElement("span");s.className="ox x";s.textContent="×";
+      s.onclick=function(){st[col]=!st[col];s.className="ox "+(st[col]?"o":"x");s.textContent=st[col]?"○":"×";upd();};
+      td.appendChild(s);tr.appendChild(td);})(c);}
+    var out=document.createElement("td");out.className="l";out.innerHTML="<span class='set'>∅</span>";
+    tr.appendChild(out);tb.appendChild(tr);
+    function upd(){
+      var e=[];for(var i=0;i<3;i++)if(st[i])e.push(i+1);
+      var lab=e.length?"{ "+e.join(", ")+" }":"∅";
+      out.innerHTML="<span class='set'>"+lab+"</span>"+
+        (e.length===3?" <span class='hint'>← 자기 자신 (진부분집합 아님)</span>":"");
+      made[lab]=true;
+      var k=Object.keys(made).length,W=document.getElementById("w8");
+      if(k>=8){W.className="win on";
+        W.innerHTML="🎉 서로 다른 8가지를 모두 만들었습니다. 원소 3개 → 갈림길 3번 → <b>2<sup>3</sup> = 8</b> 가지.";}
+    }
+    upd();})(r);}
+})();
+
+/* ── 화면8·1·4 : 일반 reveal 버튼 ─────────────────────── */
+[["rv1","an1"],["rv4","an4"],["rv8","an8"]].forEach(function(p){
+  var b=document.getElementById(p[0]),a=document.getElementById(p[1]);
+  if(b&&a)b.onclick=function(){a.classList.toggle("on");b.textContent=a.classList.contains("on")?"접기":"다시 열기";};
+});
+
+/* ── 화면10 : 갈림길 나무 ─────────────────────────────── */
+(function(){
+  var svg=document.getElementById("tree"),r=document.getElementById("nr"),
+      lab=document.getElementById("nlab"),ro=document.getElementById("r10");
+  function draw(){
+    var n=parseInt(r.value,10);lab.textContent=n;clear(svg);
+    var show=Math.min(n,4), W=400,H=280, top=26, gap=(H-top-24)/show;
+    // 갈림길 나무 — 원소 하나마다 두 갈래로 갈린다
+    var xs=[W/2];
+    svg.appendChild(el("circle",{cx:W/2,cy:top,r:5,fill:"#2563eb"}));
+    for(var lv=0;lv<show;lv++){
+      var y0=top+lv*gap, y1=top+(lv+1)*gap, nx=[];
+      var span=(W-40)/Math.pow(2,lv+1);
+      for(var i=0;i<xs.length;i++){
+        [-1,1].forEach(function(s){
+          var x2=xs[i]+s*span/2;
+          svg.appendChild(el("line",{x1:xs[i],y1:y0,x2:x2,y2:y1,
+            stroke:s<0?"#e11d48":"#059669","stroke-width":1.4}));
+          if(lv<3)txt(svg,(xs[i]+x2)/2+(s<0?-9:9),(y0+y1)/2,s<0?"×":"○",
+            {size:11,weight:700,fill:s<0?"#e11d48":"#059669"});
+          nx.push(x2);
+        });
+      }
+      xs=nx;
+      xs.forEach(function(x){svg.appendChild(el("circle",{cx:x,cy:y1,r:show>3?2.5:4,fill:"#2563eb"}));});
+      txt(svg,16,y1+4,(lv+1),{size:11,anchor:"start",fill:"#a1a1aa"});
+    }
+    if(n>show)txt(svg,W/2,H-6,"… "+n+"번째 원소까지 계속",{size:11,fill:"#a1a1aa"});
+    var tot=Math.pow(2,n);
+    ro.innerHTML="원소 <b>"+n+"</b> 개<br>갈림길 <b>"+n+"</b> 번<br><br>"+
+      "부분집합 = 2<sup>"+n+"</sup> = <b>"+tot+"</b><br>"+
+      "진부분집합 = 2<sup>"+n+"</sup> − 1 = <b>"+(tot-1)+"</b>";
+  }
+  r.oninput=draw;draw();
+})();
+
+/* ── 확장 화면 : 조건을 겹치면 ────────────────────────── */
+(function(){
+  var COND=[{t:"1 을 반드시 포함",k:1},{t:"2 를 포함하지 않음",k:1},
+            {t:"3 을 반드시 포함",k:1},{t:"4 를 포함하지 않음",k:1}];
+  var on=[false,false,false,false],box=document.getElementById("extb"),ro=document.getElementById("rext");
+  COND.forEach(function(c,i){
+    var b=document.createElement("button");b.className="chip";b.textContent=c.t;
+    b.onclick=function(){on[i]=!on[i];b.className="chip"+(on[i]?" on":"");upd();};
+    box.appendChild(b);
+  });
+  function upd(){
+    var k=on.filter(Boolean).length,free=6-k,tot=Math.pow(2,free);
+    ro.innerHTML="A = { 1, 2, 3, 4, 5, 6 } &nbsp;<span class='hint'>원소 6개</span><br><br>"+
+      "고정된 원소 <b>"+k+"</b> 개 → 남은 갈림길 <b>"+free+"</b> 번<br>"+
+      "개수 = 2<sup>"+free+"</sup> = <b>"+tot+"</b> 개"+
+      (k===0?"<br><span class='hint'>조건을 하나씩 눌러 보세요.</span>":"");
+  }
+  upd();
+})();
+})();
+</script>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

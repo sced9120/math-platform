@@ -111,6 +111,19 @@
 </style>
 
 
+<style>
+  /* [예제1] 화면에서 쓰는 것들 — 이 파일에 없던 규칙 */
+  .rbtns{display:grid;grid-template-columns:1fr;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;
+    font-weight:700;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .12s;text-align:left}
+  .rb:hover{border-color:var(--blue);color:var(--blue)}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;
+    padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}
+  .ans.on{display:block;animation:fade .2s ease}
+</style>
+
 <!-- NAV:START -->
 <div id="archiveNav" style="display:none">
   <a href="../index.html">← 활동 목록</a>
@@ -207,7 +220,7 @@
 <section class="screen" data-key="s5" data-part="g0" data-prompt="도형 f(x,y)=0 을 x축으로 a, y축으로 b 만큼 평행이동하면 왜 f(x−a, y−b)=0 이 되는지, 부호가 반대인 이유를 예를 들어 설명하세요.">
     <div class="kicker">정리</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 3-01 Q5 [예제 1]</span></div>
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 3-01 Q5 [도형의 평행이동] f(x, y) = 0</span></div>
     <div class="turn"><i>📖</i><span>교과서 47쪽 — [스스로 익히기] 문제를 해결합니다.</span></div>
 <!--TEACH:END-->
     <h1>정리</h1>
@@ -222,6 +235,40 @@
     <p class="q">아래 ‘내 생각 적기’ 칸에, <b>점은 +a·+b, 도형은 −a·−b</b> 로 부호가 반대인 이유를 자신의 말로 설명해 보세요.</p>
     <div class="callout"><b>더 나아가기</b> 이슬람 미술의 <b>테셀레이션</b>은 한 무늬를 평행이동·회전·반사로 반복해 만듭니다.
       평행이동은 그 첫걸음이에요. 관심 있으면 회전변환도 탐구해 보세요!</div>
+  </section>
+
+<section class="screen" data-part="g0" data-key="ex1" data-photo="1" data-prompt="두 도형을 x축 방향으로 1만큼, y축 방향으로 −2만큼 평행이동한 방정식을 구하고, 그림으로도 나타내 보세요. (공책에 그린 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">예제 1</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 3-01 [예제1] 평행이동한 도형의 방정식</span></div>
+<!--TEACH:END-->
+    <h1>[예제 1] 평행이동한 도형의 방정식</h1>
+    <p>다음 방정식이 나타내는 도형을 <b>x축의 방향으로 1</b>만큼,
+       <b>y축의 방향으로 −2</b>만큼 평행이동한 도형의 방정식을 구하시오. <span class="hint">(그림으로도 표현해 보자.)</span></p>
+    <div class="lab">
+      <svg id="ex1svg" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="rbtns" id="ex1b">
+          <button class="rb on" data-k="0">(1) x + 2y + 1 = 0</button>
+          <button class="rb" data-k="1">(2) (x−1)² + (y+2)² = 4</button>
+        </div>
+        <div class="readout" id="ex1r"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>푸는 방법은 하나뿐입니다</b>
+      <p style="margin:8px 0 0">x 자리에 <b>x − 1</b> 을, y 자리에 <b>y − (−2) = y + 2</b> 를 넣습니다.
+        <span class="hint">점이 (+1, −2) 만큼 움직이면, 식에는 부호가 반대로 들어갑니다.</span></p>
+      <button class="reveal" id="ex1rv" style="margin-top:8px">스스로 풀어 본 뒤 열기</button>
+      <div class="ans" id="ex1an">
+        <p style="margin:8px 0 0"><b>(1)</b> (x − 1) + 2(y + 2) + 1 = 0
+          → x − 1 + 2y + 4 + 1 = 0 → <b>x + 2y + 4 = 0</b><br>
+          <span class="hint">기울기는 그대로 −½, 직선이 통째로 밀렸을 뿐입니다.</span></p>
+        <p style="margin:8px 0 0"><b>(2)</b> (x − 1 − 1)² + (y + 2 + 2)² = 4
+          → <b>(x − 2)² + (y + 4)² = 4</b><br>
+          <span class="hint">중심 (1, −2) → (2, −4), 반지름은 2 그대로입니다.</span></p>
+      </div>
+    </div>
   </section>
 
 <section class="screen" data-key="s6" data-part="g1">
@@ -396,7 +443,13 @@ var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g0"]'));
       P.plot(function(x){return (x-a)*(x-a)+b;},"#2563eb",2.8);
       P.dot(0,0,"#94a3b8",null,4);P.dot(a,b,"#2563eb","꼭짓점("+a+","+b+")",5);
       document.getElementById("s1a").textContent=a;document.getElementById("s1b").textContent=b;
-      document.getElementById("s1read").innerHTML="y = x² → <b>y = (x "+(a<0?"+ "+(-a):"− "+a)+")² "+(b<0?"− "+(-b):"+ "+b)+"</b>";}
+      // 학습지 [포물선의 평행이동] — 이동 전·후의 꼭짓점, 방정식, 이동량을 나란히 적는다
+      document.getElementById("s1read").innerHTML=
+        "<b>이동 전</b><br>&nbsp;&nbsp;y = x²<br>&nbsp;&nbsp;꼭짓점 <b>(0, 0)</b><br><br>"+
+        "<b>이동 후</b> &nbsp;<span class='hint'>x축 "+(a<0?a:"+"+a)+", y축 "+(b<0?b:"+"+b)+" 만큼</span><br>"+
+        "&nbsp;&nbsp;y = (x "+(a<0?"+ "+(-a):"− "+a)+")² "+(b<0?"− "+(-b):"+ "+b)+"<br>"+
+        "&nbsp;&nbsp;꼭짓점 <b>("+a+", "+b+")</b><br><br>"+
+        "<span class='hint'>꼭짓점은 점처럼 (+a, +b) 만큼 움직였는데, 식에서는 x 자리에 <b>x − a</b> 가 들어갑니다.</span>";}
     document.getElementById("s1ar").oninput=function(){a=parseFloat(this.value);draw();};
     document.getElementById("s1br").oninput=function(){b=parseFloat(this.value);draw();};draw();
   })();
@@ -408,7 +461,14 @@ var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g0"]'));
       P.circle(0,0,2,"#cbd5e1",2,"none");P.circle(a,b,2,"#2563eb",2.8);
       P.dot(0,0,"#94a3b8",null,4);P.dot(a,b,"#2563eb","중심("+a+","+b+")",5);
       document.getElementById("s2a").textContent=a;document.getElementById("s2b").textContent=b;
-      document.getElementById("s2read").innerHTML="x²+y²=4 → <b>(x "+(a<0?"+ "+(-a):"− "+a)+")² + (y "+(b<0?"+ "+(-b):"− "+b)+")² = 4</b>";}
+      // 학습지 [원의 평행이동] — 이동 전·후의 방정식과 중심 좌표를 나란히 적는다
+      document.getElementById("s2read").innerHTML=
+        "<b>이동 전</b><br>&nbsp;&nbsp;x² + y² = 4<br>&nbsp;&nbsp;중심 <b>(0, 0)</b>, 반지름 2<br><br>"+
+        "<b>이동 후</b> &nbsp;<span class='hint'>x축 "+(a<0?a:"+"+a)+", y축 "+(b<0?b:"+"+b)+" 만큼</span><br>"+
+        "&nbsp;&nbsp;<b>(x "+(a<0?"+ "+(-a):"− "+a)+")² + (y "+(b<0?"+ "+(-b):"− "+b)+")² = 4</b><br>"+
+        "&nbsp;&nbsp;중심 <b>("+a+", "+b+")</b>, 반지름 2<br><br>"+
+        "<span class='hint'>반지름은 그대로 — 평행이동은 <b>모양과 크기를 바꾸지 않습니다</b>.<br>"+
+        "중심은 (0,0) → ("+a+", "+b+") 로 <b>점처럼</b> 옮겨졌는데, 식에서는 부호가 반대로 들어갑니다.</span>";}
     document.getElementById("s2ar").oninput=function(){a=parseFloat(this.value);draw();};
     document.getElementById("s2br").oninput=function(){b=parseFloat(this.value);draw();};draw();
   })();
@@ -573,6 +633,81 @@ var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g2"]'));
   }
   
 
+})();
+</script>
+
+<script>
+/* [예제1] 평행이동 — 이동 전(회색) / 이동 후(파랑) 를 함께 보여 준다 */
+(function(){
+  var svg=document.getElementById("ex1svg"); if(!svg) return;
+  var NS="http://www.w3.org/2000/svg";
+  function e(n,at){var x=document.createElementNS(NS,n);for(var k in at)x.setAttribute(k,at[k]);return x;}
+  var S=400,pad=28,lo=-7,hi=5,sc=(S-2*pad)/(hi-lo);
+  function px(x){return pad+(x-lo)*sc;} function py(y){return S-pad-(y-lo)*sc;}
+  var A=1,B=-2, cur=0, read=document.getElementById("ex1r");
+
+  function grid(){
+    for(var g=Math.ceil(lo);g<=hi;g++){
+      svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9"}));
+      svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+    }
+    svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+    svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+  }
+  function line(m,c,col,w,dash){
+    var o={x1:px(lo),y1:py(m*lo+c),x2:px(hi),y2:py(m*hi+c),stroke:col,"stroke-width":w};
+    if(dash)o["stroke-dasharray"]=dash; svg.appendChild(e("line",o));
+  }
+  function circ(cx,cy,r,col,w,dash){
+    var o={cx:px(cx),cy:py(cy),r:r*sc,fill:"none",stroke:col,"stroke-width":w};
+    if(dash)o["stroke-dasharray"]=dash; svg.appendChild(e("circle",o));
+  }
+  function dot(x,y,col,lab){
+    svg.appendChild(e("circle",{cx:px(x),cy:py(y),r:5,fill:col}));
+    if(lab){var t=e("text",{x:px(x)+9,y:py(y)-8,"font-size":12.5,"font-weight":700,fill:col});
+      t.textContent=lab; svg.appendChild(t);}
+  }
+  function arrow(x1,y1,x2,y2){
+    svg.appendChild(e("line",{x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),
+      stroke:"#a1a1aa","stroke-width":1.6,"stroke-dasharray":"5 4"}));
+  }
+  function draw(){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    grid();
+    if(cur===0){
+      // x + 2y + 1 = 0  →  y = (−x − 1) / 2
+      line(-0.5,-0.5,"#cbd5e1",2.4,"6 4");
+      line(-0.5,-2  ,"#2563eb",2.8);
+      dot(1,-1,"#94a3b8",null); dot(2,-3,"#2563eb",null);
+      arrow(1,-1,2,-3);
+      read.innerHTML=
+        "<b>이동 전</b><br>&nbsp;&nbsp;x + 2y + 1 = 0<br><br>"+
+        "<b>대입</b> &nbsp;<span class='hint'>x → x − 1, y → y + 2</span><br>"+
+        "&nbsp;&nbsp;(x − 1) + 2(y + 2) + 1 = 0<br><br>"+
+        "<b>이동 후</b><br>&nbsp;&nbsp;<b>x + 2y + 4 = 0</b><br><br>"+
+        "<span class='hint'>기울기 −½ 은 그대로. 직선이 통째로 밀렸습니다.</span>";
+    } else {
+      // (x−1)² + (y+2)² = 4
+      circ(1,-2,2,"#cbd5e1",2.4,"6 4"); circ(2,-4,2,"#2563eb",2.8);
+      dot(1,-2,"#94a3b8","(1, −2)"); dot(2,-4,"#2563eb","(2, −4)");
+      arrow(1,-2,2,-4);
+      read.innerHTML=
+        "<b>이동 전</b><br>&nbsp;&nbsp;(x − 1)² + (y + 2)² = 4<br>&nbsp;&nbsp;중심 <b>(1, −2)</b>, 반지름 2<br><br>"+
+        "<b>대입</b> &nbsp;<span class='hint'>x → x − 1, y → y + 2</span><br>"+
+        "&nbsp;&nbsp;(x − 1 − 1)² + (y + 2 + 2)² = 4<br><br>"+
+        "<b>이동 후</b><br>&nbsp;&nbsp;<b>(x − 2)² + (y + 4)² = 4</b><br>&nbsp;&nbsp;중심 <b>(2, −4)</b>, 반지름 2<br><br>"+
+        "<span class='hint'>반지름은 그대로 — 평행이동은 크기를 바꾸지 않습니다.</span>";
+    }
+  }
+  var bs=[].slice.call(document.querySelectorAll("#ex1b .rb"));
+  bs.forEach(function(b){
+    b.onclick=function(){cur=parseInt(b.getAttribute("data-k"),10);
+      bs.forEach(function(x){x.className="rb"+(x===b?" on":"");});draw();};
+  });
+  var rv=document.getElementById("ex1rv"),an=document.getElementById("ex1an");
+  rv.onclick=function(){an.classList.toggle("on");
+    rv.textContent=an.classList.contains("on")?"접기":"다시 열기";};
+  draw();
 })();
 </script>
 <script>

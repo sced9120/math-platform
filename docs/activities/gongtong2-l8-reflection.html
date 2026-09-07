@@ -211,7 +211,7 @@
     </div>
   </section>
 
-<section class="screen" data-key="s3" data-part="g0">
+<section class="screen" data-key="s3" data-part="g0" data-prompt="직선 y = x 에 대한 대칭이동에서 (a, b) 가 (b, a) 로 가는 까닭을 ① 중점 조건과 ② 수직 조건으로 설명해 보세요. (손으로 푼 증명을 사진으로 올려도 됩니다.)" data-photo="1">
     <div class="kicker">정리 · 점</div>
     <!--TEACH:START-->
     <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 3-02 Q4 y = x 에 대한 대칭이동</span></div>
@@ -226,6 +226,42 @@
       <tr><td>직선 y=x</td><td>(<b>y, x</b>)</td><td>x, y 자리 바꿈</td></tr>
     </table>
     <div class="callout">헷갈릴 땐 앞 화면으로 돌아가 점을 (3, 1) 근처에 놓고 네 대칭점의 좌표를 직접 확인해 보세요.</div>
+
+    <!-- 학습지 [y = x 에 대한 대칭이동 탐구] — 왜 (a, b) 가 (b, a) 로 가는가 (교과서 48쪽) -->
+    <h2 style="margin-top:22px">왜 (a, b) 가 (b, a) 로 갈까?</h2>
+    <p>x축·y축·원점 대칭은 부호만 바꾸면 되는데, <b>y = x 대칭만 자리를 바꿉니다.</b>
+       왜 그런지 증명해 봅시다. 점 A 를 움직여 보세요.</p>
+    <div class="lab">
+      <svg id="yx-svg" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="slider"><label>a <span><b id="yx-a">3</b></span></label>
+          <input id="yx-ar" type="range" min="-5" max="5" step="1" value="3"></div>
+        <div class="slider"><label>b <span><b id="yx-b">1</b></span></label>
+          <input id="yx-br" type="range" min="-5" max="5" step="1" value="1"></div>
+        <div class="readout" id="yx-read"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>증명</b> — 점 A(a, b) 를 직선 y = x 에 대하여 대칭이동한 점을 A′(p, q) 라 하자.
+      대칭이동은 <b>두 가지</b>를 만족해야 한다.
+      <ul class="tight">
+        <li><b>① 선분 AA′ 의 중점이 직선 y = x 위에 있다</b><br>
+          중점은 ( (a+p)/2 , (b+q)/2 ) 이고 이 점이 y = x 위에 있으므로
+          <b>(a + p) / 2 = (b + q) / 2</b>
+          → <b>q − p = a − b</b> &nbsp;… ㉠</li>
+        <li><b>② 선분 AA′ 이 직선 y = x 와 수직이다</b><br>
+          y = x 의 기울기가 1 이므로 AA′ 의 기울기는 −1 이어야 한다.
+          <b>(q − b) / (p − a)</b> = −1
+          → q − b = −(p − a) → <b>p + q = a + b</b> &nbsp;… ㉡</li>
+      </ul>
+      ㉠ 과 ㉡ 을 <b>더하면</b> 2q = 2a → <b>q = a</b><br>
+      ㉡ 에 넣으면 p = (a + b) − a = <b>b</b><br>
+      따라서 <b>A′(b, a)</b> — 두 좌표의 자리가 바뀐다. ∎
+    </div>
+    <div class="callout">
+      <b>더 쉽게 보는 방법</b> — 직선 y = x 는 <b>x축과 y축을 서로 바꾸는 거울</b>입니다.
+      거울에 비추면 “가로로 얼마”와 “세로로 얼마”가 맞바뀌므로, 좌표도 그대로 자리를 바꿉니다.
+    </div>
   </section>
 
 <section class="screen" data-key="s4" data-part="g0" data-prompt="‘ㄱ’ 모양 깃발을 기준별로 대칭시켜 보았습니다. 어떤 기준일 때 모양이 가장 크게 달라 보였는지, 그 까닭과 함께 적어 보세요.">
@@ -379,9 +415,9 @@
 <section class="screen" data-key="s10" data-part="g1">
     <div class="kicker">방정식의 대칭</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 Q6 원의 대칭이동</span></div>
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 3-02 [예제1] 원의 네 가지 대칭이동</span></div>
 <!--TEACH:END-->
-    <h1>원 (x−3)² + (y−2)² = 4 를 대칭시키기</h1>
+    <h1>원 (x−1)² + (y−2)² = 4 를 대칭시키기</h1>
     <p>네 가지 대칭을 <b>모두</b> 눌러, 각각의 자리에 놓인 <b>별 4개</b>를 모으세요.
        버튼을 누를 때마다 <b>식이 어떻게 변하는지</b> 꼭 읽어 보세요.</p>
     <div class="lab">
@@ -460,6 +496,44 @@
         <p style="margin:8px 0 0">그래서 <b>y 축 방향 이동이 0 일 때</b>(= x축 방향으로만 옮길 때) 순서를 바꿔도 결과가 같습니다.
         b ≠ 0 이라면, 대칭을 먼저 한 쪽의 y 이동량을 <b>−b</b> 로 바꾸면 두 결과가 같아집니다.</p>
         <p style="margin:8px 0 0"><b>도형의 이동은 순서를 마음대로 바꿀 수 없다</b> — 이것이 이 활동의 결론입니다.</p>
+      </div>
+    </div>
+  </section>
+
+<section class="screen" data-part="g2" data-key="ex2" data-photo="1" data-prompt="반려견의 최소 이동 거리를 구하고, 왜 B 를 개울에 대하여 대칭이동해도 되는지 PB = PB′ 을 근거로 설명해 보세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">예제 2</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 3-02 [예제2] 그림으로 힌트 찾기</span></div>
+<!--TEACH:END-->
+    <h1>🏕 [예제 2] 반려견의 최소 이동 거리</h1>
+    <p>캠핑장에 수연이가 반려견과 함께 있습니다. <b>A 지점</b>에 있는 반려견을
+       <b>개울가(x축)</b>로 데리고 가서 물을 먹인 후, 텐트가 있는 <b>B 지점</b>으로 가려고 합니다.
+       반려견의 <b>최소 이동 거리</b>를 구하시오.</p>
+    <div class="lab">
+      <svg id="ex2svg" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="hint">개울 위의 점 <b>P</b> 를 좌우로 <b>끌어</b> 보세요.</div>
+        <div class="readout" id="ex2r"></div>
+        <div class="rbtns">
+          <button class="rb" id="ex2mir">B′ 보이기 (개울에 비친 텐트)</button>
+          <button class="rb" id="ex2min">가장 짧은 자리로</button>
+        </div>
+        <div class="win" id="ex2w"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>왜 대칭이동을 쓸까?</b>
+      <button class="reveal" id="ex2rv" style="margin-left:8px">직접 움직여 본 뒤 열기</button>
+      <div class="ans" id="ex2an">
+        <p style="margin:8px 0 0">B(3, 2) 를 개울(x축)에 대하여 대칭이동한 점을 <b>B′(3, −2)</b> 라 하면,
+          P 가 개울 위 어디에 있든 <b>PB = PB′</b> 입니다.
+          <span class="hint">P 에서 B 까지와 B′ 까지가 개울을 사이에 두고 거울처럼 같은 길이이기 때문입니다.</span></p>
+        <p style="margin:8px 0 0">따라서 <b>AP + PB = AP + PB′</b> 이고, 이 값은
+          A 에서 B′ 까지 <b>곧게 갈 때</b> 가장 짧습니다. 즉 최솟값은 선분 <b>AB′</b> 의 길이입니다.</p>
+        <div class="formula">AB′ = √{ (3 − (−2))² + (−2 − 3)² } = √(25 + 25) = √50 = <b>5√2</b></div>
+        <p style="margin:8px 0 0">이때 P 는 직선 AB′ 이 x축과 만나는 점 <b>(1, 0)</b> 입니다.
+          <span class="hint">확인: AP = 3√2, PB = 2√2 → 합 5√2.</span></p>
+        <p style="margin:8px 0 0"><b>꺾인 길을 곧은 길로 펴는 것</b> — 이것이 대칭이동의 쓸모입니다.</p>
       </div>
     </div>
   </section>
@@ -896,14 +970,14 @@ var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g1"]'));
 
   // 화면 3: 원의 대칭 (별 4개) ------------------------------------------------
   (function(){
-    var P=Plane(document.getElementById("s3"),-8,8), C=[3,2], r=2, cur=null, got={};
+    var P=Plane(document.getElementById("s3"),-8,8), C=[1,2], r=2, cur=null, got={};
     // 각 별은 해당 대칭 결과 원 위에만 있다
-    var STAR={x:[5,-2], y:[-5,2], o:[-3,-4], d:[2,5]};
+    var STAR={x:[3,-2], y:[-3,2], o:[-1,-4], d:[4,1]};
     var EQ={
-      x:"(x − 3)² + (y <b>+ 2</b>)² = 4",
-      y:"(x <b>+ 3</b>)² + (y − 2)² = 4",
-      o:"(x <b>+ 3</b>)² + (y <b>+ 2</b>)² = 4",
-      d:"(x <b>− 2</b>)² + (y <b>− 3</b>)² = 4"
+      x:"(x − 1)² + (y <b>+ 2</b>)² = 4",
+      y:"(x <b>+ 1</b>)² + (y − 2)² = 4",
+      o:"(x <b>+ 1</b>)² + (y <b>+ 2</b>)² = 4",
+      d:"(x <b>− 2</b>)² + (y <b>− 1</b>)² = 4"
     };
     var read=document.getElementById("s3r"), sc=document.getElementById("s3s"), win=document.getElementById("s3w");
     function draw(){
@@ -916,7 +990,7 @@ var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g1"]'));
         var nc=R[cur].f(C);
         P.circle(nc[0],nc[1],r,"#2563eb",2.8);
         P.dot(nc[0],nc[1],"#2563eb","("+num(nc[0])+", "+num(nc[1])+")",4.5);
-        read.innerHTML="<b>"+R[cur].name+"</b><br>중심 (3, 2) → (<b>"+num(nc[0])+", "+num(nc[1])+"</b>)<br>"+EQ[cur];
+        read.innerHTML="<b>"+R[cur].name+"</b><br>중심 (1, 2) → (<b>"+num(nc[0])+", "+num(nc[1])+"</b>)<br>"+EQ[cur];
       } else read.innerHTML="버튼을 눌러 보세요.";
       sc.textContent=n+" / 4";
       if(n===4){win.className="win on";win.innerHTML="🎉 네 가지 식을 모두 확인했습니다! 반지름은 언제나 <b>2 그대로</b>였다는 점도 기억하세요.";}
@@ -1036,6 +1110,150 @@ var screens=[].slice.call(document.querySelectorAll('.screen[data-part="g2"]'));
   }
   
 
+})();
+</script>
+<script>
+/* y = x 대칭 증명 그림 — 중점이 직선 위에 있고, 이은 선분이 직선과 수직임을 보인다 */
+(function(){
+  var svg=document.getElementById("yx-svg"); if(!svg) return;
+  var NS="http://www.w3.org/2000/svg";
+  function e(n,at){var x=document.createElementNS(NS,n);for(var k in at)x.setAttribute(k,at[k]);return x;}
+  var S=400,pad=28,lo=-6,hi=6,sc=(S-2*pad)/(hi-lo);
+  function px(x){return pad+(x-lo)*sc;} function py(y){return S-pad-(y-lo)*sc;}
+  var a=3,b=1, read=document.getElementById("yx-read");
+
+  function draw(){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    for(var g=Math.ceil(lo);g<=hi;g++){
+      svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9"}));
+      svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+    }
+    svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+    svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+    // 거울: y = x
+    svg.appendChild(e("line",{x1:px(lo),y1:py(lo),x2:px(hi),y2:py(hi),stroke:"#7c3aed","stroke-width":2.5}));
+    var tl=e("text",{x:px(hi)-6,y:py(hi)+16,"text-anchor":"end","font-size":12,"font-weight":700,fill:"#7c3aed"});
+    tl.textContent="y = x"; svg.appendChild(tl);
+
+    var A={x:a,y:b}, B={x:b,y:a}, M={x:(a+b)/2,y:(a+b)/2};
+    // 이은 선분과 중점
+    svg.appendChild(e("line",{x1:px(A.x),y1:py(A.y),x2:px(B.x),y2:py(B.y),stroke:"#2563eb","stroke-width":2.5,"stroke-dasharray":"6 4"}));
+    svg.appendChild(e("circle",{cx:px(M.x),cy:py(M.y),r:5,fill:"#2563eb"}));
+    var tm=e("text",{x:px(M.x)+9,y:py(M.y)-8,"font-size":12,"font-weight":700,fill:"#2563eb"});
+    tm.textContent="중점"; svg.appendChild(tm);
+    // 중점에서의 직각 표시 (선분 ⟂ y=x)
+    if(Math.abs(a-b)>0.01){
+      var u=0.42/Math.SQRT2, v=0.42/Math.SQRT2;
+      svg.appendChild(e("polyline",{points:
+        px(M.x+u)+","+py(M.y+v)+" "+px(M.x+u-v)+","+py(M.y+v+u)+" "+px(M.x-v)+","+py(M.y+u),
+        fill:"none",stroke:"#2563eb","stroke-width":1.4}));
+    }
+    // 두 점
+    svg.appendChild(e("circle",{cx:px(A.x),cy:py(A.y),r:6,fill:"#e11d48"}));
+    var ta=e("text",{x:px(A.x)+9,y:py(A.y)-9,"font-size":12.5,"font-weight":700,fill:"#e11d48"});
+    ta.textContent="A("+a+", "+b+")"; svg.appendChild(ta);
+    svg.appendChild(e("circle",{cx:px(B.x),cy:py(B.y),r:6,fill:"#059669"}));
+    var tb=e("text",{x:px(B.x)+9,y:py(B.y)-9,"font-size":12.5,"font-weight":700,fill:"#059669"});
+    tb.textContent="A′("+b+", "+a+")"; svg.appendChild(tb);
+
+    document.getElementById("yx-a").textContent=a;
+    document.getElementById("yx-b").textContent=b;
+    var slope = (a===b) ? "—" : ((a-b)/(b-a)).toFixed(0);
+    read.innerHTML=
+      "A("+a+", "+b+") → A′(<b>"+b+", "+a+"</b>)<br><br>"+
+      "중점 = ( <b>"+((a+b)/2)+"</b>, <b>"+((a+b)/2)+"</b> )<br>"+
+      "&nbsp;&nbsp;<span class='hint'>x좌표와 y좌표가 같으니 y = x 위에 있습니다 ✓</span><br><br>"+
+      "AA′ 의 기울기 = <b>"+slope+"</b><br>"+
+      "&nbsp;&nbsp;<span class='hint'>"+(a===b?"A 와 A′ 이 같은 점입니다(직선 위의 점).":"y = x 의 기울기 1 과 곱하면 −1 — 수직 ✓")+"</span>";
+  }
+  document.getElementById("yx-ar").addEventListener("input",function(){a=parseInt(this.value,10);draw();});
+  document.getElementById("yx-br").addEventListener("input",function(){b=parseInt(this.value,10);draw();});
+  draw();
+})();
+</script>
+
+<script>
+/* [예제2] 최단 경로 — P 를 끌어 AP+PB 를 재고, 대칭점 B′ 으로 곧은 길을 만든다 */
+(function(){
+  var svg=document.getElementById("ex2svg"); if(!svg) return;
+  var NS="http://www.w3.org/2000/svg";
+  function e(n,at){var x=document.createElementNS(NS,n);for(var k in at)x.setAttribute(k,at[k]);return x;}
+  var S=400,pad=30,lo=-4,hi=6,sc=(S-2*pad)/(hi-lo);
+  function px(x){return pad+(x-lo)*sc;} function py(y){return S-pad-(y-lo)*sc;}
+  var A={x:-2,y:3}, B={x:3,y:2}, Bm={x:3,y:-2}, t=-1, mirror=false;
+  var read=document.getElementById("ex2r"), win=document.getElementById("ex2w");
+  function d(p,q){return Math.sqrt((p.x-q.x)*(p.x-q.x)+(p.y-q.y)*(p.y-q.y));}
+
+  function draw(){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    // 개울 — x축 아래쪽을 물빛으로
+    svg.appendChild(e("rect",{x:px(lo),y:py(0),width:px(hi)-px(lo),height:py(lo)-py(0),
+      fill:"#e0f2fe"}));
+    for(var g=Math.ceil(lo);g<=hi;g++){
+      svg.appendChild(e("line",{x1:px(g),y1:py(lo),x2:px(g),y2:py(hi),stroke:"#f1f5f9"}));
+      svg.appendChild(e("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+    }
+    svg.appendChild(e("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#0284c7","stroke-width":2.5}));
+    svg.appendChild(e("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+    var tw=e("text",{x:px(hi)-6,y:py(0)+17,"text-anchor":"end","font-size":12,"font-weight":700,fill:"#0284c7"});
+    tw.textContent="개울"; svg.appendChild(tw);
+
+    var P={x:t,y:0};
+    if(mirror){
+      svg.appendChild(e("line",{x1:px(A.x),y1:py(A.y),x2:px(Bm.x),y2:py(Bm.y),
+        stroke:"#a1a1aa","stroke-width":1.6,"stroke-dasharray":"5 4"}));
+      svg.appendChild(e("line",{x1:px(P.x),y1:py(P.y),x2:px(Bm.x),y2:py(Bm.y),
+        stroke:"#059669","stroke-width":2,"stroke-dasharray":"4 3"}));
+      svg.appendChild(e("line",{x1:px(B.x),y1:py(B.y),x2:px(Bm.x),y2:py(Bm.y),
+        stroke:"#cbd5e1","stroke-width":1.4,"stroke-dasharray":"3 3"}));
+      dot(Bm,"#059669","B′(3, −2)");
+    }
+    // 실제 경로
+    svg.appendChild(e("polyline",{points:px(A.x)+","+py(A.y)+" "+px(P.x)+","+py(P.y)+" "+px(B.x)+","+py(B.y),
+      fill:"none",stroke:"#e11d48","stroke-width":2.8,"stroke-linejoin":"round"}));
+    dot(A,"#e11d48","A(−2, 3)"); dot(B,"#2563eb","B(3, 2)");
+    svg.appendChild(e("circle",{cx:px(P.x),cy:py(P.y),r:9,fill:"#fff",stroke:"#0284c7","stroke-width":3,
+      style:"cursor:grab"}));
+    var tp=e("text",{x:px(P.x),y:py(P.y)+26,"text-anchor":"middle","font-size":12.5,
+      "font-weight":700,fill:"#0284c7"});
+    tp.textContent="P("+t.toFixed(1)+", 0)"; svg.appendChild(tp);
+
+    var s1=d(A,P), s2=d(P,B), sum=s1+s2, best=Math.sqrt(50);
+    read.innerHTML=
+      "AP = <b>"+s1.toFixed(2)+"</b><br>PB = <b>"+s2.toFixed(2)+"</b><br><br>"+
+      "AP + PB = <b>"+sum.toFixed(2)+"</b><br>"+
+      (mirror?"<span class='hint'>PB′ = "+d(P,Bm).toFixed(2)+" — PB 와 같습니다 ✓</span><br>":"")+
+      "<br><span class='hint'>가장 작은 값은 5√2 ≈ "+best.toFixed(2)+"</span>";
+    if(Math.abs(sum-best)<0.02){
+      win.className="win on";
+      win.innerHTML="🎉 가장 짧습니다! P(1, 0) 일 때 <b>5√2 ≈ 7.07</b><br>"+
+        "A, P, B′ 이 <b>한 직선</b> 위에 놓였습니다.";
+    } else win.className="win";
+  }
+  function dot(p,c,lab){
+    svg.appendChild(e("circle",{cx:px(p.x),cy:py(p.y),r:6,fill:c}));
+    var t2=e("text",{x:px(p.x)+10,y:py(p.y)-9,"font-size":12.5,"font-weight":700,fill:c});
+    t2.textContent=lab; svg.appendChild(t2);
+  }
+  function grab(ev){
+    var r=svg.getBoundingClientRect(); if(!r.width) return;
+    var cx=(ev.touches?ev.touches[0].clientX:ev.clientX);
+    var x=(cx-r.left)/r.width*S;
+    t=Math.max(lo+0.3,Math.min(hi-0.3,(x-pad)/sc+lo));
+    t=Math.round(t*10)/10; draw(); ev.preventDefault();
+  }
+  var down=false;
+  svg.addEventListener("pointerdown",function(ev){down=true;grab(ev);});
+  svg.addEventListener("pointermove",function(ev){if(down)grab(ev);});
+  window.addEventListener("pointerup",function(){down=false;});
+  document.getElementById("ex2mir").onclick=function(){
+    mirror=!mirror;this.className="rb"+(mirror?" on":"");draw();};
+  document.getElementById("ex2min").onclick=function(){t=1;mirror=true;
+    document.getElementById("ex2mir").className="rb on";draw();};
+  var rv=document.getElementById("ex2rv"),an=document.getElementById("ex2an");
+  rv.onclick=function(){an.classList.toggle("on");
+    rv.textContent=an.classList.contains("on")?"접기":"다시 열기";};
+  draw();
 })();
 </script>
 <script>

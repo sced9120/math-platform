@@ -1,0 +1,919 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed;--gold:#f59e0b}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .bad{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid var(--rose);border-radius:10px;padding:12px 15px;margin:12px 0}
+  .lab{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .readout{font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .12s}
+  .rb:hover{border-color:var(--blue);color:var(--blue)}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .rb.wide{display:block;width:100%;text-align:left;margin-bottom:6px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  td.l,th.l{text-align:left}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:17px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .judge{display:inline-block;border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;
+    padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
+  .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
+  .slider input{width:100%}
+  .proof{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0;margin:12px 0;overflow:hidden}
+  .pstep{padding:11px 15px;border-bottom:1px solid var(--line);font-size:14.5px;cursor:pointer;
+    display:flex;gap:10px;align-items:flex-start;transition:background .12s}
+  .pstep:last-child{border-bottom:none}
+  .pstep:hover{background:#fafafa}
+  .pstep .no{flex:none;width:22px;height:22px;border-radius:999px;background:#f4f4f5;color:#71717a;
+    font-size:11.5px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .pstep.on{background:#eff6ff}
+  .pstep.on .no{background:var(--blue);color:#fff}
+  .pstep .why{display:none;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.6}
+  .pstep.on .why{display:block}
+  .blank{display:inline-block;min-width:66px;border-bottom:2px solid var(--blue);text-align:center;
+    color:var(--blue);font-weight:800;cursor:pointer;padding:0 5px}
+  .blank.done{border-bottom-color:#86efac;background:#f0fdf4}
+  .quote{background:#faf5ff;border:1px solid #e9d5ff;border-left:4px solid var(--violet);
+    border-radius:10px;padding:13px 16px;margin:12px 0;font-size:14.5px;line-height:1.75}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on" data-key="s1" data-prompt="갈릴레이는 실험을 하지 않고도 어떻게 결론에 이르렀나요? ‘모순’ 이라는 말을 써서 설명해 보세요.">
+    <div class="kicker">공통수학2 · 집합과 명제</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 5 · 2-03 [생각 열기] 갈릴레이의 사고실험</span></div>
+    <!--TEACH:END-->
+    <h1>🪶 갈릴레이의 사고실험</h1>
+    <p>옛날 사람들은 “<b>무거운 물체가 더 빨리 떨어진다</b>”라고 믿었습니다.
+       그런데 갈릴레이는 이렇게 생각했지요.</p>
+    <div class="quote">
+      “만약 무거운 물체가 가벼운 물체보다 빨리 떨어진다면,
+      두 물체를 <b>묶어서</b> 동시에 떨어뜨리면 어떻게 될까?<br><br>
+      가벼운 물체가 느리게 끌어주니 전체 속도는 <b>느려져야</b> 하고,<br>
+      무거운 물체가 포함됐으니 전체는 <b>더 빨라져야</b> 해.<br><br>
+      그런데 한꺼번에 더 느려지고 더 빨라질 수는 <b>없잖아?</b>”
+    </div>
+    <div class="lab">
+      <svg id="v1" viewBox="0 0 400 240"></svg>
+      <div class="controls">
+        <div class="btns" id="b1"></div>
+        <div class="readout" id="r1"></div>
+      </div>
+    </div>
+    <div class="callout">이렇게 <b>모순</b>이 생기니까, 원래 믿음이 잘못되었다는 것을 알 수 있었습니다.
+      그래서 갈릴레이는 결론을 내렸어요 — 👉 <b>“무거운 물체와 가벼운 물체는 동시에 떨어진다!”</b></div>
+    <div class="card">
+      <b>증명이란</b>
+      <p style="margin:8px 0 0">가설(명제)이 참인지 밝혀내는 것을 <b>증명</b>이라고 합니다.
+        증명에는 <b>탄탄한 논리적 근거</b>가 필요하며, <b>반박 가능성을 제거</b>해야 합니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s2" data-prompt="‘두 홀수의 합은 항상 짝수’ 라고 주장하면 모두가 믿어 줄까요? 믿어 주지 않는다면 어떻게 설득할 수 있을까요? 그리고 아래 증명을 읽으면 납득이 되나요?">
+    <div class="kicker">증명의 필요성</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 5 · 2-03 [증명의 필요성] 두 홀수의 합</span></div>
+    <!--TEACH:END-->
+    <h1>‘두 홀수의 합은 항상 짝수’</h1>
+    <div class="callout"><b>2-01 을 기억하시나요?</b> 명제 판별에서 나왔던 바로 그 문장입니다.
+      그때는 <b>참인 명제</b>라고만 했지요. 이제 <b>왜</b> 참인지 밝혀 봅시다.</div>
+    <p class="q"><b>Q1.</b> 그냥 주장하면 모두가 믿어 줄까요? 아래를 눌러 보세요.</p>
+    <div id="b2"></div>
+    <div class="readout" id="r2" style="margin-top:10px"></div>
+    <div class="card">
+      <b>Q2. 이 증명을 읽으면 납득이 되나요?</b>
+      <button class="reveal" id="rv2" style="margin-left:8px">증명 보기</button>
+      <div class="ans" id="an2">
+        <div class="proof" id="p2"></div>
+        <p style="margin:8px 0 0" class="hint">각 줄을 눌러 보면 왜 그렇게 썼는지 나옵니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s3" data-prompt="정의와 정리를 구분해 보세요. 둘의 차이가 무엇인지 자신의 말로 정리해 적어 주세요.">
+    <div class="kicker">용어 정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 5 · 2-03 [스스로 정리하기]·[정의와 정리] · 교과서 92쪽</span></div>
+    <div class="turn"><i>📖</i><span>교과서 92쪽 [생각 틔우기] — “닮음이라는 건 말이야…” 용어의 뜻을 정확히 정해야 하는 까닭을 이야기합니다.</span></div>
+    <!--TEACH:END-->
+    <h1>설득을 위한 말 다듬기</h1>
+    <table>
+      <tr><th style="width:170px">용어</th><th class="l">뜻</th></tr>
+      <tr><td><b>정의</b></td><td class="l">용어의 뜻을 <b>간결하고 명확하게 정한</b> 문장
+        <span class="hint">예) 세 변의 길이가 같은 삼각형을 정삼각형이라 한다</span></td></tr>
+      <tr><td><b>정리</b></td><td class="l"><b>참임이 증명된</b> 명제 중 기본이 되거나 다른 증명에 쓰이는 것
+        <span class="hint">예) 이등변삼각형의 두 밑각의 크기는 같다</span></td></tr>
+      <tr><td><b>증명</b></td><td class="l">정의와 이미 <b>참으로 밝혀진 사실</b>을 근거로 명제가 참임을 보이는 것</td></tr>
+      <tr><td><b>대우를 이용한<br>증명법</b></td><td class="l">명제와 대우는 참·거짓을 <b>공유</b>하므로,
+        증명하기 어려울 때 <b>대우를 증명</b>하는 방법</td></tr>
+      <tr><td><b>귀류법</b></td><td class="l">명제의 <b>부정이 참이라고 가정</b>하여 이미 알려진 사실에
+        <b>모순</b>이 됨을 보임으로써 원래 명제가 참임을 보이는 방법</td></tr>
+    </table>
+    <h2>정의일까, 정리일까?</h2>
+    <p>다음 문장을 <b>정의</b>와 <b>정리</b>로 갈라 봅시다.
+       <span class="hint">‘약속한 것’ 이면 정의, ‘증명해서 알아낸 것’ 이면 정리입니다.</span></p>
+    <table id="t3"><tr><th class="l" style="width:58%">문장</th><th style="width:150px">구분</th></tr></table>
+    <div class="win" id="w3"></div>
+  </section>
+
+  <section class="screen" data-key="s4" data-prompt="빈칸을 채워 증명을 완성하고, 증명에서 가장 중요한 것이 무엇인지 적어 보세요.">
+    <div class="kicker">교과서 따라잡기 · 직접증명</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 5 · 2-03 [교과서 따라잡기] 기본 증명 방법</span></div>
+    <!--TEACH:END-->
+    <h1>참인 사실에서 결론으로</h1>
+    <div class="card"><b>증명하시오</b> — a ≥ 0, b ≥ 0 일 때, <b>a ≥ b 이면 a² ≥ b²</b> 이다.</div>
+    <div class="proof" id="p4"></div>
+    <div class="callout">증명에서 가장 중요한 것은
+      <b>알고 있는 참인 사실에서 출발해 결론을 이끌어 내는 것</b>입니다.
+      결론에서 거꾸로 출발하면 안 됩니다.</div>
+    <div class="card">
+      <b>이것이 직접증명</b>
+      <p style="margin:8px 0 0">참인 사실에서 결론에 도달하는 이 방법을
+        <b>연역법</b>(확고한 대전제로부터 이끌어냄)의 한 갈래인 <b>직접증명</b>이라 합니다.</p>
+    </div>
+    <h2>증명 연습</h2>
+    <p>다음 세 가지도 같은 방식으로 증명해 봅시다. 눌러서 길잡이를 확인하세요.</p>
+    <div class="btns" id="b4"></div>
+    <div class="readout" id="r4" style="margin-top:10px"></div>
+  </section>
+
+  <section class="screen" data-key="s5" data-photo="1" data-prompt="대우를 이용한 증명의 세 단계를 따라 써 보세요. 그리고 아래 두 명제도 대우를 이용해 증명해 보세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">대우를 이용한 증명</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 5 · 2-03 [대우를 이용한 증명법] · 교과서 92쪽</span></div>
+    <!--TEACH:END-->
+    <h1>돌아가면 쉬워진다 — 대우</h1>
+    <div class="card"><b>증명하시오</b> — 자연수 n 에 대하여
+      <b>n² 이 홀수이면 n 도 홀수이다.</b></div>
+    <div class="callout"><b>왜 돌아갈까?</b> ‘n² 이 홀수’ 에서 출발하면 n 에 대해 말할 수 있는 것이 마땅치 않습니다.
+      그런데 <b>대우</b>로 바꾸면 ‘n 이 짝수’ 에서 출발하니 <b>n = 2k</b> 로 놓을 수 있어요.</div>
+    <div class="proof" id="p5"></div>
+    <div class="formula">명제와 대우는 참·거짓이 <b>일치</b>하므로,
+      대우가 참이면 <b>원래 명제도 참</b>입니다.</div>
+    <div class="card">
+      <b>직접 해 봅시다</b>
+      <div class="btns" id="b5" style="margin-top:8px"></div>
+      <div class="readout" id="r5" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s6" data-photo="1" data-prompt="√2 가 유리수가 아님을 귀류법으로 증명하는 과정을 따라 써 보세요. 어디에서 모순이 생겼는지 꼭 밝혀 주세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">귀류법</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 5 · 2-03 [귀류법] √2 · 교과서 93쪽</span></div>
+    <!--TEACH:END-->
+    <h1>√2 는 유리수가 아니다</h1>
+    <div class="callout"><b>바로 앞에서 증명한 것을 여기서 두 번 씁니다.</b><br>
+      ‘n² 이 홀수이면 n 도 홀수’ 를 뒤집으면 — <b>‘n² 이 짝수이면 n 도 짝수’</b>.
+      이것이 이 증명의 열쇠입니다.</div>
+    <p>한 줄씩 눌러 가며 따라가 보세요.</p>
+    <div class="proof" id="p6"></div>
+    <div class="win" id="w6"></div>
+    <div class="card">
+      <b>귀류법의 뼈대</b>
+      <ul class="tight">
+        <li><b>[1단계]</b> 결론을 <b>부정</b>해서 가정한다 (√2 가 유리수라고 하자)</li>
+        <li><b>[2단계]</b> 따라가다 <b>모순</b>을 만난다 (서로소인데 둘 다 짝수)</li>
+        <li><b>[3단계]</b> 부정이 거짓이므로 <b>원래 명제가 참</b>이다</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s7" data-prompt="소수가 무한히 많다는 것과 √3 이 유리수가 아니라는 것을 귀류법으로 증명해 보세요. 어디서 모순이 생기는지가 핵심입니다.">
+    <div class="kicker">귀류법 연습</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 5 · 2-03 귀류법 연습 2문항</span></div>
+    <!--TEACH:END-->
+    <h1>모순을 찾아라</h1>
+    <div class="btns" id="b7"></div>
+    <div class="readout" id="r7" style="margin-top:12px"></div>
+    <div class="callout"><b>귀류법을 쓸 때</b> — ‘~가 아니다’, ‘무한히 많다’ 처럼
+      <b>직접 보이기 어려운 것</b>을 증명할 때 특히 강력합니다.</div>
+  </section>
+
+  <section class="screen" data-key="s8" data-prompt="여섯 부등식 중 항상 성립하는 것을 모두 고르고, 성립하지 않는 것은 반례를 들어 보세요.">
+    <div class="kicker">생각 열기 · 절대부등식</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 5 · 2-03 [생각 열기] 항상 성립하는 부등식 · 교과서 94쪽</span></div>
+    <!--TEACH:END-->
+    <h1>항상 성립하는 부등식은?</h1>
+    <p>다음 부등식 중 <b>어떤 실수를 넣어도 항상 성립</b>하는 것을 찾아보세요.</p>
+    <table id="t8"><tr><th class="l" style="width:52%">부등식</th><th style="width:170px">판단</th></tr></table>
+    <div class="win" id="w8"></div>
+    <div class="formula">문자를 포함한 부등식에서 그 문자가 가질 수 있는
+      <b>어떤 실수를 대입해도 항상 성립</b>하는 부등식 → <b>절대부등식</b></div>
+    <div class="card">
+      <b>실수의 성질</b> <span class="hint">(교과서 94쪽 — 절대부등식 증명에 자주 쓰입니다)</span>
+      <table style="margin-top:8px">
+        <tr><td class="l">① a &gt; b ⟺ <b>a − b &gt; 0</b></td><td class="l">④ <b>| a | ≥ a</b></td></tr>
+        <tr><td class="l">② <b>a² ≥ 0</b></td><td class="l">⑤ a² + b² = 0 ⟺ <b>a = 0, b = 0</b></td></tr>
+        <tr><td class="l">③ a ≥ 0, b ≥ 0 일 때<br>&nbsp;&nbsp;&nbsp;a ≥ b ⟺ <b>a² ≥ b²</b></td>
+            <td class="l">⑥ <b>| a |² = a²</b>, <b>| ab | = | a || b |</b></td></tr>
+      </table>
+      <p style="margin:8px 0 0" class="hint">증명할 때 <b>어느 성질을 썼는지</b> 번호로 적어 두는 습관을 들이면 좋습니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s9" data-photo="1" data-prompt="두 절대부등식을 증명하고, 등호가 성립하는 조건도 반드시 함께 적어 보세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">절대부등식 증명</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 5 · 2-03 [절대부등식 증명] · 교과서 94쪽</span></div>
+    <!--TEACH:END-->
+    <h1>빼서 0 이상임을 보인다</h1>
+    <div class="callout"><b>중요</b> — 성립함을 증명할 때 <b>결과에서 출발하면 틀린 진술</b>이 됩니다.
+      좌변과 우변을 <b>따로</b> 보거나 <b>빼거나 더한 값</b>에서 시작하세요.
+      그리고 등호가 포함된 부등식은 <b>등호가 성립하는 조건</b>을 따로 적는 습관을 들입시다.</div>
+    <div class="btns" id="b9"></div>
+    <div class="proof" id="p9" style="margin-top:12px"></div>
+  </section>
+
+  <section class="screen" data-key="s10" data-prompt="그림에서 OC 와 DE 의 길이를 a, b 로 나타내고, 왜 항상 OC ≥ DE 인지 설명해 보세요. 등호는 언제 성립하나요?">
+    <div class="kicker">그림으로 보기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 교과서 96쪽 — 산술평균과 기하평균의 기하적 의미</span></div>
+    <!--TEACH:END-->
+    <h1>📐 눈으로 보는 (a+b)/2 ≥ √(ab)</h1>
+    <p>선분 AB 위의 점 D 에 대하여 <b>AD = a</b>, <b>DB = b</b> 라 하고, AB 를 지름으로 하는 반원을 그립니다.
+       중심을 <b>O</b>, D 에서 세운 수선이 반원과 만나는 점을 <b>E</b> 라 하겠습니다.</p>
+    <div class="lab">
+      <svg id="v10" viewBox="0 0 400 240"></svg>
+      <div class="controls">
+        <div class="slider"><label>a <span><b id="v10a">6</b></span></label>
+          <input id="v10ar" type="range" min="1" max="11" step="0.5" value="6"></div>
+        <div class="readout" id="r10"></div>
+      </div>
+    </div>
+    <div class="formula">반지름 <b>OC = (a + b) / 2</b> &nbsp;&nbsp;·&nbsp;&nbsp; 수선 <b>DE = √(ab)</b></div>
+    <div class="card">
+      <b>왜 DE = √(ab) 일까?</b>
+      <button class="reveal" id="rv10" style="margin-left:8px">확인하기</button>
+      <div class="ans" id="an10">
+        <p style="margin:8px 0 0">반원에서 지름에 대한 원주각은 <b>직각</b>이므로 삼각형 AEB 는 직각삼각형입니다.
+          직각삼각형에서 빗변에 내린 수선에 대하여 <b>DE² = AD × DB = ab</b> 이므로
+          <b>DE = √(ab)</b> 입니다.</p>
+        <p style="margin:8px 0 0">그런데 <b>DE 는 반지름보다 길 수 없습니다.</b>
+          그래서 언제나 <b>OC ≥ DE</b>, 즉 <b>(a+b)/2 ≥ √(ab)</b> 입니다.</p>
+        <p style="margin:8px 0 0">등호는 D 가 O 와 <b>겹칠 때</b>, 즉 <b>a = b</b> 일 때만 성립합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s11" data-photo="1" data-prompt="이 풀이에서 잘못된 곳을 찾아 바르게 고쳐 보세요. 두 등호가 동시에 성립할 수 있는지 직접 확인한 과정을 적어 주세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">역량 키우기 · 등호 조건</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 교과서 95쪽 [역량 키우기] 최솟값을 구할 때 빠지는 함정</span></div>
+    <!--TEACH:END-->
+    <h1>⚠️ 등호는 언제 성립하는가</h1>
+    <div class="card">a &gt; 0, b &gt; 0 일 때 <b>(a + b)(1/a + 9/b)</b> 의 최솟값을 구하려고 합니다.</div>
+    <div class="bad">
+      <b>어떤 학생의 풀이</b>
+      <p style="margin:6px 0 0">a + b ≥ 2√(ab) &nbsp;이고&nbsp; 1/a + 9/b ≥ 2√(9/ab) &nbsp;이므로<br>
+        (a + b)(1/a + 9/b) ≥ 2√(ab) × 2√(9/ab) = <b>12</b><br>
+        “따라서 최솟값은 <b>12</b> 입니다.”</p>
+    </div>
+    <p class="q">두 등호가 <b>동시에</b> 성립할 수 있는지 확인해 봅시다.</p>
+    <div class="btns" id="b11"></div>
+    <div class="readout" id="r11" style="margin-top:10px"></div>
+    <div class="card">
+      <b>바르게 풀기</b>
+      <button class="reveal" id="rv11" style="margin-left:8px">직접 해 본 뒤 열기</button>
+      <div class="ans" id="an11">
+        <p style="margin:8px 0 0">산술·기하평균을 <b>두 번 쓰지 말고</b>, 먼저 <b>전개</b>합니다.</p>
+        <div class="formula">(a + b)(1/a + 9/b) = 1 + 9a/b + b/a + 9 = 10 + (<b>9a/b + b/a</b>)</div>
+        <p style="margin:8px 0 0">이제 괄호 안에만 산술·기하평균을 <b>한 번</b> 적용합니다.</p>
+        <div class="formula">9a/b + b/a ≥ 2√(9a/b · b/a) = 2√9 = <b>6</b><br>
+          따라서 &nbsp; 10 + 6 = <b>16</b></div>
+        <p style="margin:8px 0 0">등호는 <b>9a/b = b/a</b>, 즉 <b>b² = 9a²</b>, <b>b = 3a</b> 일 때 성립합니다.
+          이 값은 실제로 존재하므로 최솟값은 <b>16</b> 입니다.</p>
+        <p style="margin:8px 0 0" class="hint"><b>교훈</b> — 산술·기하평균을 두 번 쓰면 등호 조건이 서로 어긋날 수 있습니다.
+          <b>등호 조건을 확인하지 않은 최솟값은 최솟값이 아닙니다.</b></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s12" data-photo="1" data-prompt="다섯 문항 중 두 개 이상을 골라 증명하고, 등호가 성립하는 조건도 함께 적어 보세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">평균과 연습</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 5 · 2-03 [산술기하조화 평균]·연습 5문항</span></div>
+    <!--TEACH:END-->
+    <h1>세 가지 평균</h1>
+    <p>실수 a &gt; 0, b &gt; 0 에 대하여 다음 평균이 있습니다.</p>
+    <table>
+      <tr><th style="width:26%">산술평균 (A.M.)</th><th style="width:26%">기하평균 (G.M.)</th>
+          <th>조화평균 (H.M.) <span class="hint">★심화</span></th></tr>
+      <tr><td><b>(a + b) / 2</b></td><td><b>√(ab)</b></td><td><b>2ab / (a + b)</b></td></tr>
+      <tr><td class="l hint">두 수의 중앙값 역할을 하는 덧셈의 평균. 이상치에 민감함.</td>
+          <td class="l hint">곱의 균형을 나타내는 평균. 비율·성장률 같은 곱셈적 관계에 쓰이고 이상치에 덜 민감함.</td>
+          <td class="l hint">역수의 평균의 역수. 평균 속력, 머신러닝 F1-score 등에 쓰임.</td></tr>
+    </table>
+    <div class="formula"><b>A.M. ≥ G.M. ≥ H.M.</b> &nbsp;&nbsp;(단, 등호는 a = b 일 때)</div>
+    <div class="lab">
+      <svg id="v12" viewBox="0 0 400 170"></svg>
+      <div class="controls">
+        <div class="slider"><label>a <span><b id="v12a">2</b></span></label>
+          <input id="v12ar" type="range" min="1" max="9" step="0.5" value="2"></div>
+        <div class="readout" id="r12"></div>
+      </div>
+    </div>
+    <div class="callout"><span class="hint">★ 조화평균과 A.M. ≥ G.M. ≥ H.M. 은 <b>심화 · 시험 범위가 아닙니다.</b></span></div>
+    <h2>연습하기</h2>
+    <p>다음 부등식이 성립함을 증명하시오. 눌러서 길잡이를 확인하세요.</p>
+    <div class="btns" id="b12"></div>
+    <div class="readout" id="r12b" style="margin-top:10px"></div>
+  </section>
+
+  <section class="screen" data-key="s13" data-prompt="러셀의 이발사는 왜 모순에 빠지나요? 스스로 수염을 깎는 경우와 깎지 않는 경우로 나누어 설명해 보세요.">
+    <div class="kicker">읽을거리 · 역설</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 5 · 2-03 역설(Paradox) 이야기</span></div>
+    <!--TEACH:END-->
+    <h1>🪒 러셀의 이발사</h1>
+    <p>자기 모순에 빠지는 경우를 <b>역설</b>이라고 부릅니다.
+       고대 그리스의 <b>거짓말쟁이 역설</b>이 대표적이죠 —
+       크레타 섬 사람이 “크레타인은 죄다 거짓말쟁이다” 라고 말했습니다.</p>
+    <div class="quote">
+      영국의 수학자 <b>러셀</b>은 한 마을의 이발사를 떠올렸습니다.<br><br>
+      이 이발사는 <b>‘자신의 수염을 스스로 깎지 않는 모든 마을 사람의 수염’</b> 만 깎아 준다고 선언했죠.<br><br>
+      그렇다면 — <b>이 이발사 자신의 수염은 누가 깎아야 할까요?</b>
+    </div>
+    <div class="btns" id="b13"></div>
+    <div class="readout" id="r13" style="margin-top:10px"></div>
+    <div class="card">
+      <b>이 이야기가 수학을 바꾸었습니다</b>
+      <p style="margin:8px 0 0">19–20세기 수학자들은 집합을 <b>‘바구니’</b> 처럼 생각했습니다.
+        원소를 그냥 모아 놓기만 하면 무엇이든 집합이 된다고 믿었죠.</p>
+      <p style="margin:8px 0 0">러셀은 <b>‘자기 자신을 원소로 포함하지 않는 집합들의 집합’</b> 을 정의해 놓고
+        그 집합이 자기 자신을 포함하는지 물었습니다. <b>어느 쪽이든 모순</b>이었어요.</p>
+      <p style="margin:8px 0 0">이 충격 이후 수학자들은 집합을 더 엄격하게 정의하고,
+        아무 집합이나 자유롭게 만들지 못하도록 <b>공리적 집합론</b>이라는 새 규칙을 만들었습니다.</p>
+      <p style="margin:8px 0 0" class="hint">우리가 Ⅱ단원 첫머리에서 “<b>분명하게 정해지는 모임</b>” 이라고
+        까다롭게 말한 까닭이 여기에 있습니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="ext" data-photo="1" data-prompt="세 가지 증명법(직접증명·대우·귀류법) 중 어떤 상황에서 어느 것을 고르면 좋을지 자신의 기준을 적어 보세요. (손으로 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">개념 확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 교과서 93·95쪽 [스스로 익히기]</span></div>
+    <!--TEACH:END-->
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <div class="card">
+      <b>어떤 증명법을 고를까?</b>
+      <table style="margin-top:8px">
+        <tr><th style="width:150px">방법</th><th class="l">이럴 때 쓴다</th></tr>
+        <tr><td><b>직접증명</b></td><td class="l">가정에서 <b>식을 세울 수 있을 때</b> (n = 2k 처럼)</td></tr>
+        <tr><td><b>대우</b></td><td class="l">가정이 다루기 어렵고 <b>결론의 부정이 다루기 쉬울 때</b></td></tr>
+        <tr><td><b>귀류법</b></td><td class="l">‘~가 아니다’, ‘무한히 많다’ 처럼 <b>직접 보이기 어려울 때</b></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <b>더 생각해 볼 것</b>
+      <ul class="tight">
+        <li>√4 가 유리수가 아님을 √2 와 같은 방법으로 증명하려 하면 어디에서 막힐까요? <b>왜</b> 막힐까요?</li>
+        <li>대우를 이용한 증명과 귀류법은 무엇이 <b>같고</b> 무엇이 <b>다른가요?</b></li>
+        <li>a + 1/a ≥ 2 는 a &gt; 0 에서만 성립합니다. a &lt; 0 이면 어떻게 될까요?</li>
+        <li>교과서 93쪽·95쪽 [스스로 익히기] 를 해결하고 막힌 곳을 아래에 적어 두세요.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 15</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function txt(p,x,y,t,o){o=o||{};var e=el("text",{x:x,y:y,"font-size":o.size||13,
+  "text-anchor":o.anchor||"middle",fill:o.fill||"#27272a","font-weight":o.weight||700});
+  e.textContent=t;p.appendChild(e);return e;}
+function btnset(box,items,onPick,wide){
+  var bs=[];
+  items.forEach(function(it){
+    var b=document.createElement("button");b.className="rb"+(wide?" wide":"");b.innerHTML=it.t;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb"+(wide?" wide":"");});
+      b.className="rb on"+(wide?" wide":"");onPick(it);};
+    box.appendChild(b);bs.push(b);
+  });
+  return bs;
+}
+/* 증명을 한 줄씩 — 누르면 그 줄을 왜 그렇게 썼는지 나온다 */
+function Proof(box,steps,onDone){
+  var seen={};
+  steps.forEach(function(s,i){
+    var d=document.createElement("div");d.className="pstep";
+    d.innerHTML='<span class="no">'+(i+1)+'</span><span>'+s.t+
+      (s.why?'<span class="why">'+s.why+'</span>':'')+'</span>';
+    d.onclick=function(){
+      d.classList.toggle("on");
+      if(d.classList.contains("on")){seen[i]=true;
+        if(onDone && Object.keys(seen).length===steps.length) onDone();}
+    };
+    box.appendChild(d);
+  });
+}
+
+/* ── 화면1 : 갈릴레이 ────────────────────────────────── */
+(function(){
+  var svg=document.getElementById("v1"),ro=document.getElementById("r1");
+  function draw(mode){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    svg.appendChild(el("line",{x1:20,y1:215,x2:380,y2:215,stroke:"#cbd5e1","stroke-width":2}));
+    function ball(x,y,r,c,lab){
+      svg.appendChild(el("circle",{cx:x,cy:y,r:r,fill:c,opacity:0.85}));
+      txt(svg,x,y+4,lab,{size:12,fill:"#fff"});
+    }
+    if(mode===0){
+      ball(110,60,22,"#2563eb","무거움"); ball(290,60,13,"#e11d48","가벼움");
+      svg.appendChild(el("line",{x1:110,y1:88,x2:110,y2:150,stroke:"#2563eb","stroke-width":2,"stroke-dasharray":"5 4"}));
+      svg.appendChild(el("line",{x1:290,y1:78,x2:290,y2:115,stroke:"#e11d48","stroke-width":2,"stroke-dasharray":"5 4"}));
+      ball(110,172,22,"#2563eb",""); ball(290,130,13,"#e11d48","");
+      txt(svg,110,205,"먼저 도착",{size:12,fill:"#2563eb"});
+      txt(svg,290,205,"아직",{size:12,fill:"#e11d48"});
+      txt(svg,200,28,"옛 믿음 — 무거운 것이 빨리 떨어진다",{size:13,fill:"#71717a"});
+    } else if(mode===1){
+      ball(160,60,22,"#2563eb","무거움"); ball(230,62,13,"#e11d48","가벼움");
+      svg.appendChild(el("line",{x1:182,y1:60,x2:217,y2:62,stroke:"#a1a1aa","stroke-width":3}));
+      txt(svg,200,28,"두 물체를 묶으면?",{size:13,fill:"#71717a"});
+      txt(svg,110,130,"가벼운 것이 끌어서",{size:12.5,fill:"#e11d48",anchor:"start"});
+      txt(svg,110,150,"→ 더 느려져야 한다",{size:13,fill:"#e11d48",anchor:"start"});
+      txt(svg,110,180,"전체가 더 무거우니",{size:12.5,fill:"#2563eb",anchor:"start"});
+      txt(svg,110,200,"→ 더 빨라져야 한다",{size:13,fill:"#2563eb",anchor:"start"});
+    } else {
+      txt(svg,200,50,"⚡ 모순!",{size:24,fill:"#e11d48"});
+      txt(svg,200,85,"더 느려지면서 동시에 더 빨라질 수는 없다",{size:13,fill:"#71717a"});
+      svg.appendChild(el("line",{x1:60,y1:110,x2:340,y2:110,stroke:"#e4e4e7"}));
+      txt(svg,200,140,"→ 처음의 믿음이 잘못되었다",{size:14,fill:"#27272a"});
+      ball(160,185,20,"#2563eb",""); ball(240,185,20,"#059669","");
+      txt(svg,200,222,"두 물체는 동시에 떨어진다",{size:13,fill:"#059669"});
+    }
+  }
+  btnset(document.getElementById("b1"),[
+    {t:"① 옛 믿음",m:0,s:"무거운 물체가 먼저 떨어진다고 믿었습니다.<br><br>이것이 <b>부정할 대상</b>입니다."},
+    {t:"② 묶어 보면?",m:1,s:"믿음이 참이라고 <b>가정</b>하고 따라가 봅니다.<br><br>같은 물체에 대해 <b>서로 반대되는 두 결론</b>이 나옵니다."},
+    {t:"③ 모순 → 결론",m:2,s:"둘 다 참일 수는 없습니다 — <b>모순</b>.<br><br>그러므로 처음 가정이 틀렸습니다.<br><br>이것이 바로 <b>귀류법</b>의 뼈대입니다."}
+  ],function(it){draw(it.m);ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;});
+  draw(0);
+  ro.innerHTML="①②③ 을 차례로 눌러 보세요.";
+})();
+
+/* ── 화면2 : 증명의 필요성 ──────────────────────────── */
+(function(){
+  var ro=document.getElementById("r2");
+  btnset(document.getElementById("b2"),[
+    {t:"“3 + 5 = 8 이잖아. 봐, 짝수지?”",
+     s:"예 <b>하나</b>로는 부족합니다. 3 + 5 만 확인한 것이니까요.<br><br>“다른 홀수는?” 하고 물으면 막힙니다."},
+    {t:"“1+3, 3+5, 5+7 … 다 해 봤어!”",
+     s:"몇 개를 더 해 봐도 <b>끝이 없습니다.</b> 홀수는 무한히 많으니까요.<br><br>‘항상’ 을 확인하려면 <b>전부</b> 확인해야 하는데, 그건 불가능합니다."},
+    {t:"“홀수를 2k+1 로 놓고 보자.”",
+     s:"✅ <b>이것이 증명입니다.</b><br><br>모든 홀수를 <b>한 번에</b> 나타내는 식을 쓰면, 무한히 많은 경우를 <b>한 줄</b>로 처리할 수 있습니다."}
+  ],function(it){ro.innerHTML=it.s;},true);
+  ro.innerHTML="세 가지 설득 방법을 눌러 비교해 보세요.";
+
+  Proof(document.getElementById("p2"),[
+    {t:"두 홀수를 <b>2m + 1</b>, <b>2n + 1</b> 이라 하자. (m, n 은 정수)",
+     why:"‘어떤 홀수든’ 을 한 번에 나타내기 위해 문자로 놓습니다. 여기가 증명의 출발점입니다."},
+    {t:"두 수의 합은 (2m + 1) + (2n + 1) = <b>2m + 2n + 2</b>",
+     why:"그냥 더했을 뿐입니다. 아직 아무 주장도 하지 않았습니다."},
+    {t:"= <b>2(m + n + 1)</b>",
+     why:"2 로 묶습니다. 짝수의 정의가 ‘2 × (정수)’ 이므로 이 꼴로 만드는 것이 목표였습니다."},
+    {t:"m + n + 1 은 정수이므로, 합은 <b>짝수</b>이다. ∎",
+     why:"괄호 안이 정수임을 확인해야 합니다. 그래야 ‘2 × 정수’ = 짝수라고 말할 수 있습니다."}
+  ]);
+})();
+
+/* ── 화면3 : 정의와 정리 ─────────────────────────────── */
+(function(){
+  var rows=[
+    {t:"직각삼각형에서 빗변의 제곱은 나머지 두 변의 제곱의 합과 같다.",d:false,
+     why:"피타고라스 정리 — <b>증명해서 알아낸</b> 사실입니다."},
+    {t:"소수란 1보다 큰 자연수 중에서 1과 자기 자신만을 약수로 가지는 수이다.",d:true,
+     why:"‘소수’ 라는 말의 뜻을 <b>정한</b> 것입니다."},
+    {t:"삼각형은 세 개의 선분으로 둘러싸인 평면도형이다.",d:true,
+     why:"‘삼각형’ 의 뜻을 정한 것입니다."},
+    {t:"한 내각이 90도인 삼각형은 직각삼각형이다.",d:true,
+     why:"‘직각삼각형’ 이라는 이름을 붙인 것입니다."},
+    {t:"평행사변형은 두 쌍의 대변이 각각 평행한 사각형이다.",d:true,
+     why:"‘평행사변형’ 의 뜻을 정한 것입니다."},
+    {t:"원에서 한 현에 수직인 지름은 그 현을 이등분한다.",d:false,
+     why:"증명할 수 있는 성질입니다."},
+    {t:"원주율은 원의 지름에 대한 둘레의 비율이다.",d:true,
+     why:"‘원주율(π)’ 의 뜻을 정한 것입니다. <span class='hint'>‘지름에 대한 둘레’ = 둘레 ÷ 지름</span>"},
+    {t:"평행사변형은 두 대각선이 서로 다른 것을 이등분한다.",d:false,
+     why:"평행사변형의 정의에서 <b>증명되는</b> 성질입니다."},
+    {t:"두 직선이 한 교점에서 만날 때, 맞꼭지각의 크기는 서로 같다.",d:false,
+     why:"맞꼭지각 정리 — 증명할 수 있습니다."},
+    {t:"짝수와 짝수를 더하면 짝수이다.",d:false,
+     why:"짝수의 정의에서 <b>증명되는</b> 사실입니다."}
+  ];
+  var tb=document.getElementById("t3"),done=0;
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td class="l">'+r.t+'</td><td></td>';
+    var cell=tr.children[1];
+    ["정의","정리"].forEach(function(lab,k){
+      var b=document.createElement("button");b.className="judge";b.textContent=lab;
+      b.onclick=function(){
+        var right=(k===0)===r.d;
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        var w=tr.children[0].querySelector(".why");
+        if(!w){w=document.createElement("div");w.className="why hint";tr.children[0].appendChild(w);}
+        w.innerHTML=right?"✓ "+r.why:"<b>약속한 것</b>인가요, <b>증명해서 알아낸 것</b>인가요?";
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
+          if(done===rows.length){var W=document.getElementById("w3");W.className="win on";
+            W.innerHTML="🎉 열 문장을 모두 갈랐습니다. <b>정의는 약속</b>, <b>정리는 증명의 결과</b> 입니다.";}}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── 화면4 : 직접증명 ────────────────────────────────── */
+(function(){
+  Proof(document.getElementById("p4"),[
+    {t:"a ≥ 0, b ≥ 0 이므로 <b>a + b ≥ 0</b> 이다.",
+     why:"주어진 조건에서 바로 나옵니다. 음이 아닌 두 수의 합은 음이 아닙니다."},
+    {t:"또, a ≥ b 이므로 <b>a − b ≥ 0</b> 이다.",
+     why:"실수의 성질 ① — a ≥ b ⟺ a − b ≥ 0"},
+    {t:"(a + b)(<b>a − b</b>) ≥ 0 이므로 <b>a² − b² ≥ 0</b> 이다.",
+     why:"음이 아닌 두 수의 곱은 음이 아닙니다. 그리고 (a+b)(a−b) = a² − b² 입니다."},
+    {t:"따라서 a ≥ 0, b ≥ 0 일 때, a ≥ b 이면 <b>a² ≥ b²</b> 이다. ∎",
+     why:"a² − b² ≥ 0 을 다시 a² ≥ b² 로 옮겨 적었습니다."}
+  ]);
+  var ro=document.getElementById("r4");
+  btnset(document.getElementById("b4"),[
+    {t:"삼각형의 한 외각 = 이웃하지 않은 두 내각의 합",
+     s:"세 내각의 합이 <b>180°</b> 임을 씁니다.<br><br>∠A + ∠B + ∠C = 180°<br>외각 = 180° − ∠C<br>→ 외각 = <b>∠A + ∠B</b> ∎"},
+    {t:"(a + b)(a − b) = a² − b²",
+     s:"좌변을 <b>전개</b>합니다.<br><br>(a+b)(a−b) = a² − ab + ab − b²<br>= <b>a² − b²</b> ∎<br><br><span class='hint'>가운데 두 항이 지워지는 것이 핵심입니다.</span>"},
+    {t:"짝수와 홀수를 곱하면 짝수다",
+     s:"짝수를 <b>2m</b>, 홀수를 <b>2n + 1</b> 이라 하자. (m, n 은 정수)<br><br>2m(2n + 1) = <b>2</b>·m(2n + 1)<br><br>m(2n+1) 이 정수이므로 <b>짝수</b> ∎"}
+  ],function(it){ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;},true);
+  ro.innerHTML="문항을 눌러 길잡이를 확인해 보세요.";
+})();
+
+/* ── 화면5 : 대우 증명 ───────────────────────────────── */
+(function(){
+  Proof(document.getElementById("p5"),[
+    {t:"<b>[1단계]</b> 주어진 명제의 대우는 ‘n 이 <b>짝수</b>이면 n² 도 <b>짝수</b>이다’ 이다.",
+     why:"p → q 의 대우는 ~q → ~p. ‘n² 이 홀수’ 의 부정은 ‘n² 이 짝수’, ‘n 이 홀수’ 의 부정은 ‘n 이 짝수’ 입니다."},
+    {t:"<b>[2단계]</b> n 이 짝수이면 <b>n = 2k</b> (k 는 자연수) 로 나타낼 수 있다.",
+     why:"짝수의 정의를 식으로 옮깁니다. 여기서 <b>출발점이 생겼습니다.</b>"},
+    {t:"n² = (2k)² = 4k² = <b>2(2k²)</b>",
+     why:"2 로 묶어 ‘2 × (정수)’ 꼴로 만듭니다."},
+    {t:"2k² 은 자연수이므로 n² 은 <b>짝수</b>이다.",
+     why:"괄호 안이 정수임을 확인해야 짝수라고 말할 수 있습니다."},
+    {t:"<b>[3단계]</b> 대우가 참이므로 <b>주어진 명제도 참</b>이다. ∎",
+     why:"명제와 대우는 참·거짓이 일치합니다. 이것이 이 증명법의 근거입니다."}
+  ]);
+  var ro=document.getElementById("r5");
+  btnset(document.getElementById("b5"),[
+    {t:"자연수 m, n 에 대하여 mn 이 홀수이면 m 과 n 이 모두 홀수이다",
+     s:"<b>대우</b> : m 또는 n 이 짝수이면 mn 은 짝수이다.<br><br>m 이 짝수라 하고 m = 2k 로 놓으면<br>mn = 2kn = <b>2(kn)</b> → 짝수 ∎<br><br><span class='hint'>‘모두 홀수’ 의 부정이 ‘<b>적어도 하나</b>가 짝수’ 라는 점이 핵심입니다.</span>"},
+    {t:"x, y 가 실수일 때, xy ≠ 0 이면 x ≠ 0 이고 y ≠ 0 이다",
+     s:"<b>대우</b> : x = 0 <b>또는</b> y = 0 이면 xy = 0 이다.<br><br>x = 0 이면 xy = 0·y = <b>0</b><br>y = 0 이면 xy = x·0 = <b>0</b> ∎<br><br><span class='hint'>‘그리고’ 의 부정은 ‘또는’ — 2-01 에서 배운 드모르간입니다.</span>"}
+  ],function(it){ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;},true);
+  ro.innerHTML="두 문항을 눌러 대우를 확인해 보세요.";
+})();
+
+/* ── 화면6 : 귀류법 √2 ───────────────────────────────── */
+(function(){
+  Proof(document.getElementById("p6"),[
+    {t:"<b>[1단계]</b> √2 가 <b>유리수라고 가정</b>하자. 그러면 √2 = <b>n / m</b> 으로 쓸 수 있다. (m, n 은 <b>서로소</b>인 자연수)",
+     why:"결론을 부정해서 가정합니다. 유리수는 ‘정수 ÷ 정수’ 이고, 기약분수로 놓을 수 있으니 m, n 은 서로소라고 해도 됩니다. <b>이 ‘서로소’ 가 나중에 모순의 씨앗이 됩니다.</b>"},
+    {t:"양변을 제곱하면 2 = n² / m² &nbsp;→&nbsp; <b>n² = 2m²</b>",
+     why:"분모를 없애기 위해 양변에 m² 을 곱했습니다."},
+    {t:"n² 이 짝수이므로 <b>n 도 짝수</b>이다. 따라서 <b>n = 2k</b> (k 는 자연수)",
+     why:"앞 화면에서 증명한 <b>‘n² 이 짝수이면 n 도 짝수’</b> 를 여기서 씁니다. 첫 번째 사용입니다."},
+    {t:"(2k)² = 2m² &nbsp;→&nbsp; 4k² = 2m² &nbsp;→&nbsp; <b>m² = 2k²</b>",
+     why:"n = 2k 를 대입하고 양변을 2 로 나눴습니다."},
+    {t:"m² 이 짝수이므로 <b>m 도 짝수</b>이다.",
+     why:"같은 명제를 <b>두 번째</b>로 씁니다. 하나의 증명이 두 번 일하는 셈입니다."},
+    {t:"m 과 n 이 <b>모두 짝수</b> — 서로소라는 가정에 <b>모순</b>이다.",
+     why:"둘 다 2 로 나누어떨어지므로 서로소일 수 없습니다. 1단계에서 심어 둔 ‘서로소’ 가 여기서 터집니다."},
+    {t:"<b>[3단계]</b> 따라서 <b>√2 는 유리수가 아니다.</b> ∎",
+     why:"부정이 거짓이므로 원래 명제가 참입니다."}
+  ],function(){
+    var W=document.getElementById("w6");W.className="win on";
+    W.innerHTML="🎉 일곱 단계를 모두 열었습니다. 열쇠는 <b>‘n² 이 짝수면 n 도 짝수’ 를 두 번 쓴 것</b>과, <b>처음에 심어 둔 ‘서로소’</b> 였습니다.";
+  });
+})();
+
+/* ── 화면7 : 귀류법 연습 ─────────────────────────────── */
+(function(){
+  var ro=document.getElementById("r7");
+  btnset(document.getElementById("b7"),[
+    {t:"소수는 무한히 많다",
+     s:"<b>[가정]</b> 소수가 <b>유한</b> 하다고 하자. 모두 p₁, p₂, …, p<sub>n</sub> 이라 하자.<br><br>"+
+       "<b>[전개]</b> N = p₁p₂⋯p<sub>n</sub> <b>+ 1</b> 을 생각하자.<br><br>"+
+       "N 을 p₁, …, p<sub>n</sub> 중 어느 것으로 나누어도 <b>나머지가 1</b> 이다.<br><br>"+
+       "<b>[모순]</b> 그런데 N 도 1보다 크므로 소인수를 가져야 한다. 그 소인수는 목록에 없는 <b>새로운 소수</b>다.<br><br>"+
+       "→ ‘모두 나열했다’ 는 가정에 모순. 따라서 <b>소수는 무한히 많다.</b> ∎"},
+    {t:"√3 은 유리수가 아니다",
+     s:"<b>[가정]</b> √3 = n / m (m, n 은 서로소인 자연수)<br><br>"+
+       "<b>[전개]</b> 제곱하면 <b>n² = 3m²</b><br><br>"+
+       "n² 이 3의 배수이므로 <b>n 도 3의 배수</b>다. n = 3k 로 놓으면<br>"+
+       "9k² = 3m² → <b>m² = 3k²</b> → <b>m 도 3의 배수</b><br><br>"+
+       "<b>[모순]</b> m, n 이 모두 3의 배수 — 서로소에 모순. ∎<br><br>"+
+       "<span class='hint'>√2 와 <b>똑같은 틀</b>입니다. 2 자리에 3 을 넣었을 뿐이에요.</span>"}
+  ],function(it){ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;},true);
+  ro.innerHTML="두 문항을 눌러 증명의 뼈대를 확인해 보세요.";
+})();
+
+/* ── 화면8 : 절대부등식 찾기 ─────────────────────────── */
+(function(){
+  var rows=[
+    {t:"2x − 1 &lt; 2x",ok:true,why:"양변에서 2x 를 빼면 −1 &lt; 0 — 언제나 참"},
+    {t:"x² + 2x − 4 ≥ 0",ok:false,why:"<b>반례 x = 0</b> → −4 ≥ 0 은 거짓"},
+    {t:"x² + y² &gt; −1",ok:true,why:"x² ≥ 0, y² ≥ 0 이므로 좌변 ≥ 0 &gt; −1"},
+    {t:"x² + y² ≥ xy",ok:true,why:"x² − xy + y² = (x − y/2)² + 3y²/4 ≥ 0"},
+    {t:"(a² + b²)(x² + y²) ≥ (ax + by)²",ok:true,why:"코시–슈바르츠 부등식. 좌변 − 우변 = (ay − bx)² ≥ 0"},
+    {t:"a &gt; 0, b &gt; 0 일 때 (a + b)/2 ≥ √(ab)",ok:true,why:"산술평균 ≥ 기하평균. 등호는 a = b 일 때"}
+  ];
+  var tb=document.getElementById("t8"),done=0;
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td class="l">'+r.t+'</td><td></td>';
+    var cell=tr.children[1];
+    ["항상 성립","아니다"].forEach(function(lab,k){
+      var b=document.createElement("button");b.className="judge";b.textContent=lab;
+      b.onclick=function(){
+        var right=(k===0)===r.ok;
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        var w=tr.children[0].querySelector(".why");
+        if(!w){w=document.createElement("div");w.className="why hint";tr.children[0].appendChild(w);}
+        w.innerHTML=right?"✓ "+r.why:"아무 수나 하나 넣어 보세요. 깨지는 값이 있나요?";
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
+          if(done===rows.length){var W=document.getElementById("w8");W.className="win on";
+            W.innerHTML="🎉 여섯 개를 모두 갈랐습니다. <b>절대부등식이 아닌 것은 하나</b> — 반례가 있었지요.";}}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── 화면9 : 절대부등식 증명 ─────────────────────────── */
+(function(){
+  var box=document.getElementById("p9");
+  var PROOFS={
+    A:[{t:"<b>[1단계]</b> 좌변을 완전제곱식으로 정리한다.",
+        why:"성립을 보이려는 <b>결과에서 출발하면 안 됩니다.</b> 좌변을 그대로 손봅니다."},
+       {t:"a² + ab + b² = <b>(a + b/2)² + 3b²/4</b>",
+        why:"a 에 대해 완전제곱을 만듭니다. a² + ab = (a + b/2)² − b²/4 이므로 남는 것이 b² − b²/4 = 3b²/4."},
+       {t:"(a + b/2)² ≥ 0 이고 3b²/4 ≥ 0 이므로 <b>합 ≥ 0</b>",
+        why:"실수의 성질 ② — 제곱은 음이 아닙니다."},
+       {t:"따라서 <b>a² + ab + b² ≥ 0</b> 이다.",
+        why:"두 음이 아닌 값의 합은 음이 아닙니다."},
+       {t:"여기서 등호는 <b>a = b = 0</b> 일 때 성립한다. ∎",
+        why:"두 제곱항이 <b>동시에</b> 0 이어야 합니다. 3b²/4 = 0 → b = 0, 그러면 (a+0)² = 0 → a = 0."}],
+    B:[{t:"<b>[1단계]</b> 좌변에서 우변을 뺀다.",
+        why:"두 식의 대소를 비교할 때는 <b>빼는 것</b>에서 길이 보입니다."},
+       {t:"(a+b)/2 − √(ab) = <b>(a + b − 2√(ab)) / 2</b>",
+        why:"통분했습니다."},
+       {t:"= ( (√a)² + (√b)² − 2√a·√b ) / 2 = <b>(√a − √b)² / 2</b>",
+        why:"a &gt; 0, b &gt; 0 이므로 a = (√a)² 로 바꿔 쓸 수 있습니다. 그러면 완전제곱이 보입니다."},
+       {t:"(√a − √b)² ≥ 0 이므로 <b>(a+b)/2 − √(ab) ≥ 0</b>",
+        why:"실수의 성질 ② 입니다."},
+       {t:"따라서 <b>(a+b)/2 ≥ √(ab)</b>. 등호는 √a = √b, 즉 <b>a = b</b> 일 때. ∎",
+        why:"등호 조건을 반드시 적습니다. 이것을 빠뜨리면 최솟값 문제에서 틀립니다."}]
+  };
+  btnset(document.getElementById("b9"),[
+    {t:"a, b 가 실수일 때 &nbsp; a² + ab + b² ≥ 0",k:"A"},
+    {t:"a &gt; 0, b &gt; 0 일 때 &nbsp; (a+b)/2 ≥ √(ab)",k:"B"}
+  ],function(it){
+    while(box.firstChild)box.removeChild(box.firstChild);
+    Proof(box,PROOFS[it.k]);
+  });
+  Proof(box,PROOFS.A);
+})();
+
+/* ── 화면10 : 반원으로 보는 AM ≥ GM ──────────────────── */
+(function(){
+  var svg=document.getElementById("v10"),ro=document.getElementById("r10");
+  var TOT=12, a=6, base=200, x0=40, x1=360, sc=(x1-x0)/TOT;
+  function draw(){
+    var b=TOT-a, r=TOT/2;
+    var O=x0+r*sc, D=x0+a*sc, DE=Math.sqrt(a*b);
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    // 반원
+    svg.appendChild(el("path",{d:"M "+x0+" "+base+" A "+(r*sc)+" "+(r*sc)+" 0 0 1 "+x1+" "+base,
+      fill:"#eff6ff",stroke:"#93c5fd","stroke-width":1.5}));
+    svg.appendChild(el("line",{x1:x0,y1:base,x2:x1,y2:base,stroke:"#cbd5e1","stroke-width":2}));
+    // 반지름 OC (수직)
+    svg.appendChild(el("line",{x1:O,y1:base,x2:O,y2:base-r*sc,stroke:"#2563eb","stroke-width":3}));
+    txt(svg,O-9,base-r*sc/2,"OC",{size:12,anchor:"end",fill:"#2563eb"});
+    // 수선 DE
+    svg.appendChild(el("line",{x1:D,y1:base,x2:D,y2:base-DE*sc,stroke:"#059669","stroke-width":3}));
+    txt(svg,D+9,base-DE*sc/2,"DE",{size:12,anchor:"start",fill:"#059669"});
+    // 점
+    [[x0,"A"],[O,"O"],[D,"D"],[x1,"B"]].forEach(function(p){
+      svg.appendChild(el("circle",{cx:p[0],cy:base,r:4,fill:"#27272a"}));
+      txt(svg,p[0],base+18,p[1],{size:12,fill:"#52525b"});
+    });
+    svg.appendChild(el("circle",{cx:O,cy:base-r*sc,r:4,fill:"#2563eb"}));
+    txt(svg,O,base-r*sc-9,"C",{size:12,fill:"#2563eb"});
+    svg.appendChild(el("circle",{cx:D,cy:base-DE*sc,r:4,fill:"#059669"}));
+    txt(svg,D,base-DE*sc-9,"E",{size:12,fill:"#059669"});
+    // a, b 표시
+    svg.appendChild(el("line",{x1:x0,y1:base+30,x2:D,y2:base+30,stroke:"#a1a1aa","stroke-width":1.5}));
+    txt(svg,(x0+D)/2,base+26,"a = "+a,{size:12,fill:"#71717a"});
+    svg.appendChild(el("line",{x1:D,y1:base+30,x2:x1,y2:base+30,stroke:"#a1a1aa","stroke-width":1.5}));
+    txt(svg,(D+x1)/2,base+26,"b = "+b,{size:12,fill:"#71717a"});
+    document.getElementById("v10a").textContent=a;
+    var am=(a+b)/2, gm=Math.sqrt(a*b);
+    ro.innerHTML="a = <b>"+a+"</b>, b = <b>"+b+"</b><br><br>"+
+      "OC = (a+b)/2 = <b>"+am.toFixed(2)+"</b><br>"+
+      "DE = √(ab) = <b>"+gm.toFixed(2)+"</b><br><br>"+
+      (Math.abs(am-gm)<0.001
+        ? "<b style='color:#059669'>OC = DE</b> — D 가 O 와 겹쳤습니다!<br><span class='hint'>a = b 일 때만 같아집니다.</span>"
+        : "<b>OC − DE = "+(am-gm).toFixed(2)+"</b><br><span class='hint'>수선은 반지름보다 짧습니다.</span>");
+  }
+  document.getElementById("v10ar").addEventListener("input",function(){a=parseFloat(this.value);draw();});
+  draw();
+})();
+
+/* ── 화면11 : 등호 함정 ──────────────────────────────── */
+(function(){
+  var ro=document.getElementById("r11");
+  btnset(document.getElementById("b11"),[
+    {t:"첫 번째 등호는 언제?",
+     s:"a + b ≥ 2√(ab) 의 등호는 <b>a = b</b> 일 때입니다."},
+    {t:"두 번째 등호는 언제?",
+     s:"1/a + 9/b ≥ 2√(9/ab) 의 등호는 <b>1/a = 9/b</b>, 즉 <b>b = 9a</b> 일 때입니다."},
+    {t:"동시에 성립할 수 있나?",
+     s:"a = b 이면서 b = 9a 이려면 a = 9a → <b>a = 0</b>.<br><br>그런데 a &gt; 0 이라 했으므로 <b>불가능합니다.</b><br><br>→ 두 등호가 <b>동시에 성립하지 않으므로</b> 12 는 실제로 도달할 수 없는 값입니다. <b>최솟값이 아닙니다.</b>"}
+  ],function(it){ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;
+    ro.style.borderColor=/불가능/.test(it.s)?"#fca5a5":"#e4e4e7";
+    ro.style.background=/불가능/.test(it.s)?"#fef2f2":"#fff";},true);
+  ro.innerHTML="세 가지를 차례로 눌러 확인해 보세요.";
+})();
+
+/* ── 화면12 : 세 평균 + 연습 ─────────────────────────── */
+(function(){
+  var svg=document.getElementById("v12"),ro=document.getElementById("r12");
+  var a=2,b=8;
+  function draw(){
+    b=10-a;
+    var am=(a+b)/2, gm=Math.sqrt(a*b), hm=2*a*b/(a+b);
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    var x0=52,x1=380,lo=0,hi=6,sc=(x1-x0)/(hi-lo);
+    function px(v){return x0+(v-lo)*sc;}
+    svg.appendChild(el("line",{x1:x0,y1:120,x2:x1,y2:120,stroke:"#cbd5e1","stroke-width":2}));
+    for(var g=0;g<=6;g++){
+      svg.appendChild(el("line",{x1:px(g),y1:116,x2:px(g),y2:124,stroke:"#cbd5e1"}));
+      txt(svg,px(g),140,g,{size:10,weight:400,fill:"#a1a1aa"});
+    }
+    [[hm,"#e11d48","H.M.",0],[gm,"#d97706","G.M.",1],[am,"#2563eb","A.M.",2]].forEach(function(m){
+      var y=120-24-m[3]*26;
+      svg.appendChild(el("line",{x1:px(m[0]),y1:120,x2:px(m[0]),y2:y,stroke:m[1],"stroke-width":2,"stroke-dasharray":"3 3"}));
+      svg.appendChild(el("circle",{cx:px(m[0]),cy:y,r:5,fill:m[1]}));
+      txt(svg,px(m[0]),y-10,m[2]+" "+m[0].toFixed(2),{size:11,fill:m[1]});
+    });
+    txt(svg,8,124,"값",{size:11,anchor:"start",fill:"#71717a"});
+    document.getElementById("v12a").textContent=a;
+    ro.innerHTML="a = <b>"+a+"</b>, b = <b>"+b+"</b><br><br>"+
+      "A.M. = <b>"+am.toFixed(2)+"</b><br>G.M. = <b>"+gm.toFixed(2)+"</b><br>H.M. = <b>"+hm.toFixed(2)+"</b><br><br>"+
+      (Math.abs(am-hm)<0.001?"<b style='color:#059669'>셋이 모두 같습니다!</b><br><span class='hint'>a = b 일 때뿐입니다.</span>"
+        :"<span class='hint'>언제나 A.M. ≥ G.M. ≥ H.M. 입니다.</span>");
+  }
+  document.getElementById("v12ar").addEventListener("input",function(){a=parseFloat(this.value);draw();});
+  draw();
+
+  var rb=document.getElementById("r12b");
+  btnset(document.getElementById("b12"),[
+    {t:"(a + b)² ≥ 4ab",
+     s:"좌변 − 우변 = a² + 2ab + b² − 4ab = <b>(a − b)² ≥ 0</b><br><br>등호는 <b>a = b</b> 일 때 ∎"},
+    {t:"a² + b² + c² ≥ ab + bc + ca",
+     s:"양변에 2 를 곱해 빼면<br>2a²+2b²+2c² − 2ab−2bc−2ca<br>= <b>(a−b)² + (b−c)² + (c−a)² ≥ 0</b><br><br>등호는 <b>a = b = c</b> 일 때 ∎"},
+    {t:"b/a + a/b ≥ 2 &nbsp;(a &gt; 0, b &gt; 0)",
+     s:"산술·기하평균에서<br>b/a + a/b ≥ 2√(b/a · a/b) = 2√1 = <b>2</b><br><br>등호는 b/a = a/b, 즉 <b>a = b</b> 일 때 ∎"},
+    {t:"√(ab) ≥ 2ab/(a+b) &nbsp;(a &gt; 0, b &gt; 0)",
+     s:"G.M. ≥ H.M. 입니다. 양변을 √(ab) 로 나누면<br>1 ≥ 2√(ab)/(a+b) ⟺ <b>a + b ≥ 2√(ab)</b><br><br>이는 A.M. ≥ G.M. 과 같은 식입니다. 등호는 <b>a = b</b> ∎"},
+    {t:"(a²+b²)(x²+y²) ≥ (ax+by)²",
+     s:"좌변 − 우변<br>= a²x²+a²y²+b²x²+b²y² − a²x²−2abxy−b²y²<br>= a²y² − 2abxy + b²x²<br>= <b>(ay − bx)² ≥ 0</b><br><br>등호는 <b>ay = bx</b> 일 때 ∎ <span class='hint'>코시–슈바르츠 부등식</span>"}
+  ],function(it){rb.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;},true);
+  rb.innerHTML="문항을 눌러 증명의 길잡이를 확인해 보세요.";
+})();
+
+/* ── 화면13 : 러셀의 이발사 ──────────────────────────── */
+(function(){
+  var ro=document.getElementById("r13");
+  btnset(document.getElementById("b13"),[
+    {t:"이발사가 <b>스스로</b> 깎는다면?",
+     s:"그는 ‘스스로 깎지 <b>않는</b> 사람만 깎아 준다’ 고 했습니다.<br><br>스스로 깎았다면 <b>자기 규칙을 어긴 것</b>입니다. → <b>모순</b>"},
+    {t:"이발사가 <b>스스로 깎지 않는다면?</b>",
+     s:"그는 ‘스스로 깎지 않는 <b>모든</b> 사람’ 을 깎아 줍니다.<br><br>그러니 자기 자신도 깎아 주어야 합니다. → <b>모순</b>"},
+    {t:"그래서?",
+     s:"어느 쪽이든 <b>모순</b>입니다.<br><br>이것은 이발사의 잘못이 아니라, <b>그런 이발사는 존재할 수 없다</b>는 뜻입니다.<br><br>수학에서도 <b>‘아무 모임이나 집합이 될 수는 없다’</b> 는 교훈으로 이어졌습니다."}
+  ],function(it){ro.innerHTML="<b>"+it.t.replace(/<[^>]*>/g,"")+"</b><br><br>"+it.s;},true);
+  ro.innerHTML="두 경우를 나누어 따져 보세요.";
+})();
+
+/* ── 정답 밝히기 ─────────────────────────────────────── */
+[["rv2","an2"],["rv10","an10"],["rv11","an11"]].forEach(function(p){
+  var b=document.getElementById(p[0]),a=document.getElementById(p[1]);
+  if(b&&a)b.onclick=function(){a.classList.toggle("on");
+    b.textContent=a.classList.contains("on")?"접기":"다시 열기";};
+});
+})();
+</script>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

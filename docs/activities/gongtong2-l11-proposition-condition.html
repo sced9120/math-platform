@@ -1,0 +1,860 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed;--gold:#f59e0b}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .bad{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid var(--rose);border-radius:10px;padding:12px 15px;margin:12px 0}
+  .lab{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .readout{font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .12s}
+  .rb:hover{border-color:var(--blue);color:var(--blue)}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  td.l,th.l{text-align:left}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .set{font-size:15px;font-weight:700;color:var(--blue)}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:17px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .judge{display:inline-block;border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;
+    padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
+  .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .chip{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 12px;
+    font-size:13px;font-weight:700;margin:3px 4px 3px 0;background:#fff;cursor:pointer}
+  .chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .nums{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  .num{width:38px;height:38px;border:1px solid var(--line);border-radius:9px;display:flex;
+    align-items:center;justify-content:center;font-weight:700;font-size:14px;background:#fff;color:#a1a1aa}
+  .num.in{background:var(--blue);border-color:var(--blue);color:#fff}
+  .num.out{background:#fff1f2;border-color:#fecdd3;color:#e11d48}
+  .doc{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:14px;line-height:1.75}
+  .doc b.mark{background:#fef3c7;padding:0 3px;border-radius:3px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on" data-key="s1" data-prompt="‘참·거짓을 따질 수 있는가’ 와 ‘참인가 거짓인가’ 는 어떻게 다른 물음인가요? 두 단계를 나누어 판단해 본 경험을 적어 보세요.">
+    <div class="kicker">공통수학2 · 집합과 명제</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 5 · 2-01 [생각 열기] 지구는 평평한가? 1·2단계</span></div>
+    <!--TEACH:END-->
+    <h1>🌍 지구는 평평한가?</h1>
+    <p>아래는 어떤 사람이 쓴 주장 글의 일부입니다. 숨겨진 진실과 거짓을 밝혀 봅시다.</p>
+    <div class="doc">
+      <b class="mark">(A)</b> 우리 눈에 보이는 지평선은 언제나 완벽한 직선을 이루고 있다.
+      <b class="mark">(B)</b> 이것은 지구가 거대한 평면이라는 가장 확실한 증거가 아닐까?
+      <b class="mark">(D)</b> 구체론자들은 월식 때의 둥근 그림자를 증거로 내세운다.
+      <b class="mark">(F)</b> 구체론의 가장 큰 맹점은 바로 ‘아래’의 문제이다.
+      <b class="mark">(I)</b> 중력이라는 힘이 우리를 붙잡고 있는 것은 사실이다.
+      <b class="mark">(J)</b> 이 힘은 평평한 땅의 ‘아래’ 방향으로만 작용한다.
+      <b class="mark">(L)</b> 이 사실을 받아들이는 것은 매우 용기가 필요한 일이다.
+      <b class="mark">(M)</b> 이제부터 거짓 지식에서 벗어나 진실을 마주하자.
+    </div>
+    <div class="callout"><b>[1단계]</b> 내용이 맞았는지 틀렸는지는 <b>아직 묻지 않습니다.</b>
+      오직 <b>“이 문장은 참인지 거짓인지가 정해지는 문장인가?”</b> 만 판단하세요.</div>
+    <table id="t1"><tr><th style="width:46px">　</th><th class="l">문장</th><th style="width:210px">따질 수 있다 / 없다</th></tr></table>
+    <div class="win" id="w1"></div>
+    <div class="card">
+      <b>[2단계]</b> ‘따질 수 있다’고 답한 문장만 모아, 이제 <b>참인지 거짓인지</b> 판정해 봅시다.
+      <button class="reveal" id="rv1" style="margin-left:8px">판정해 본 뒤 열기</button>
+      <div class="ans" id="an1">
+        <table>
+          <tr><th>문장</th><th>참/거짓</th><th class="l">까닭</th></tr>
+          <tr><td>(A)</td><td><b>거짓</b></td><td class="l">멀리 볼수록 수평선은 완만하게 휘어 있다</td></tr>
+          <tr><td>(D)</td><td><b>참</b></td><td class="l">실제로 그런 주장을 한다 — 사실 서술</td></tr>
+          <tr><td>(I)</td><td><b>참</b></td><td class="l">중력은 실재한다</td></tr>
+          <tr><td>(J)</td><td><b>거짓</b></td><td class="l">중력은 지구 <b>중심</b> 방향으로 작용한다</td></tr>
+        </table>
+        <p style="margin:8px 0 0" class="hint">(B)는 물음, (F)·(L)은 ‘맹점·용기’ 같은 판단어,
+          (M)은 권유 — 모두 참·거짓이 정해지지 않습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s2" data-prompt="(I)는 참, (J)는 거짓입니다. 그런데도 글쓴이는 ‘따라서’ 라며 결론 (K)를 내밀었습니다. 결론 (K)에 대해 무엇을 말할 수 있나요? 그리고 참인 결론을 얻으려면 무엇이 필요할까요?">
+    <div class="kicker">생각 열기 · 3단계</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 5 · 2-01 [생각 열기] 3단계</span></div>
+    <!--TEACH:END-->
+    <h1>참 + 거짓 = ?</h1>
+    <p>글쓴이는 <b>(I)</b>와 <b>(J)</b>를 나란히 놓고 “따라서”라며 <b>(K)</b>를 내밀었습니다.</p>
+    <div class="doc">
+      <b class="mark">(I)</b> 중력이라는 힘이 우리를 붙잡고 있는 것은 사실이다. &nbsp;<span style="color:#059669;font-weight:700">참</span><br>
+      <b class="mark">(J)</b> 이 힘은 평평한 땅의 ‘아래’ 방향으로만 작용한다. &nbsp;<span style="color:#e11d48;font-weight:700">거짓</span><br>
+      ─────────────────<br>
+      <b class="mark">(K)</b> 따라서 지구는 평평하며, 중력은 우리를 그 평면 아래로 잡아당기고 있다.
+    </div>
+    <p class="q"><b>(1)</b> 이때 결론 (K)에 대해 말할 수 있는 것은?</p>
+    <div class="btns" id="b2"></div>
+    <div class="readout" id="r2" style="margin-top:10px"></div>
+    <div class="card">
+      <b>(2) 글쓴이가 참인 문장 (I)를 굳이 인정하고 넘어간 이유는?</b>
+      <p style="margin:8px 0 0">참인 문장을 하나 끼워 넣으면 <b>글 전체가 믿을 만해 보입니다.</b>
+        이것이 잘못된 주장이 퍼지는 가장 흔한 방법이에요.</p>
+      <p style="margin:8px 0 0"><b>(3) 그렇다면 참인 결론을 얻으려면?</b><br>
+        <b>전제가 모두 참</b>이어야 하고, 전제에서 결론으로 가는 <b>연결도 옳아야</b> 합니다.
+        그 연결을 따지는 도구가 바로 이번 단원에서 배울 <b>명제</b>입니다.</p>
+    </div>
+    <div class="callout"><b>다음 시간 예고</b> — “가정이 거짓이면 결론은 어떻게 되는가”는
+      <b>2-02 명제 사이의 관계</b>에서 p → q 로 정확히 다룹니다.</div>
+  </section>
+
+  <section class="screen" data-key="s3" data-prompt="명제가 아닌 것을 모두 고르고, 그 까닭을 적어 보세요. 또 명제는 아니지만 논의할 만한 문장은 무엇이며 왜 그런가요?">
+    <div class="kicker">명제란 무엇인가</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 5 · 2-01 Q1·Q2 · 교과서 83쪽</span></div>
+    <div class="turn"><i>📖</i><span>교과서 83쪽 — 명제의 뜻을 함께 찾습니다. 앞 화면의 1단계가 그대로 정의가 됩니다.</span></div>
+    <!--TEACH:END-->
+    <h1>명제란?</h1>
+    <div class="formula"><b>참, 거짓을 명확하게 판별할 수 있는</b> 문장이나 식 → <b>명제</b></div>
+    <p>다음 중 <b>명제가 아닌 것</b>을 찾고, 명제이면 참·거짓을 판별해 봅시다.
+       각 줄에서 버튼을 눌러 판단하세요.</p>
+    <table id="t3"><tr><th class="l" style="width:48%">문장</th><th>판단</th></tr></table>
+    <div class="win" id="w3"></div>
+    <div class="card">
+      <b>Q2. 명제가 아니지만 ‘논의를 할 만한’ 문장은?</b>
+      <button class="reveal" id="rv3" style="margin-left:8px">생각해 본 뒤 열기</button>
+      <div class="ans" id="an3">
+        <p style="margin:8px 0 0"><b>‘운동장은 매우 넓다.’</b> 입니다.
+          ‘넓다’의 기준이 없어 명제가 아니지만, <b>기준을 정하면</b> 명제가 됩니다.
+          예) ‘운동장의 넓이는 5000 m² 이상이다.’</p>
+        <p style="margin:8px 0 0">한편 <code>x² = 4</code>, <code>3x + 1 &lt; 4x</code>, ‘x는 3과 5의 최소공배수이다’ 는
+          <b>문자를 포함</b>해 x 값에 따라 참·거짓이 갈립니다. 이런 것을 <b>조건</b>이라 합니다.
+          <span class="hint">다음 화면에서 이어집니다.</span></p>
+      </div>
+    </div>
+    <div class="callout">‘두 홀수의 합은 항상 짝수’ 는 <b>참인 명제</b>입니다.
+      그런데 <b>왜</b> 참일까요? 이 문장은 <b>2-03 명제의 증명</b>에서 직접 증명합니다.</div>
+  </section>
+
+  <section class="screen" data-key="s4" data-prompt="네 조건의 진리집합을 원소나열법으로 구하고, 집합들 사이에 어떤 관계가 있는지 적어 보세요.">
+    <div class="kicker">조건과 진리집합</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 5 · 2-01 Q3·Q4 · 교과서 83쪽</span></div>
+    <!--TEACH:END-->
+    <h1>조건 → 진리집합</h1>
+    <p>문자를 포함하는 문장이나 식이 <b>문자의 값에 따라</b> 참·거짓이 정해질 때, 이를 <b>조건</b>이라 합니다.
+       전체집합 U의 원소 중 그 조건을 <b>참이 되게 하는</b> 모든 원소의 집합이 <b>진리집합</b>입니다.</p>
+    <div class="callout">전체집합 <b>U = { x | x 는 10 이하의 자연수 }</b> 로 통일합니다.
+      아래 조건을 눌러 진리집합을 확인해 보세요.</div>
+    <div class="lab">
+      <div>
+        <div class="nums" id="g4"></div>
+        <div class="btns" id="b4" style="margin-top:12px"></div>
+      </div>
+      <div class="controls"><div class="readout" id="r4"></div></div>
+    </div>
+    <div class="card">
+      <b>교과서 본문 예시</b>
+      <ul class="tight">
+        <li>자연수 전체의 집합에서 조건 ‘<b>p : x 는 16의 약수이다</b>’ 의 진리집합은
+          <b>P = { 1, 2, 4, 8, 16 }</b></li>
+        <li>조건 ‘<b>q : x 는 10 이하의 짝수이다</b>’ 의 진리집합은
+          <b>Q = { x | x 는 10 이하 짝수 } = { 2, 4, 6, 8, 10 }</b></li>
+      </ul>
+    </div>
+    <div class="card">
+      <b>Q4. 집합들 사이의 관계는?</b>
+      <button class="reveal" id="rv4" style="margin-left:8px">찾아본 뒤 열기</button>
+      <div class="ans" id="an4">
+        <p style="margin:8px 0 0">①과 ②가 <b>서로 여집합</b>, ③과 ④도 <b>서로 여집합</b>입니다.
+          U 안에서 두 집합을 합치면 U 가 되고, 겹치는 부분은 없습니다.</p>
+        <div class="formula">조건 p 의 진리집합이 P 이면,
+          <b>~p 의 진리집합은 P<sup>c</sup></b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s5" data-prompt="조건 ‘p : x > 2’ 의 부정을 쓰고, 그것을 다시 부정하면 무엇이 되는지 적어 보세요. 또 부정의 진리집합이 왜 여집합이 되는지 설명해 보세요.">
+    <div class="kicker">부정</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 5 · 2-01 [스스로 정리하기] · 교과서 83~84쪽</span></div>
+    <!--TEACH:END-->
+    <h1>부정 ~p 와 여집합</h1>
+    <table>
+      <tr><th style="width:130px">용어</th><th class="l">뜻</th></tr>
+      <tr><td><b>명제</b></td><td class="l">참, 거짓을 <b>명확하게 판별할 수 있는</b> 문장이나 식</td></tr>
+      <tr><td><b>조건</b></td><td class="l">문자를 포함하는 문장이나 식이 <b>그 문자의 값에 따라</b> 참, 거짓이 정해질 때 그 문장이나 식</td></tr>
+      <tr><td><b>진리집합</b></td><td class="l">전체집합 U 의 원소 중에서 <b>어떤 조건이 참이 되게 하는</b> 모든 원소의 집합</td></tr>
+      <tr><td><b>부정</b></td><td class="l">명제 또는 조건 p 에 대하여 ‘<b>p 가 아니다</b>’ — 기호로 <b>~p</b> (not p)</td></tr>
+    </table>
+    <p>명제 또는 조건 p 에 대하여 ‘<b>p 가 아니다</b>’를 p 의 <b>부정</b>이라 하고
+       <b>~p</b> (not p) 로 씁니다.</p>
+    <table>
+      <tr><th style="width:150px">원래 조건 p</th><th class="l">부정 ~p</th></tr>
+      <tr><td>x &gt; 2</td><td class="l"><b>x ≤ 2</b> &nbsp;<span class="hint">‘크지 않다’ 는 ‘작거나 같다’</span></td></tr>
+      <tr><td>x = 3</td><td class="l"><b>x ≠ 3</b></td></tr>
+      <tr><td>√2 는 무리수이다</td><td class="l"><b>√2 는 무리수가 아니다</b> (거짓)</td></tr>
+    </table>
+    <div class="formula">~(~p) 는 <b>p</b> — 두 번 부정하면 제자리로</div>
+    <div class="lab">
+      <div>
+        <div class="nums" id="g5"></div>
+        <div class="btns" id="b5" style="margin-top:12px"></div>
+      </div>
+      <div class="controls"><div class="readout" id="r5"></div></div>
+    </div>
+    <div class="callout">전체집합 U 에서 <b>~p 가 참이 되게 하는 원소</b>는
+      P 의 원소가 <b>아닌</b> 것들입니다. 그래서 <b>~p 의 진리집합 = P<sup>c</sup></b> 입니다.</div>
+  </section>
+
+  <section class="screen" data-key="s6" data-prompt="[글로 쓰면서 정리하기] 이번 탐구로 알게 된 것을 스스로 정리해 보세요. ‘p 그리고 q’ 의 부정과 ‘p 또는 q’ 의 부정이 각각 무엇이 되는지, 진리집합으로 확인한 과정과 함께 적어 주세요. (교과서 85쪽 [역량 키우기] 참고)">
+    <div class="kicker">탐구 · 연결한 조건의 부정</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 5 · 2-01 [탐구하기] · 교과서 85쪽 [역량 키우기]</span></div>
+    <!--TEACH:END-->
+    <h1>‘그리고’와 ‘또는’ 을 부정하면</h1>
+    <p>자연수 전체에서 두 조건 <b>p : x 는 6의 약수</b>, <b>q : x 는 8의 약수</b> 를 생각합시다.
+       <b>P = {1, 2, 3, 6}</b>, <b>Q = {1, 2, 4, 8}</b> 입니다.</p>
+    <div class="lab">
+      <svg id="v6" viewBox="0 0 400 260"></svg>
+      <div class="controls">
+        <div class="btns" id="b6"></div>
+        <div class="readout" id="r6"></div>
+      </div>
+    </div>
+    <div class="formula">‘p <b>그리고</b> q’ 의 부정 = ‘~p <b>또는</b> ~q’<br>
+      ‘p <b>또는</b> q’ 의 부정 = ‘~p <b>그리고</b> ~q’</div>
+    <div class="card">
+      <b>실수 전체에서 한 번 더</b>
+      <p style="margin:8px 0 0">조건 <b>p : (x + 2)(x − 4) = 0</b> 의 진리집합은 <b>P = { −2, 4 }</b> 입니다.</p>
+      <p style="margin:8px 0 0">이때 부정은 <b>~p : (x + 2)(x − 4) ≠ 0</b> 이고,
+        그 진리집합은 <b>P<sup>c</sup> = { x | x ≠ −2 이고 x ≠ 4 인 실수 }</b> 입니다.</p>
+      <p style="margin:8px 0 0" class="hint">‘= 0’ 의 부정이 ‘≠ 0’ 이고, ‘−2 <b>또는</b> 4’ 의 부정이
+        ‘−2 도 아니고 <b>그리고</b> 4 도 아니다’ 로 바뀌는 것에 주목하세요.</p>
+    </div>
+    <div class="card">
+      <b>집합으로 보면 드모르간의 법칙</b>
+      <p style="margin:8px 0 0">(P ∩ Q)<sup>c</sup> = P<sup>c</sup> ∪ Q<sup>c</sup> &nbsp;·&nbsp;
+        (P ∪ Q)<sup>c</sup> = P<sup>c</sup> ∩ Q<sup>c</sup><br>
+        <span class="hint">집합에서 배운 그 법칙이 말로 옮겨진 것뿐입니다.
+        ‘또는’의 여집합은 ‘둘 다 아니다’ — 기억나시나요?</span></p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s7" data-prompt="두 홍보문이 적절한지 각각 판단하고, 그렇게 판단한 까닭을 가격표의 어느 줄을 근거로 삼았는지 함께 적어 보세요.">
+    <div class="kicker">상황 열기 · 모든과 어떤</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 5 · 2-01 [상황 열기] 행사 가격표</span></div>
+    <!--TEACH:END-->
+    <h1>🍔 이 홍보문, 믿어도 될까?</h1>
+    <p>어느 햄버거 가게의 <b>행사 기간 가격표</b>입니다. 아래 두 홍보문이 적절한지 판단해 봅시다.</p>
+    <table>
+      <tr><th class="l">세트 메뉴</th><th>정가</th><th>행사가</th><th>할인액</th></tr>
+      <tr><td class="l">불고기버거 세트</td><td>8,900</td><td>4,900</td><td><b>4,000</b></td></tr>
+      <tr><td class="l">새우버거 세트</td><td>9,500</td><td>4,900</td><td><b>4,600</b></td></tr>
+      <tr><td class="l">치즈버거 세트</td><td>7,400</td><td>4,900</td><td><b>2,500</b></td></tr>
+      <tr><td class="l">치킨버거 세트</td><td>8,200</td><td><b>5,900</b></td><td>2,300</td></tr>
+    </table>
+    <div id="b7"></div>
+    <div class="readout" id="r7" style="margin-top:10px"></div>
+    <div class="card">
+      <b>여는 질문</b> — 문자가 포함된 조건이 <b>명제</b>가 되려면 무엇이 필요할까요?
+      <p style="margin:8px 0 0">조건 <b>p : x ≥ 2</b> 는 x 값에 따라 참·거짓이 바뀌므로 명제가 아닙니다. 그런데</p>
+      <ul class="tight">
+        <li>① <b>모든 자연수</b> x 에 대하여 x ≥ 2 이다. → <b>참</b>인 명제</li>
+        <li>② <b>어떤 실수</b> x 에 대하여 x ≥ 2 이다. → <b>참</b>인 명제</li>
+      </ul>
+      <p style="margin:8px 0 0">조건에 <b>‘모든 / 어떤’</b> 과 <b>‘범위(전체집합)’</b> 를 붙이면 참·거짓이 정해집니다.
+        즉 <b>명제가 됩니다.</b></p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s8">
+    <div class="kicker">모든과 어떤의 참·거짓</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 5 · 2-01 · 교과서 86쪽 [완성하기]</span></div>
+    <!--TEACH:END-->
+    <h1>진리집합으로 판별하기</h1>
+    <div class="formula">‘<b>모든</b> x 에 대하여 p 이다’ → <b>P = U</b> 이면 참<br>
+      ‘<b>어떤</b> x 에 대하여 p 이다’ → <b>P ≠ ∅</b> 이면 참</div>
+    <p>전체집합 <b>U = { 1, 2, 3, 4 }</b> 에서 네 명제를 확인해 봅시다. 명제를 눌러 보세요.</p>
+    <div class="lab">
+      <div>
+        <div class="nums" id="g8"></div>
+        <div class="btns" id="b8" style="margin-top:12px"></div>
+      </div>
+      <div class="controls"><div class="readout" id="r8"></div></div>
+    </div>
+    <div class="callout"><b>‘모든’은 하나라도 어긋나면 거짓</b>, <b>‘어떤’은 하나만 맞으면 참</b>입니다.
+      그래서 ‘모든’을 무너뜨릴 때는 <b>반례 하나</b>면 충분합니다.</div>
+  </section>
+
+  <section class="screen" data-key="s9" data-prompt="명제 ‘모든 실수 x 에 대하여 x² = 4 이다’ 의 참·거짓을 진리집합으로 판별하고, 조건을 바꾸어 참인 명제를 2개 만들어 그 까닭을 진리집합으로 설명해 보세요.">
+    <div class="kicker">예시를 바꾸어 연습하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 5 · 2-01 [예시를 바꾸어가며 연습하기]</span></div>
+    <!--TEACH:END-->
+    <h1>조건을 바꾸어 참인 명제 만들기</h1>
+    <div class="card">
+      <b>명제 1</b> — ‘<b>모든 실수</b> x 에 대하여 <b>x² = 4</b> 이다.’
+      <p style="margin:8px 0 0">조건 ‘p : x² = 4’ 의 진리집합은 <b>P = { −2, 2 }</b> 이고 U 는 실수 전체입니다.
+        <b>P ≠ U</b> 이므로 이 명제는 <b>거짓</b>입니다.
+        <span class="hint">반례: x = 1 일 때 1 ≠ 4</span></p>
+      <p style="margin:8px 0 0"><b>조건을 바꾸어 참인 명제를 만들어 봅시다.</b> 아래를 눌러 확인하세요.</p>
+      <div class="btns" id="b9a" style="margin-top:8px"></div>
+      <div class="readout" id="r9a" style="margin-top:10px"></div>
+    </div>
+    <div class="card">
+      <b>명제 2</b> — ‘<b>어떤 실수</b> x 에 대하여 <b>x² + 3 ≤ 0</b> 이다.’
+      <p style="margin:8px 0 0">x² ≥ 0 이므로 x² + 3 ≥ 3 &gt; 0. 진리집합은 <b>P = ∅</b> 이고,
+        ‘어떤’ 명제는 P = ∅ 이면 <b>거짓</b>입니다.</p>
+      <div class="btns" id="b9b" style="margin-top:8px"></div>
+      <div class="readout" id="r9b" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s10" data-prompt="‘우리 반의 모든 학생은 걸어서 등교한다’ 를 부정한 명제를 쓰고, 왜 명제 (3)이 아니라 (2)에 가까운지 설명해 보세요.">
+    <div class="kicker">모든 명제의 부정</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 5 · 2-01 ‘모든’이 포함된 명제의 부정</span></div>
+    <!--TEACH:END-->
+    <h1>🚌 ‘모든’ 을 부정하면?</h1>
+    <p>우리 반 학생들의 통학 수단 조사입니다.</p>
+    <table>
+      <tr><th>걸어서</th><th>자동차</th><th>버스</th><th>지하철</th><th>비행기</th></tr>
+      <tr><td><b>16</b></td><td>5</td><td>5</td><td>7</td><td>11</td></tr>
+    </table>
+    <div class="callout">명제 <b>(1)</b> ‘우리 반의 <b>모든</b> 학생은 걸어서 등교한다.’ 를 <b>부정하면</b> 무엇이 될까요?</div>
+    <p class="q">아래 두 문장 중, 부정한 명제에 <b>가까운 쪽</b>을 골라 보세요.</p>
+    <div class="btns" id="b10"></div>
+    <div class="readout" id="r10" style="margin-top:10px"></div>
+    <div class="card">
+      <b>왜 (3)은 아닐까?</b>
+      <button class="reveal" id="rv10" style="margin-left:8px">골라 본 뒤 열기</button>
+      <div class="ans" id="an10">
+        <p style="margin:8px 0 0">‘모든 학생이 걸어서 등교한다’ 가 <b>틀렸다</b>는 말은,
+          ‘모든 학생이 교통수단을 이용한다’ 는 <b>정반대의 주장이 아닙니다.</b></p>
+        <p style="margin:8px 0 0"><b>걸어서 오지 않는 학생이 한 명이라도 있으면</b> 원래 명제는 무너집니다.
+          그래서 부정은 <b>‘어떤 학생은 걸어서 등교하지 않는다’</b> 입니다.</p>
+        <div class="formula">‘모든 x 에 대하여 p’ 의 부정 → ‘<b>어떤</b> x 에 대하여 <b>~p</b>’<br>
+          ‘어떤 x 에 대하여 p’ 의 부정 → ‘<b>모든</b> x 에 대하여 <b>~p</b>’</div>
+        <p style="margin:8px 0 0" class="hint"><b>진리집합으로 보면</b> (교과서 86쪽) —
+          ‘P = U’ 의 부정은 ‘P ≠ U’, 즉 P<sup>c</sup> ≠ ∅ 이고,
+          ‘P ≠ ∅’ 의 부정은 ‘P = ∅’, 즉 P<sup>c</sup> = U 입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s11" data-prompt="두 명제의 부정을 말하고, 그것의 참·거짓을 판별해 보세요.">
+    <div class="kicker">연습하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 5 · 2-01 [연습하기] · 교과서 87쪽 [스스로 익히기]</span></div>
+    <!--TEACH:END-->
+    <h1>부정하고, 참·거짓까지</h1>
+    <p>다음 명제의 <b>부정</b>을 말하고, 그것의 참·거짓을 판별하시오. 먼저 스스로 해 본 뒤 여세요.</p>
+    <table>
+      <tr><th class="l" style="width:42%">원래 명제</th><th class="l">부정</th><th style="width:70px">부정의 참거짓</th></tr>
+      <tr><td class="l">(1) 모든 실수 x 에 대하여<br>&nbsp;&nbsp;&nbsp;| x − 2 | &gt; 0 이다.</td>
+          <td class="l"><button class="reveal" data-a="어떤 실수 x 에 대하여 | x − 2 | ≤ 0 이다.">?</button></td>
+          <td><button class="reveal" data-a="참">?</button></td></tr>
+      <tr><td class="l">(2) 어떤 실수 x 에 대하여<br>&nbsp;&nbsp;&nbsp;x² = x + 1 이다.</td>
+          <td class="l"><button class="reveal" data-a="모든 실수 x 에 대하여 x² ≠ x + 1 이다.">?</button></td>
+          <td><button class="reveal" data-a="거짓">?</button></td></tr>
+    </table>
+    <div class="card">
+      <b>까닭</b>
+      <button class="reveal" id="rv11" style="margin-left:8px">확인하기</button>
+      <div class="ans" id="an11">
+        <p style="margin:8px 0 0"><b>(1)</b> x = 2 일 때 | x − 2 | = 0 이므로 원래 명제는 <b>거짓</b>.
+          따라서 그 부정은 <b>참</b>입니다. <span class="hint">거짓의 부정은 참</span></p>
+        <p style="margin:8px 0 0"><b>(2)</b> x² − x − 1 = 0 의 판별식 D = 1 + 4 = 5 &gt; 0 이라 실근이 있습니다.
+          원래 명제가 <b>참</b>이므로 그 부정은 <b>거짓</b>입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s12" data-photo="1" data-prompt="찬우와 지영 중 한 사람의 방법을 골라 끝까지 풀어 보세요. 고른 사람과 풀이 과정을 함께 적어 주세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">생각 키우기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 5 · 2-01 [생각 키우기] 찬우와 지영</span></div>
+    <!--TEACH:END-->
+    <h1>🧩 찬우와 지영, 누구의 방법으로?</h1>
+    <div class="card">
+      <b>문제</b> — 명제 ‘<b>어떤</b> 실수 x 에 대하여 <b>x² − 8x + a ≤ 0</b>’ 이
+      <b>거짓</b>이 되도록 하는 실수 a 의 값의 범위를 구하시오.
+    </div>
+    <div class="lab">
+      <div>
+        <div class="card" style="margin-top:0">
+          <b>찬우</b> — 주어진 명제가 거짓이라면, 조건 x² − 8x + a ≤ 0 에 대한
+          <b>진리집합이 공집합</b>이어야 해. 그러니까…
+        </div>
+        <div class="card">
+          <b>지영</b> — 어떤 명제가 거짓이면, 그 명제의 <b>부정은 참</b>이야!
+          주어진 명제의 부정이 참이라는 사실을 이용해서 풀어 보면…
+        </div>
+      </div>
+      <div class="controls">
+        <div class="btns" id="b12"></div>
+        <div class="readout" id="r12"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>두 길은 같은 곳에서 만납니다</b>
+      <button class="reveal" id="rv12" style="margin-left:8px">직접 풀어 본 뒤 열기</button>
+      <div class="ans" id="an12">
+        <p style="margin:8px 0 0"><b>찬우의 길</b> — P = ∅ 이려면 x² − 8x + a ≤ 0 을 만족하는 실수가 없어야 합니다.
+          즉 <b>모든 실수에서 x² − 8x + a &gt; 0</b>. 판별식 <b>D/4 = 16 − a &lt; 0</b> → <b>a &gt; 16</b></p>
+        <p style="margin:8px 0 0"><b>지영의 길</b> — 부정은 ‘<b>모든</b> 실수 x 에 대하여 x² − 8x + a &gt; 0’ 이고
+          이것이 참이어야 합니다. 같은 판별식 조건 → <b>a &gt; 16</b></p>
+        <div class="formula">답 &nbsp; <b>a &gt; 16</b></div>
+        <p style="margin:8px 0 0" class="hint">‘어떤 ~ 이다’ 가 거짓 = 진리집합이 공집합 = ‘모든 ~ 이 아니다’ 가 참.
+          세 표현이 같은 말입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="ext" data-photo="1" data-prompt="일상에서 ‘모든’ 또는 ‘어떤’ 이 들어간 명제를 하나 만들고, 그것의 참·거짓과 부정을 함께 적어 보세요. (손으로 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">개념 확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 교과서 87쪽 [역량 키우기] 실생활 속 모든·어떤</span></div>
+    <!--TEACH:END-->
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <p>실생활이나 다른 과목에서 <b>‘모든’ 또는 ‘어떤’</b> 이 들어간 명제를 만들고, 참·거짓을 판별해 봅시다.</p>
+    <table>
+      <tr><th style="width:130px">‘모든’ 명제</th><td class="l">예) 모든 액체는 1기압에서 100 ℃ 에 끓는다. → <b>거짓</b>
+        <span class="hint">(반례: 에탄올은 78 ℃)</span></td></tr>
+      <tr><th>‘어떤’ 명제</th><td class="l">예) 어떤 나라의 화폐 단위는 유로이다. → <b>참</b>
+        <span class="hint">(독일·프랑스 등)</span></td></tr>
+    </table>
+    <div class="card">
+      <b>더 생각해 볼 것</b>
+      <ul class="tight">
+        <li>‘모든’ 명제를 거짓이라 주장하려면 <b>몇 개</b>의 예가 필요한가요? ‘어떤’ 명제는요?</li>
+        <li>‘우리 반에 안경 쓴 학생이 <b>있다</b>’ 를 부정하면? 집합 단원의 <b>공집합</b>과 연결해 보세요.</li>
+        <li>광고 문구에서 ‘모든’ 과 ‘어떤’ 이 어떻게 쓰이는지 하나 찾아 적어 보세요.</li>
+        <li>교과서 85쪽 [스스로 익히기] 1~3번, 87쪽 1~3번을 해결하고 막힌 곳을 아래에 적어 두세요.
+          <span class="hint">85쪽 4번은 ‘p 이면 q 이다’ 문제라 다음 활동에서 풉니다.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 14</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg", uid=0;
+function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function txt(p,x,y,t,o){o=o||{};var e=el("text",{x:x,y:y,"font-size":o.size||14,
+  "text-anchor":o.anchor||"middle",fill:o.fill||"#27272a","font-weight":o.weight||700});
+  e.textContent=t;p.appendChild(e);return e;}
+function btnset(box,items,onPick){
+  var bs=[];
+  items.forEach(function(it,i){
+    var b=document.createElement("button");b.className="rb";b.innerHTML=it.t;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";onPick(it,i);};
+    box.appendChild(b);bs.push(b);
+  });
+  return bs;
+}
+/* 수 격자 — 전체집합의 원소를 늘어놓고 조건에 맞는 것만 물들인다 */
+function Grid(box,U){
+  var cells={};
+  U.forEach(function(v){
+    var d=document.createElement("div");d.className="num";d.textContent=v;
+    box.appendChild(d);cells[v]=d;
+  });
+  return {
+    show:function(fn,mark){U.forEach(function(v){
+      cells[v].className="num"+(fn(v)?" in":(mark?" out":""));});},
+    clear:function(){U.forEach(function(v){cells[v].className="num";});}
+  };
+}
+
+/* ── 화면1 : 따질 수 있나 ──────────────────────────────── */
+(function(){
+  var rows=[
+    {m:"(A)",t:"우리 눈에 보이는 지평선은 언제나 완벽한 직선을 이루고 있다.",can:true,
+     why:"맞는지 틀린지 확인할 수 있는 <b>사실 주장</b>입니다."},
+    {m:"(B)",t:"이것은 지구가 거대한 평면이라는 가장 확실한 증거가 아닐까?",can:false,
+     why:"<b>물음</b>입니다. 참·거짓을 따질 대상이 아닙니다."},
+    {m:"(D)",t:"구체론자들은 월식 때의 둥근 그림자를 증거로 내세운다.",can:true,
+     why:"실제로 그렇게 주장하는지 확인할 수 있습니다."},
+    {m:"(F)",t:"구체론의 가장 큰 맹점은 바로 ‘아래’의 문제이다.",can:false,
+     why:"‘가장 큰 맹점’ 은 <b>사람마다 다른 판단</b>입니다."},
+    {m:"(I)",t:"중력이라는 힘이 우리를 붙잡고 있는 것은 사실이다.",can:true,
+     why:"확인할 수 있는 사실 주장입니다."},
+    {m:"(J)",t:"이 힘은 평평한 땅의 ‘아래’ 방향으로만 작용한다.",can:true,
+     why:"방향을 확인할 수 있으므로 따질 수 있습니다."},
+    {m:"(L)",t:"이 사실을 받아들이는 것은 매우 용기가 필요한 일이다.",can:false,
+     why:"‘용기가 필요하다’ 는 <b>느낌</b>입니다."},
+    {m:"(M)",t:"이제부터 거짓 지식에서 벗어나 진실을 마주하자.",can:false,
+     why:"<b>권유</b>하는 문장입니다."}
+  ];
+  var tb=document.getElementById("t1"),done=0;
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td><b>'+r.m+'</b></td><td class="l">'+r.t+'</td><td></td>';
+    var cell=tr.children[2];
+    ["따질 수 있다","없다"].forEach(function(lab,k){
+      var b=document.createElement("button");b.className="judge";b.textContent=lab;
+      b.onclick=function(){
+        var right=(k===0)===r.can;
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        var w=tr.children[1].querySelector(".why");
+        if(!w){w=document.createElement("div");w.className="why hint";tr.children[1].appendChild(w);}
+        w.innerHTML=right?"✓ "+r.why:"내용이 맞는지가 아니라, <b>참·거짓이 정해지는 문장인지</b>만 보세요.";
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
+          if(done===rows.length){var W=document.getElementById("w1");W.className="win on";
+            W.innerHTML="🎉 여덟 문장을 모두 갈랐습니다. 따질 수 없는 것들은 <b>물음·판단·느낌·권유</b> 였습니다.";}}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── 화면2 : 참 + 거짓 = ? ────────────────────────────── */
+(function(){
+  var ro=document.getElementById("r2");
+  btnset(document.getElementById("b2"),[
+    {t:"① 반드시 거짓이다",ok:false,
+     s:"아닙니다. 전제가 어긋났다고 해서 <b>결론이 거짓이라고 단정할 수는 없습니다.</b> 우연히 참일 수도 있어요."},
+    {t:"② 반드시 참이다",ok:false,
+     s:"아닙니다. 거짓인 (J)를 근거로 삼았으니 <b>결론을 믿을 근거가 없습니다.</b>"},
+    {t:"③ 참일 수도 거짓일 수도 있다 (보장되지 않는다)",ok:true,
+     s:"맞습니다. 전제 중 하나가 거짓이면 그 논증은 결론에 대해 <b>아무것도 보장하지 못합니다.</b> 여기서는 (K)가 실제로 거짓이지만, 그것은 <b>다른 근거로</b> 따로 밝혀야 합니다."}
+  ],function(it){
+    ro.innerHTML=(it.ok?"✅ ":"❌ ")+it.s;
+    ro.style.borderColor=it.ok?"#86efac":"#fca5a5";
+    ro.style.background=it.ok?"#dcfce7":"#fef2f2";
+  });
+  ro.innerHTML="셋 중 하나를 골라 보세요.";
+})();
+
+/* ── 화면3 : 명제 판별 ────────────────────────────────── */
+(function(){
+  var rows=[
+    {t:"대한민국의 수도는 서울이다.",k:0,why:"참인 명제"},
+    {t:"순환소수는 유리수이다.",k:0,why:"참인 명제 — 순환소수는 분수로 나타낼 수 있다"},
+    {t:"3<sup>5</sup> &lt; 5<sup>3</sup>",k:1,why:"243 &lt; 125 → <b>거짓</b>인 명제"},
+    {t:"운동장은 매우 넓다.",k:2,why:"‘매우 넓다’ 의 기준이 없다 → 명제가 아니다"},
+    {t:"이차방정식 x² + 4x + 2 = 0 은 서로 다른 두 실근을 갖는다.",k:0,
+     why:"D/4 = 4 − 2 = 2 &gt; 0 → <b>참</b>"},
+    {t:"5 + 2 &gt; 8",k:1,why:"7 &gt; 8 → <b>거짓</b>"},
+    {t:"x 는 3과 5의 최소공배수이다.",k:2,why:"x 값에 따라 달라진다 → <b>조건</b>"},
+    {t:"x² = 4",k:2,why:"x 값에 따라 달라진다 → <b>조건</b>"},
+    {t:"3x + 1 &lt; 4x",k:2,why:"x 값에 따라 달라진다 → <b>조건</b>"},
+    {t:"두 홀수의 합은 항상 짝수이다.",k:0,why:"<b>참</b>인 명제 — 2-03 에서 증명한다"}
+  ];
+  var LAB=["명제 · 참","명제 · 거짓","명제 아님"];
+  var tb=document.getElementById("t3"),done=0;
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td class="l">'+r.t+'</td><td></td>';
+    var cell=tr.children[1];
+    LAB.forEach(function(lab,k){
+      var b=document.createElement("button");b.className="judge";b.textContent=lab;
+      b.onclick=function(){
+        var right=(k===r.k);
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        var w=tr.children[0].querySelector(".why");
+        if(!w){w=document.createElement("div");w.className="why hint";tr.children[0].appendChild(w);}
+        w.innerHTML=right?"✓ "+r.why:"다시 볼까요? 먼저 <b>참·거짓이 정해지는지</b> 보세요.";
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
+          if(done===rows.length){var W=document.getElementById("w3");W.className="win on";
+            W.innerHTML="🎉 열 문장을 모두 갈랐습니다. 명제가 아닌 것은 <b>기준이 없는 말</b> 하나와 <b>문자를 포함한 조건</b> 셋이었습니다.";}}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── 화면4 : 조건 → 진리집합 ─────────────────────────── */
+(function(){
+  var U=[1,2,3,4,5,6,7,8,9,10];
+  var G=Grid(document.getElementById("g4"),U), ro=document.getElementById("r4");
+  var items=[
+    {t:"① x 는 15의 약수",f:function(x){return 15%x===0;}},
+    {t:"② x 는 15의 약수가 아니다",f:function(x){return 15%x!==0;}},
+    {t:"③ 2x + 5 &lt; 11",f:function(x){return 2*x+5<11;}},
+    {t:"④ 2x + 5 ≥ 11",f:function(x){return 2*x+5>=11;}}
+  ];
+  btnset(document.getElementById("b4"),items,function(it){
+    G.show(it.f,true);
+    var e=U.filter(it.f);
+    ro.innerHTML="<b>"+it.t+"</b><br><br>진리집합<br><span class='set'>{ "+e.join(", ")+" }</span><br>"+
+      "원소의 개수 <b>"+e.length+"</b>"+
+      "<br><br><span class='hint'>파란 칸이 조건을 참으로 만드는 원소입니다.</span>";
+  });
+  ro.innerHTML="조건을 눌러 진리집합을 확인해 보세요.<br><span class='hint'>U = { 1, …, 10 }</span>";
+})();
+
+/* ── 화면5 : 부정과 여집합 ───────────────────────────── */
+(function(){
+  var U=[1,2,3,4,5,6,7,8,9,10];
+  var G=Grid(document.getElementById("g5"),U), ro=document.getElementById("r5");
+  var p=function(x){return 16%x===0;};
+  var items=[
+    {t:"p : x 는 16의 약수",f:p},
+    {t:"~p : x 는 16의 약수가 아니다",f:function(x){return !p(x);}}
+  ];
+  btnset(document.getElementById("b5"),items,function(it,i){
+    G.show(it.f,true);
+    var e=U.filter(it.f);
+    ro.innerHTML="<b>"+it.t+"</b><br><br><span class='set'>{ "+e.join(", ")+" }</span><br><br>"+
+      (i===0?"이것이 <b>P</b> 입니다."
+            :"이것이 <b>P<sup>c</sup></b> 입니다. P 와 겹치는 원소가 <b>하나도 없고</b>, 둘을 합치면 U 가 됩니다.");
+  });
+  ro.innerHTML="조건 p 와 그 부정 ~p 를 번갈아 눌러 보세요.<br><span class='hint'>U = { 1, …, 10 }</span>";
+})();
+
+/* ── 화면6 : 연결한 조건의 부정 (벤 2개) ──────────────── */
+(function(){
+  var svg=document.getElementById("v6"), ro=document.getElementById("r6");
+  var W=400,H=260,id="dm", U={x:12,y:30,w:376,h:H-42};
+  var C=[{cx:163,cy:145,r:82,n:"P"},{cx:237,cy:145,r:82,n:"Q"}];
+  var COL=["#2563eb","#e11d48"];
+  var defs=el("defs",{});
+  C.forEach(function(c,i){["in","out"].forEach(function(k){
+    var m=el("mask",{id:id+k+i,maskUnits:"userSpaceOnUse",x:0,y:0,width:W,height:H});
+    m.appendChild(el("rect",{x:0,y:0,width:W,height:H,fill:k==="in"?"#000":"#fff"}));
+    m.appendChild(el("circle",{cx:c.cx,cy:c.cy,r:c.r,fill:k==="in"?"#fff":"#000"}));
+    defs.appendChild(m);});});
+  svg.appendChild(defs);
+  var shadeG=el("g",{}),lineG=el("g",{}),textG=el("g",{});
+  svg.appendChild(shadeG);svg.appendChild(lineG);svg.appendChild(textG);
+  lineG.appendChild(el("rect",{x:U.x,y:U.y,width:U.w,height:U.h,fill:"none",stroke:"#a1a1aa","stroke-width":1.5,rx:8}));
+  txt(lineG,U.x+9,U.y+18,"U",{size:15,anchor:"start",fill:"#71717a"});
+  C.forEach(function(c,i){
+    lineG.appendChild(el("circle",{cx:c.cx,cy:c.cy,r:c.r,fill:"none",stroke:COL[i],"stroke-width":2}));
+    txt(lineG,i===0?c.cx-58:c.cx+58,c.cy-58,c.n,{size:17,fill:COL[i]});
+  });
+  txt(textG,C[0].cx-42,152,"3 6",{size:14,fill:"#2563eb"});
+  txt(textG,200,152,"1 2",{size:14,fill:"#7c3aed"});
+  txt(textG,C[1].cx+42,152,"4 8",{size:14,fill:"#e11d48"});
+  function paint(bits,color){
+    var node=el("rect",{x:U.x,y:U.y,width:U.w,height:U.h,fill:color,opacity:0.5});
+    for(var i=1;i>=0;i--){var g=el("g",{mask:"url(#"+id+(bits[i]?"in":"out")+i+")"});g.appendChild(node);node=g;}
+    shadeG.appendChild(node);
+  }
+  function shade(fn,color){
+    while(shadeG.firstChild)shadeG.removeChild(shadeG.firstChild);
+    [[false,false],[true,false],[false,true],[true,true]].forEach(function(b){if(fn(b))paint(b,color);});
+  }
+  var P=[1,2,3,6],Q=[1,2,4,8],ALL=[1,2,3,4,6,8];
+  function pick(fn){return ALL.filter(function(x){return fn([P.indexOf(x)>=0,Q.indexOf(x)>=0]);});}
+  var items=[
+    {t:"p 그리고 q",f:function(b){return b[0]&&b[1];},s:"‘x 는 6의 약수이고 8의 약수이다’<br>P ∩ Q"},
+    {t:"그 부정",f:function(b){return !(b[0]&&b[1]);},s:"‘6의 약수가 <b>아니거나</b> 8의 약수가 아니다’<br>(P ∩ Q)<sup>c</sup> = P<sup>c</sup> ∪ Q<sup>c</sup>"},
+    {t:"p 또는 q",f:function(b){return b[0]||b[1];},s:"‘x 는 6의 약수이거나 8의 약수이다’<br>P ∪ Q"},
+    {t:"그 부정",f:function(b){return !(b[0]||b[1]);},s:"‘6의 약수가 <b>아니고</b> 8의 약수도 아니다’<br>(P ∪ Q)<sup>c</sup> = P<sup>c</sup> ∩ Q<sup>c</sup>"}
+  ];
+  btnset(document.getElementById("b6"),items,function(it){
+    shade(it.f,"#2563eb");
+    var e=pick(it.f);
+    ro.innerHTML="<b>"+it.t+"</b><br>"+it.s+"<br><br>"+
+      "{ 1,2,3,4,6,8 } 안에서 → <span class='set'>{ "+e.join(", ")+" }</span>";
+  });
+  shade(function(){return false;},"#2563eb");
+  ro.innerHTML="네 버튼을 차례로 눌러<br><b>부정하면 ∩ 과 ∪ 가 뒤바뀌는 것</b>을 확인해 보세요.";
+})();
+
+/* ── 화면7 : 버거 가격표 ─────────────────────────────── */
+(function(){
+  var box=document.getElementById("b7"), ro=document.getElementById("r7");
+  var items=[
+    {t:"① 모든 세트 메뉴는 할인가로 4,900원이다.",ok:false,
+     s:"<b>거짓</b>입니다. <b>치킨버거 세트가 5,900원</b> — 어긋나는 것이 <b>하나만</b> 있어도 ‘모든’은 무너집니다. 이런 예를 <b>반례</b>라고 합니다."},
+    {t:"② 어떤 세트 메뉴는 3,000원 이상 할인한다.",ok:true,
+     s:"<b>참</b>입니다. 불고기버거 4,000원 할인 — <b>맞는 것이 하나만</b> 있으면 ‘어떤’은 참이 됩니다."}
+  ];
+  var bs=[];
+  items.forEach(function(it){
+    var b=document.createElement("button");b.className="rb";b.style.display="block";
+    b.style.width="100%";b.style.textAlign="left";b.style.marginBottom="6px";b.innerHTML=it.t;
+    b.onclick=function(){
+      bs.forEach(function(x){x.className="rb";});b.className="rb on";
+      ro.innerHTML=it.s;
+      ro.style.borderColor=it.ok?"#86efac":"#fca5a5";
+      ro.style.background=it.ok?"#dcfce7":"#fef2f2";
+    };
+    box.appendChild(b);bs.push(b);
+  });
+  ro.innerHTML="두 홍보문을 눌러 판단해 보세요.";
+})();
+
+/* ── 화면8 : U={1,2,3,4} 완성하기 ─────────────────────── */
+(function(){
+  var U=[1,2,3,4];
+  var G=Grid(document.getElementById("g8"),U), ro=document.getElementById("r8");
+  var items=[
+    {t:"모든 x 에 대하여 x &gt; 0",f:function(x){return x>0;},all:true},
+    {t:"모든 x 에 대하여 x &gt; 1",f:function(x){return x>1;},all:true},
+    {t:"어떤 x 에 대하여 x &gt; 3",f:function(x){return x>3;},all:false},
+    {t:"어떤 x 에 대하여 x &gt; 4",f:function(x){return x>4;},all:false}
+  ];
+  btnset(document.getElementById("b8"),items,function(it){
+    G.show(it.f,true);
+    var e=U.filter(it.f), ok, rel, why;
+    if(it.all){ ok = e.length===4; rel = ok?"P = U":"P ≠ U";
+      why = ok?"모든 원소가 조건을 만족합니다.":"조건에 어긋나는 원소가 있습니다 (반례)."; }
+    else { ok = e.length>0; rel = ok?"P ≠ ∅":"P = ∅";
+      why = ok?"조건을 만족하는 원소가 있습니다.":"조건을 만족하는 원소가 하나도 없습니다."; }
+    ro.innerHTML="<b>"+it.t+"</b><br><br>"+
+      "P = <span class='set'>"+(e.length?"{ "+e.join(", ")+" }":"∅")+"</span><br>"+
+      "관계 <b>"+rel+"</b><br><br>"+
+      "→ 이 명제는 <b style='color:"+(ok?"#059669":"#e11d48")+"'>"+(ok?"참":"거짓")+"</b><br>"+
+      "<span class='hint'>"+why+"</span>";
+  });
+  ro.innerHTML="명제를 눌러 진리집합과 참·거짓을 확인해 보세요.<br><span class='hint'>U = { 1, 2, 3, 4 }</span>";
+})();
+
+/* ── 화면9 : 조건 바꾸기 ─────────────────────────────── */
+(function(){
+  var ra=document.getElementById("r9a");
+  btnset(document.getElementById("b9a"),[
+    {t:"x² ≥ 0",s:"P = 실수 전체 = U → <b>P = U</b> 이므로 <b>참</b>. 제곱은 절대 음수가 될 수 없습니다."},
+    {t:"x² + 1 &gt; 0",s:"P = 실수 전체 = U → <b>참</b>. x² ≥ 0 이므로 x² + 1 ≥ 1 &gt; 0."},
+    {t:"| x | ≥ 0",s:"P = 실수 전체 = U → <b>참</b>. 절댓값은 거리라서 음수가 없습니다."}
+  ],function(it){ra.innerHTML="<b>모든 실수 x 에 대하여 "+it.t+"</b><br><br>"+it.s;});
+  ra.innerHTML="조건을 눌러, 왜 참인 명제가 되는지 확인해 보세요.";
+
+  var rb=document.getElementById("r9b");
+  btnset(document.getElementById("b9b"),[
+    {t:"x² − 3 ≤ 0  (참)",s:"x = 1 이면 1 − 3 = −2 ≤ 0. P = { x | −√3 ≤ x ≤ √3 } ≠ ∅ → <b>참</b>"},
+    {t:"x² + 1 &lt; 0  (거짓)",s:"x² + 1 ≥ 1 &gt; 0 이라 만족하는 실수가 없습니다. P = ∅ → <b>거짓</b>"}
+  ],function(it){rb.innerHTML="<b>어떤 실수 x 에 대하여 "+it.t.replace(/\s*\(.*\)/,"")+"</b><br><br>"+it.s;});
+  rb.innerHTML="참인 예와 거짓인 예를 하나씩 눌러 보세요.";
+})();
+
+/* ── 화면10 : 모든의 부정 ────────────────────────────── */
+(function(){
+  var ro=document.getElementById("r10");
+  var box=document.getElementById("b10"),bs=[];
+  [{t:"명제 (2) 우리 반의 <b>일부</b> 학생은 걸어서 등교하고, 나머지는 다른 교통수단을 이용한다.",ok:true,
+    s:"이쪽이 <b>부정에 가깝습니다.</b> ‘모든 학생이 걸어서’ 가 틀렸다는 것은 <b>걸어 오지 않는 학생이 있다</b>는 뜻이니까요.<br><br>정확한 부정은 <b>‘어떤 학생은 걸어서 등교하지 않는다’</b> 입니다."},
+   {t:"명제 (3) 우리 반의 <b>모든</b> 학생이 교통수단을 이용하여 통학한다.",ok:false,
+    s:"이것은 <b>정반대의 주장</b>입니다. 부정은 ‘반대로 뒤집기’ 가 아니라 <b>‘무너뜨리기’</b> 예요.<br><br>실제 조사에서도 걸어서 오는 학생이 16명 있으므로 (3)은 <b>거짓</b>입니다."}
+  ].forEach(function(it){
+    var b=document.createElement("button");b.className="rb";b.style.display="block";
+    b.style.width="100%";b.style.textAlign="left";b.style.marginBottom="6px";b.innerHTML=it.t;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";
+      ro.innerHTML=(it.ok?"✅ ":"❌ ")+it.s;
+      ro.style.borderColor=it.ok?"#86efac":"#fca5a5";
+      ro.style.background=it.ok?"#dcfce7":"#fef2f2";};
+    box.appendChild(b);bs.push(b);
+  });
+  ro.innerHTML="둘 중 하나를 골라 보세요.";
+})();
+
+/* ── 화면12 : 찬우와 지영 ────────────────────────────── */
+(function(){
+  var ro=document.getElementById("r12");
+  btnset(document.getElementById("b12"),[
+    {t:"찬우의 방법으로",s:"조건의 진리집합이 <b>공집합</b>이 되는 a 를 찾습니다.<br><br>x² − 8x + a ≤ 0 을 만족하는 실수가 <b>없다</b> = 모든 실수에서 x² − 8x + a &gt; 0<br><br>→ 판별식이 <b>음수</b>여야 합니다."},
+    {t:"지영의 방법으로",s:"명제가 거짓이면 <b>부정이 참</b>입니다.<br><br>부정: ‘<b>모든</b> 실수 x 에 대하여 x² − 8x + a &gt; 0’<br><br>이 명제가 참이 되는 a 를 찾으면 됩니다."}
+  ],function(it){ro.innerHTML=it.s;});
+  ro.innerHTML="한 사람을 골라 그 길로 풀어 보세요.<br><span class='hint'>두 길은 결국 같은 식에 닿습니다.</span>";
+})();
+
+/* ── 정답 밝히기 ─────────────────────────────────────── */
+[].slice.call(document.querySelectorAll("button.reveal[data-a]")).forEach(function(b){
+  b.onclick=function(){b.textContent=b.getAttribute("data-a");
+    b.style.color="#2563eb";b.style.fontSize="13.5px";b.style.fontWeight="700";};
+});
+[["rv1","an1"],["rv3","an3"],["rv4","an4"],["rv10","an10"],["rv11","an11"],["rv12","an12"]]
+.forEach(function(p){
+  var b=document.getElementById(p[0]),a=document.getElementById(p[1]);
+  if(b&&a)b.onclick=function(){a.classList.toggle("on");
+    b.textContent=a.classList.contains("on")?"접기":"다시 열기";};
+});
+})();
+</script>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

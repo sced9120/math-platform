@@ -1,0 +1,954 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed;--gold:#f59e0b}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .bad{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid var(--rose);border-radius:10px;padding:12px 15px;margin:12px 0}
+  .lab{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .readout{font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .12s}
+  .rb:hover{border-color:var(--blue);color:var(--blue)}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .rb.wide{display:block;width:100%;text-align:left;margin-bottom:6px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  td.l,th.l{text-align:left}
+  tr.hi td{background:#eff6ff}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .set{font-size:15px;font-weight:700;color:var(--blue)}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:17px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .judge{display:inline-block;border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;
+    padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
+  .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .nums{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  .num{width:38px;height:38px;border:1px solid var(--line);border-radius:9px;display:flex;
+    align-items:center;justify-content:center;font-weight:700;font-size:14px;background:#fff;color:#a1a1aa}
+  .num.in{background:var(--blue);border-color:var(--blue);color:#fff}
+  .num.out{background:#fff1f2;border-color:#fecdd3;color:#e11d48}
+  .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
+  .slider input{width:100%}
+  .cards{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+  .pcard{width:86px;height:118px;border:2px solid var(--line);border-radius:12px;background:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;
+    cursor:pointer;transition:all .15s;color:var(--ink);user-select:none}
+  .pcard:hover{border-color:var(--blue)}
+  .pcard.pick{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .pcard.flip{border-color:var(--amber);background:#fffbeb;color:var(--amber);font-size:28px}
+  .pcap{text-align:center;font-size:12px;color:var(--muted);margin-top:4px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on" data-key="s1" data-prompt="명제를 두 조건 p, q 로 나누어 쓰고, 세 상황 중 A가 약속을 어긴 경우를 고른 뒤 그 까닭을 적어 보세요.">
+    <div class="kicker">공통수학2 · 집합과 명제</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 5 · 2-02 [생각 열기] 로또 약속</span></div>
+    <!--TEACH:END-->
+    <h1>🎟 약속을 어긴 것은 언제일까?</h1>
+    <div class="card" style="font-size:16px">
+      A가 B에게 이렇게 약속했습니다.<br><br>
+      <b>“내가 로또 1등에 당첨된다면, 너한테 2억원을 줄게.”</b>
+    </div>
+    <p>이 명제를 <b>두 개의 조건</b>으로 나누어 이름을 붙여 봅시다.</p>
+    <div class="formula"><b>p</b> : 로또 1등에 당첨된다 &nbsp;&nbsp;/&nbsp;&nbsp;
+      <b>q</b> : B에게 2억원을 준다</div>
+    <p class="q">다음 세 상황 중 <b>A가 약속을 어긴 경우</b>를 찾아 보세요.</p>
+    <div id="b1"></div>
+    <div class="readout" id="r1" style="margin-top:10px"></div>
+  </section>
+
+  <section class="screen" data-key="s2" data-prompt="p → q 가 거짓이 되는 경우는 딱 하나입니다. 어떤 경우인가요? 그리고 가정이 거짓일 때 명제가 참이 되는 것이 왜 자연스러운지 로또 약속으로 설명해 보세요.">
+    <div class="kicker">가정이 거짓이면?</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 5 · 2-02 [생각 열기] 정리 — 약속을 어긴 경우는 하나뿐</span></div>
+    <!--TEACH:END-->
+    <h1>p → q 는 언제 거짓일까?</h1>
+    <p>앞의 세 상황을 표로 정리해 봅시다. 줄을 눌러 확인하세요.</p>
+    <table id="t2">
+      <tr><th style="width:70px">p</th><th style="width:70px">q</th><th style="width:110px">p → q</th><th class="l">로또 약속에서는</th></tr>
+    </table>
+    <div class="readout" id="r2" style="margin-top:10px"></div>
+    <div class="formula">명제 <b>p → q</b> 는
+      <b style="color:#e11d48">p 가 참인데 q 가 거짓</b>일 때 <b>오직 그때만</b> 거짓이다.</div>
+    <div class="card">
+      <b>가정이 거짓이면 왜 참일까?</b>
+      <p style="margin:8px 0 0">당첨이 되지 않았다면 <b>약속은 아직 시험대에 오르지 않은 것</b>입니다.
+        어기지 않았으니 약속은 그대로 유효합니다. 수학에서도 마찬가지로,
+        <b>가정이 거짓이면 그 명제는 참</b>으로 봅니다.</p>
+      <p style="margin:8px 0 0" class="hint">거꾸로 말하면 — 가정이 거짓인 논증은
+        결론에 대해 <b>아무것도 보장하지 못합니다.</b></p>
+    </div>
+    <div class="callout"><b>2-01 을 떠올려 봅시다</b> — [지구는 평평한가?] 3단계에서
+      (J)가 거짓이었기 때문에 결론 (K)에 대해 아무 말도 할 수 없었습니다.
+      바로 이 표의 <b>아래 두 줄</b>이 그 까닭입니다.</div>
+  </section>
+
+  <section class="screen" data-key="s3" data-prompt="네 문장에서 가정과 결론에 해당하는 조건을 각각 찾아 p, q 로 적어 보세요.">
+    <div class="kicker">가정과 결론</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 5 · 2-02 명제 p → q 의 구성요소 · 교과서 84쪽</span></div>
+    <div class="turn"><i>📖</i><span>교과서 84쪽 — ‘p이면 q이다’ 의 가정과 결론을 함께 짚습니다.</span></div>
+    <!--TEACH:END-->
+    <h1>가정과 결론</h1>
+    <p>두 조건 p, q 로 이루어진 명제 ‘<b>p 이면 q 이다</b>’ 를 기호로 <b>p → q</b> 라 쓰고,
+       <b>p 를 가정</b>, <b>q 를 결론</b>이라고 합니다.</p>
+    <div class="formula"><b style="color:#2563eb">x = 2</b> 이면 <b style="color:#e11d48">x² = 4</b> 이다<br>
+      <span class="hint" style="font-size:13px">↑ 가정 p &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ↑ 결론 q</span></div>
+    <p>다음 네 문장에서 가정과 결론을 찾아봅시다. 문장을 눌러 확인하세요.</p>
+    <div class="btns" id="b3"></div>
+    <div class="readout" id="r3" style="margin-top:10px"></div>
+    <div class="callout"><b>주의</b> — (4)처럼 ‘~하면 ~이다’ 가 아니라
+      ‘~할 때’, ‘~인 경우’ 로 쓰인 문장도 있습니다. <b>조건 두 개</b>로 갈라 보는 것이 먼저입니다.</div>
+  </section>
+
+  <section class="screen" data-key="s4" data-prompt="두 명제의 참·거짓을 진리집합의 포함 관계로 설명해 보세요. 거짓인 명제에 대해서는 반례를 하나 들어 보세요.">
+    <div class="kicker">진리집합으로 판별하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 5 · 2-02 명제 ①② 의 논리적 흐름</span></div>
+    <!--TEACH:END-->
+    <h1>‘모조리’ 들어가는가?</h1>
+    <p>세 조건을 놓고 봅시다.
+       <b>p</b> : x 는 4의 약수 &nbsp;/&nbsp; <b>q</b> : x 는 8의 약수 &nbsp;/&nbsp; <b>r</b> : x 는 6의 약수</p>
+    <div class="lab">
+      <div>
+        <div class="nums" id="g4"></div>
+        <div class="btns" id="b4" style="margin-top:12px"></div>
+      </div>
+      <div class="controls"><div class="readout" id="r4"></div></div>
+    </div>
+    <div class="card">
+      <b>논리적 흐름 — 이렇게 따집니다</b>
+      <ul class="tight">
+        <li><b>(1)</b> 가정 p 에서 x 가 될 수 있는 값은 <b>1, 2, 4</b>. 이 값들이 <b>모조리</b> 결론을 만족하는가?</li>
+        <li><b>(2)</b> 진리집합을 써 본다. <b>P = {1, 2, 4}</b>, Q = {1, 2, 4, 8}, R = {1, 2, 3, 6}</li>
+        <li><b>(3)</b> <b>P ⊂ Q</b> 이므로 p → q 는 <b>참</b>.
+          <b>P ⊄ R</b> 이므로 p → r 은 <b>거짓</b>.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>반례</b> — p → r 이 거짓임을 보이려면
+      <b>가정은 만족하지만 결론은 만족하지 않는 예</b>를 하나만 찾으면 됩니다.
+      여기서는 <b>x = 4</b> — 4의 약수이지만 6의 약수는 아닙니다.</div>
+  </section>
+
+  <section class="screen" data-key="s5">
+    <div class="kicker">정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 5 · 2-02 명제 p → q 의 참·거짓 판별 · 교과서 84쪽</span></div>
+    <!--TEACH:END-->
+    <h1>P ⊂ Q ⟺ p → q 는 참</h1>
+    <div class="lab">
+      <svg id="v5" viewBox="0 0 400 260"></svg>
+      <div class="controls">
+        <div class="btns" id="b5"></div>
+        <div class="readout" id="r5"></div>
+      </div>
+    </div>
+    <table>
+      <tr><th style="width:150px">진리집합</th><th class="l">명제 p → q</th></tr>
+      <tr><td><b>P ⊂ Q</b></td><td class="l"><b style="color:#059669">참</b> — p 가 참이 되는 모든 경우에 q 도 참</td></tr>
+      <tr><td><b>P ⊄ Q</b></td><td class="l"><b style="color:#e11d48">거짓</b> — p 는 참이지만 q 는 거짓인 원소가 있다 (반례)</td></tr>
+    </table>
+    <div class="callout"><b>예시</b> — 명제 ‘x = −1 이면 x² = 1 이다’ 에서
+      p : x = −1, q : x² = 1 이므로 <b>P = {−1}</b>, <b>Q = {1, −1}</b>.
+      <b>P ⊂ Q</b> 이므로 이 명제는 <b>참</b>입니다.</div>
+  </section>
+
+  <section class="screen" data-key="s6" data-prompt="네 명제의 참·거짓을 판별하고, 거짓인 것은 반례를 들어 보세요. 진리집합을 쓰는 과정도 함께 적어 주세요.">
+    <div class="kicker">판별 연습</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 5 · 2-02 명제 ①~④ 판별하기</span></div>
+    <!--TEACH:END-->
+    <h1>세 단계로 판별하기</h1>
+    <div class="card">
+      <b>[1단계]</b> 가정과 결론 구분 → <b>[2단계]</b> 각각의 진리집합 → <b>[3단계]</b> 포함 관계로 결론
+    </div>
+    <table id="t6"><tr><th class="l" style="width:46%">명제</th><th style="width:150px">판단</th><th class="l">반례 / 까닭</th></tr></table>
+    <div class="win" id="w6"></div>
+    <div class="callout"><b>①번을 자세히</b> — p : x ≤ 2, q : 3x − 5 &lt; 0 (즉 x &lt; 5/3).
+      P = { x | x ≤ 2 }, Q = { x | x &lt; 5/3 }. <b>P ⊄ Q</b> 이므로 거짓이고,
+      반례는 <b>x = 2</b> — 2 ∈ P 이지만 2 ∉ Q 입니다.</div>
+  </section>
+
+  <section class="screen" data-key="s7" data-photo="1" data-prompt="두 명제 p → ~q 와 p → r 이 모두 참이 되도록 하는 a, b 의 범위를 구하고, 수직선으로 설명해 보세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">연결 문제</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 5 · 2-02 [연결 문제] 참이 되는 명제를 만들려면?</span></div>
+    <!--TEACH:END-->
+    <h1>참이 되게 하려면 — 수직선으로</h1>
+    <div class="card">
+      세 조건 <b>p : −2 &lt; x ≤ 1</b>, &nbsp;<b>q : x &gt; a</b>, &nbsp;<b>r : | x − b | &lt; 4</b> 에 대하여
+      두 명제 <b>p → ~q</b>, <b>p → r</b> 가 <b>모두 참</b>이 되도록 하는 상수 a, b 의 값의 범위를 구하시오.
+    </div>
+    <div class="lab">
+      <svg id="v7" viewBox="0 0 400 220"></svg>
+      <div class="controls">
+        <div class="slider"><label>a <span><b id="v7a">0</b></span></label>
+          <input id="v7ar" type="range" min="-4" max="4" step="0.5" value="0"></div>
+        <div class="slider"><label>b <span><b id="v7b">0</b></span></label>
+          <input id="v7br" type="range" min="-6" max="6" step="0.5" value="0"></div>
+        <div class="readout" id="r7"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>풀이</b>
+      <button class="reveal" id="rv7" style="margin-left:8px">직접 움직여 본 뒤 열기</button>
+      <div class="ans" id="an7">
+        <p style="margin:8px 0 0"><b>P = { x | −2 &lt; x ≤ 1 }</b></p>
+        <p style="margin:8px 0 0"><b>p → ~q 가 참</b> ⟺ P ⊂ (~Q).
+          ~q : x ≤ a 이므로 P 의 <b>오른쪽 끝 1</b>까지 덮으려면 <b>a ≥ 1</b></p>
+        <p style="margin:8px 0 0"><b>p → r 이 참</b> ⟺ P ⊂ R.
+          r : b − 4 &lt; x &lt; b + 4 이므로<br>
+          &nbsp;&nbsp;왼쪽 : b − 4 ≤ −2 → <b>b ≤ 2</b><br>
+          &nbsp;&nbsp;오른쪽 : 1 &lt; b + 4 → <b>b &gt; −3</b></p>
+        <div class="formula"><b>a ≥ 1</b> &nbsp;,&nbsp; <b>−3 &lt; b ≤ 2</b></div>
+        <p style="margin:8px 0 0" class="hint">끝점에서 등호가 되는지 아닌지를 꼭 따져 보세요.
+          P 의 왼쪽 끝 −2 는 P 에 <b>포함되지 않으므로</b> b − 4 = −2 라도 괜찮습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s8" data-prompt="명제 ‘x > 1 이면 x² > 1 이다’ 의 역과 대우를 각각 쓰고, 참·거짓을 판별해 보세요.">
+    <div class="kicker">역과 대우</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 5 · 2-02 역·대우 · 교과서 88쪽</span></div>
+    <div class="turn"><i>📖</i><span>교과서 88쪽 [생각 틔우기] — “대한민국 국민이 아니면 피선거권이 없다” 를 뒤집어 봅니다.</span></div>
+    <!--TEACH:END-->
+    <h1>역 · 대우</h1>
+    <div class="formula">명제 <b>p → q</b> 에 대하여<br>
+      <b style="color:#d97706">역</b> : q → p &nbsp;&nbsp;(가정과 결론을 <b>바꾼다</b>)<br>
+      <b style="color:#7c3aed">대우</b> : ~q → ~p &nbsp;&nbsp;(<b>바꾸고 부정한다</b>)</div>
+    <div class="lab">
+      <div>
+        <div class="btns" id="b8"></div>
+        <div class="readout" id="r8" style="margin-top:12px"></div>
+      </div>
+      <div class="controls">
+        <div class="readout"><b>만드는 법</b><br><br>
+          원래 &nbsp; p → q<br>
+          역 &nbsp;&nbsp;&nbsp;&nbsp; q → p<br>
+          이 &nbsp;&nbsp;&nbsp;&nbsp; ~p → ~q<br>
+          대우 &nbsp; ~q → ~p<br><br>
+          <span class="hint">대우는 ‘역’ 과 ‘이’ 를 <b>둘 다</b> 거친 것입니다.</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>교과서 88쪽 [생각 틔우기]</b>
+      <p style="margin:8px 0 0">“대한민국 국민이 <b>아니면</b> 대한민국 국회의원 피선거권이 <b>없다</b>.”<br>
+        → “대한민국 국회의원 피선거권이 <b>있으면</b>
+        <button class="reveal" data-a="대한민국 국민이다">?</button>.”</p>
+      <p style="margin:8px 0 0" class="hint">두 문장은 <b>서로 대우</b> 관계라서 뜻이 같습니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s9" data-prompt="명제와 그 대우의 참·거짓이 왜 일치하는지 진리집합으로 설명하고, 세 명제의 역과 대우를 각각 판별해 보세요.">
+    <div class="kicker">대우의 참·거짓</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 5 · 2-02 명제 ②~④ · 교과서 88~89쪽</span></div>
+    <!--TEACH:END-->
+    <h1>명제와 대우는 운명을 같이한다</h1>
+    <div class="lab">
+      <svg id="v9" viewBox="0 0 400 260"></svg>
+      <div class="controls">
+        <div class="btns" id="b9"></div>
+        <div class="readout" id="r9"></div>
+      </div>
+    </div>
+    <div class="formula">P ⊂ Q &nbsp;⟺&nbsp; Q<sup>c</sup> ⊂ P<sup>c</sup><br>
+      <span style="font-size:14px">그래서 <b>명제와 그 대우의 참·거짓은 언제나 일치</b>합니다.</span></div>
+    <p>세 명제의 <b>역</b>과 <b>대우</b>를 판별해 봅시다. 명제를 눌러 보세요.</p>
+    <div class="btns" id="b9b"></div>
+    <div class="readout" id="r9b" style="margin-top:10px"></div>
+    <div class="callout"><b>역은 다를 수 있습니다.</b> 원래 명제가 참이어도 역은 거짓일 수 있어요.
+      참·거짓이 늘 같은 것은 <b>대우뿐</b>입니다.</div>
+  </section>
+
+  <section class="screen" data-key="s10" data-prompt="반드시 뒤집어야 하는 카드를 모두 고르고 그 까닭을 쓰세요. 뒤집을 필요가 없는 카드는 왜 그런지, 그 카드를 뒤집는 것이 무엇을 확인하는 일인지도 적어 보세요.">
+    <div class="kicker">역량 키우기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 교과서 89쪽 [역량 키우기] 카드 네 장</span></div>
+    <!--TEACH:END-->
+    <h1>🃏 어느 카드를 뒤집어야 할까?</h1>
+    <p>한 면에는 <b>숫자</b>가, 다른 면에는 <b>알파벳</b>이 적힌 카드 네 장이 놓여 있습니다.</p>
+    <div class="card" style="font-size:15px">
+      명제 : <b>“카드의 한 면에 알파벳 자음이 적혀 있으면, 다른 쪽 면에는 짝수가 적혀 있다.”</b>
+    </div>
+    <p class="q">이 명제가 <b>참인지 확인</b>하기 위해 반드시 뒤집어 보아야 하는 카드를 모두 고르세요.</p>
+    <div class="cards" id="c10"></div>
+    <div class="btns" style="justify-content:center">
+      <button class="rb" id="c10go">고른 대로 확인하기</button>
+      <button class="rb" id="c10rs">다시 고르기</button>
+    </div>
+    <div class="readout" id="r10" style="margin-top:12px"></div>
+    <div class="card">
+      <b>대우로 보면 한눈에</b>
+      <button class="reveal" id="rv10" style="margin-left:8px">직접 골라 본 뒤 열기</button>
+      <div class="ans" id="an10">
+        <p style="margin:8px 0 0">p : 자음이다 &nbsp;/&nbsp; q : 짝수이다 &nbsp;→&nbsp; 확인할 명제는 <b>p → q</b></p>
+        <p style="margin:8px 0 0"><b>K</b> (자음) — p 가 참. 뒷면이 홀수이면 명제가 무너집니다. <b>뒤집어야 함</b></p>
+        <p style="margin:8px 0 0"><b>7</b> (홀수) — ~q 가 참. <b>대우 ~q → ~p</b> 를 확인하는 자리입니다.
+          뒷면이 자음이면 명제가 무너집니다. <b>뒤집어야 함</b></p>
+        <p style="margin:8px 0 0"><b>A</b> (모음) — p 가 거짓. <b>가정이 거짓이면 명제는 참</b>이므로 볼 필요가 없습니다.</p>
+        <p style="margin:8px 0 0"><b>4</b> (짝수) — q 가 참. 뒷면이 무엇이든 명제는 무너지지 않습니다.
+          이 카드를 뒤집는 것은 <b>역 q → p</b> 를 확인하는 일이지, 원래 명제가 아닙니다.</p>
+        <div class="formula">답 &nbsp; <b>K 와 7</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s11" data-prompt="두 대학에 합격하기 위해 무엇이 더 필요한지, 또는 이미 충분한지 적어 보세요. 그리고 탄지로의 입장에서 항상 참인 명제를 하나 만들어 보세요.">
+    <div class="kicker">생각 열기 · 필요와 충분</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 5 · 2-02 [생각 열기] 대학 커트라인</span></div>
+    <!--TEACH:END-->
+    <h1>🎓 합격하려면 무엇이 필요할까</h1>
+    <div class="card">
+      <b>탄지로</b> · 19세 · 내신 <b>2.3</b> · 모의고사 <b>2합 4 / 3합 7</b>
+    </div>
+    <table>
+      <tr><th class="l">대학 · 학과</th><th>전형</th><th>내신 80% 컷</th><th>수능 최저</th></tr>
+      <tr><td class="l">수도권 사립 <b>A</b> 대학<br>동양요괴 학과</td><td>교과 100%</td><td><b>2.0</b></td><td>3합 5</td></tr>
+      <tr><td class="l">지방거점국립 <b>B</b> 대학<br>명상호흡 학과</td><td>교과 100%</td><td><b>2.6</b></td><td>3합 7</td></tr>
+    </table>
+    <div class="btns" id="b11"></div>
+    <div class="readout" id="r11" style="margin-top:10px"></div>
+    <div class="callout"><b>Q2.</b> 조건 <b>p : A 대학에 합격</b>, <b>q : B 대학에 합격</b> 이라 할 때,
+      탄지로의 입장에서 <b>항상 참인 명제</b>를 만들어 보세요.
+      <span class="hint">A 의 기준이 더 빡빡합니다. A 를 뚫을 실력이면 B 는 자동으로…</span></div>
+  </section>
+
+  <section class="screen" data-key="s12">
+    <div class="kicker">충분조건과 필요조건</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 5 · 2-02 집합의 원소 관점 · 교과서 90쪽</span></div>
+    <!--TEACH:END-->
+    <h1>충분조건 · 필요조건 · 필요충분조건</h1>
+    <p>명제 <b>p → q</b> 가 참일 때 이를 <b>p ⇒ q</b> 로 쓰고, 이때</p>
+    <div class="formula"><b>p</b> 는 <b>q</b> 이기 위한 <b style="color:#2563eb">충분조건</b><br>
+      <b>q</b> 는 <b>p</b> 이기 위한 <b style="color:#e11d48">필요조건</b></div>
+    <div class="lab">
+      <svg id="v12" viewBox="0 0 400 260"></svg>
+      <div class="controls">
+        <div class="btns" id="b12"></div>
+        <div class="readout" id="r12"></div>
+      </div>
+    </div>
+    <table>
+      <tr><th style="width:150px">진리집합</th><th class="l">p 는 q 이기 위한</th></tr>
+      <tr><td><b>P ⊂ Q</b></td><td class="l"><b>충분조건</b> &nbsp;<span class="hint">p ⇒ q</span></td></tr>
+      <tr><td><b>Q ⊂ P</b></td><td class="l"><b>필요조건</b> &nbsp;<span class="hint">q ⇒ p</span></td></tr>
+      <tr><td><b>P = Q</b></td><td class="l"><b>필요충분조건</b> &nbsp;<span class="hint">p ⇔ q</span></td></tr>
+    </table>
+    <div class="card">
+      <b>왜 ‘필요’ 라고 부를까?</b>
+      <p style="margin:8px 0 0">P ⊂ Q 일 때, Q 안에 들어가는 것은 P 에 들어가기 위해
+        <b>반드시 먼저 통과해야 하는 관문</b>입니다. 하지만 그것만으로는 모자라죠 —
+        그래서 <b>필요</b>하지만 <b>충분하지는 않습니다.</b></p>
+      <p style="margin:8px 0 0" class="hint">앞 화면으로 돌아가 보세요. A 합격은 B 합격이기 위한 <b>충분</b>조건,
+        B 합격은 A 합격이기 위한 <b>필요</b>조건이었습니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s13" data-prompt="네 문항에서 p 는 q 이기 위한 무슨 조건인지 판단하고, 진리집합의 포함 관계를 함께 적어 보세요.">
+    <div class="kicker">판단 연습</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 5 · 2-02 판단하기 3단계 · 교과서 91쪽</span></div>
+    <!--TEACH:END-->
+    <h1>p 는 q 이기 위한 무슨 조건?</h1>
+    <div class="card">
+      <b>[1단계]</b> 두 조건의 진리집합 → <b>[2단계]</b> 포함 관계 → <b>[3단계]</b> 기호로 쓰고 결론
+    </div>
+    <table id="t13"><tr><th class="l" style="width:42%">조건</th><th style="width:210px">p 는 q 이기 위한</th><th class="l">까닭</th></tr></table>
+    <div class="win" id="w13"></div>
+    <div class="callout"><b>요령</b> — 진리집합을 그린 뒤 <b>작은 쪽이 충분조건</b>입니다.
+      “작은 것 ⇒ 큰 것” 이라고 외워 두면 헷갈리지 않습니다.</div>
+  </section>
+
+  <section class="screen" data-key="s14" data-prompt="삼단논법으로 참인 것을 모두 찾고 그 까닭을 진리집합으로 설명해 보세요. 또 필요조건과 충분조건을 구분하는 나만의 방법을 적어 보세요.">
+    <div class="kicker">역량 키우기 · 정리</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 교과서 91쪽 [역량 키우기] 삼단논법 · 학습지 5 · 2-02 Q1·Q2</span></div>
+    <!--TEACH:END-->
+    <h1>🔗 삼단논법 — 조건을 사슬로 잇기</h1>
+    <div class="card">
+      (전제 1) 고래는 포유류이다. &nbsp;&nbsp; (전제 2) 포유류는 동물이다.<br>
+      <b>(결론) 따라서 고래는 동물이다.</b>
+      <p style="margin:8px 0 0" class="hint">두 전제가 참이면 삼단논법의 결론은 <b>항상 참</b>입니다.</p>
+    </div>
+    <p>세 조건 p, q, r 에 대하여 <b>p 는 r 이기 위한 충분조건</b>, <b>q 는 r 이기 위한 필요조건</b> 일 때,
+       다음 중 참인 것을 모두 찾아보세요.</p>
+    <div class="lab">
+      <div>
+        <div id="b14"></div>
+        <div class="readout" id="r14" style="margin-top:10px"></div>
+      </div>
+      <div class="controls">
+        <svg id="v14" viewBox="0 0 260 200"></svg>
+        <div class="readout"><b>주어진 것</b><br>p ⇒ r &nbsp;→&nbsp; P ⊂ R<br>r ⇒ q &nbsp;→&nbsp; R ⊂ Q</div>
+      </div>
+    </div>
+    <div class="card">
+      <b>집합으로 바꾸어 보기</b> <span class="hint">(교과서 91쪽 2번)</span>
+      <p style="margin:8px 0 0">두 집합 A, B 에 대하여 조건 <b>p : A ∩ B = A</b>, <b>q : A ∪ B = B</b> 일 때
+        p 는 q 이기 위한 무슨 조건일까요?</p>
+      <button class="reveal" id="rv14" style="margin-top:8px">생각해 본 뒤 열기</button>
+      <div class="ans" id="an14">
+        <p style="margin:8px 0 0">A ∩ B = A ⟺ <b>A ⊂ B</b> 이고, A ∪ B = B ⟺ <b>A ⊂ B</b> 입니다.
+          두 조건이 <b>같은 말</b>이므로 <b>필요충분조건</b>입니다.</p>
+        <p style="margin:8px 0 0" class="hint">집합 단원에서 배운 것이 그대로 쓰입니다.
+          벤 다이어그램을 그려 A 가 B 안에 쏙 들어간 모습을 떠올려 보세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="ext" data-photo="1" data-prompt="필요조건과 충분조건을 구분하는 나만의 방법을 만들어 적고, 오늘 배운 내용을 나만의 언어로 정리해 보세요. (손으로 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">개념 확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 5 · 2-02 Q1·Q2 · 교과서 89·91쪽 [스스로 익히기]</span></div>
+    <!--TEACH:END-->
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <div class="card">
+      <b>Q1. 필요조건과 충분조건을 구분짓기 위한 나만의 방법</b>
+      <p style="margin:8px 0 0">아래 기록칸에 만들어 적고, 친구들과 비교해 보세요.
+        <span class="hint">예) 화살표가 나가면 충분, 들어오면 필요 / 작은 집합이 충분</span></p>
+    </div>
+    <div class="card">
+      <b>더 생각해 볼 것</b>
+      <ul class="tight">
+        <li>명제가 참이면 대우도 참인데, <b>역</b>은 왜 그렇지 않을까요? 반례를 하나 만들어 보세요.</li>
+        <li>‘p 는 q 이기 위한 필요충분조건’ 일 때, p 와 q 의 진리집합은 어떤 관계인가요?</li>
+        <li>교과서 89쪽 [스스로 익히기] 1~3번, 91쪽 1~3번을 해결하고 막힌 곳을 아래에 적어 두세요.</li>
+        <li><b>2-01 에서 미뤄 둔 문제</b> — 교과서 85쪽 [스스로 익히기] <b>4번</b>이
+          바로 ‘p 이면 q 이다’ 의 참·거짓 문제입니다. 이제 풀 수 있습니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 16</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function txt(p,x,y,t,o){o=o||{};var e=el("text",{x:x,y:y,"font-size":o.size||14,
+  "text-anchor":o.anchor||"middle",fill:o.fill||"#27272a","font-weight":o.weight||700});
+  e.textContent=t;p.appendChild(e);return e;}
+function btnset(box,items,onPick,wide){
+  var bs=[];
+  items.forEach(function(it,i){
+    var b=document.createElement("button");b.className="rb"+(wide?" wide":"");b.innerHTML=it.t;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb"+(wide?" wide":"");});
+      b.className="rb on"+(wide?" wide":"");onPick(it,i);};
+    box.appendChild(b);bs.push(b);
+  });
+  return bs;
+}
+function Grid(box,U){
+  var cells={};
+  U.forEach(function(v){var d=document.createElement("div");d.className="num";d.textContent=v;
+    box.appendChild(d);cells[v]=d;});
+  return {show:function(fn,mark){U.forEach(function(v){
+    cells[v].className="num"+(fn(v)?" in":(mark?" out":""));});}};
+}
+/* 두 원 벤 — 포함 관계를 보여 준다 */
+function Venn2(svg,names,cfg){
+  cfg=cfg||{};
+  var W=400,H=260,id="vn"+Math.floor(Math.random()*1e9), U={x:12,y:30,w:376,h:H-42};
+  var C = cfg.inside
+    ? [{cx:178,cy:150,r:46},{cx:200,cy:148,r:92}]
+    : [{cx:163,cy:148,r:80},{cx:237,cy:148,r:80}];
+  var COL=["#2563eb","#e11d48"];
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  var defs=el("defs",{});
+  C.forEach(function(c,i){["in","out"].forEach(function(k){
+    var m=el("mask",{id:id+k+i,maskUnits:"userSpaceOnUse",x:0,y:0,width:W,height:H});
+    m.appendChild(el("rect",{x:0,y:0,width:W,height:H,fill:k==="in"?"#000":"#fff"}));
+    m.appendChild(el("circle",{cx:c.cx,cy:c.cy,r:c.r,fill:k==="in"?"#fff":"#000"}));
+    defs.appendChild(m);});});
+  svg.appendChild(defs);
+  var shadeG=el("g",{}),lineG=el("g",{});
+  svg.appendChild(shadeG);svg.appendChild(lineG);
+  lineG.appendChild(el("rect",{x:U.x,y:U.y,width:U.w,height:U.h,fill:"none",stroke:"#a1a1aa","stroke-width":1.5,rx:8}));
+  txt(lineG,U.x+9,U.y+18,"U",{size:15,anchor:"start",fill:"#71717a"});
+  C.forEach(function(c,i){
+    lineG.appendChild(el("circle",{cx:c.cx,cy:c.cy,r:c.r,fill:"none",stroke:COL[i],"stroke-width":2}));
+    var lx = cfg.inside ? (i===0?c.cx:c.cx+c.r-16) : (i===0?c.cx-58:c.cx+58);
+    var ly = cfg.inside ? (i===0?c.cy-c.r-8:c.cy-c.r-8) : c.cy-58;
+    txt(lineG,lx,ly,names[i],{size:17,fill:COL[i]});
+  });
+  function paint(bits,color,op){
+    var node=el("rect",{x:U.x,y:U.y,width:U.w,height:U.h,fill:color,opacity:op===undefined?0.5:op});
+    for(var i=1;i>=0;i--){var g=el("g",{mask:"url(#"+id+(bits[i]?"in":"out")+i+")"});g.appendChild(node);node=g;}
+    shadeG.appendChild(node);
+  }
+  return {shade:function(fn,color,op){
+    while(shadeG.firstChild)shadeG.removeChild(shadeG.firstChild);
+    [[false,false],[true,false],[false,true],[true,true]].forEach(function(b){if(fn(b))paint(b,color||"#2563eb",op);});
+  }};
+}
+
+/* ── 화면1 : 로또 약속 ────────────────────────────────── */
+(function(){
+  var ro=document.getElementById("r1");
+  btnset(document.getElementById("b1"),[
+    {t:"① A가 로또에 당첨되었고, B에게 2억원을 주었다.",ok:false,
+     s:"약속을 <b>지켰습니다.</b> 당첨되었고(p 참) 돈도 주었으니(q 참) 아무 문제 없습니다."},
+    {t:"② A가 로또에 당첨되었으나, B에게 2억원을 주지 않았다.",ok:true,
+     s:"✅ <b>이것이 약속을 어긴 경우입니다.</b> 당첨되었는데(p 참) 돈을 주지 않았습니다(q 거짓)."},
+    {t:"③ A가 로또에 당첨되진 않았으나, B에게 2억원을 주었다.",ok:false,
+     s:"약속을 어긴 것이 <b>아닙니다.</b> 당첨되지 않았으니(p 거짓) 애초에 약속이 발동하지 않았어요. 돈을 준 것은 그냥 A 의 선의입니다."}
+  ],function(it){
+    ro.innerHTML=it.s;
+    ro.style.borderColor=it.ok?"#86efac":"#e4e4e7";
+    ro.style.background=it.ok?"#dcfce7":"#fff";
+  },true);
+  ro.innerHTML="세 상황을 하나씩 눌러 보세요.";
+})();
+
+/* ── 화면2 : 진리표 ──────────────────────────────────── */
+(function(){
+  var rows=[
+    {p:"참",q:"참",v:"참",s:"① 당첨되고 돈도 주었다 — 약속을 지켰다",ok:true},
+    {p:"참",q:"거짓",v:"거짓",s:"② 당첨되었는데 돈을 주지 않았다 — <b>약속을 어겼다</b>",ok:false},
+    {p:"거짓",q:"참",v:"참",s:"③ 당첨되지 않았는데 돈을 주었다 — 어긴 것이 아니다",ok:true},
+    {p:"거짓",q:"거짓",v:"참",s:"당첨되지 않았고 돈도 주지 않았다 — 어긴 것이 아니다",ok:true}
+  ];
+  var tb=document.getElementById("t2"),ro=document.getElementById("r2");
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.style.cursor="pointer";
+    tr.innerHTML='<td>'+r.p+'</td><td>'+r.q+'</td>'+
+      '<td><b style="color:'+(r.v==="참"?"#059669":"#e11d48")+'">'+r.v+'</b></td>'+
+      '<td class="l hint">누르면 보입니다</td>';
+    tr.onclick=function(){
+      [].slice.call(tb.rows).forEach(function(x){x.className="";});
+      tr.className="hi";
+      tr.children[3].className="l";
+      tr.children[3].innerHTML=r.s;
+      ro.innerHTML=r.ok
+        ? "이 줄에서 p → q 는 <b style='color:#059669'>참</b>입니다."
+        : "이 줄에서만 p → q 가 <b style='color:#e11d48'>거짓</b>입니다. 네 줄 중 <b>딱 하나</b>뿐이에요.";
+    };
+    tb.appendChild(tr);
+  });
+  ro.innerHTML="네 줄을 하나씩 눌러 보세요.";
+})();
+
+/* ── 화면3 : 가정과 결론 ─────────────────────────────── */
+(function(){
+  var ro=document.getElementById("r3");
+  btnset(document.getElementById("b3"),[
+    {t:"(1) a, b 가 짝수이면 a + b 는 짝수이다",
+     p:"a, b 가 짝수이다",q:"a + b 는 짝수이다",v:"참"},
+    {t:"(2) x = 3 이면 2x + 3 &gt; 9 이다",
+     p:"x = 3",q:"2x + 3 &gt; 9",v:"참",n:"2·3 + 3 = 9 … 9 &gt; 9 는 <b>거짓</b>! 따라서 이 명제는 <b>거짓</b>입니다."},
+    {t:"(3) a, b 가 홀수이면 ab 는 홀수이다",
+     p:"a, b 가 홀수이다",q:"ab 는 홀수이다",v:"참"},
+    {t:"(4) 두 직선이 한 점에서 만나면 맞꼭지각의 크기는 서로 같다",
+     p:"두 직선이 한 점에서 만난다",q:"맞꼭지각의 크기가 서로 같다",v:"참"}
+  ],function(it){
+    ro.innerHTML="<b>가정 p</b> : "+it.p+"<br><b>결론 q</b> : "+it.q+"<br><br>"+
+      (it.n ? "⚠ "+it.n : "이 명제는 <b>"+it.v+"</b>입니다.");
+    ro.style.borderColor=it.n?"#fca5a5":"#e4e4e7";
+    ro.style.background=it.n?"#fef2f2":"#fff";
+  },true);
+  ro.innerHTML="문장을 눌러 가정과 결론을 갈라 보세요.";
+})();
+
+/* ── 화면4 : 4의 약수 → 8의 약수 / 6의 약수 ───────────── */
+(function(){
+  var U=[1,2,3,4,5,6,7,8,9,10,11,12];
+  var G=Grid(document.getElementById("g4"),U), ro=document.getElementById("r4");
+  var P=function(x){return 4%x===0;},Q=function(x){return 8%x===0;},R=function(x){return 6%x===0;};
+  btnset(document.getElementById("b4"),[
+    {t:"p : 4의 약수",f:P,s:"P = { 1, 2, 4 }"},
+    {t:"q : 8의 약수",f:Q,s:"Q = { 1, 2, 4, 8 }"},
+    {t:"r : 6의 약수",f:R,s:"R = { 1, 2, 3, 6 }"},
+    {t:"명제 ① p → q",f:P,cmp:Q,name:"q"},
+    {t:"명제 ② p → r",f:P,cmp:R,name:"r"}
+  ],function(it){
+    G.show(it.f,true);
+    if(!it.cmp){ ro.innerHTML="<b>"+it.t+"</b><br><br><span class='set'>"+it.s+"</span>"; return; }
+    var e=U.filter(it.f), bad=e.filter(function(x){return !it.cmp(x);});
+    var ok=bad.length===0;
+    ro.innerHTML="<b>"+it.t+"</b><br><br>"+
+      "P = <span class='set'>{ "+e.join(", ")+" }</span><br><br>"+
+      (ok ? "P 의 원소가 <b>모조리</b> "+it.name+" 를 만족합니다.<br>→ <b>P ⊂ "+it.name.toUpperCase()+"</b><br><br>이 명제는 <b style='color:#059669'>참</b>"
+          : "<b>"+bad.join(", ")+"</b> 은(는) "+it.name+" 를 만족하지 않습니다.<br>→ <b>P ⊄ "+it.name.toUpperCase()+"</b><br><br>이 명제는 <b style='color:#e11d48'>거짓</b><br><span class='hint'>반례: x = "+bad[0]+"</span>");
+  });
+  ro.innerHTML="조건과 명제를 눌러 보세요.<br><span class='hint'>U = { 1, …, 12 }</span>";
+})();
+
+/* ── 화면5 : P ⊂ Q ───────────────────────────────────── */
+(function(){
+  var V=Venn2(document.getElementById("v5"),["P","Q"],{inside:true});
+  var ro=document.getElementById("r5");
+  btnset(document.getElementById("b5"),[
+    {t:"P (가정이 참인 곳)",f:function(b){return b[0];},c:"#2563eb",
+     s:"가정 p 가 참이 되는 원소들입니다."},
+    {t:"Q (결론이 참인 곳)",f:function(b){return b[1];},c:"#e11d48",
+     s:"결론 q 가 참이 되는 원소들입니다."},
+    {t:"P ⊂ Q 이면?",f:function(b){return b[0];},c:"#059669",
+     s:"P 가 Q 안에 <b>쏙</b> 들어갑니다.<br><br>p 가 참인 모든 경우에 q 도 참<br>→ <b>p → q 는 참</b>"}
+  ],function(it){V.shade(it.f,it.c);ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;});
+  V.shade(function(){return false;});
+  ro.innerHTML="버튼을 눌러 P 와 Q 를 확인해 보세요.";
+})();
+
+/* ── 화면6 : 판별 연습 ───────────────────────────────── */
+(function(){
+  var rows=[
+    {t:"① x ≤ 2 이면 3x − 5 &lt; 0 이다",ok:false,
+     why:"P = { x | x ≤ 2 }, Q = { x | x &lt; 5/3 }. <b>반례 x = 2</b> — 2 ≤ 2 이지만 3·2 − 5 = 1 &gt; 0"},
+    {t:"② 자연수 x 가 소수이면 x 는 홀수이다",ok:false,
+     why:"<b>반례 x = 2</b> — 2 는 소수이지만 짝수입니다."},
+    {t:"③ x² − 4x + 3 = 0 이면 x − 3 = 0 이다",ok:false,
+     why:"P = { 1, 3 }, Q = { 3 }. <b>반례 x = 1</b> — 1 은 방정식의 해지만 1 − 3 ≠ 0"},
+    {t:"④ x² − 5x + 4 ≤ 0 이면 x ≤ 4 이다",ok:true,
+     why:"P = { x | 1 ≤ x ≤ 4 }, Q = { x | x ≤ 4 }. <b>P ⊂ Q</b> 이므로 참"}
+  ];
+  var tb=document.getElementById("t6"),done=0;
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td class="l">'+r.t+'</td><td></td><td class="l hint"></td>';
+    var cell=tr.children[1];
+    ["참","거짓"].forEach(function(lab,k){
+      var b=document.createElement("button");b.className="judge";b.textContent=lab;
+      b.onclick=function(){
+        var right=(k===0)===r.ok;
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        tr.children[2].innerHTML=right?r.why:"진리집합을 먼저 써 보세요. 어긋나는 원소가 있나요?";
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
+          if(done===rows.length){var W=document.getElementById("w6");W.className="win on";
+            W.innerHTML="🎉 네 명제를 모두 판별했습니다. 거짓인 것은 <b>반례 하나</b>로 무너졌습니다.";}}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── 화면7 : 수직선 연결 문제 ────────────────────────── */
+(function(){
+  var svg=document.getElementById("v7");
+  var W=400,H=220,pad=34,lo=-8,hi=8,sc=(W-2*pad)/(hi-lo);
+  function px(x){return pad+(x-lo)*sc;}
+  var a=0,b=0,ro=document.getElementById("r7");
+  function axis(y,lab){
+    svg.appendChild(el("line",{x1:px(lo),y1:y,x2:px(hi),y2:y,stroke:"#cbd5e1","stroke-width":1.5}));
+    for(var g=lo;g<=hi;g+=2){
+      svg.appendChild(el("line",{x1:px(g),y1:y-4,x2:px(g),y2:y+4,stroke:"#cbd5e1"}));
+      txt(svg,px(g),y+18,g,{size:10,weight:400,fill:"#a1a1aa"});
+    }
+    txt(svg,10,y+4,lab,{size:12,anchor:"start",fill:"#71717a"});
+  }
+  function bar(y,x1,x2,color,o1,o2){
+    svg.appendChild(el("line",{x1:px(x1),y1:y,x2:px(x2),y2:y,stroke:color,"stroke-width":7,
+      "stroke-linecap":"butt",opacity:0.85}));
+    [[x1,o1],[x2,o2]].forEach(function(p){
+      svg.appendChild(el("circle",{cx:px(p[0]),cy:y,r:5,
+        fill:p[1]?"#fff":color,stroke:color,"stroke-width":2.5}));
+    });
+  }
+  function draw(){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    axis(60,"p");  bar(60,-2,1,"#2563eb",true,false);
+    txt(svg,px(-0.5),46,"P : −2 < x ≤ 1",{size:11,fill:"#2563eb"});
+    axis(120,"~q"); bar(120,lo,a,"#059669",true,false);
+    txt(svg,px(a)-4,106,"~q : x ≤ "+a,{size:11,anchor:"end",fill:"#059669"});
+    axis(185,"r");  bar(185,Math.max(lo,b-4),Math.min(hi,b+4),"#d97706",true,true);
+    txt(svg,px(b),171,"r : "+(b-4)+" < x < "+(b+4),{size:11,fill:"#d97706"});
+    document.getElementById("v7a").textContent=a;
+    document.getElementById("v7b").textContent=b;
+    var okA = a>=1;
+    var okB = (b-4<=-2) && (1<b+4);
+    ro.innerHTML=
+      "<b>p → ~q</b> &nbsp;"+(okA?"<b style='color:#059669'>참 ✓</b>":"<b style='color:#e11d48'>거짓</b>")+"<br>"+
+      "<span class='hint'>"+(okA?"P 가 ~q 안에 다 들어갑니다.":"P 의 오른쪽 끝 1 이 삐져나옵니다.")+"</span><br><br>"+
+      "<b>p → r</b> &nbsp;"+(okB?"<b style='color:#059669'>참 ✓</b>":"<b style='color:#e11d48'>거짓</b>")+"<br>"+
+      "<span class='hint'>"+(okB?"P 가 r 안에 다 들어갑니다.":(b-4>-2?"왼쪽이 모자랍니다.":"오른쪽이 모자랍니다."))+"</span><br><br>"+
+      (okA&&okB?"🎉 <b>둘 다 참</b>입니다!":"두 슬라이더를 움직여 <b>둘 다 참</b>으로 만들어 보세요.");
+  }
+  document.getElementById("v7ar").addEventListener("input",function(){a=parseFloat(this.value);draw();});
+  document.getElementById("v7br").addEventListener("input",function(){b=parseFloat(this.value);draw();});
+  draw();
+})();
+
+/* ── 화면8 : 역과 대우 만들기 ────────────────────────── */
+(function(){
+  var ro=document.getElementById("r8");
+  btnset(document.getElementById("b8"),[
+    {t:"원래 &nbsp; x &gt; 1 이면 x² &gt; 1",
+     s:"<b>p → q</b><br>p : x &gt; 1, &nbsp; q : x² &gt; 1<br><br>P = { x | x &gt; 1 }<br>Q = { x | x &lt; −1 또는 x &gt; 1 }<br><br><b>P ⊂ Q</b> → <b style='color:#059669'>참</b>"},
+    {t:"역 &nbsp; x² &gt; 1 이면 x &gt; 1",
+     s:"<b>q → p</b><br><br>Q ⊄ P 입니다.<br><b>반례 x = −2</b> — 4 &gt; 1 이지만 −2 &gt; 1 은 거짓<br><br>→ <b style='color:#e11d48'>거짓</b>"},
+    {t:"대우 &nbsp; x² ≤ 1 이면 x ≤ 1",
+     s:"<b>~q → ~p</b><br><br>Q<sup>c</sup> = { x | −1 ≤ x ≤ 1 }<br>P<sup>c</sup> = { x | x ≤ 1 }<br><br><b>Q<sup>c</sup> ⊂ P<sup>c</sup></b> → <b style='color:#059669'>참</b><br><span class='hint'>원래 명제가 참이므로 대우도 참 ✓</span>"}
+  ],function(it){ro.innerHTML=it.s;},true);
+  ro.innerHTML="세 가지를 차례로 눌러 보세요. <b>역</b>과 <b>대우</b>가 어떻게 다른지 보입니다.";
+})();
+
+/* ── 화면9 : 대우의 참거짓 일치 ──────────────────────── */
+(function(){
+  var V=Venn2(document.getElementById("v9"),["P","Q"],{inside:true});
+  var ro=document.getElementById("r9");
+  btnset(document.getElementById("b9"),[
+    {t:"P ⊂ Q",f:function(b){return b[0];},c:"#2563eb",
+     s:"P 가 Q 안에 있습니다.<br>→ <b>p → q 는 참</b>"},
+    {t:"Q<sup>c</sup>",f:function(b){return !b[1];},c:"#e11d48",
+     s:"Q 의 바깥입니다.<br>여기에는 P 의 원소가 <b>하나도 없습니다.</b>"},
+    {t:"Q<sup>c</sup> ⊂ P<sup>c</sup>",f:function(b){return !b[1];},c:"#7c3aed",
+     s:"Q 바깥은 당연히 P 바깥이기도 합니다.<br>→ <b>~q → ~p 도 참</b><br><br>그래서 <b>명제와 대우는 참·거짓이 같습니다.</b>"}
+  ],function(it){V.shade(it.f,it.c);ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;});
+  V.shade(function(){return false;});
+  ro.innerHTML="세 버튼을 차례로 눌러 보세요.";
+
+  var rb=document.getElementById("r9b");
+  btnset(document.getElementById("b9b"),[
+    {t:"② 직사각형은 정사각형이다",
+     s:"<b>거짓</b> — 가로·세로가 다른 직사각형이 반례입니다.<br><br><b>역</b> : 정사각형은 직사각형이다 → <b style='color:#059669'>참</b><br><b>대우</b> : 정사각형이 아니면 직사각형이 아니다 → <b style='color:#e11d48'>거짓</b><br><span class='hint'>원래가 거짓이니 대우도 거짓 ✓</span>"},
+    {t:"③ A ⊂ B 이면 A ∩ B = A",
+     s:"<b>참</b> — A 가 B 안에 있으면 겹치는 부분이 곧 A 입니다.<br><br><b>역</b> : A ∩ B = A 이면 A ⊂ B → <b style='color:#059669'>참</b><br><b>대우</b> : A ∩ B ≠ A 이면 A ⊄ B → <b style='color:#059669'>참</b><br><span class='hint'>역까지 참이므로 <b>필요충분조건</b>입니다.</span>"},
+    {t:"④ x = 2 이면 x² − 4x + 4 = 0",
+     s:"<b>참</b> — x² − 4x + 4 = (x − 2)² 이므로 x = 2 에서 0.<br><br><b>역</b> : x² − 4x + 4 = 0 이면 x = 2 → <b style='color:#059669'>참</b> (중근)<br><b>대우</b> : x² − 4x + 4 ≠ 0 이면 x ≠ 2 → <b style='color:#059669'>참</b>"}
+  ],function(it){rb.innerHTML=it.s;},true);
+  rb.innerHTML="명제를 눌러 역과 대우를 확인해 보세요.";
+})();
+
+/* ── 화면10 : 카드 네 장 (Wason) ─────────────────────── */
+(function(){
+  var CARDS=[
+    {f:"A",back:"짝수",need:false,why:"모음입니다. 가정 p 가 <b>거짓</b>이므로 명제는 그냥 참 — 볼 필요 없습니다."},
+    {f:"K",back:"홀수",need:true, why:"자음입니다. 뒷면이 <b>홀수면 명제가 무너집니다.</b> 반드시 확인!"},
+    {f:"4",back:"모음",need:false,why:"짝수입니다. 뒷면이 무엇이든 명제는 안전합니다. 이걸 뒤집는 건 <b>역</b>을 보는 일이에요."},
+    {f:"7",back:"자음",need:true, why:"홀수입니다. 뒷면이 <b>자음이면 명제가 무너집니다.</b> 대우 확인 — 반드시!"}
+  ];
+  var box=document.getElementById("c10"), ro=document.getElementById("r10"), picked=[false,false,false,false];
+  var els=[];
+  CARDS.forEach(function(c,i){
+    var wrap=document.createElement("div");
+    var d=document.createElement("div");d.className="pcard";d.textContent=c.f;
+    d.onclick=function(){picked[i]=!picked[i];d.className="pcard"+(picked[i]?" pick":"");};
+    var cap=document.createElement("div");cap.className="pcap";cap.textContent="　";
+    wrap.appendChild(d);wrap.appendChild(cap);box.appendChild(wrap);
+    els.push({d:d,cap:cap});
+  });
+  document.getElementById("c10go").onclick=function(){
+    var right=true,msg=[];
+    CARDS.forEach(function(c,i){
+      if(picked[i]!==c.need) right=false;
+      if(picked[i]){ els[i].d.className="pcard flip"; els[i].d.textContent=c.back; els[i].cap.textContent="뒤집음"; }
+      msg.push("<b>"+c.f+"</b> — "+(c.need?"필요 ":"불필요 ")+c.why);
+    });
+    ro.innerHTML=(right?"🎉 <b>정확합니다!</b> 답은 <b>K 와 7</b> 입니다.<br><br>":"다시 생각해 볼까요? 답은 <b>K 와 7</b> 입니다.<br><br>")+msg.join("<br><br>");
+    ro.style.borderColor=right?"#86efac":"#fca5a5";
+    ro.style.background=right?"#dcfce7":"#fef2f2";
+  };
+  document.getElementById("c10rs").onclick=function(){
+    picked=[false,false,false,false];
+    CARDS.forEach(function(c,i){els[i].d.className="pcard";els[i].d.textContent=c.f;els[i].cap.textContent="　";});
+    ro.innerHTML="카드를 눌러 고른 뒤 <b>확인하기</b> 를 누르세요.";
+    ro.style.borderColor="#e4e4e7";ro.style.background="#fff";
+  };
+  ro.innerHTML="카드를 눌러 고른 뒤 <b>확인하기</b> 를 누르세요.";
+})();
+
+/* ── 화면11 : 탄지로 대학 ────────────────────────────── */
+(function(){
+  var ro=document.getElementById("r11");
+  btnset(document.getElementById("b11"),[
+    {t:"A 대학 — 합격할 수 있을까?",
+     s:"내신 <b>2.3</b> 인데 컷이 <b>2.0</b> — <b>부족합니다.</b><br>수능 최저는 3합 5 인데 탄지로는 3합 7 — <b>이것도 부족.</b><br><br>→ <b>더 노력이 필요합니다.</b>"},
+    {t:"B 대학 — 합격할 수 있을까?",
+     s:"내신 <b>2.3</b>, 컷이 <b>2.6</b> — <b>통과!</b><br>수능 최저 3합 7, 탄지로도 3합 7 — <b>통과!</b><br><br>→ <b>이미 충분합니다.</b>"},
+    {t:"둘 사이의 관계는?",
+     s:"A 의 기준이 <b>더 빡빡합니다.</b><br><br>A 에 붙을 정도면 B 는 <b>자동으로</b> 붙습니다.<br><br><b>p ⇒ q</b> &nbsp;(A 합격이면 B 합격)<br><br>이때 p 는 q 의 <b>충분조건</b>, q 는 p 의 <b>필요조건</b>입니다."}
+  ],function(it){ro.innerHTML=it.s;},true);
+  ro.innerHTML="하나씩 눌러 판단해 보세요.";
+})();
+
+/* ── 화면12 : 충분·필요 ──────────────────────────────── */
+(function(){
+  var V=Venn2(document.getElementById("v12"),["P","Q"],{inside:true});
+  var ro=document.getElementById("r12");
+  btnset(document.getElementById("b12"),[
+    {t:"p 는 q 의 충분조건",f:function(b){return b[0];},c:"#2563eb",
+     s:"<b>P ⊂ Q</b><br><br>P 에 들어가기만 하면 <b>저절로</b> Q 에 들어갑니다.<br>P 인 것으로 <b>충분</b>합니다."},
+    {t:"q 는 p 의 필요조건",f:function(b){return b[1];},c:"#e11d48",
+     s:"<b>P ⊂ Q</b> 인 같은 그림입니다.<br><br>P 에 들어가려면 <b>먼저 Q 를 통과</b>해야 합니다.<br>Q 는 <b>필요</b>하지만 그것만으로는 <b>모자랍니다.</b>"},
+    {t:"필요충분조건 (P = Q)",f:function(b){return b[0]&&b[1];},c:"#059669",
+     s:"P 와 Q 가 <b>완전히 같을</b> 때입니다.<br><br><b>p ⇔ q</b><br>p 는 q 의 충분조건이면서 필요조건 — 서로 바꿔 써도 됩니다."}
+  ],function(it){V.shade(it.f,it.c);ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;});
+  V.shade(function(){return false;});
+  ro.innerHTML="세 가지를 차례로 눌러 보세요.";
+})();
+
+/* ── 화면13 : 판단 연습 ──────────────────────────────── */
+(function(){
+  var rows=[
+    {t:"p : | x | ≤ 1 &nbsp;/&nbsp; q : −2 &lt; x &lt; 3",k:0,
+     why:"P = { x | −1 ≤ x ≤ 1 }, Q = { x | −2 &lt; x &lt; 3 }.<br><b>P ⊂ Q</b> 이고 Q ⊄ P → <b>충분조건</b>"},
+    {t:"p : 2x + 1 &lt; 3 &nbsp;/&nbsp; q : −⅓x + 2 &gt; 4",k:1,
+     why:"P = { x | x &lt; 1 }, Q = { x | x &lt; −6 }.<br><b>Q ⊂ P</b> 이고 P ⊄ Q → <b>필요조건</b>"},
+    {t:"p : | x | + | y | = 0 &nbsp;/&nbsp; q : x² + y² = 0",k:2,
+     why:"둘 다 <b>x = 0 이고 y = 0</b> 일 때만 성립합니다.<br><b>P = Q</b> → <b>필요충분조건</b>"},
+    {t:"p : x &gt; 0 이고 y &gt; 0 &nbsp;/&nbsp; q : √(x²y²) = xy",k:0,
+     why:"√(x²y²) = | xy | 이므로 q 는 <b>xy ≥ 0</b>.<br>x &gt; 0, y &gt; 0 이면 xy &gt; 0 이라 q 가 참.<br>하지만 x &lt; 0, y &lt; 0 이어도 q 는 참이므로 Q ⊄ P → <b>충분조건</b>"}
+  ];
+  var LAB=["충분조건","필요조건","필요충분조건"];
+  var tb=document.getElementById("t13"),done=0;
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td class="l">'+r.t+'</td><td></td><td class="l hint"></td>';
+    var cell=tr.children[1];
+    LAB.forEach(function(lab,k){
+      var b=document.createElement("button");b.className="judge";b.textContent=lab;
+      b.onclick=function(){
+        var right=(k===r.k);
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        tr.children[2].innerHTML=right?r.why:"진리집합을 그려 보세요. <b>작은 쪽이 충분조건</b>입니다.";
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
+          if(done===rows.length){var W=document.getElementById("w13");W.className="win on";
+            W.innerHTML="🎉 네 문항을 모두 판단했습니다. <b>작은 집합 ⇒ 큰 집합</b> 을 기억하세요.";}}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── 화면14 : 삼단논법 ───────────────────────────────── */
+(function(){
+  /* 세 겹 그림 — P ⊂ R ⊂ Q */
+  var svg=document.getElementById("v14");
+  [[130,100,86,"#059669","Q"],[130,108,58,"#d97706","R"],[130,116,30,"#2563eb","P"]]
+    .forEach(function(c){
+      svg.appendChild(el("circle",{cx:c[0],cy:c[1],r:c[2],fill:"none",stroke:c[3],"stroke-width":2}));
+      txt(svg,c[0],c[1]-c[2]+15,c[4],{size:14,fill:c[3]});
+    });
+  var ro=document.getElementById("r14"),box=document.getElementById("b14"),bs=[],got={};
+  [{t:"(1) r → p",ok:false,s:"R ⊂ P 가 아닙니다. R 은 P 보다 <b>큽니다.</b> → <b>참이 아님</b>"},
+   {t:"(2) ~q → ~r",ok:true, s:"r ⇒ q 의 <b>대우</b>입니다. r ⇒ q 가 참이므로 대우도 <b>참</b>"},
+   {t:"(3) p → q",ok:true, s:"P ⊂ R ⊂ Q 이므로 <b>P ⊂ Q</b>. 삼단논법으로 <b>참</b>"},
+   {t:"(4) ~q → ~p",ok:true, s:"(3) p ⇒ q 의 <b>대우</b>이므로 <b>참</b>"}
+  ].forEach(function(it,i){
+    var b=document.createElement("button");b.className="rb wide";b.innerHTML=it.t;
+    b.onclick=function(){
+      b.className="rb wide "+(it.ok?"on":"");
+      b.style.borderColor=it.ok?"":"#fca5a5";b.style.background=it.ok?"":"#fef2f2";
+      got[i]=true;
+      ro.innerHTML=(it.ok?"✅ ":"❌ ")+"<b>"+it.t+"</b><br><br>"+it.s+
+        (Object.keys(got).length===4?"<br><br>🎉 참인 것은 <b>(2), (3), (4)</b> 입니다.":"");
+    };
+    box.appendChild(b);bs.push(b);
+  });
+  ro.innerHTML="네 개를 모두 눌러 확인해 보세요.<br><span class='hint'>그림에서 P ⊂ R ⊂ Q 입니다.</span>";
+})();
+
+/* ── 정답 밝히기 ─────────────────────────────────────── */
+[].slice.call(document.querySelectorAll("button.reveal[data-a]")).forEach(function(b){
+  b.onclick=function(){b.textContent=b.getAttribute("data-a");
+    b.style.color="#2563eb";b.style.fontSize="13.5px";b.style.fontWeight="700";};
+});
+[["rv7","an7"],["rv10","an10"],["rv14","an14"]].forEach(function(p){
+  var b=document.getElementById(p[0]),a=document.getElementById(p[1]);
+  if(b&&a)b.onclick=function(){a.classList.toggle("on");
+    b.textContent=a.classList.contains("on")?"접기":"다시 열기";};
+});
+})();
+</script>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

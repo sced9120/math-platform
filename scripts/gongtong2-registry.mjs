@@ -53,11 +53,11 @@ export const REG = [
   { unit: "I3", order: 1, sheet: "학습지 3-01 [실생활] 보도블록·타일·이슬람 문양", desc: "평행이동·반사·회전을 조합해 평면을 빈틈없이 덮는 무늬 만들기", title: "🧩 테셀레이션 공방", book: "47", file: "gongtong2-07c-tessellation.html", height: 1000,
     rp: "(1) 첫 화면에서 빈틈도 겹침도 없이 덮이는 dx, dy 는 왜 하필 그 값이어야 했나요? (2) 내가 만든 무늬에 쓰인 이동을 좌표 규칙으로 모두 적어 보세요." },
 
-  { unit: "III", order: 3, sheet: "학습지 ‘함수 2. 합성함수’ · 데스모스 15번 [추가 탐구]", desc: "세 평면을 따라 x→y→z 를 추적하고, 자취로 합성함수의 그래프를 직접 그려 보기", title: "⚙️ 합성함수의 그래프", file: "gongtong2-15b-composite-graph.html", height: 1040,
+  { unit: "III", order: 21, sheet: "학습지 ‘함수 2. 합성함수’ · 데스모스 15번 [추가 탐구]", desc: "세 평면을 따라 x→y→z 를 추적하고, 자취로 합성함수의 그래프를 직접 그려 보기", title: "⚙️ 합성함수의 그래프", file: "gongtong2-15b-composite-graph.html", height: 1040,
     rp: "(1) 첫 평면의 세로축과 둘째 평면의 가로축이 같아야 하는 이유를 치역·정의역이라는 말로 설명하세요. (2) f(x)=x−1, g(x)=x²+1 일 때 (g∘f)(2) 와 (f∘g)(2) 를 각각 구하고 왜 다른지 쓰세요. (3) 세 함수에 대해 (h∘g)∘f 와 h∘(g∘f) 가 같은 이유를 ‘여정’에 빗대어 설명하세요." },
-  { unit: "III", order: 5, sheet: "학습지 ‘함수 3. 역함수’ (생각열기) Q3·Q4 확장", desc: "수평선 판정 → 정의역을 좁혀 일대일대응 만들기 → y=x 대칭으로 √x 등장", title: "🔍 정의역을 좁혀 역함수 만들기", file: "gongtong2-16c-restrict-domain.html", height: 1020,
+  { unit: "III", order: 22, sheet: "학습지 ‘함수 3. 역함수’ (생각열기) Q3·Q4 확장", desc: "수평선 판정 → 정의역을 좁혀 일대일대응 만들기 → y=x 대칭으로 √x 등장", title: "🔍 정의역을 좁혀 역함수 만들기", file: "gongtong2-16c-restrict-domain.html", height: 1020,
     rp: "(1) y=x² 이 실수 전체에서는 왜 역함수를 갖지 못하는지 수평선 판정으로 설명하세요. (2) 정의역을 x≤0 으로 정하면 역함수가 y=−√x 가 되는 이유를 쓰세요. (3) 함수 y=(x−2)² 이 역함수를 갖도록 정의역을 하나 정하고 그때의 역함수를 구하세요." },
-  { unit: "III", order: 8, sheet: "학습지 ‘유리·무리 3. 무리함수’ (생각키우기) 검증", desc: "제곱이 만들어 낸 가짜 해를 눈으로 잡아내고 올바른 범위 −4 ≤ t < −31/8 을 확정", title: "🕵️ 가짜 해를 찾아라", file: "gongtong2-21b-fake-root.html", height: 1020,
+  { unit: "III", order: 5, sheet: "학습지 ‘유리·무리 3. 무리함수’ (생각키우기) 검증", desc: "제곱이 만들어 낸 가짜 해를 눈으로 잡아내고 올바른 범위 −4 ≤ t < −31/8 을 확정", title: "🕵️ 가짜 해를 찾아라", file: "gongtong2-21b-fake-root.html", height: 1020,
     rp: "(1) t=−5 에서 x=2.25 가 가짜 해인 이유를 대입 결과로 설명하세요. (2) 제곱이라는 조작이 무엇을 잃어버리게 하는지 ‘충분조건’이라는 말을 써서 설명하세요. (3) 올바른 범위 −4 ≤ t < −31/8 이 나오는 과정을 ‘시작점을 지날 때’와 ‘접할 때’로 나누어 쓰세요." },
 
   // ── Ⅱ. 집합과 명제 ────────────────────────────────────────────
@@ -75,17 +75,17 @@ export const REG = [
     rp: "(1) 용의자 C와 D의 증언을 대우로 바꾼 과정을 쓰고, (2) 왜 범인이 A와 C 로 유일하게 결정되는지 연쇄 s⟹q⟹p⟹r 를 이용해 설명하세요. (3) 일상 문장을 명제 기호로 바꾸는 일이 왜 유용한지도 적어보세요." },
 
   // ── Ⅲ. 함수와 그래프 ──────────────────────────────────────────
-  { unit: "III", order: 0, sheet: "학습지 ‘함수 1. 함수’ [This is Robot World!]", desc: "명령을 합성해 새 명령 만들기 → 별 먹기 미션 → 명령어→행동이 곧 함수", title: "🤖 로봇 월드 — 별을 먹자", file: "gongtong2-14b-robot-world.html", height: 1020,
+  { unit: "III", order: 20, sheet: "학습지 ‘함수 1. 함수’ [This is Robot World!]", desc: "명령을 합성해 새 명령 만들기 → 별 먹기 미션 → 명령어→행동이 곧 함수", title: "🤖 로봇 월드 — 별을 먹자", file: "gongtong2-14b-robot-world.html", height: 1020,
     rp: "(1) turn_right() 를 turn_left() 로 만든 과정을 ‘합성’이라는 말을 써서 설명하세요. (2) turn_left() 를 4번 하면 왜 항등함수가 되나요? (3) move()→turn_left() 와 turn_left()→move() 의 결과가 다른 이유를 합성의 순서로 설명하세요." },
-  { unit: "III", order: 1, desc: "대응 다이어그램으로 함수/일대일함수/일대일대응 구분", title: "함수", file: "gongtong2-14-function.html", height: 980,
-    rp: "대응이 '함수'가 되기 위한 조건을 쓰고, 일대일함수·일대일대응의 차이를 그림(대응)으로 설명하세요." },
-  { unit: "III", order: 2, desc: "함수 기계 두 대를 연결. g∘f ≠ f∘g를 직접 확인", title: "합성함수", file: "gongtong2-15-composite.html", height: 980,
-    rp: "합성함수 (g∘f)(x)=g(f(x)) 의 계산 순서를 설명하고, 일반적으로 g∘f ≠ f∘g 임을 구체적인 예로 보이세요." },
-  { unit: "III", order: 4, desc: "대응 뒤집기와 y=x 대칭. 식 구하는 3단계", title: "역함수", file: "gongtong2-16-inverse.html", height: 980,
-    rp: "역함수가 존재하기 위한 조건(일대일대응)을 쓰고, y=f(x) 와 y=f⁻¹(x) 의 그래프가 직선 y=x 에 대해 대칭인 이유를 설명하세요." },
-  { unit: "III", order: 6, desc: "y=(ax+b)/(cx+d)를 k/(x−p)+q로 변형해 점근선 찾기", title: "유리함수", file: "gongtong2-20-rational-function.html", height: 1000,
+  { unit: "III", order: 0, sheet: "학습지 6 · 1-01 [Robot World]~★도전", book: "108~113", desc: "로봇 월드로 ‘명령 하나에 행동 하나’ → 네 대응 비교 → 정의역·공역·치역 → 치역과 같은 함수 → 그래프 판별 → 일대일함수·일대일대응 → 항등·상수함수", title: "함수", file: "gongtong2-l14-function.html", height: 1040,
+    rp: "(1) 어떤 대응이 ‘함수’ 가 되려면 무엇이 필요한가요? 로봇 월드의 ‘명령어 → 행동’ 으로 설명하세요. (2) 정의역·공역·치역을 예를 들어 구분해 쓰고, 치역 ≠ 공역 인 경우를 하나 드세요. (3) 일대일함수와 일대일대응은 무엇이 다른가요? 그래프로 판별하는 방법도 함께 쓰세요." },
+  { unit: "III", order: 1, sheet: "학습지 6 · 1-02 ① [생각열기]~[되돌아보기] · 교과서 116·121쪽", book: "114~116, 121", desc: "이중 환전으로 합성 도입 → 정의와 기호 → 함숫값 → 교환법칙 → 어느 할인을 먼저? → 결합법칙 → 거듭 합성과 항등함수 → 합성함수의 그래프 → 자동차 연비", title: "합성함수", file: "gongtong2-l15-composite.html", height: 1040,
+    rp: "(1) g ∘ f 를 계산할 때 왜 f 부터 하는지 설명하세요. (2) 두 할인(천 원 할인·포장 할인)의 순서를 바꾸면 왜 500원 차이가 나는지 식으로 보이세요. (3) 같은 함수를 네 번 합성했더니 항등함수가 되었습니다. 로봇 월드의 turn_left() 와 어떻게 같은지 쓰세요." },
+  { unit: "III", order: 2, sheet: "학습지 6 · 1-02 ② [생각열기]~[양말과 신발] · 교과서 121쪽", book: "117~119, 121", desc: "입출력 뒤집기 → 역함수의 정의와 성질 ①~④ → 식 구하기 3단계 → 양말과 신발로 (g∘f)⁻¹ → y=x 대칭 → 증가·감소함수의 교점 → 정의역을 좁혀 y=x² 뒤집기 → 화씨와 섭씨", title: "역함수", file: "gongtong2-l16-inverse.html", height: 1040,
+    rp: "(1) 역함수가 존재하려면 왜 일대일대응이어야 하는지 설명하세요. (2) (g ∘ f)⁻¹ = f⁻¹ ∘ g⁻¹ 에서 순서가 뒤집히는 까닭을 ‘양말과 신발’ 로 쓰세요. (3) 역함수와의 교점을 y = x 위에서만 찾으면 언제 틀리나요? 예를 들어 설명하세요." },
+  { unit: "III", order: 3, desc: "y=(ax+b)/(cx+d)를 k/(x−p)+q로 변형해 점근선 찾기", title: "유리함수", file: "gongtong2-20-rational-function.html", height: 1000,
     rp: "유리함수 y=(ax+b)/(cx+d) 를 y=k/(x−p)+q 꼴로 변형해 점근선을 찾는 과정을, 예를 하나 들어 직접 계산해 보이세요. (예: y=(2x−1)/(x+1))" },
-  { unit: "III", order: 7, desc: "a의 부호로 갈리는 네 방향과 y=x²의 역함수 관계", title: "무리함수", file: "gongtong2-21-irrational-function.html", height: 1000,
+  { unit: "III", order: 4, desc: "a의 부호로 갈리는 네 방향과 y=x²의 역함수 관계", title: "무리함수", file: "gongtong2-21-irrational-function.html", height: 1000,
     rp: "무리함수 y=√(ax+b)+c 의 정의역·치역이 a 의 부호에 따라 어떻게 달라지는지 그래프를 움직여 관찰한 내용을 바탕으로 정리하고, y=√x 와 y=x²(x≥0) 이 역함수 관계인 이유를 설명하세요." },
 ];
 

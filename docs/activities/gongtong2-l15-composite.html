@@ -1,0 +1,835 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed;--gold:#f59e0b}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .bad{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid var(--rose);border-radius:10px;padding:12px 15px;margin:12px 0}
+  .lab{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .readout{font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .12s}
+  .rb:hover{border-color:var(--blue);color:var(--blue)}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .rb.wide{display:block;width:100%;text-align:left;margin-bottom:6px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  td.l,th.l{text-align:left}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:17px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .judge{display:inline-block;border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;
+    padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
+  .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
+  .slider input{width:100%}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+  .pipe{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;
+    font-size:15px;font-weight:700;margin:12px 0}
+  .box{border:2px solid var(--line);border-radius:10px;padding:8px 14px;background:#fff;min-width:74px;text-align:center}
+  .box.f{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .box.g{border-color:var(--rose);background:#fff1f2;color:var(--rose)}
+  .box.v{border-color:var(--emerald);background:#ecfdf5;color:var(--emerald);font-size:17px}
+  .arrow{color:var(--muted);font-size:18px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on" data-key="s1" data-prompt="유로를 달러로 바꾸는 함수 g(x) 를 구하고, 3200원을 달러로 환전하면 얼마인지 계산해 보세요. 또 x 원을 달러로 바로 바꾸는 함수 h 를 만들 수 있는지 설명해 보세요.">
+    <div class="kicker">공통수학2 · 함수와 그래프</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 6 · 1-02 ① [생각열기] 이중 환전 계산하기</span></div>
+    <!--TEACH:END-->
+    <h1>💱 두 번 환전하면?</h1>
+    <p>각 나라의 화폐는 환율을 기준으로 환전됩니다.
+       원을 유로로 바꾼 뒤 다시 유로를 달러로 바꾸려고 합니다. (환전 수수료는 생각하지 않습니다.)</p>
+    <table>
+      <tr><td class="l">대한민국 <b>KRW</b> &nbsp;1600원</td><td>→</td><td class="l">유럽연합 <b>EUR</b> &nbsp;1유로</td></tr>
+      <tr><td class="l">유럽연합 <b>EUR</b> &nbsp;1유로</td><td>→</td><td class="l">미국 <b>USD</b> &nbsp;1.16달러</td></tr>
+    </table>
+    <div class="pipe">
+      <div class="box v" id="e1x">3200원</div>
+      <span class="arrow">→</span>
+      <div class="box f">f</div>
+      <span class="arrow">→</span>
+      <div class="box v" id="e1y">?</div>
+      <span class="arrow">→</span>
+      <div class="box g">g</div>
+      <span class="arrow">→</span>
+      <div class="box v" id="e1z">?</div>
+    </div>
+    <div class="lab">
+      <div>
+        <div class="slider"><label>원 <span><b id="e1a">3200</b> 원</span></label>
+          <input id="e1r" type="range" min="1600" max="16000" step="800" value="3200"></div>
+        <div class="btns" id="b1" style="margin-top:10px"></div>
+      </div>
+      <div class="controls"><div class="readout" id="r1"></div></div>
+    </div>
+    <div class="card">
+      <b>원 → 달러 함수 h 를 만들 수 있을까?</b>
+      <button class="reveal" id="rv1" style="margin-left:8px">직접 해 본 뒤 열기</button>
+      <div class="ans" id="an1">
+        <p style="margin:8px 0 0"><b>f</b> : 원 → 유로,&nbsp; f(x) = <b>x / 1600</b></p>
+        <p style="margin:8px 0 0"><b>g</b> : 유로 → 달러,&nbsp; g(x) = <b>1.16 x</b></p>
+        <p style="margin:8px 0 0">3200원 → f(3200) = <b>2 유로</b> → g(2) = <b>2.32 달러</b></p>
+        <div class="formula">h(x) = g( f(x) ) = 1.16 × (x / 1600) = <b>0.000725 x</b></div>
+        <p style="margin:8px 0 0"><b>만들 수 있습니다.</b> f 의 결과(유로)가 g 의 입력(유로)과
+          <b>종류가 같기</b> 때문이에요. 이렇게 두 함수를 이어 붙인 것을 <b>합성함수</b> 라고 합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s2">
+    <div class="kicker">스스로 정리하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 6 · 1-02 ① [스스로 정리하기] · 교과서 114~115쪽</span></div>
+    <div class="turn"><i>📖</i><span>교과서 114~115쪽 — 세 집합 X, Y, Z 로 합성함수를 정의합니다.</span></div>
+    <!--TEACH:END-->
+    <h1>합성함수의 정의</h1>
+    <div class="lab">
+      <svg id="v2" viewBox="0 0 400 240"></svg>
+      <div class="controls">
+        <div class="btns" id="b2"></div>
+        <div class="readout" id="r2"></div>
+      </div>
+    </div>
+    <div class="formula">두 함수 <b>f : X → Y</b>, <b>g : Y → Z</b> 의 합성함수는<br>
+      <b>g ∘ f : X → Z</b>, &nbsp; <b>(g ∘ f)(x) = g( f(x) )</b></div>
+    <div class="card">
+      <b>합성할 수 있으려면</b>
+      <p style="margin:8px 0 0">f 의 <b>치역</b>이 g 의 <b>정의역</b>의 <b>부분집합</b>이어야 합니다.
+        f 가 뱉은 값을 g 가 받을 수 있어야 하니까요.</p>
+      <p style="margin:8px 0 0" class="hint">환전으로 치면 — f 가 내놓는 것이 <b>유로</b>인데
+        g 가 <b>엔화</b>만 받는다면 이어 붙일 수 없겠죠.</p>
+    </div>
+    <div class="callout"><b>읽는 순서에 주의!</b> <b>g ∘ f</b> 는 <b>f 를 먼저</b>, 그 다음 g 입니다.
+      기호는 g 가 앞에 있는데 계산은 f 가 먼저예요. <span class="hint">g(f(x)) 의 괄호 안쪽부터 푼다고 생각하세요.</span></div>
+  </section>
+
+  <section class="screen" data-key="s3" data-prompt="(g ∘ f)(1), (g ∘ f)(2), (g ∘ f)(3) 을 각각 구하는 과정을 적어 보세요.">
+    <div class="kicker">함숫값 구하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-02 ① 함숫값 구하기 · ☞스스로 확인하기</span></div>
+    <!--TEACH:END-->
+    <h1>안쪽부터 차례로</h1>
+    <p>두 함수 <b>f(x) = x − 1</b>, <b>g(x) = x² + 1</b> 에 대하여 합성함숫값을 구해 봅시다.</p>
+    <div class="lab">
+      <div>
+        <div class="pipe">
+          <div class="box v" id="p3x">2</div>
+          <span class="arrow">→</span>
+          <div class="box f">f</div>
+          <span class="arrow">→</span>
+          <div class="box v" id="p3y">?</div>
+          <span class="arrow">→</span>
+          <div class="box g">g</div>
+          <span class="arrow">→</span>
+          <div class="box v" id="p3z">?</div>
+        </div>
+        <div class="btns" id="b3"></div>
+      </div>
+      <div class="controls"><div class="readout" id="r3"></div></div>
+    </div>
+    <table>
+      <tr><th style="width:120px">구하는 것</th><th class="l">과정</th><th style="width:70px">값</th></tr>
+      <tr><td><b>(g∘f)(1)</b></td><td class="l">g( f(1) ) = g(0) = 0² + 1</td>
+          <td><button class="reveal" data-a="1">?</button></td></tr>
+      <tr><td><b>(g∘f)(2)</b></td><td class="l">g( f(2) ) = g(1) = 1² + 1</td>
+          <td><button class="reveal" data-a="2">?</button></td></tr>
+      <tr><td><b>(g∘f)(3)</b></td><td class="l">g( f(3) ) = g(2) = 2² + 1</td>
+          <td><button class="reveal" data-a="5">?</button></td></tr>
+      <tr><td><b>(f∘g)(2)</b></td><td class="l">f( g(2) ) = f(5) = 5 − 1</td>
+          <td><button class="reveal" data-a="4">?</button></td></tr>
+    </table>
+    <div class="callout">맨 아래 줄을 보세요. <b>(g∘f)(2) = 2</b> 인데 <b>(f∘g)(2) = 4</b> — <b>다릅니다!</b>
+      다음 화면에서 이 이야기를 이어갑니다.</div>
+  </section>
+
+  <section class="screen" data-key="s4" data-prompt="(g ∘ f)(x) 와 (f ∘ g)(x) 를 각각 구해 비교하고, 왜 다른지 설명해 보세요.">
+    <div class="kicker">교환법칙</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-02 ① 교환법칙 · 교과서 예제 1</span></div>
+    <!--TEACH:END-->
+    <h1>순서를 바꾸면 달라진다</h1>
+    <p>두 함수 <b>f(x) = x − 1</b>, <b>g(x) = x² + 1</b> 로 식을 직접 구해 봅시다.</p>
+    <div class="lab">
+      <svg id="v4" viewBox="0 0 400 300"></svg>
+      <div class="controls">
+        <div class="btns" id="b4"></div>
+        <div class="readout" id="r4"></div>
+      </div>
+    </div>
+    <div class="formula">일반적으로 &nbsp; <b>g ∘ f ≠ f ∘ g</b><br>
+      <span style="font-size:14px">함수의 합성에서는 <b>교환법칙이 성립하지 않습니다.</b></span></div>
+    <div class="card">
+      <b>교과서 예제 1</b> — 두 함수 f(x) = 2x² − 1, g(x) = x + 2 에 대하여
+      <table style="margin-top:8px">
+        <tr><td class="l">(1) (f ∘ g)(x)</td>
+            <td class="l"><button class="reveal" data-a="f(x+2) = 2(x+2)² − 1 = 2x² + 8x + 7">?</button></td></tr>
+        <tr><td class="l">(2) (g ∘ f)(x)</td>
+            <td class="l"><button class="reveal" data-a="g(2x²−1) = (2x²−1) + 2 = 2x² + 1">?</button></td></tr>
+      </table>
+      <p style="margin:8px 0 0" class="hint">안쪽 함수의 <b>식을 통째로</b> 바깥 함수의 x 자리에 넣습니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s5" data-prompt="어느 할인을 먼저 적용하는 것이 유리한가요? 두 합성함수를 구해 비교하고, 그 차가 얼마인지도 적어 보세요.">
+    <div class="kicker">역량 키우기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 교과서 116쪽 [역량 키우기] 어느 할인을 먼저?</span></div>
+    <!--TEACH:END-->
+    <h1>🥤 어느 할인을 먼저 받을까?</h1>
+    <p>어느 카페에서 <b>천 원 할인</b>(음료 주문 시 1000원 할인)과
+       <b>포장 할인</b>(포장하면 반값)을 함께 운영합니다.
+       정가가 <b>x 원</b>인 음료를 주문하려고 합니다. (x &gt; 2000)</p>
+    <div class="formula"><b>f(x) = x − 1000</b> &nbsp;(천 원 할인) &nbsp;&nbsp;/&nbsp;&nbsp;
+      <b>g(x) = ½ x</b> &nbsp;(포장 할인)</div>
+    <div class="lab">
+      <div>
+        <div class="slider"><label>정가 <span><b id="c5a">10000</b> 원</span></label>
+          <input id="c5r" type="range" min="2400" max="20000" step="400" value="10000"></div>
+        <svg id="v5" viewBox="0 0 400 200"></svg>
+      </div>
+      <div class="controls"><div class="readout" id="r5"></div></div>
+    </div>
+    <div class="card">
+      <b>정리해 봅시다</b>
+      <button class="reveal" id="rv5" style="margin-left:8px">움직여 본 뒤 열기</button>
+      <div class="ans" id="an5">
+        <p style="margin:8px 0 0"><b>포장 먼저 → 천 원 할인</b><br>
+          (f ∘ g)(x) = f( ½x ) = <b>½x − 1000</b></p>
+        <p style="margin:8px 0 0"><b>천 원 할인 먼저 → 포장</b><br>
+          (g ∘ f)(x) = g( x − 1000 ) = <b>½x − 500</b></p>
+        <div class="formula">(g ∘ f)(x) − (f ∘ g)(x) = <b>500</b></div>
+        <p style="margin:8px 0 0"><b>포장 할인을 먼저</b> 받는 것이 언제나 <b>500원 더 쌉니다.</b>
+          정가에 관계없이 차는 늘 500원이에요.</p>
+        <p style="margin:8px 0 0" class="hint"><b>왜 그럴까?</b> 천 원 할인을 먼저 받으면
+          그 1000원까지 <b>반으로 깎여</b> 500원의 효과밖에 못 냅니다.
+          앞의 <b>이중 환전</b>은 두 함수가 모두 곱셈이라 순서를 바꿔도 같았지만,
+          여기는 <b>곱셈과 뺄셈</b>이 섞여 순서가 중요해집니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s6" data-prompt="f ∘ (g ∘ h) 와 (f ∘ g) ∘ h 를 각각 구해 비교해 보세요. 결합법칙이 성립하는 것이 왜 편리한지도 적어 보세요.">
+    <div class="kicker">결합법칙</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 교과서 115쪽 [함께 완성하기] 결합법칙</span></div>
+    <!--TEACH:END-->
+    <h1>괄호를 옮겨도 될까?</h1>
+    <p>세 함수 <b>f(x) = 3x</b>, <b>g(x) = x²</b>, <b>h(x) = x − 1</b> 에 대하여
+       <b>f ∘ (g ∘ h)</b> 와 <b>(f ∘ g) ∘ h</b> 가 같은지 확인해 봅시다.</p>
+    <div class="btns" id="b6"></div>
+    <div class="readout" id="r6" style="margin-top:12px"></div>
+    <div class="formula"><b>f ∘ (g ∘ h) = (f ∘ g) ∘ h</b><br>
+      <span style="font-size:14px">함수의 합성에서는 <b>결합법칙이 성립합니다.</b></span></div>
+    <div class="callout">그래서 괄호 없이 <b>f ∘ g ∘ h</b> 라고 써도 됩니다.
+      어디에 괄호를 넣든 결과가 같기 때문이에요.
+      <span class="hint">단, <b>순서</b>를 바꾸는 것은 안 됩니다 — 교환법칙은 성립하지 않으니까요.</span></div>
+  </section>
+
+  <section class="screen" data-key="s7" data-prompt="네 문제를 풀고 과정을 함께 적어 보세요.">
+    <div class="kicker">문제 풀어보기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 교과서 116쪽 [스스로 익히기] 1·3·4번</span></div>
+    <!--TEACH:END-->
+    <h1>문제 풀어보기</h1>
+    <div class="card">
+      <b>1.</b> 두 함수 <b>f(x) = | 2x − 5 |</b>, <b>g(x) = x² − 3x</b> 에 대하여
+      <table style="margin-top:8px">
+        <tr><td>(g∘f)(2)</td><td><button class="reveal" data-a="−2">?</button></td>
+            <td>(f∘g)(2)</td><td><button class="reveal" data-a="9">?</button></td></tr>
+        <tr><td>(f∘f)(3)</td><td><button class="reveal" data-a="3">?</button></td>
+            <td>(g∘g)(3)</td><td><button class="reveal" data-a="0">?</button></td></tr>
+      </table>
+      <p style="margin:8px 0 0" class="hint">f(2) = |−1| = 1 → g(1) = 1 − 3 = −2 &nbsp;/&nbsp;
+        g(2) = 4 − 6 = −2 → f(−2) = |−9| = 9<br>
+        f(3) = |1| = 1 → f(1) = |−3| = 3 &nbsp;/&nbsp; g(3) = 9 − 9 = 0 → g(0) = 0</p>
+    </div>
+    <div class="card">
+      <b>3.</b> 두 함수 <b>f(x) = 3x + 1</b>, <b>g(x) = x² − 2x</b> 에 대하여
+      <table style="margin-top:8px">
+        <tr><td class="l">(1) (g ∘ f)(x)</td>
+            <td class="l"><button class="reveal" data-a="(3x+1)² − 2(3x+1) = 9x² − 3">?</button></td></tr>
+        <tr><td class="l">(2) (f ∘ g)(x)</td>
+            <td class="l"><button class="reveal" data-a="3(x²−2x) + 1 = 3x² − 6x + 1">?</button></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <b>4.</b> 세 함수 f, g, h 에 대하여 <b>(g ∘ f)(x) = 4x − 3</b>, <b>h(x) = x² + x</b> 일 때
+      <b>((h ∘ g) ∘ f)(x)</b> 를 구하시오.
+      <button class="reveal" id="rv7" style="margin-left:8px">풀이 보기</button>
+      <div class="ans" id="an7">
+        <p style="margin:8px 0 0"><b>결합법칙</b>에 의해 ((h∘g)∘f)(x) = (h∘(g∘f))(x) = h( (g∘f)(x) )</p>
+        <p style="margin:8px 0 0">= h(4x − 3) = (4x−3)² + (4x−3)</p>
+        <div class="formula">= 16x² − 24x + 9 + 4x − 3 = <b>16x² − 20x + 6</b></div>
+        <p style="margin:8px 0 0" class="hint">g 와 f 를 따로 모르는데도 풀립니다.
+          <b>결합법칙 덕분에</b> 묶음을 통째로 쓸 수 있기 때문이에요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s8" data-prompt="같은 함수를 거듭 합성한 값을 구하고, 네 번 합성하면 어떤 함수가 되는지 적어 보세요. 로봇 월드의 turn_left() 와 어떻게 같은지도 설명해 보세요.">
+    <div class="kicker">거듭 합성</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 교과서 116쪽 2번 · 학습지 6 · 1-02 ① [되돌아보기]</span></div>
+    <!--TEACH:END-->
+    <h1>🔁 같은 함수를 거듭 합성하면</h1>
+    <p>함수 <b>f : X → X</b> 가 <b>X = { 1, 2, 3, 4 }</b> 에서 다음과 같이 주어져 있습니다.</p>
+    <div class="lab">
+      <svg id="v8" viewBox="0 0 400 260"></svg>
+      <div class="controls">
+        <div class="slider"><label>합성 횟수 <span><b id="c8n">1</b> 번</span></label>
+          <input id="c8r" type="range" min="1" max="8" step="1" value="1"></div>
+        <div class="readout" id="r8"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>f(2) + (f∘f)(2) + (f∘f∘f)(2) 의 값은?</b>
+      <button class="reveal" data-a="8" style="margin-left:8px">?</button>
+      <p style="margin:8px 0 0" class="hint">f(2) = 3, (f∘f)(2) = f(3) = 4, (f∘f∘f)(2) = f(4) = 1 → 합 <b>8</b></p>
+    </div>
+    <div class="callout"><b>로봇 월드로 돌아가 봅시다.</b>
+      <span class="mono">turn_left()</span> 를 4번 하면 제자리로 돌아왔죠.
+      여기서도 f 를 <b>4번 합성하면 항등함수</b> 가 됩니다.
+      그래서 5번은 1번과, 6번은 2번과 같아요 — <b>4로 나눈 나머지</b>만 중요합니다.</div>
+  </section>
+
+  <section class="screen" data-key="s9" data-prompt="두 그래프를 보고 합성함수 z = g(f(x)) 의 그래프가 어떤 모양이 될지 설명해 보세요. x 가 변할 때 y 와 z 가 어떻게 따라 변하는지 함께 적어 주세요.">
+    <div class="kicker">추가 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 데스모스 활동 [추가 탐구] 합성함수의 그래프 그리기</span></div>
+    <!--TEACH:END-->
+    <h1>⚙️ 합성함수의 그래프</h1>
+    <p><b>y = f(x)</b>, <b>z = g(y)</b> 라 하면 <b>z = g(f(x))</b> 의 그래프를 그릴 수 있습니다.
+       아래에서 <b>x 를 끌어</b> y 와 z 가 어떻게 따라 움직이는지 보세요.</p>
+    <div class="lab">
+      <svg id="v9" viewBox="0 0 400 320"></svg>
+      <div class="controls">
+        <div class="btns" id="b9"></div>
+        <div class="slider"><label>x <span><b id="c9x">1</b></span></label>
+          <input id="c9r" type="range" min="-3" max="3" step="0.1" value="1"></div>
+        <div class="readout" id="r9"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>그리는 요령 4단계</b>
+      <ul class="tight">
+        <li><b>①</b> y = f(x) 의 그래프를 본다 — x 를 넣으면 y 가 나온다</li>
+        <li><b>②</b> 그 y 를 z = g(y) 의 입력으로 넣는다</li>
+        <li><b>③</b> x 가 변할 때 y 가 어떻게 변하고, 그에 따라 z 가 어떻게 변하는지 <b>함께</b> 생각한다</li>
+        <li><b>④</b> x축과 z축으로 된 좌표평면에 (x, z) 를 찍어 그린다</li>
+      </ul>
+      <p style="margin:8px 0 0" class="hint">f 와 g 가 <b>꺾이는 곳</b>이나 <b>방향이 바뀌는 곳</b>을 먼저 표시하고,
+        그 사이를 나누어 부분별로 그리면 쉽습니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s10" data-photo="1" data-prompt="t 시간 후의 연비를 합성함수로 나타내고, 연비가 21.5 km/L 가 되는 시각을 구해 보세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">실생활 속으로</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 교과서 121쪽 [실생활 속으로] 수학적 모델링</span></div>
+    <!--TEACH:END-->
+    <h1>🚗 자동차 연비 — 합성함수로 잇기</h1>
+    <div class="card">
+      주행 성능 검사 중인 어느 자동차의 검사 시작 <b>t 시간</b> 후의 속도 <b>v km/h</b> 가<br>
+      <b>v(t) = 400t + 60</b> &nbsp;(0 ≤ t ≤ 0.2)<br><br>
+      이고, 이 자동차의 속도 <b>x km/h</b> 에서의 연비 <b>r km/L</b> 가<br>
+      <b>r(x) = −0.003x² + 0.48x + 2.3</b> &nbsp;(60 ≤ x ≤ 140)<br><br>
+      이라고 한다.
+    </div>
+    <div class="lab">
+      <div>
+        <div class="pipe">
+          <div class="box v" id="d10t">0.05시간</div>
+          <span class="arrow">→</span>
+          <div class="box f">v</div>
+          <span class="arrow">→</span>
+          <div class="box v" id="d10v">?</div>
+          <span class="arrow">→</span>
+          <div class="box g">r</div>
+          <span class="arrow">→</span>
+          <div class="box v" id="d10r">?</div>
+        </div>
+        <div class="slider"><label>시간 t <span><b id="c10t">0.05</b> 시간</span></label>
+          <input id="c10r" type="range" min="0" max="0.2" step="0.005" value="0.05"></div>
+        <svg id="v10" viewBox="0 0 400 220"></svg>
+      </div>
+      <div class="controls"><div class="readout" id="r10"></div></div>
+    </div>
+    <div class="card">
+      <b>풀이</b>
+      <button class="reveal" id="rv10" style="margin-left:8px">직접 풀어 본 뒤 열기</button>
+      <div class="ans" id="an10">
+        <p style="margin:8px 0 0"><b>(1)</b> t 시간 후의 연비는 <b>(r ∘ v)(t) = r( v(t) )</b> 입니다.</p>
+        <div class="formula">(r ∘ v)(t) = −0.003(400t + 60)² + 0.48(400t + 60) + 2.3</div>
+        <p style="margin:8px 0 0"><b>(2)</b> 먼저 연비가 21.5 가 되는 <b>속도</b>를 구합니다.</p>
+        <p style="margin:8px 0 0">−0.003x² + 0.48x + 2.3 = 21.5 → −0.003x² + 0.48x − 19.2 = 0<br>
+          양변에 −1000/3 을 곱하면 &nbsp; x² − 160x + 6400 = 0 → <b>(x − 80)² = 0</b> → <b>x = 80</b></p>
+        <p style="margin:8px 0 0">이제 v(t) = 80 을 풀면 &nbsp; 400t + 60 = 80 → t = 0.05 시간</p>
+        <div class="formula"><b>3분 후</b></div>
+        <p style="margin:8px 0 0" class="hint">완전제곱식이 되어 속도가 <b>하나로</b> 정해집니다.
+          연비가 가장 좋은 지점이 딱 그 속도였던 거예요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="ext" data-photo="1" data-prompt="합성함수를 쓴 실생활 예를 하나 만들고, 순서를 바꾸면 결과가 달라지는지 확인해 보세요. (손으로 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">개념 확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 6 · 1-02 ① [되돌아보기]·생각키우기</span></div>
+    <!--TEACH:END-->
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <div class="card">
+      <b>로봇 월드로 되돌아보기</b>
+      <ul class="tight">
+        <li><span class="mono">turn_right()</span> 를 <span class="mono">turn_left()</span> 의 합성으로 나타내 보세요.</li>
+        <li><span class="mono">move()</span> 다음 <span class="mono">turn_left()</span> 와,
+          <span class="mono">turn_left()</span> 다음 <span class="mono">move()</span> 는 결과가 같은가요?
+          이것이 <b>g ∘ f ≠ f ∘ g</b> 와 어떻게 이어지나요?</li>
+        <li><span class="mono">turn_left()</span> 를 4번 하면 아무 일도 일어나지 않습니다.
+          이런 함수를 무엇이라 부를까요?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <b>더 생각해 볼 것</b>
+      <ul class="tight">
+        <li>순서를 바꿔도 결과가 같은 두 함수는 어떤 경우일까요? <span class="hint">(환전처럼 둘 다 곱셈이면?)</span></li>
+        <li>f ∘ f 가 항등함수가 되는 함수 f 를 하나 찾아보세요. <span class="hint">(힌트: f(x) = −x, f(x) = 1/x …)</span></li>
+        <li>교과서 116쪽 [스스로 익히기] 를 해결하고 막힌 곳을 아래에 적어 두세요.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 12</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function txt(p,x,y,t,o){o=o||{};var e=el("text",{x:x,y:y,"font-size":o.size||13,
+  "text-anchor":o.anchor||"middle",fill:o.fill||"#27272a","font-weight":o.weight||700});
+  e.textContent=t;p.appendChild(e);return e;}
+function clear(s){while(s.firstChild)s.removeChild(s.firstChild);}
+function btnset(box,items,onPick,wide){
+  var bs=[];
+  items.forEach(function(it){
+    var b=document.createElement("button");b.className="rb"+(wide?" wide":"");b.innerHTML=it.t;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb"+(wide?" wide":"");});
+      b.className="rb on"+(wide?" wide":"");onPick(it);};
+    box.appendChild(b);bs.push(b);
+  });
+  return bs;
+}
+function num(v,d){var s=(Math.round(v*Math.pow(10,d||2))/Math.pow(10,d||2)).toString();return s;}
+function Plane(svg,lo,hi,H,W){
+  H=H||300;W=W||400;
+  var pad=26,sc=Math.min((W-2*pad)/(hi-lo),(H-2*pad)/(hi-lo));
+  var ox=W/2, oy=H/2;
+  function px(x){return ox+x*sc;} function py(y){return oy-y*sc;}
+  return {px:px,py:py,sc:sc,
+    grid:function(){
+      for(var g=Math.ceil(lo);g<=hi;g++){
+        svg.appendChild(el("line",{x1:px(g),y1:py(hi),x2:px(g),y2:py(lo),stroke:"#f1f5f9"}));
+        svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+      }
+      svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+      svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+    },
+    plot:function(fn,color,w){
+      var pts=[];
+      for(var i=0;i<=300;i++){var x=lo+(hi-lo)*i/300,y=fn(x);
+        if(isFinite(y)&&y>=lo-1&&y<=hi+1)pts.push(px(x)+","+py(y));
+        else if(pts.length){svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round"}));pts=[];}}
+      if(pts.length)svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round"}));
+    },
+    dot:function(x,y,color,lab){
+      svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:5,fill:color}));
+      if(lab){var t=el("text",{x:px(x)+9,y:py(y)-8,"font-size":12,"font-weight":700,fill:color});
+        t.textContent=lab;svg.appendChild(t);}
+    }
+  };
+}
+
+/* ── 화면1 : 이중 환전 ───────────────────────────────── */
+(function(){
+  var r=document.getElementById("e1r"),ro=document.getElementById("r1"),mode=0;
+  function draw(){
+    var x=parseFloat(r.value), y=x/1600, z=1.16*y;
+    document.getElementById("e1a").textContent=x;
+    document.getElementById("e1x").textContent=x+"원";
+    document.getElementById("e1y").textContent=(mode>=1?num(y,4)+" 유로":"?");
+    document.getElementById("e1z").textContent=(mode>=2?num(z,4)+" 달러":"?");
+    ro.innerHTML="원 <b>"+x+"</b><br><br>"+
+      (mode>=1?"f(x) = x / 1600<br>→ <b>"+num(y,4)+" 유로</b><br><br>":"<span class='hint'>‘f 적용’ 을 눌러 보세요.</span><br><br>")+
+      (mode>=2?"g(x) = 1.16 x<br>→ <b>"+num(z,4)+" 달러</b><br><br><span class='hint'>한 번에 하면 x × 0.000725</span>":"");
+  }
+  btnset(document.getElementById("b1"),[
+    {t:"처음으로",m:0},{t:"f 적용 (원→유로)",m:1},{t:"g 적용 (유로→달러)",m:2}
+  ],function(it){mode=it.m;draw();});
+  r.addEventListener("input",draw);
+  draw();
+})();
+
+/* ── 화면2 : 합성함수의 정의 그림 ───────────────────── */
+(function(){
+  var svg=document.getElementById("v2"),ro=document.getElementById("r2");
+  function draw(step){
+    clear(svg);
+    var C=[[70,"X","#2563eb"],[200,"Y","#e11d48"],[330,"Z","#059669"]];
+    C.forEach(function(c){
+      svg.appendChild(el("ellipse",{cx:c[0],cy:130,rx:42,ry:70,fill:"#fff",stroke:c[2],"stroke-width":1.8}));
+      txt(svg,c[0],40,c[1],{size:15,fill:c[2]});
+    });
+    svg.appendChild(el("circle",{cx:70,cy:130,r:5,fill:"#2563eb"}));
+    txt(svg,70,152,"x",{size:13,fill:"#1e40af"});
+    if(step>=1){
+      svg.appendChild(el("line",{x1:75,y1:130,x2:195,y2:130,stroke:"#2563eb","stroke-width":2.2}));
+      txt(svg,135,118,"f",{size:14,fill:"#2563eb"});
+      svg.appendChild(el("circle",{cx:200,cy:130,r:5,fill:"#e11d48"}));
+      txt(svg,200,152,"f(x)",{size:13,fill:"#9f1239"});
+    }
+    if(step>=2){
+      svg.appendChild(el("line",{x1:205,y1:130,x2:325,y2:130,stroke:"#e11d48","stroke-width":2.2}));
+      txt(svg,265,118,"g",{size:14,fill:"#e11d48"});
+      svg.appendChild(el("circle",{cx:330,cy:130,r:5,fill:"#059669"}));
+      txt(svg,330,152,"g(f(x))",{size:13,fill:"#065f46"});
+    }
+    if(step>=3){
+      svg.appendChild(el("path",{d:"M 70 210 Q 200 240 330 210",fill:"none",
+        stroke:"#7c3aed","stroke-width":2.4,"stroke-dasharray":"6 4"}));
+      txt(svg,200,236,"g ∘ f",{size:15,fill:"#7c3aed"});
+    }
+  }
+  btnset(document.getElementById("b2"),[
+    {t:"① x 에서 출발",s:0,d:"정의역 X 의 원소 x 에서 시작합니다."},
+    {t:"② f 를 적용",s:1,d:"f 가 x 를 <b>f(x)</b> 로 보냅니다. 이 값은 Y 의 원소예요."},
+    {t:"③ g 를 적용",s:2,d:"이번엔 g 가 f(x) 를 <b>g(f(x))</b> 로 보냅니다. Z 의 원소가 됩니다."},
+    {t:"④ 한 번에 보면",s:3,d:"결국 <b>X 에서 Z 로</b> 가는 새 함수가 생겼습니다.<br><br>이것이 <b>g ∘ f</b> 입니다."}
+  ],function(it){draw(it.s);ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.d;});
+  draw(0);ro.innerHTML="①②③④ 를 차례로 눌러 보세요.";
+})();
+
+/* ── 화면3 : 함숫값 ─────────────────────────────────── */
+(function(){
+  var ro=document.getElementById("r3");
+  function f(x){return x-1;} function g(x){return x*x+1;}
+  btnset(document.getElementById("b3"),[1,2,3].map(function(x){return {t:"x = "+x,x:x};}),
+    function(it){
+      var y=f(it.x),z=g(y);
+      document.getElementById("p3x").textContent=it.x;
+      document.getElementById("p3y").textContent=y;
+      document.getElementById("p3z").textContent=z;
+      ro.innerHTML="(g ∘ f)("+it.x+")<br><br>= g( f("+it.x+") )<br>= g( <b>"+y+"</b> )<br>= "+y+"² + 1<br>= <b>"+z+"</b>"+
+        "<br><br><span class='hint'>안쪽 f 부터 계산합니다.</span>";
+    });
+  ro.innerHTML="x 를 눌러 흐름을 따라가 보세요.";
+})();
+
+/* ── 화면4 : 교환법칙 ───────────────────────────────── */
+(function(){
+  var svg=document.getElementById("v4"),ro=document.getElementById("r4");
+  var gf=function(x){return (x-1)*(x-1)+1;};      // g(f(x)) = (x−1)² + 1
+  var fg=function(x){return x*x+1-1;};            // f(g(x)) = x²
+  var cur=0;
+  function draw(){
+    clear(svg);
+    var P=Plane(svg,-4,6,300);P.grid();
+    if(cur!==1)P.plot(gf,cur===0?"#2563eb":"#cbd5e1");
+    if(cur!==0)P.plot(fg,cur===1?"#e11d48":"#cbd5e1");
+    if(cur===2){P.plot(gf,"#2563eb");P.plot(fg,"#e11d48");}
+    ro.innerHTML= cur===0
+      ? "<b>(g ∘ f)(x)</b><br><br>= g( f(x) )<br>= g( x − 1 )<br>= <b>(x − 1)² + 1</b><br><br><span class='hint'>꼭짓점 (1, 1)</span>"
+      : cur===1
+      ? "<b>(f ∘ g)(x)</b><br><br>= f( g(x) )<br>= f( x² + 1 )<br>= (x² + 1) − 1<br>= <b>x²</b><br><br><span class='hint'>꼭짓점 (0, 0)</span>"
+      : "두 그래프를 겹쳐 보면 <b>완전히 다릅니다.</b><br><br>(g∘f)(x) = (x−1)² + 1<br>(f∘g)(x) = x²<br><br><span class='hint'>꼭짓점이 (1, 1) 과 (0, 0) — 다른 함수예요.</span>";
+  }
+  btnset(document.getElementById("b4"),[
+    {t:"g ∘ f",k:0},{t:"f ∘ g",k:1},{t:"겹쳐 보기",k:2}
+  ],function(it){cur=it.k;draw();});
+  draw();
+})();
+
+/* ── 화면5 : 카페 할인 ──────────────────────────────── */
+(function(){
+  var r=document.getElementById("c5r"),svg=document.getElementById("v5"),ro=document.getElementById("r5");
+  function draw(){
+    var x=parseFloat(r.value);
+    var fg=x/2-1000, gf=(x-1000)/2;
+    document.getElementById("c5a").textContent=x;
+    clear(svg);
+    var W=400,H=200,x0=110,max=10000;
+    function bw(v){return Math.max(2,(v/max)*250);}
+    [[60,"포장 먼저 → 천 원 할인",fg,"#059669"],[130,"천 원 할인 먼저 → 포장",gf,"#e11d48"]]
+    .forEach(function(b){
+      txt(svg,x0-10,b[0]+5,b[1],{size:11.5,anchor:"end",fill:"#52525b",weight:600});
+      svg.appendChild(el("rect",{x:x0,y:b[0]-13,width:bw(b[2]),height:26,rx:5,fill:b[3],opacity:0.85}));
+      txt(svg,x0+bw(b[2])+8,b[0]+5,Math.round(b[2])+"원",{size:12.5,anchor:"start",fill:b[3]});
+    });
+    txt(svg,x0+125,180,"싼 쪽이 유리합니다",{size:11.5,fill:"#a1a1aa",weight:400});
+    ro.innerHTML="정가 <b>"+x+"</b> 원<br><br>"+
+      "<b style='color:#059669'>포장 먼저</b><br>½·"+x+" − 1000 = <b>"+fg+"</b> 원<br><br>"+
+      "<b style='color:#e11d48'>천 원 먼저</b><br>("+x+" − 1000) ÷ 2 = <b>"+gf+"</b> 원<br><br>"+
+      "차이 <b>"+(gf-fg)+"</b> 원<br><span class='hint'>정가를 바꿔도 차이는 늘 500원입니다.</span>";
+  }
+  r.addEventListener("input",draw);draw();
+})();
+
+/* ── 화면6 : 결합법칙 ───────────────────────────────── */
+(function(){
+  var ro=document.getElementById("r6");
+  btnset(document.getElementById("b6"),[
+    {t:"① g ∘ h 부터",
+     s:"(g ∘ h)(x) = g( h(x) ) = g( x − 1 ) = <b>(x − 1)²</b>"},
+    {t:"② f ∘ (g ∘ h)",
+     s:"f( (g∘h)(x) ) = f( (x−1)² ) = <b>3(x − 1)²</b>"},
+    {t:"③ f ∘ g 부터",
+     s:"(f ∘ g)(x) = f( g(x) ) = f( x² ) = <b>3x²</b>"},
+    {t:"④ (f ∘ g) ∘ h",
+     s:"(f∘g)( h(x) ) = (f∘g)( x−1 ) = <b>3(x − 1)²</b>"},
+    {t:"⑤ 비교",
+     s:"② <b>3(x − 1)²</b><br>④ <b>3(x − 1)²</b><br><br>✅ <b>같습니다!</b><br><br>괄호를 어디에 넣든 결과가 같습니다."}
+  ],function(it){ro.innerHTML=it.s;},true);
+  ro.innerHTML="①~⑤ 를 차례로 눌러 보세요.<br><span class='hint'>f(x) = 3x, g(x) = x², h(x) = x − 1</span>";
+})();
+
+/* ── 화면8 : 거듭 합성 ──────────────────────────────── */
+(function(){
+  var svg=document.getElementById("v8"),r=document.getElementById("c8r"),ro=document.getElementById("r8");
+  var F={1:2,2:3,3:4,4:1};
+  function draw(){
+    var n=parseInt(r.value,10);
+    document.getElementById("c8n").textContent=n;
+    clear(svg);
+    var lx=120,rx=280,X=[1,2,3,4];
+    function yy(i){return 52+i*48;}
+    svg.appendChild(el("ellipse",{cx:lx,cy:130,rx:44,ry:96,fill:"#eff6ff",stroke:"#2563eb","stroke-width":1.6}));
+    svg.appendChild(el("ellipse",{cx:rx,cy:130,rx:44,ry:96,fill:"#fff1f2",stroke:"#e11d48","stroke-width":1.6}));
+    txt(svg,lx,26,"X",{size:14,fill:"#2563eb"});txt(svg,rx,26,"X",{size:14,fill:"#e11d48"});
+    X.forEach(function(v,i){
+      svg.appendChild(el("circle",{cx:lx,cy:yy(i),r:4,fill:"#2563eb"}));
+      txt(svg,lx-14,yy(i)+4,v,{size:13,anchor:"end",fill:"#1e40af"});
+      svg.appendChild(el("circle",{cx:rx,cy:yy(i),r:4,fill:"#e11d48"}));
+      txt(svg,rx+14,yy(i)+4,v,{size:13,anchor:"start",fill:"#9f1239"});
+      svg.appendChild(el("line",{x1:lx+5,y1:yy(i),x2:rx-5,y2:yy(F[v]-1),
+        stroke:"#cbd5e1","stroke-width":1.6}));
+    });
+    // n 번 합성한 결과를 굵게
+    var out={};
+    X.forEach(function(v){var t=v;for(var k=0;k<n;k++)t=F[t];out[v]=t;});
+    X.forEach(function(v,i){
+      svg.appendChild(el("line",{x1:lx+5,y1:yy(i),x2:rx-5,y2:yy(out[v]-1),
+        stroke:"#7c3aed","stroke-width":2.2}));
+    });
+    var id = X.every(function(v){return out[v]===v;});
+    ro.innerHTML="f 를 <b>"+n+"번</b> 합성<br><br>"+
+      X.map(function(v){return v+" → <b>"+out[v]+"</b>";}).join("<br>")+"<br><br>"+
+      (id?"✅ <b>항등함수</b> 입니다!<br><span class='hint'>모든 원소가 제자리로 돌아왔습니다.</span>"
+        :"<span class='hint'>"+n+" 을 4로 나눈 나머지는 "+(n%4)+" 입니다.</span>");
+  }
+  r.addEventListener("input",draw);draw();
+})();
+
+/* ── 화면9 : 합성함수의 그래프 ──────────────────────── */
+(function(){
+  var svg=document.getElementById("v9"),ro=document.getElementById("r9"),r=document.getElementById("c9r");
+  var PAIRS=[
+    {t:"f = x + 1, g = x²",f:function(x){return x+1;},g:function(y){return y*y;},
+     fs:"x + 1",gs:"y²",cs:"(x + 1)²"},
+    {t:"f = x², g = x + 1",f:function(x){return x*x;},g:function(y){return y+1;},
+     fs:"x²",gs:"y + 1",cs:"x² + 1"},
+    {t:"f = |x|, g = x − 2",f:function(x){return Math.abs(x);},g:function(y){return y-2;},
+     fs:"|x|",gs:"y − 2",cs:"|x| − 2"},
+    {t:"f = −x, g = x²",f:function(x){return -x;},g:function(y){return y*y;},
+     fs:"−x",gs:"y²",cs:"x²"}
+  ];
+  var cur=PAIRS[0];
+  function draw(){
+    var x=parseFloat(r.value);
+    document.getElementById("c9x").textContent=num(x,1);
+    clear(svg);
+    var y=cur.f(x), z=cur.g(y);
+    // 위: f 와 g, 아래: 합성
+    var gA=el("g",{transform:"translate(0,0)"}),gB=el("g",{transform:"translate(200,0)"}),
+        gC=el("g",{transform:"translate(100,160)"});
+    svg.appendChild(gA);svg.appendChild(gB);svg.appendChild(gC);
+    function mini(host,fn,color,lab,px_,py_){
+      var P=(function(){
+        var pad=18,W=200,H=160,lo=-4,hi=4,sc=Math.min((W-2*pad)/(hi-lo),(H-2*pad)/(hi-lo));
+        var ox=W/2,oy=H/2;
+        return {px:function(v){return ox+v*sc;},py:function(v){return oy-v*sc;},lo:lo,hi:hi};
+      })();
+      host.appendChild(el("rect",{x:6,y:6,width:188,height:148,rx:8,fill:"#fff",stroke:"#e4e4e7"}));
+      host.appendChild(el("line",{x1:P.px(P.lo),y1:P.py(0),x2:P.px(P.hi),y2:P.py(0),stroke:"#cbd5e1"}));
+      host.appendChild(el("line",{x1:P.px(0),y1:P.py(P.lo),x2:P.px(0),y2:P.py(P.hi),stroke:"#cbd5e1"}));
+      var pts=[];
+      for(var i=0;i<=200;i++){var v=P.lo+(P.hi-P.lo)*i/200,w=fn(v);
+        if(isFinite(w)&&w>=P.lo&&w<=P.hi)pts.push(P.px(v)+","+P.py(w));}
+      host.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":2.4}));
+      var t=el("text",{x:100,y:20,"font-size":12,"text-anchor":"middle","font-weight":700,fill:color});
+      t.textContent=lab;host.appendChild(t);
+      if(px_!==undefined&&isFinite(py_)&&py_>=P.lo&&py_<=P.hi&&px_>=P.lo&&px_<=P.hi){
+        host.appendChild(el("line",{x1:P.px(px_),y1:P.py(0),x2:P.px(px_),y2:P.py(py_),
+          stroke:color,"stroke-width":1.4,"stroke-dasharray":"4 3"}));
+        host.appendChild(el("circle",{cx:P.px(px_),cy:P.py(py_),r:4.5,fill:color}));
+      }
+    }
+    mini(gA,cur.f,"#2563eb","y = f(x) = "+cur.fs,x,y);
+    mini(gB,cur.g,"#e11d48","z = g(y) = "+cur.gs,y,z);
+    mini(gC,function(v){return cur.g(cur.f(v));},"#7c3aed","z = g(f(x)) = "+cur.cs,x,z);
+    ro.innerHTML="x = <b>"+num(x,1)+"</b><br><br>"+
+      "<b style='color:#2563eb'>f</b> → y = <b>"+num(y)+"</b><br>"+
+      "<b style='color:#e11d48'>g</b> → z = <b>"+num(z)+"</b><br><br>"+
+      "<span class='hint'>왼쪽 위에서 x→y, 오른쪽 위에서 y→z, 아래에서 x→z 를 한 번에 봅니다.</span>";
+  }
+  btnset(document.getElementById("b9"),PAIRS.map(function(p){return {t:p.t,p:p};}),
+    function(it){cur=it.p;draw();});
+  r.addEventListener("input",draw);
+  draw();
+})();
+
+/* ── 화면10 : 자동차 연비 ───────────────────────────── */
+(function(){
+  var r=document.getElementById("c10r"),svg=document.getElementById("v10"),ro=document.getElementById("r10");
+  function v(t){return 400*t+60;} function rr(x){return -0.003*x*x+0.48*x+2.3;}
+  function draw(){
+    var t=parseFloat(r.value), sp=v(t), fuel=rr(sp);
+    document.getElementById("c10t").textContent=num(t,3);
+    document.getElementById("d10t").textContent=num(t,3)+"시간";
+    document.getElementById("d10v").textContent=num(sp,1)+" km/h";
+    document.getElementById("d10r").textContent=num(fuel,2)+" km/L";
+    clear(svg);
+    // 연비 곡선 (속도 60~140)
+    var W=400,H=220,pad=40;
+    function px(x){return pad+(x-60)/80*(W-2*pad);}
+    function py(y){return H-pad-(y-2)/22*(H-2*pad);}
+    svg.appendChild(el("line",{x1:pad,y1:H-pad,x2:W-pad,y2:H-pad,stroke:"#cbd5e1","stroke-width":1.5}));
+    svg.appendChild(el("line",{x1:pad,y1:H-pad,x2:pad,y2:pad-6,stroke:"#cbd5e1","stroke-width":1.5}));
+    var pts=[];
+    for(var x=60;x<=140;x+=1)pts.push(px(x)+","+py(rr(x)));
+    svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:"#2563eb","stroke-width":2.6}));
+    [60,80,100,120,140].forEach(function(g){
+      txt(svg,px(g),H-pad+16,g,{size:10,weight:400,fill:"#a1a1aa"});});
+    txt(svg,W-pad,H-pad+30,"속도 (km/h)",{size:10.5,anchor:"end",weight:400,fill:"#a1a1aa"});
+    txt(svg,pad-6,pad,"연비",{size:10.5,anchor:"end",weight:400,fill:"#a1a1aa"});
+    // 최대점 (80, 21.5)
+    svg.appendChild(el("line",{x1:px(80),y1:py(2),x2:px(80),y2:py(21.5),
+      stroke:"#059669","stroke-width":1.4,"stroke-dasharray":"4 3"}));
+    svg.appendChild(el("circle",{cx:px(80),cy:py(21.5),r:4,fill:"#059669"}));
+    txt(svg,px(80),py(21.5)-10,"21.5",{size:11,fill:"#059669"});
+    // 현재점
+    svg.appendChild(el("circle",{cx:px(sp),cy:py(fuel),r:5.5,fill:"#e11d48"}));
+    ro.innerHTML="t = <b>"+num(t,3)+"</b> 시간 ("+num(t*60,1)+"분)<br><br>"+
+      "속도 v(t) = <b>"+num(sp,1)+"</b> km/h<br>"+
+      "연비 r(v) = <b>"+num(fuel,2)+"</b> km/L<br><br>"+
+      (Math.abs(fuel-21.5)<0.02
+        ? "✅ <b>연비 21.5 km/L!</b><br><span class='hint'>속도 80 km/h, 시작 3분 후입니다.</span>"
+        : "<span class='hint'>연비가 21.5 가 되는 곳을 찾아보세요.</span>");
+  }
+  r.addEventListener("input",draw);draw();
+})();
+
+/* ── 정답 밝히기 ─────────────────────────────────────── */
+[].slice.call(document.querySelectorAll("button.reveal[data-a]")).forEach(function(b){
+  b.onclick=function(){b.textContent=b.getAttribute("data-a");
+    b.style.color="#2563eb";b.style.fontWeight="700";};
+});
+[["rv1","an1"],["rv5","an5"],["rv7","an7"],["rv10","an10"]].forEach(function(p){
+  var b=document.getElementById(p[0]),a=document.getElementById(p[1]);
+  if(b&&a)b.onclick=function(){a.classList.toggle("on");
+    b.textContent=a.classList.contains("on")?"접기":"다시 열기";};
+});
+})();
+</script>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

@@ -1,0 +1,816 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed;--gold:#f59e0b}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .bad{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid var(--rose);border-radius:10px;padding:12px 15px;margin:12px 0}
+  .lab{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .readout{font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .12s}
+  .rb:hover{border-color:var(--blue);color:var(--blue)}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .rb.wide{display:block;width:100%;text-align:left;margin-bottom:6px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  td.l,th.l{text-align:left}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:17px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .judge{display:inline-block;border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;
+    padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
+  .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
+  .slider input{width:100%}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+  .flip{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin:12px 0}
+  .flip .t{border:1px solid var(--line);border-radius:10px;overflow:hidden;min-width:180px}
+  .flip .t table{margin:0;font-size:13px}
+  .flip .ar{font-size:24px;color:var(--violet)}
+  .steps3{counter-reset:s}
+  .steps3 .st{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+  .steps3 .st:last-child{border-bottom:none}
+  .steps3 .st .n{flex:none;width:24px;height:24px;border-radius:999px;background:var(--blue);color:#fff;
+    font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on" data-key="s1" data-prompt="입력과 출력을 바꾸어서 함수를 만들려면 어떤 조건이 필요할까요? 세 번째 표가 왜 안 되는지와 함께 적어 보세요.">
+    <div class="kicker">공통수학2 · 함수와 그래프</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 6 · 1-02 ② [생각열기] 입출력값 뒤집기 Q1~Q4</span></div>
+    <!--TEACH:END-->
+    <h1>🔄 입력과 출력을 뒤집어 보자</h1>
+    <p>표를 보고 어떤 함수인지 유추해 보고, <b>뒤집기</b> 버튼을 눌러 입력과 출력을 바꿔 보세요.</p>
+    <div class="btns" id="b1"></div>
+    <div class="flip" id="f1" style="margin-top:12px"></div>
+    <div class="readout" id="r1"></div>
+    <div class="card">
+      <b>Q4. 입력과 출력을 바꾸어 함수를 만들려면?</b>
+      <button class="reveal" id="rv1" style="margin-left:8px">세 표를 모두 본 뒤 열기</button>
+      <div class="ans" id="an1">
+        <p style="margin:8px 0 0">뒤집었을 때 <b>한 입력에 출력이 둘</b>이 되면 함수가 아닙니다.
+          y = x² 에서 −3 과 3 이 <b>둘 다 9</b> 로 갔기 때문에, 뒤집으면 9 가 −3 과 3 <b>둘</b>로 갈라졌죠.</p>
+        <div class="formula">원래 함수가 <b>일대일대응</b>이어야 뒤집어도 함수가 된다</div>
+        <p style="margin:8px 0 0" class="hint"><b>겹치면</b> 뒤집었을 때 갈라지고,
+          <b>남으면</b> 뒤집었을 때 짝이 없어집니다. 그래서 겹치지도 남지도 않아야 해요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s2">
+    <div class="kicker">스스로 정리하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 6 · 1-02 ② [스스로 정리하기] · 교과서 117쪽</span></div>
+    <div class="turn"><i>📖</i><span>교과서 117쪽 — 역함수의 정의를 함께 읽습니다.</span></div>
+    <!--TEACH:END-->
+    <h1>역함수의 정의</h1>
+    <div class="lab">
+      <svg id="v2" viewBox="0 0 400 240"></svg>
+      <div class="controls">
+        <div class="btns" id="b2"></div>
+        <div class="readout" id="r2"></div>
+      </div>
+    </div>
+    <div class="formula">함수 <b>f : X → Y</b> 가 <b>일대일대응</b>이면<br>
+      Y 를 <b>정의역</b>, X 를 <b>공역</b>으로 하는 새 함수를 정의할 수 있다.<br>
+      이것을 f 의 <b>역함수</b> 라 하고 <b>f⁻¹ : Y → X</b> 로 쓴다.</div>
+    <div class="callout"><b>y = f(x) ⟺ x = f⁻¹(y)</b><br>
+      <span class="hint">같은 화살표를 어느 쪽에서 읽느냐의 차이일 뿐입니다.</span></div>
+  </section>
+
+  <section class="screen" data-key="s3">
+    <div class="kicker">역함수의 성질</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 교과서 117쪽 역함수의 성질 ①~④</span></div>
+    <!--TEACH:END-->
+    <h1>역함수의 성질 네 가지</h1>
+    <p>함수 <b>f : X → Y</b> 가 <b>일대일대응</b>일 때</p>
+    <table>
+      <tr><th style="width:44px">①</th><td class="l">f 의 역함수 <b>f⁻¹ : Y → X</b> 가 존재한다</td></tr>
+      <tr><th>②</th><td class="l"><b>y = f(x) ⟺ x = f⁻¹(y)</b></td></tr>
+      <tr><th>③</th><td class="l"><b>(f⁻¹ ∘ f)(x) = x</b> (x ∈ X), &nbsp; <b>(f ∘ f⁻¹)(y) = y</b> (y ∈ Y)</td></tr>
+      <tr><th>④</th><td class="l"><b>(f⁻¹)⁻¹(x) = f(x)</b> (x ∈ X)</td></tr>
+    </table>
+    <div class="lab">
+      <svg id="v3" viewBox="0 0 400 240"></svg>
+      <div class="controls">
+        <div class="btns" id="b3"></div>
+        <div class="readout" id="r3"></div>
+      </div>
+    </div>
+    <div class="callout"><b>③ 을 말로 풀면</b> — f 로 보냈다가 f⁻¹ 로 되돌리면 <b>제자리</b>입니다.
+      즉 <b>f⁻¹ ∘ f 는 X 에서의 항등함수</b>, <b>f ∘ f⁻¹ 는 Y 에서의 항등함수</b>.
+      <span class="hint">로봇이 turn_left 를 4번 해서 제자리로 온 것과 같은 이야기죠.</span></div>
+  </section>
+
+  <section class="screen" data-key="s4" data-prompt="f⁻¹(4), f⁻¹(2), f⁻¹(1) 을 구하고, (f ∘ f⁻¹)(3) 과 (f⁻¹ ∘ f)(c) 의 값도 함께 적어 보세요. 또 (f⁻¹)⁻¹ 가 어떤 함수인지 설명해 보세요.">
+    <div class="kicker">역함수 탐구하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-02 ② ☞스스로 확인하기 · Q1·Q2</span></div>
+    <!--TEACH:END-->
+    <h1>화살표를 거꾸로 따라가 보자</h1>
+    <p>함수 <b>f : X → Y</b> 는 일대일대응이므로 역함수 <b>f⁻¹</b> 가 존재합니다.
+       원소를 눌러 화살표를 따라가 보세요.</p>
+    <div class="lab">
+      <svg id="v4" viewBox="0 0 400 260"></svg>
+      <div class="controls">
+        <div class="btns" id="b4"></div>
+        <div class="readout" id="r4"></div>
+      </div>
+    </div>
+    <table>
+      <tr><th class="l" style="width:52%">구하는 것</th><th>값</th></tr>
+      <tr><td class="l">(1) f(a) = 4 이므로 &nbsp; f⁻¹(4) =</td><td><button class="reveal" data-a="a">?</button></td></tr>
+      <tr><td class="l">(2) f(b) = 2 이므로 &nbsp; f⁻¹(2) =</td><td><button class="reveal" data-a="b">?</button></td></tr>
+      <tr><td class="l">(3) f(d) = 1 이므로 &nbsp; f⁻¹(1) =</td><td><button class="reveal" data-a="d">?</button></td></tr>
+      <tr><td class="l">(4) (f ∘ f⁻¹)(3) =</td><td><button class="reveal" data-a="3">?</button></td></tr>
+      <tr><td class="l">(5) (f⁻¹ ∘ f)(c) =</td><td><button class="reveal" data-a="c">?</button></td></tr>
+    </table>
+    <div class="callout"><b>(4)(5) 를 보세요.</b> 갔다가 되돌아오면 <b>출발한 자리</b> 그대로입니다.
+      <b>(f⁻¹)⁻¹ = f</b> 도 같은 이야기 — 거꾸로를 또 거꾸로 하면 원래대로죠.</div>
+  </section>
+
+  <section class="screen" data-key="s5" data-prompt="네 함수의 역함수를 3단계로 구해 보세요. x 와 y 를 바꾸는 단계가 왜 필요한지도 적어 주세요.">
+    <div class="kicker">역함수 식 구하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-02 ② 역함수 구하기 도표 · 교과서 118쪽</span></div>
+    <!--TEACH:END-->
+    <h1>세 단계로 구하기</h1>
+    <div class="card steps3">
+      <div class="st"><span class="n">1</span><span><b>y = f(x)</b> 에서 시작</span></div>
+      <div class="st"><span class="n">2</span><span><b>x 에 대하여 푼다</b> — x = (y 에 대한 식)</span></div>
+      <div class="st"><span class="n">3</span><span><b>x 와 y 를 서로 바꾼다</b> — y = f⁻¹(x)</span></div>
+    </div>
+    <div class="callout"><b>3단계는 왜 필요할까?</b> 함수를 쓸 때는 보통 <b>입력을 x, 출력을 y</b> 로 적기로
+      약속했기 때문입니다. 뜻이 바뀌는 것이 아니라 <b>이름표만 바꿔 다는</b> 것이에요.</div>
+    <div class="btns" id="b5"></div>
+    <div class="readout" id="r5" style="margin-top:12px"></div>
+  </section>
+
+  <section class="screen" data-key="s6" data-prompt="(g ∘ f)⁻¹ 이 f⁻¹ ∘ g⁻¹ 과 같은 까닭을 ‘양말과 신발’ 로 설명하고, 직접 계산해 확인한 과정을 적어 보세요.">
+    <div class="kicker">합성함수의 역함수</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-02 ② 합성함수의 역함수 · 교과서 119쪽 [역량 키우기]</span></div>
+    <!--TEACH:END-->
+    <h1>🧦 양말과 신발</h1>
+    <div class="card" style="font-size:15px">
+      아침에 <b>양말을 신고</b> → <b>신발을 신었다.</b><br>
+      저녁에 되돌리는 순서는? &nbsp;→&nbsp; <b>신발을 벗고</b> → <b>양말을 벗는다.</b>
+      <p style="margin:8px 0 0" class="hint">되돌릴 때는 <b>나중에 한 것부터</b> 풉니다. 순서가 뒤집히죠.</p>
+    </div>
+    <div class="formula"><b>(g ∘ f)⁻¹ = f⁻¹ ∘ g⁻¹</b><br>
+      <span style="font-size:14px">순서가 <b>뒤집힙니다</b></span></div>
+    <div class="btns" id="b6"></div>
+    <div class="readout" id="r6" style="margin-top:12px"></div>
+    <div class="card">
+      <b>순서가 정말 중요할까?</b>
+      <button class="reveal" id="rv6" style="margin-left:8px">확인해 보기</button>
+      <div class="ans" id="an6">
+        <p style="margin:8px 0 0">f(x) = x + 1, g(x) = 3x 로 세 가지를 모두 구해 봅시다.</p>
+        <table>
+          <tr><th class="l">식</th><th class="l">결과</th><th>맞나?</th></tr>
+          <tr><td class="l">(g ∘ f)⁻¹(x)</td><td class="l">(g∘f)(x) = 3(x+1) = 3x+3 → <b>x/3 − 1</b></td><td>기준</td></tr>
+          <tr><td class="l">f⁻¹ ∘ g⁻¹</td><td class="l">f⁻¹(x/3) = <b>x/3 − 1</b></td><td><b style="color:#059669">○</b></td></tr>
+          <tr><td class="l">g⁻¹ ∘ f⁻¹</td><td class="l">g⁻¹(x−1) = <b>x/3 − ⅓</b></td><td><b style="color:#e11d48">×</b></td></tr>
+        </table>
+        <p style="margin:8px 0 0"><b>순서를 지켜야 합니다.</b>
+          f⁻¹ ∘ g⁻¹ 만 맞고 g⁻¹ ∘ f⁻¹ 은 틀립니다.</p>
+      </div>
+    </div>
+    <div class="card">
+      <b>[확장하기]</b> 두 함수 f(x) = 3x + 4, g(x) = 5x − 2 에 대하여
+      <b>( g ∘ (f ∘ g)⁻¹ ∘ g )(3)</b> 의 값을 구하시오. <span class="hint">(교과서 119쪽)</span>
+      <button class="reveal" id="rv6b" style="margin-left:8px">풀이 보기</button>
+      <div class="ans" id="an6b">
+        <p style="margin:8px 0 0">안쪽부터 차례로 갑니다.</p>
+        <p style="margin:8px 0 0">g(3) = 5·3 − 2 = <b>13</b></p>
+        <p style="margin:8px 0 0">(f ∘ g)(x) = f(5x−2) = 3(5x−2) + 4 = <b>15x − 2</b><br>
+          → (f ∘ g)⁻¹(x) = (x + 2) / 15 &nbsp; → &nbsp; (f∘g)⁻¹(13) = 15/15 = <b>1</b></p>
+        <p style="margin:8px 0 0">g(1) = 5 − 2 = <b>3</b></p>
+        <div class="formula">답 &nbsp; <b>3</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s7" data-prompt="함수와 그 역함수의 그래프가 어떤 직선에 대하여 대칭인지 적고, 왜 그런지 점 (a, b) 와 (b, a) 로 설명해 보세요.">
+    <div class="kicker">역함수의 그래프</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-02 ② ☞스스로 확인하기 · 교과서 118쪽</span></div>
+    <!--TEACH:END-->
+    <h1>y = x 에 대하여 대칭</h1>
+    <p>두 함수 <b>y = 2x − 1</b> 과 <b>y = ½x + ½</b> 의 그래프를 그려 봅시다. 점을 끌어 보세요.</p>
+    <div class="lab">
+      <svg id="v7" viewBox="0 0 400 340"></svg>
+      <div class="controls">
+        <div class="slider"><label>점 A 의 x <span><b id="c7a">2</b></span></label>
+          <input id="c7r" type="range" min="-2" max="3" step="0.25" value="2"></div>
+        <div class="readout" id="r7"></div>
+      </div>
+    </div>
+    <div class="formula">함수 y = f(x) 의 그래프와 역함수 y = f⁻¹(x) 의 그래프는<br>
+      <b>직선 y = x 에 대하여 대칭</b></div>
+    <div class="card">
+      <b>왜 그럴까?</b>
+      <button class="reveal" id="rv7" style="margin-left:8px">확인하기</button>
+      <div class="ans" id="an7">
+        <p style="margin:8px 0 0">y = f(x) 의 그래프 위의 점을 (a, b) 라 하면</p>
+        <div class="formula">b = f(a) &nbsp;⟺&nbsp; a = f⁻¹(b)</div>
+        <p style="margin:8px 0 0">이므로 점 <b>(b, a)</b> 는 y = f⁻¹(x) 의 그래프 위의 점입니다.</p>
+        <p style="margin:8px 0 0">그런데 <b>(a, b) 와 (b, a) 는 직선 y = x 에 대하여 대칭</b>이죠.
+          <span class="hint">Ⅰ-3 도형의 이동에서 배웠습니다!</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s8" data-prompt="증가함수와 감소함수에서 역함수와의 교점이 어떻게 다른지 적어 보세요. ‘교점은 y = x 위에서 찾으면 된다’ 가 언제 틀리는지도 함께 써 주세요.">
+    <div class="kicker">추가 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 데스모스 활동 [추가 탐구] 증가·감소함수의 역함수 교점</span></div>
+    <!--TEACH:END-->
+    <h1>⚠️ 교점은 늘 y = x 위에 있을까?</h1>
+    <p>앞 화면에서 두 그래프의 교점이 <b>y = x 위</b>에 있었습니다. 언제나 그럴까요?</p>
+    <div class="lab">
+      <svg id="v8" viewBox="0 0 400 340"></svg>
+      <div class="controls">
+        <div class="btns" id="b8"></div>
+        <div class="readout" id="r8"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>정리</b>
+      <ul class="tight">
+        <li><b>증가함수</b> — 교점은 <b>모두 y = x 위</b>에 있습니다. f(x) = x 를 풀면 끝이에요.</li>
+        <li><b>감소함수</b> — <b>y = x 밖에서도</b> 만날 수 있습니다.</li>
+      </ul>
+      <p style="margin:8px 0 0" class="bad" style="margin-top:10px">
+        “역함수와의 교점은 y = x 에서 구하면 된다” 고 <b>외우면 감소함수에서 틀립니다.</b></p>
+    </div>
+    <div class="callout"><b>왜 그럴까?</b> 두 그래프는 y = x 에 대해 서로 대칭입니다.
+      점 P 가 교점이면 P 를 y = x 에 대칭시킨 점 P′ 도 교점이에요.
+      <b>증가함수</b>는 P 와 P′ 이 같을 수밖에 없지만(그래서 y = x 위),
+      <b>감소함수</b>는 P 와 P′ 이 서로 다른 두 교점이 될 수 있습니다.</div>
+  </section>
+
+  <section class="screen" data-key="s9" data-prompt="y = x² 이 역함수를 가지려면 정의역을 어떻게 정해야 할까요? x ≥ 0 일 때와 x ≤ 0 일 때의 역함수를 각각 구해 보세요.">
+    <div class="kicker">생각 키우기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-02 ② [생각 키우기] y = x² 은 정말 역함수가 없을까?</span></div>
+    <!--TEACH:END-->
+    <h1>🔍 y = x² 은 정말 역함수가 없을까?</h1>
+    <p>앞에서 y = x² 은 뒤집으면 함수가 되지 못했습니다.
+       그런데 <b>입력을 받는 범위를 줄이면</b> 어떻게 될까요?</p>
+    <div class="lab">
+      <svg id="v9" viewBox="0 0 400 340"></svg>
+      <div class="controls">
+        <div class="btns" id="b9"></div>
+        <div class="readout" id="r9"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>정리</b>
+      <table style="margin-top:8px">
+        <tr><th style="width:150px">정의역</th><th class="l">일대일대응?</th><th class="l">역함수</th></tr>
+        <tr><td>실수 전체</td><td class="l"><b style="color:#e11d48">아니다</b> — −1 과 1 이 모두 1 로</td><td class="l">없음</td></tr>
+        <tr><td><b>x ≥ 0</b></td><td class="l"><b style="color:#059669">맞다</b> (치역 y ≥ 0)</td><td class="l"><b>y = √x</b></td></tr>
+        <tr><td><b>x ≤ 0</b></td><td class="l"><b style="color:#059669">맞다</b> (치역 y ≥ 0)</td><td class="l"><b>y = −√x</b></td></tr>
+      </table>
+      <p style="margin:8px 0 0" class="hint">함수는 <b>식만이 아니라 정의역까지</b> 정해야 완성됩니다.
+        같은 식이라도 정의역이 다르면 다른 함수예요 — 1-01 에서 배운 그대로입니다.</p>
+    </div>
+    <div class="callout"><b>다음 단원 예고</b> — 여기서 나온 <b>y = √x</b> 가
+      학습지 7 의 <b>무리함수</b> 입니다. y = x² 의 오른쪽 반을 눕힌 모양이죠.</div>
+  </section>
+
+  <section class="screen" data-key="s10" data-photo="1" data-prompt="섭씨를 화씨로 바꾸는 식을 구하고, 화씨와 섭씨의 눈금이 같아지는 온도를 찾아보세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">실생활 속으로</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 교과서 121쪽 [실생활 속으로] 화씨와 섭씨</span></div>
+    <!--TEACH:END-->
+    <h1>🌡 화씨와 섭씨 — 서로의 역함수</h1>
+    <p>화씨온도 <b>x °F</b> 를 섭씨온도 <b>y °C</b> 로 바꾸는 식은
+       <b>y = (5/9)(x − 32)</b> 입니다.</p>
+    <div class="lab">
+      <svg id="v10" viewBox="0 0 400 300"></svg>
+      <div class="controls">
+        <div class="slider"><label>온도 <span><b id="c10a">32</b> °F</span></label>
+          <input id="c10r" type="range" min="-60" max="220" step="4" value="32"></div>
+        <div class="readout" id="r10"></div>
+      </div>
+    </div>
+    <table>
+      <tr><th class="l" style="width:52%">물음</th><th class="l">답</th></tr>
+      <tr><td class="l">(1) 섭씨 x °C → 화씨 y °F 로 바꾸는 식은?</td>
+          <td class="l"><button class="reveal" data-a="y = (9/5)x + 32">?</button></td></tr>
+      <tr><td class="l">(2) 0 °C 는 몇 °F 인가?</td>
+          <td class="l"><button class="reveal" data-a="32 °F">?</button></td></tr>
+      <tr><td class="l">(3) 100 °C 는 몇 °F 인가?</td>
+          <td class="l"><button class="reveal" data-a="212 °F">?</button></td></tr>
+      <tr><td class="l">(4) 화씨와 섭씨의 눈금이 같아지는 온도는?</td>
+          <td class="l"><button class="reveal" data-a="−40 도">?</button></td></tr>
+    </table>
+    <div class="card">
+      <b>(4) 를 푸는 방법</b>
+      <button class="reveal" id="rv10" style="margin-left:8px">확인하기</button>
+      <div class="ans" id="an10">
+        <p style="margin:8px 0 0">눈금이 같아진다는 것은 <b>y = x</b> 인 점을 찾는 것입니다.</p>
+        <p style="margin:8px 0 0">(5/9)(x − 32) = x &nbsp;→&nbsp; 5(x − 32) = 9x &nbsp;→&nbsp;
+          5x − 160 = 9x &nbsp;→&nbsp; −4x = 160</p>
+        <div class="formula"><b>x = −40</b> &nbsp;→&nbsp; <b>−40 °C = −40 °F</b></div>
+        <p style="margin:8px 0 0" class="hint">두 그래프가 <b>y = x 위에서 만나는</b> 점이죠.
+          이 식은 <b>증가함수</b>라 교점이 y = x 위에 있습니다 — 앞 화면에서 본 그대로입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="ext" data-photo="1" data-prompt="역함수를 가지려면 왜 일대일대응이어야 하는지 자신의 말로 정리하고, 일상에서 ‘되돌리는’ 예를 하나 찾아 적어 보세요. (손으로 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">개념 확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 교과서 119쪽 [스스로 익히기]·[역량 키우기]</span></div>
+    <!--TEACH:END-->
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <div class="card">
+      <b>더 생각해 볼 것</b>
+      <ul class="tight">
+        <li><b>f⁻¹ = f</b> 인 함수를 찾아보세요. <span class="hint">(힌트: y = x, y = −x, y = 1/x …)</span>
+          그래프가 <b>y = x 에 대해 자기 자신</b>과 대칭이라는 뜻입니다.</li>
+        <li>일차함수 y = ax + b 가 역함수를 가지려면 a 에 어떤 조건이 필요할까요?</li>
+        <li>일상에서 <b>‘되돌리는’</b> 짝을 찾아보세요.
+          <span class="hint">(암호화 ↔ 복호화, 접기 ↔ 펴기, 원 ↔ 달러 …)</span>
+          되돌릴 수 <b>없는</b> 것은 어떤 것이 있나요?</li>
+        <li>교과서 119쪽 [스스로 익히기] 를 해결하고 막힌 곳을 아래에 적어 두세요.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Ⅲ단원을 마치며</b> — 1-01 에서 <b>함수</b>가 무엇인지,
+      1-02 ① 에서 <b>이어 붙이는 법</b>(합성)을, 여기서 <b>되돌리는 법</b>(역)을 배웠습니다.
+      셋 다 <b>로봇 월드</b>의 명령 하나에서 시작했다는 점을 기억해 두세요.</div>
+  </section>
+
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 12</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function txt(p,x,y,t,o){o=o||{};var e=el("text",{x:x,y:y,"font-size":o.size||13,
+  "text-anchor":o.anchor||"middle",fill:o.fill||"#27272a","font-weight":o.weight||700});
+  e.textContent=t;p.appendChild(e);return e;}
+function clear(s){while(s.firstChild)s.removeChild(s.firstChild);}
+function btnset(box,items,onPick,wide){
+  var bs=[];
+  items.forEach(function(it){
+    var b=document.createElement("button");b.className="rb"+(wide?" wide":"");b.innerHTML=it.t;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb"+(wide?" wide":"");});
+      b.className="rb on"+(wide?" wide":"");onPick(it);};
+    box.appendChild(b);bs.push(b);
+  });
+  return bs;
+}
+function num(v,d){d=(d===undefined?2:d);return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toString();}
+function Plane(svg,lo,hi,H,W){
+  H=H||340;W=W||400;
+  var pad=26,sc=Math.min((W-2*pad)/(hi-lo),(H-2*pad)/(hi-lo));
+  var ox=W/2, oy=H/2;
+  function px(x){return ox+x*sc;} function py(y){return oy-y*sc;}
+  return {px:px,py:py,sc:sc,lo:lo,hi:hi,
+    grid:function(){
+      for(var g=Math.ceil(lo);g<=hi;g++){
+        svg.appendChild(el("line",{x1:px(g),y1:py(hi),x2:px(g),y2:py(lo),stroke:"#f1f5f9"}));
+        svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+      }
+      svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+      svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+    },
+    yx:function(){svg.appendChild(el("line",{x1:px(lo),y1:py(lo),x2:px(hi),y2:py(hi),
+      stroke:"#7c3aed","stroke-width":2,"stroke-dasharray":"6 4"}));
+      txt(svg,px(hi)-8,py(hi)+16,"y = x",{size:11.5,anchor:"end",fill:"#7c3aed"});},
+    plot:function(fn,color,dom,w){
+      var pts=[],a=dom?dom[0]:lo,b=dom?dom[1]:hi;
+      for(var i=0;i<=320;i++){var x=a+(b-a)*i/320,y=fn(x);
+        if(isFinite(y)&&y>=lo-0.5&&y<=hi+0.5)pts.push(px(x)+","+py(y));
+        else if(pts.length){svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round"}));pts=[];}}
+      if(pts.length)svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round"}));
+    },
+    dot:function(x,y,color,lab){
+      svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:5,fill:color}));
+      if(lab)txt(svg,px(x)+10,py(y)-8,lab,{size:12,anchor:"start",fill:color});
+    },
+    seg:function(x1,y1,x2,y2,color,dash){
+      var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":1.6};
+      if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));}
+  };
+}
+/* 두 집합 사이 화살표 그림 */
+function drawMap(svg,X,Y,arrows,opt){
+  opt=opt||{};clear(svg);
+  var H=+svg.getAttribute("viewBox").split(" ")[3];
+  var lx=110,rx=290,gap=Math.min(46,(H-90)/Math.max(X.length,Y.length));
+  function yy(i,n){return H/2+(i-(n-1)/2)*gap;}
+  svg.appendChild(el("ellipse",{cx:lx,cy:H/2,rx:46,ry:gap*X.length/2+20,
+    fill:"#eff6ff",stroke:"#2563eb","stroke-width":1.6}));
+  svg.appendChild(el("ellipse",{cx:rx,cy:H/2,rx:46,ry:gap*Y.length/2+20,
+    fill:"#fff1f2",stroke:"#e11d48","stroke-width":1.6}));
+  txt(svg,lx,26,opt.xn||"X",{size:14,fill:"#2563eb"});
+  txt(svg,rx,26,opt.yn||"Y",{size:14,fill:"#e11d48"});
+  var P={},Q={};
+  X.forEach(function(v,i){var y=yy(i,X.length);P[v]=y;
+    svg.appendChild(el("circle",{cx:lx,cy:y,r:4,fill:"#2563eb"}));
+    txt(svg,lx-13,y+4,v,{size:13,anchor:"end",fill:"#1e40af"});});
+  Y.forEach(function(v,i){var y=yy(i,Y.length);Q[v]=y;
+    svg.appendChild(el("circle",{cx:rx,cy:y,r:4,fill:"#e11d48"}));
+    txt(svg,rx+13,y+4,v,{size:13,anchor:"start",fill:"#9f1239"});});
+  arrows.forEach(function(a){
+    var back=a[3];
+    svg.appendChild(el("line",{x1:back?rx-5:lx+5,y1:back?Q[a[1]]:P[a[0]],
+      x2:back?lx+5:rx-5,y2:back?P[a[0]]:Q[a[1]],
+      stroke:a[2]||"#cbd5e1","stroke-width":a[2]?2.4:1.6}));
+    svg.appendChild(el("circle",{cx:back?lx+7:rx-7,cy:back?P[a[0]]:Q[a[1]],r:2.8,fill:a[2]||"#cbd5e1"}));
+  });
+  return {P:P,Q:Q,lx:lx,rx:rx};
+}
+
+/* ── 화면1 : 입출력 뒤집기 ───────────────────────────── */
+(function(){
+  var box=document.getElementById("f1"),ro=document.getElementById("r1");
+  var SETS=[
+    {t:"① y = 2x + 1",xs:[-3,-2,-1,0,1,2,3,4],f:function(x){return 2*x+1;},
+     ok:true,guess:"y = 2x + 1",
+     inv:"y = (x − 1) / 2",
+     note:"뒤집어도 <b>한 입력에 출력 하나</b> — 함수가 됩니다.<br><br>원래가 <b>일대일대응</b>이었기 때문이에요."},
+    {t:"② y = x²",xs:[-3,-2,-1,0,1,2,3,4],f:function(x){return x*x;},
+     ok:false,guess:"y = x²",
+     note:"뒤집으면 <b>9 가 −3 과 3 둘</b>로 갈라집니다.<br><br>1 도 −1 과 1 둘로 가죠. <b>함수가 아닙니다.</b>"}
+  ];
+  var cur=SETS[0],flipped=false;
+  function tbl(head,a,b){
+    return '<div class="t"><table><tr><th>'+head[0]+'</th>'+
+      a.map(function(v){return '<td>'+v+'</td>';}).join("")+'</tr><tr><th>'+head[1]+'</th>'+
+      b.map(function(v){return '<td>'+v+'</td>';}).join("")+'</tr></table></div>';
+  }
+  function draw(){
+    var xs=cur.xs, ys=xs.map(cur.f);
+    box.innerHTML = flipped
+      ? tbl(["입력 (x)","출력 (y)"],ys,xs)
+      : tbl(["입력 (x)","출력 (y)"],xs,ys);
+    var dup=null;
+    if(flipped){var seen={};ys.forEach(function(v,i){if(seen[v]!==undefined)dup=[v,xs[seen[v]],xs[i]];else seen[v]=i;});}
+    ro.innerHTML="<b>"+cur.t+"</b><br><br>"+
+      (flipped
+        ? "입력과 출력을 <b>바꾼</b> 표입니다.<br><br>"+
+          (dup?"⚠ 입력 <b>"+dup[0]+"</b> 에 출력이 <b>"+dup[1]+"</b> 과 <b>"+dup[2]+"</b> — 둘입니다!<br><br>":"")+
+          (cur.ok?"<b style='color:#059669'>함수입니다</b> → "+cur.inv:"<b style='color:#e11d48'>함수가 아닙니다</b>")+
+          "<br><br>"+cur.note
+        : "이 표가 나타내는 함수는?<br><br><b>"+cur.guess+"</b><br><br><span class='hint'>‘뒤집기’ 를 눌러 보세요.</span>");
+  }
+  btnset(document.getElementById("b1"),[
+    {t:"① y = 2x + 1",s:SETS[0],f:false},
+    {t:"① 뒤집기",s:SETS[0],f:true},
+    {t:"② y = x²",s:SETS[1],f:false},
+    {t:"② 뒤집기",s:SETS[1],f:true}
+  ],function(it){cur=it.s;flipped=it.f;draw();});
+  draw();
+})();
+
+/* ── 화면2 : 역함수의 정의 ──────────────────────────── */
+(function(){
+  var svg=document.getElementById("v2"),ro=document.getElementById("r2");
+  var X=["1","2","3"],Y=["a","b","c"],AR=[["1","a"],["2","b"],["3","c"]];
+  btnset(document.getElementById("b2"),[
+    {t:"① f : X → Y",b:false,c:"#2563eb",
+     s:"f 는 <b>일대일대응</b> 입니다.<br><br>겹치지도 남지도 않아요."},
+    {t:"② 화살표 뒤집기",b:true,c:"#7c3aed",
+     s:"Y 의 각 원소에서 출발해 X 로 <b>거꾸로</b> 갑니다.<br><br>Y 의 <b>어느 원소에서 출발해도</b> 도착점이 <b>하나씩</b> 있습니다."},
+    {t:"③ 이것이 f⁻¹",b:true,c:"#059669",
+     s:"그래서 <b>Y 를 정의역, X 를 공역</b> 으로 하는 새 함수를 만들 수 있습니다.<br><br>이것이 <b>f⁻¹ : Y → X</b> 입니다."}
+  ],function(it){
+    drawMap(svg,X,Y,AR.map(function(a){return [a[0],a[1],it.c,it.b];}),{});
+    ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;
+  });
+  drawMap(svg,X,Y,AR.map(function(a){return [a[0],a[1],"#2563eb",false];}),{});
+  ro.innerHTML="①②③ 을 차례로 눌러 보세요.";
+})();
+
+/* ── 화면3 : 역함수의 성질 ──────────────────────────── */
+(function(){
+  var svg=document.getElementById("v3"),ro=document.getElementById("r3");
+  var X=["1","2","3"],Y=["a","b","c"],AR=[["1","a"],["2","b"],["3","c"]];
+  btnset(document.getElementById("b3"),[
+    {t:"③ f⁻¹ ∘ f",k:0,s:"1 → f → a → f⁻¹ → <b>1</b><br><br>갔다가 돌아오면 <b>제자리</b>입니다.<br><br>(f⁻¹ ∘ f)(x) = x — <b>X 에서의 항등함수</b>"},
+    {t:"③ f ∘ f⁻¹",k:1,s:"a → f⁻¹ → 1 → f → <b>a</b><br><br>반대로 해도 <b>제자리</b>.<br><br>(f ∘ f⁻¹)(y) = y — <b>Y 에서의 항등함수</b>"},
+    {t:"④ (f⁻¹)⁻¹",k:2,s:"f⁻¹ 의 화살표를 <b>또 한 번</b> 뒤집으면?<br><br>원래 f 로 돌아옵니다.<br><br><b>(f⁻¹)⁻¹ = f</b>"}
+  ],function(it){
+    var ar;
+    if(it.k===0) ar=[["1","a","#2563eb",false],["1","a","#059669",true]];
+    else if(it.k===1) ar=[["1","a","#059669",true],["1","a","#2563eb",false]];
+    else ar=AR.map(function(a){return [a[0],a[1],"#2563eb",false];});
+    drawMap(svg,X,Y,ar,{});
+    ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;
+  });
+  drawMap(svg,X,Y,AR.map(function(a){return [a[0],a[1],"#cbd5e1",false];}),{});
+  ro.innerHTML="세 가지를 눌러 확인해 보세요.";
+})();
+
+/* ── 화면4 : 역함수 탐구 ────────────────────────────── */
+(function(){
+  var svg=document.getElementById("v4"),ro=document.getElementById("r4");
+  var X=["a","b","c","d"],Y=["1","2","3","4"];
+  var F={a:"4",b:"2",c:"3",d:"1"};
+  var AR=X.map(function(v){return [v,F[v]];});
+  function base(hi,back,color){
+    drawMap(svg,X,Y,AR.map(function(a){
+      var on=(a[0]===hi);
+      return [a[0],a[1],on?(color||"#2563eb"):"#e4e4e7",on?!!back:false];}),{});
+  }
+  btnset(document.getElementById("b4"),
+    X.map(function(v){return {t:"f("+v+")",v:v,back:false};})
+     .concat(Y.map(function(v){return {t:"f⁻¹("+v+")",y:v,back:true};})),
+    function(it){
+      if(!it.back){
+        base(it.v,false,"#2563eb");
+        ro.innerHTML="<b>f("+it.v+") = "+F[it.v]+"</b><br><br>"+
+          "X 에서 Y 로 가는 화살표입니다.<br><br><span class='hint'>거꾸로 읽으면 f⁻¹("+F[it.v]+") = "+it.v+"</span>";
+      } else {
+        var src=X.filter(function(v){return F[v]===it.y;})[0];
+        base(src,true,"#059669");
+        ro.innerHTML="<b>f⁻¹("+it.y+") = "+src+"</b><br><br>"+
+          "Y 에서 X 로 <b>거꾸로</b> 갑니다.<br><br><span class='hint'>f("+src+") = "+it.y+" 였으니까요.</span>";
+      }
+    });
+  drawMap(svg,X,Y,AR.map(function(a){return [a[0],a[1],"#cbd5e1",false];}),{});
+  ro.innerHTML="버튼을 눌러 화살표를 따라가 보세요.";
+})();
+
+/* ── 화면5 : 역함수 식 구하기 ───────────────────────── */
+(function(){
+  var ro=document.getElementById("r5");
+  var FN=[
+    {t:"y = 3x + 2",s2:"x = (y − 2) / 3",s3:"y = (x − 2) / 3",
+     n:"= ⅓x − ⅔ &nbsp;<span class='hint'>학습지의 예시와 같습니다.</span>"},
+    {t:"y = 2x − 3",s2:"x = (y + 3) / 2",s3:"y = (x + 3) / 2",n:"= ½x + 3/2"},
+    {t:"y = −x",s2:"x = −y",s3:"y = −x",
+     n:"<b>자기 자신이 역함수</b> 입니다! 그래프가 y = x 에 대해 자기 자신과 대칭이에요."},
+    {t:"y = ⅓x − 1",s2:"x = 3(y + 1)",s3:"y = 3x + 3",n:"= 3(x + 1)"}
+  ];
+  btnset(document.getElementById("b5"),FN.map(function(f){return {t:f.t,f:f};}),function(it){
+    var f=it.f;
+    ro.innerHTML="<b>1단계</b> &nbsp;"+f.t+"<br><br>"+
+      "<b>2단계</b> x 에 대하여 풀면<br>&nbsp;&nbsp;"+f.s2+"<br><br>"+
+      "<b>3단계</b> x 와 y 를 바꾸면<br>&nbsp;&nbsp;<b>"+f.s3+"</b><br><br>"+f.n;
+  });
+  ro.innerHTML="함수를 눌러 3단계를 따라가 보세요.";
+})();
+
+/* ── 화면6 : 합성함수의 역함수 ──────────────────────── */
+(function(){
+  var ro=document.getElementById("r6");
+  btnset(document.getElementById("b6"),[
+    {t:"① 순서대로 입기",
+     s:"양말 f → 신발 g<br><br>합쳐서 <b>g ∘ f</b> 입니다.<br><br><span class='hint'>f 를 먼저 한다는 것에 주의!</span>"},
+    {t:"② 되돌리려면?",
+     s:"먼저 <b>신발을 벗고</b>(g⁻¹) 그다음 <b>양말을 벗습니다</b>(f⁻¹).<br><br>즉 <b>f⁻¹ ∘ g⁻¹</b>"},
+    {t:"③ 신발부터 신으면?",
+     s:"양말을 신발 위에 신게 됩니다.<br><br>순서를 지키지 않으면 <b>되돌려지지 않아요.</b>"},
+    {t:"④ 교과서 확인",
+     s:"f(x) = −x + 2, g(x) = 2x − 1 로<br><br>(g∘f)(x) = 2(−x+2) − 1 = <b>−2x + 3</b><br>→ (g∘f)⁻¹(x) = <b>(3 − x)/2</b><br><br>f⁻¹(x) = −x + 2, g⁻¹(x) = (x+1)/2<br>→ (f⁻¹∘g⁻¹)(x) = −(x+1)/2 + 2 = <b>(3 − x)/2</b><br><br>✅ <b>같습니다</b>"}
+  ],function(it){ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;},true);
+  ro.innerHTML="①~④ 를 차례로 눌러 보세요.";
+})();
+
+/* ── 화면7 : y = x 대칭 ─────────────────────────────── */
+(function(){
+  var svg=document.getElementById("v7"),r=document.getElementById("c7r"),ro=document.getElementById("r7");
+  function f(x){return 2*x-1;} function fi(x){return 0.5*x+0.5;}
+  function draw(){
+    var a=parseFloat(r.value), b=f(a);
+    document.getElementById("c7a").textContent=num(a,2);
+    clear(svg);
+    var P=Plane(svg,-4,5,340);P.grid();P.yx();
+    P.plot(f,"#2563eb");P.plot(fi,"#e11d48");
+    txt(svg,P.px(2.6),P.py(f(2.6))-10,"y = 2x − 1",{size:11.5,fill:"#2563eb"});
+    txt(svg,P.px(4.2),P.py(fi(4.2))+18,"y = ½x + ½",{size:11.5,fill:"#e11d48"});
+    if(b>=-4&&b<=5){
+      P.seg(a,b,b,a,"#7c3aed","5 4");
+      P.dot(a,b,"#2563eb","("+num(a,2)+", "+num(b,2)+")");
+      P.dot(b,a,"#e11d48","("+num(b,2)+", "+num(a,2)+")");
+    }
+    P.dot(1,1,"#059669");
+    ro.innerHTML="점 A ( <b>"+num(a,2)+"</b>, <b>"+num(b,2)+"</b> ) 는 y = 2x − 1 위<br><br>"+
+      "점 A′ ( <b>"+num(b,2)+"</b>, <b>"+num(a,2)+"</b> ) 는 역함수 위<br><br>"+
+      "<span class='hint'>두 점은 언제나 <b>y = x 에 대하여 대칭</b> 입니다.</span><br><br>"+
+      "초록 점 <b>(1, 1)</b> 은 두 그래프의 <b>교점</b> — y = x 위에 있습니다.";
+  }
+  r.addEventListener("input",draw);draw();
+})();
+
+/* ── 화면8 : 증가·감소 교점 ─────────────────────────── */
+(function(){
+  var svg=document.getElementById("v8"),ro=document.getElementById("r8");
+  var CASES=[
+    {t:"증가 · y = 2x − 1",f:function(x){return 2*x-1;},g:function(x){return 0.5*x+0.5;},
+     pts:[[1,1]],inc:true,
+     s:"교점은 <b>(1, 1)</b> 하나 — <b>y = x 위</b>입니다.<br><br>증가함수에서는 언제나 그렇습니다."},
+    {t:"증가 · y = ½x + 1",f:function(x){return 0.5*x+1;},g:function(x){return 2*x-2;},
+     pts:[[2,2]],inc:true,
+     s:"교점 <b>(2, 2)</b> — 역시 <b>y = x 위</b>."},
+    {t:"감소 · y = −x³",f:function(x){return -x*x*x;},g:function(x){return -Math.cbrt(x);},
+     pts:[[0,0],[1,-1],[-1,1]],inc:false,
+     s:"교점이 <b>세 개</b> 입니다!<br><br>(0, 0) 은 y = x 위지만<br><b>(1, −1)</b> 과 <b>(−1, 1)</b> 은 <b>y = x 밖</b> 입니다.<br><br>⚠ 감소함수에서는 이런 일이 생깁니다."},
+    {t:"감소 · y = −2x + 3",f:function(x){return -2*x+3;},g:function(x){return (3-x)/2;},
+     pts:[[1,1]],inc:false,
+     s:"이 경우는 교점이 (1, 1) 하나뿐입니다.<br><br>감소함수라고 <b>항상</b> 밖에서 만나는 건 아니에요.<br><br>하지만 <b>그럴 수 있다</b> 는 것이 중요합니다."}
+  ];
+  var cur=CASES[0];
+  function draw(){
+    clear(svg);
+    var P=Plane(svg,-3,3,340);P.grid();P.yx();
+    P.plot(cur.f,"#2563eb");P.plot(cur.g,"#e11d48");
+    cur.pts.forEach(function(p){
+      var on=Math.abs(p[0]-p[1])<1e-9;
+      P.dot(p[0],p[1],on?"#059669":"#d97706","("+p[0]+", "+p[1]+")");
+    });
+    ro.innerHTML="<b>"+cur.t+"</b><br><br>"+cur.s+
+      "<br><br><span class='hint'>초록 = y = x 위,&nbsp; 주황 = y = x 밖</span>";
+  }
+  btnset(document.getElementById("b8"),CASES.map(function(c){return {t:c.t,c:c};}),
+    function(it){cur=it.c;draw();});
+  draw();
+})();
+
+/* ── 화면9 : y = x² 정의역 좁히기 ───────────────────── */
+(function(){
+  var svg=document.getElementById("v9"),ro=document.getElementById("r9");
+  var CASES=[
+    {t:"실수 전체",dom:[-3,3],inv:null,
+     s:"<b>일대일대응이 아닙니다.</b><br><br>−1 과 1 이 모두 1 로 갑니다.<br>가로선 y = 1 이 <b>두 점</b>에서 만나요.<br><br>→ <b>역함수가 없습니다.</b>"},
+    {t:"x ≥ 0 (오른쪽 반)",dom:[0,3],inv:function(x){return Math.sqrt(x);},invs:"y = √x",
+     s:"오른쪽 반만 쓰면 <b>일대일대응</b> 입니다.<br><br>치역은 y ≥ 0.<br><br>역함수는 <b>y = √x</b><br><br><span class='hint'>y = x 에 대칭시킨 모양이죠.</span>"},
+    {t:"x ≤ 0 (왼쪽 반)",dom:[-3,0],inv:function(x){return -Math.sqrt(x);},invs:"y = −√x",
+     s:"왼쪽 반도 <b>일대일대응</b> 입니다.<br><br>치역은 역시 y ≥ 0.<br><br>역함수는 <b>y = −√x</b><br><br><span class='hint'>아래로 눕은 모양입니다.</span>"}
+  ];
+  var cur=CASES[0];
+  function draw(){
+    clear(svg);
+    var P=Plane(svg,-3,4,340);P.grid();P.yx();
+    P.plot(function(x){return x*x;},"#e4e4e7",[-3,3],2);       // 원래 전체
+    P.plot(function(x){return x*x;},"#2563eb",cur.dom);
+    if(cur.inv)P.plot(cur.inv,"#e11d48",[0,4]);
+    if(!cur.inv){
+      svg.appendChild(el("line",{x1:P.px(-3),y1:P.py(1),x2:P.px(4),y2:P.py(1),
+        stroke:"#d97706","stroke-width":1.8,"stroke-dasharray":"5 4"}));
+      P.dot(-1,1,"#d97706");P.dot(1,1,"#d97706");
+    }
+    ro.innerHTML="<b>정의역 : "+cur.t+"</b><br><br>"+cur.s;
+  }
+  btnset(document.getElementById("b9"),CASES.map(function(c){return {t:c.t,c:c};}),
+    function(it){cur=it.c;draw();});
+  draw();
+})();
+
+/* ── 화면10 : 화씨와 섭씨 ───────────────────────────── */
+(function(){
+  var svg=document.getElementById("v10"),r=document.getElementById("c10r"),ro=document.getElementById("r10");
+  function c(f){return 5/9*(f-32);}
+  function draw(){
+    var F=parseFloat(r.value), C=c(F);
+    document.getElementById("c10a").textContent=F;
+    clear(svg);
+    var W=400,H=300,pad=40,lo=-60,hi=220;
+    function px(v){return pad+(v-lo)/(hi-lo)*(W-2*pad);}
+    function py(v){return H-pad-(v-lo)/(hi-lo)*(H-2*pad);}
+    // 축
+    svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1"}));
+    svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1"}));
+    // y = x
+    svg.appendChild(el("line",{x1:px(lo),y1:py(lo),x2:px(hi),y2:py(hi),
+      stroke:"#7c3aed","stroke-width":1.8,"stroke-dasharray":"6 4"}));
+    txt(svg,px(190),py(205),"y = x",{size:11,fill:"#7c3aed"});
+    // °F → °C  와  °C → °F
+    svg.appendChild(el("line",{x1:px(lo),y1:py(c(lo)),x2:px(hi),y2:py(c(hi)),
+      stroke:"#2563eb","stroke-width":2.6}));
+    svg.appendChild(el("line",{x1:px(c(lo)),y1:py(lo),x2:px(c(hi)),y2:py(hi),
+      stroke:"#e11d48","stroke-width":2.6}));
+    txt(svg,px(180),py(c(180))-10,"°F → °C",{size:11,fill:"#2563eb"});
+    txt(svg,px(c(180))-6,py(180),"°C → °F",{size:11,anchor:"end",fill:"#e11d48"});
+    // 교점 (−40, −40)
+    svg.appendChild(el("circle",{cx:px(-40),cy:py(-40),r:5,fill:"#059669"}));
+    txt(svg,px(-40)+8,py(-40)+18,"(−40, −40)",{size:11,anchor:"start",fill:"#059669"});
+    // 현재 점
+    if(C>=lo&&C<=hi){
+      svg.appendChild(el("circle",{cx:px(F),cy:py(C),r:5.5,fill:"#2563eb"}));
+      svg.appendChild(el("line",{x1:px(F),y1:py(0),x2:px(F),y2:py(C),
+        stroke:"#2563eb","stroke-width":1.2,"stroke-dasharray":"3 3"}));
+    }
+    ro.innerHTML="<b>"+F+" °F</b> = <b>"+num(C,1)+" °C</b><br><br>"+
+      (Math.abs(F-32)<1?"<span class='hint'>물이 어는 온도입니다.</span>":
+       Math.abs(F-212)<3?"<span class='hint'>물이 끓는 온도입니다.</span>":
+       Math.abs(F+40)<3?"✅ <b>−40 — 두 눈금이 같아지는 곳!</b>":"")+
+      "<br><br><span class='hint'>두 직선은 <b>y = x 에 대하여 대칭</b> 입니다. 서로 역함수이니까요.</span>";
+  }
+  r.addEventListener("input",draw);draw();
+})();
+
+/* ── 정답 밝히기 ─────────────────────────────────────── */
+[].slice.call(document.querySelectorAll("button.reveal[data-a]")).forEach(function(b){
+  b.onclick=function(){b.textContent=b.getAttribute("data-a");
+    b.style.color="#2563eb";b.style.fontWeight="700";};
+});
+[["rv1","an1"],["rv6","an6"],["rv6b","an6b"],["rv7","an7"],["rv10","an10"]].forEach(function(p){
+  var b=document.getElementById(p[0]),a=document.getElementById(p[1]);
+  if(b&&a)b.onclick=function(){a.classList.toggle("on");
+    b.textContent=a.classList.contains("on")?"접기":"다시 열기";};
+});
+})();
+</script>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

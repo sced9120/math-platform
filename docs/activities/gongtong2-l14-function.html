@@ -1,0 +1,1151 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed;--gold:#f59e0b}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .bad{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid var(--rose);border-radius:10px;padding:12px 15px;margin:12px 0}
+  .lab{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .readout{font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .12s}
+  .rb:hover{border-color:var(--blue);color:var(--blue)}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .rb.wide{display:block;width:100%;text-align:left;margin-bottom:6px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  td.l,th.l{text-align:left}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:17px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .judge{display:inline-block;border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;
+    padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
+  .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+/* 로봇 월드 전용 */
+  .cmds{display:flex;flex-direction:column;gap:6px}
+  .cmd{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;
+    padding:8px 10px;border-radius:9px;cursor:pointer;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .cmd:hover{border-color:var(--blue);color:var(--blue)}
+  .cmd.new{background:#f5f3ff;border-color:#ddd6fe;color:var(--violet)}
+  .cmd:disabled{opacity:.4;cursor:default}
+  .prog{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:10px 12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:12.5px;line-height:1.7;min-height:96px;max-height:180px;overflow:auto}
+  .prog .ln{opacity:.55}
+  .prog .cur{background:#1d4ed8;color:#fff;border-radius:4px;padding:0 3px}
+  .prog .empty{opacity:.45}
+  .row{display:flex;gap:6px}
+  .row .btn{flex:1}
+  .msg{font-size:13px;font-weight:700;min-height:20px}
+  .msg.ok{color:var(--emerald)}.msg.no{color:var(--rose)}
+  .score{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800}
+  .score .n{color:var(--gold)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+/* 대응 그림 */
+  .maps{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media (max-width:560px){.maps{grid-template-columns:1fr}}
+  .mapbox{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;cursor:pointer;transition:all .12s}
+  .mapbox:hover{border-color:var(--blue)}
+  .mapbox.on{border-color:var(--blue);background:var(--blue-soft)}
+  .mapbox h3{margin:0 0 6px;font-size:14.5px}
+  .mapbox table{margin:0;font-size:12.5px}
+  .mapbox td,.mapbox th{padding:4px 6px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on" data-key="s1" data-prompt="(1, 1) 에서 동쪽을 보고 있는 로봇을 깃발까지 보내는 명령을 순서대로 적어 보세요.">
+    <div class="kicker">공통수학2 · 함수와 그래프</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-01 This is Robot World! Q1</span></div>
+    <!--TEACH:END-->
+    <h1>🤖 로봇 월드 — 명령어로 움직이기</h1>
+    <p>이 로봇은 <b>두 가지</b> 명령만 할 줄 압니다.</p>
+    <table>
+      <tr><th style="width:170px">명령어</th><th class="l">로봇의 행동</th></tr>
+      <tr><td class="mono">move()</td><td class="l">앞으로 한 칸 이동</td></tr>
+      <tr><td class="mono">turn_left()</td><td class="l">제자리에서 왼쪽을 본다</td></tr>
+    </table>
+    <p><b>(1, 1)</b> 에서 <b>동쪽</b>을 보고 있는 로봇을 <b>깃발</b>까지 보내 봅시다.
+       명령 버튼을 눌러 프로그램을 만든 뒤 <b>실행</b>을 누르세요.</p>
+    <div class="lab">
+      <svg id="w0" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="cmds" id="c0"></div>
+        <div class="prog" id="p0"></div>
+        <div class="row">
+          <button class="btn primary" id="r0">▶ 실행</button>
+          <button class="btn" id="x0">↺ 리셋</button>
+        </div>
+        <div class="msg" id="m0"></div>
+        <div class="win" id="v0"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s2" data-prompt="제자리에서 오른쪽을 보는 turn_right() 를 만들려면 어떻게 해야 할까요? 가진 명령만으로 설명해 보세요.">
+    <div class="kicker">명령 만들기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 6 · 1-01 Q2 turn_right() 만들기</span></div>
+    <!--TEACH:END-->
+    <h1>오른쪽으로 도는 명령이 없다!</h1>
+    <p>로봇에게는 <b>왼쪽으로 도는 명령</b>밖에 없습니다.
+       제자리에서 <b>오른쪽</b>을 보게 하려면 어떻게 해야 할까요?</p>
+    <div class="lab">
+      <svg id="w1" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="cmds" id="c1"></div>
+        <div class="prog" id="p1"></div>
+        <div class="row">
+          <button class="btn primary" id="r1">▶ 실행</button>
+          <button class="btn" id="x1">↺ 리셋</button>
+        </div>
+        <div class="readout" id="d1"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>찾았나요?</b>
+      <button class="reveal" id="rv2" style="margin-left:8px">직접 해 본 뒤 열기</button>
+      <div class="ans" id="an2">
+        <div class="formula"><span class="mono">turn_right()</span> =
+          <span class="mono">turn_left()</span> 를 <b>세 번</b></div>
+        <p style="margin:8px 0 0">왼쪽으로 세 번 돌면 오른쪽을 한 번 돈 것과 <b>결과가 같습니다.</b>
+          가진 명령을 <b>이어 붙여</b> 새 명령을 만든 것이죠.</p>
+        <p style="margin:8px 0 0" class="hint">이것이 뒤에 배울 <b>합성함수</b> 입니다.
+          이번 단원 두 번째 활동에서 다시 만납니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s3" data-prompt="별 3개를 모두 모은 명령을 순서대로 적어 보세요. 더 짧은 방법이 있는지도 생각해 보세요.">
+    <div class="kicker">미션</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-01 Q3 새 명령어로 별 먹기</span></div>
+    <!--TEACH:END-->
+    <h1>⭐ 별을 먹자</h1>
+    <p>이제 명령이 <b>세 개</b>입니다. 로봇을 움직여 <b>별 3개를 모두</b> 지나가게 하세요.
+       별 위를 <b>지나가기만</b> 하면 획득됩니다.</p>
+    <div class="lab">
+      <svg id="w2" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="cmds" id="c2"></div>
+        <div class="prog" id="p2"></div>
+        <div class="row">
+          <button class="btn primary" id="r2">▶ 실행</button>
+          <button class="btn" id="x2">↺ 리셋</button>
+        </div>
+        <div class="score">⭐ <span class="n" id="s2">0 / 3</span></div>
+        <div class="msg" id="m2"></div>
+        <div class="win" id="v2"></div>
+      </div>
+    </div>
+    <p class="hint">막히면 종이에 <b>경로를 먼저 그려 보고</b> 명령으로 옮겨 적어 보세요.</p>
+  </section>
+
+  <section class="screen" data-key="s4" data-prompt="turn_left() 를 5번 하면 결과가 어떻게 되나요? 4번, 6번일 때도 함께 적어 보세요.">
+    <div class="kicker">탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-01 Q4 turn_5() 의 결과</span></div>
+    <!--TEACH:END-->
+    <h1>turn_left() 를 여러 번 하면?</h1>
+    <p>예거는 실수로 <span class="mono">turn_left()</span> 를 <b>5번</b> 하는 새 명령
+       <span class="mono">turn_5()</span> 를 만들었습니다. 행동의 결과는 어떻게 될까요?</p>
+    <div class="lab">
+      <svg id="w3" viewBox="0 0 400 400"></svg>
+      <div class="controls">
+        <div class="btns" id="b4"></div>
+        <div class="readout" id="r4"></div>
+      </div>
+    </div>
+    <table>
+      <tr><th>turn_left() 횟수</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>
+      <tr><td>같은 결과</td><td>왼쪽</td><td>뒤</td><td>오른쪽</td><td><b>제자리</b></td><td>왼쪽</td><td>뒤</td></tr>
+    </table>
+    <div class="callout"><b>4번 돌면 아무 일도 일어나지 않습니다.</b>
+      이렇게 <b>입력을 그대로 내보내는</b> 함수를 뒤에서 <b>항등함수</b> 라고 부르게 됩니다.
+      <span class="hint">그리고 5번 = 4번 + 1번 = 1번. 4로 나눈 나머지만 중요하죠.</span></div>
+  </section>
+
+  <section class="screen" data-key="s5" data-prompt="명령어와 로봇의 행동을 짝지어 보고, 이 관계의 특징을 모두 적어 보세요.">
+    <div class="kicker">1 명령어 → 1 행동</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 Q5 명령어와 행동 짝짓기</span></div>
+    <!--TEACH:END-->
+    <h1>명령어와 행동을 짝지어 보자</h1>
+    <p>아래 명령어를 눌러 알맞은 행동과 짝지어 보세요.</p>
+    <table id="t5">
+      <tr><th style="width:170px">명령어</th><th class="l">로봇의 행동</th></tr>
+    </table>
+    <div class="win" id="w5"></div>
+    <div class="card">
+      <b>이 관계의 특징은?</b>
+      <button class="reveal" id="rv5" style="margin-left:8px">짝지어 본 뒤 열기</button>
+      <div class="ans" id="an5">
+        <ul class="tight">
+          <li>명령어 하나에 행동이 <b>반드시 하나</b> 정해진다.</li>
+          <li>명령어 하나에 행동이 <b>둘 이상</b>인 경우는 없다. — 있으면 로봇이 멈춰 버리겠죠.</li>
+          <li>짝이 <b>없는</b> 명령어도 없다. — 있으면 로봇이 뭘 해야 할지 모릅니다.</li>
+          <li>다만 <b>행동 쪽</b>에는 짝이 없는 것이 있을 수 있다.
+            <span class="hint">(‘바닥의 물건을 줍는다’ 는 명령이 아직 없죠)</span></li>
+        </ul>
+        <div class="formula">이 <b>‘하나에 하나씩’</b> 이 바로 <b>함수</b> 입니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s6" data-prompt="네 대응 중 함수인 것을 모두 고르고, 함수가 아닌 것은 왜 아닌지 적어 보세요. 또 B 와 C 는 어떻게 다른가요?">
+    <div class="kicker">여러 가지 대응</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 [입력→출력 관계] A~D · 교과서 109쪽</span></div>
+    <!--TEACH:END-->
+    <h1>이 대응들은 어떻게 다를까?</h1>
+    <p>네 가지 대응입니다. 상자를 눌러 관계를 살펴보세요.</p>
+    <div class="maps" id="m6"></div>
+    <div class="readout" id="r6" style="margin-top:12px"></div>
+    <div class="card">
+      <b>B 와 C 는 어떻게 다른가?</b>
+      <button class="reveal" id="rv6" style="margin-left:8px">모두 눌러 본 뒤 열기</button>
+      <div class="ans" id="an6">
+        <p style="margin:8px 0 0"><b>B (화가 → 작품)</b> — 짝이 <b>하나씩 딱</b> 맞아떨어집니다.
+          겹치는 것도 남는 것도 없어요. <b>거꾸로 돌려도 함수</b> 입니다.</p>
+        <p style="margin:8px 0 0"><b>C (도시 → 국가)</b> — <b>서울과 거제가 둘 다 한국</b> 으로 갑니다.
+          여럿이 하나로 몰려도 <b>함수는 함수</b> 입니다. 또 <b>호주</b> 는 짝이 되는 도시가 없어요.</p>
+        <p style="margin:8px 0 0">그래서 <b>C 를 거꾸로 돌린 D 는 함수가 되지 못합니다.</b>
+          B 는 되는데 C 는 안 되는 까닭이 바로 이 차이예요.</p>
+        <p style="margin:8px 0 0" class="hint">‘출발 쪽에서 하나씩 나가면’ 함수입니다.
+          도착 쪽이 겹치거나 남는 것은 상관없습니다. 이 차이가 뒤에 <b>일대일대응</b> 과 <b>역함수</b> 로 이어집니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s7">
+    <div class="kicker">스스로 정리하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 [스스로 정리하기] · 교과서 109~110쪽</span></div>
+    <div class="turn"><i>📖</i><span>교과서 109~110쪽 — 용어를 함께 정리합니다. 앞 화면의 판단이 그대로 정의가 됩니다.</span></div>
+    <!--TEACH:END-->
+    <h1>용어 정리</h1>
+    <table>
+      <tr><th style="width:130px">용어</th><th class="l">뜻</th></tr>
+      <tr><td><b>대응</b></td><td class="l">공집합이 아닌 두 집합 X, Y 에 대하여 X 의 원소에 Y 의 원소를 <b>짝 지은 것</b></td></tr>
+      <tr><td><b>함수</b></td><td class="l">X 의 <b>각 원소</b>에 Y 의 원소가 <b>오직 하나씩</b> 대응할 때. 기호로 <b>f : X → Y</b></td></tr>
+      <tr><td><b>정의역</b></td><td class="l">집합 <b>X</b> — 출발하는 쪽</td></tr>
+      <tr><td><b>공역</b></td><td class="l">집합 <b>Y</b> — 도착할 수 있는 곳 전체</td></tr>
+      <tr><td><b>치역</b></td><td class="l"><b>실제로 도착한</b> 값들의 집합 <b>{ f(x) | x ∈ X }</b></td></tr>
+    </table>
+    <div class="formula"><b>치역 ⊂ 공역</b> — 치역은 언제나 공역의 부분집합입니다.</div>
+    <div class="lab">
+      <svg id="v7" viewBox="0 0 400 260"></svg>
+      <div class="controls">
+        <div class="btns" id="b7"></div>
+        <div class="readout" id="r7"></div>
+      </div>
+    </div>
+    <div class="callout"><b>함수가 아닌 두 가지 경우</b> (교과서 110쪽 보기)<br>
+      ① 정의역의 어떤 원소에 <b>대응하는 것이 없다</b><br>
+      ② 정의역의 어떤 원소에 <b>둘 이상이 대응한다</b></div>
+  </section>
+
+  <section class="screen" data-key="s8" data-prompt="A~D 중 함수인 것을 찾아 정의역·공역·치역을 각각 적어 보세요.">
+    <div class="kicker">정의역 · 공역 · 치역</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 Q2 함수 찾고 정의역·공역·치역 적기</span></div>
+    <!--TEACH:END-->
+    <h1>세 집합을 구분해 적어 보자</h1>
+    <p>앞의 네 대응 중 <b>함수인 것</b>에 대하여 정의역·공역·치역을 적어 봅시다.</p>
+    <div class="btns" id="b8"></div>
+    <div class="readout" id="r8" style="margin-top:12px"></div>
+    <div class="callout"><b>C 를 눈여겨보세요.</b> 공역에는 <b>호주</b>가 있지만 치역에는 없습니다.
+      <b>치역 ≠ 공역</b> 인 경우죠. 이 차이가 <b>일대일대응</b> 을 가르는 기준이 됩니다.</div>
+  </section>
+
+  <section class="screen" data-key="s9" data-prompt="다섯 대응이 각각 함수인지 판단하고, 함수가 아닌 것은 그 까닭을 적어 보세요.">
+    <div class="kicker">연습하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 Q3 연습하기 · 교과서 110쪽 보기</span></div>
+    <!--TEACH:END-->
+    <h1>함수일까, 아닐까?</h1>
+    <p>X = { 1, 2, 3 } 에서 Y = { a, b, c } 로의 대응입니다. 각각 함수인지 판단해 보세요.</p>
+    <div class="lab">
+      <svg id="v9" viewBox="0 0 400 260"></svg>
+      <div class="controls">
+        <div class="btns" id="b9"></div>
+        <div class="readout" id="r9"></div>
+      </div>
+    </div>
+    <table id="t9"><tr><th style="width:56px">번호</th><th class="l">판단</th><th class="l">까닭</th></tr></table>
+    <div class="win" id="w9"></div>
+  </section>
+
+  <section class="screen" data-key="s10" data-prompt="여섯 함수의 치역을 구하고, 그중 같은 함수인 것들을 짝지어 왜 그런지 적어 보세요.">
+    <div class="kicker">치역과 같은 함수</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 Q4·Q5 치역 구하기와 같은 함수</span></div>
+    <!--TEACH:END-->
+    <h1>치역을 구해 보자</h1>
+    <p>정의역이 함께 주어져 있습니다. 하나씩 눌러 치역을 확인해 보세요.</p>
+    <div class="btns" id="b10"></div>
+    <div class="readout" id="r10" style="margin-top:12px"></div>
+    <div class="card">
+      <b>같은 함수는 어느 것과 어느 것일까?</b>
+      <button class="reveal" id="rv10" style="margin-left:8px">모두 구해 본 뒤 열기</button>
+      <div class="ans" id="an10">
+        <div class="formula"><b>C = D</b> &nbsp;그리고&nbsp; <b>E = F</b></div>
+        <p style="margin:8px 0 0"><b>C</b> f(x) = |x| − 1 와 <b>D</b> g(x) = x² − 1 은 정의역 { −1, 0, 1 } 에서
+          x = −1 → 0, x = 0 → −1, x = 1 → 0 으로 <b>모든 값이 같습니다.</b></p>
+        <p style="margin:8px 0 0"><b>E</b> f(x) = |x| 와 <b>F</b> g(x) = x² 도 정의역 { 0, 1 } 에서 값이 같습니다.</p>
+        <div class="formula">두 함수의 <b>정의역</b>과 <b>공역</b>이 각각 같고,<br>
+          정의역의 모든 원소 x 에 대하여 <b>f(x) = g(x)</b> 일 때 <b>f = g</b></div>
+        <p style="margin:8px 0 0" class="hint">식이 달라도 <b>정의역에서 값이 같으면</b> 같은 함수입니다.
+          거꾸로 식이 같아도 <b>정의역이 다르면</b> 다른 함수예요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s11" data-prompt="주어진 그래프가 함수의 그래프인지 판별하는 방법을 자신의 말로 적어 보세요.">
+    <div class="kicker">함수의 그래프</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-01 함수의 그래프 판별 · 교과서 110쪽</span></div>
+    <!--TEACH:END-->
+    <h1>그래프만 보고 알 수 있을까?</h1>
+    <div class="formula">함수 f : X → Y 의 그래프 = <b>{ (x, f(x)) | x ∈ X }</b><br>
+      <span style="font-size:14px">순서쌍 <b>전체의 집합</b></span></div>
+    <p>아래 그래프 중 <b>함수의 그래프</b>는 어느 것일까요? 눌러서 확인해 보세요.</p>
+    <div class="lab">
+      <svg id="v11" viewBox="0 0 400 300"></svg>
+      <div class="controls">
+        <div class="btns" id="b11"></div>
+        <div class="readout" id="r11"></div>
+        <label style="font-size:13px;font-weight:700;display:flex;gap:6px;align-items:center">
+          <input type="checkbox" id="vl11"> 세로선 그어 보기</label>
+      </div>
+    </div>
+    <div class="callout"><b>수직선 판정</b> — y축에 평행한 직선을 그었을 때
+      <b>오직 한 점</b>에서만 만나면 함수의 그래프입니다.
+      두 점에서 만나면 x 하나에 y 가 둘이라는 뜻이니까요.</div>
+  </section>
+
+  <section class="screen" data-key="s12" data-prompt="열두 가지를 A · B · C 로 분류하고, 각 유형의 특징을 적어 보세요.">
+    <div class="kicker">대응 관계의 분류</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 대응 관계에 따른 분류 Q1·Q2</span></div>
+    <!--TEACH:END-->
+    <h1>특별한 관계에 이름 붙이기</h1>
+    <p>함수를 <b>대응하는 모양</b>에 따라 세 갈래로 나눠 봅시다.</p>
+    <table>
+      <tr><th style="width:56px">A</th><td class="l">서로 다른 것은 <b>서로 다른 곳</b>으로 간다 (겹치지 않는다)</td></tr>
+      <tr><th>B</th><td class="l">A 이면서 <b>남는 것도 없다</b> (공역 = 치역)</td></tr>
+      <tr><th>C</th><td class="l"><b>모두 한 곳</b>으로 몰린다</td></tr>
+    </table>
+    <p>아래를 눌러 A · B · C 중 어디에 드는지 확인해 보세요.</p>
+    <table id="t12"><tr><th class="l" style="width:46%">함수</th><th style="width:170px">분류</th><th class="l">까닭</th></tr></table>
+    <div class="win" id="w12"></div>
+  </section>
+
+  <section class="screen" data-key="s13" data-prompt="일대일함수와 일대일대응의 정의를 각각 적고, 둘이 어떻게 다른지 설명해 보세요.">
+    <div class="kicker">일대일함수 · 일대일대응</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 일대일함수·일대일대응 · 교과서 112쪽</span></div>
+    <!--TEACH:END-->
+    <h1>겹치지 않는가, 남지 않는가</h1>
+    <div class="formula"><b>일대일함수</b> — 정의역의 두 원소 x₁, x₂ 에 대하여<br>
+      x₁ ≠ x₂ 이면 <b>f(x₁) ≠ f(x₂)</b></div>
+    <div class="formula"><b>일대일대응</b> — ① <b>일대일함수</b>이고 ② <b>공역 = 치역</b></div>
+    <div class="lab">
+      <svg id="v13" viewBox="0 0 400 300"></svg>
+      <div class="controls">
+        <div class="btns" id="b13"></div>
+        <div class="readout" id="r13"></div>
+        <label style="font-size:13px;font-weight:700;display:flex;gap:6px;align-items:center">
+          <input type="checkbox" id="hl13"> 가로선 그어 보기</label>
+      </div>
+    </div>
+    <div class="callout"><b>수평선 판정</b> — x축에 평행한 직선을 그었을 때
+      <b>두 점 이상에서 만나면</b> 일대일함수가 아닙니다.
+      <span class="hint">앞의 수직선 판정은 ‘함수인가’, 이 수평선 판정은 ‘일대일인가’ 를 봅니다.</span></div>
+  </section>
+
+  <section class="screen" data-key="s14" data-prompt="항등함수와 상수함수의 정의를 적고, 항등함수가 일대일대응이라고 할 수 있는지 그 까닭과 함께 설명해 보세요.">
+    <div class="kicker">항등함수 · 상수함수</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 항등함수·상수함수 Q1 · 교과서 112쪽</span></div>
+    <!--TEACH:END-->
+    <h1>그대로 내보내기, 한 곳으로 몰기</h1>
+    <table>
+      <tr><th style="width:130px">항등함수</th>
+          <td class="l">f : X → X 에서 ① <b>정의역과 공역이 같고</b>
+            ② X 의 각 원소 x 에 <b>그 자신 x</b> 가 대응할 때. 즉 <b>f(x) = x</b></td></tr>
+      <tr><th>상수함수</th>
+          <td class="l">f : X → Y 에서 정의역의 <b>모든 원소</b>가 공역의
+            <b>단 하나의 원소 c</b> 에만 대응할 때. 즉 <b>f(x) = c</b></td></tr>
+    </table>
+    <div class="lab">
+      <svg id="v14" viewBox="0 0 400 300"></svg>
+      <div class="controls">
+        <div class="btns" id="b14"></div>
+        <div class="readout" id="r14"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>항등함수는 일대일대응이라고 할 수 있을까?</b>
+      <button class="reveal" id="rv14" style="margin-left:8px">생각해 본 뒤 열기</button>
+      <div class="ans" id="an14">
+        <p style="margin:8px 0 0"><b>네, 언제나 일대일대응입니다.</b></p>
+        <ul class="tight">
+          <li>x₁ ≠ x₂ 이면 f(x₁) = x₁ ≠ x₂ = f(x₂) 이므로 <b>일대일함수</b> ✓</li>
+          <li>치역 = { x | x ∈ X } = X = 공역 이므로 <b>공역 = 치역</b> ✓</li>
+        </ul>
+        <p style="margin:8px 0 0"><b>상수함수의 치역</b>은 { c } — 원소가 <b>1개</b>인 집합입니다.
+          정의역의 원소가 2개 이상이면 일대일함수가 <b>될 수 없습니다.</b></p>
+        <p style="margin:8px 0 0" class="hint"><b>로봇으로 돌아가 보면</b> —
+          <span class="mono">turn_left()</span> 를 4번 한 것이 바로 <b>항등함수</b> 였습니다.
+          아무것도 바꾸지 않고 그대로 두니까요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s15" data-prompt="두 문제를 풀고 과정을 함께 적어 보세요.">
+    <div class="kicker">문제 풀어보기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 교과서 111쪽·113쪽 [스스로 익히기]</span></div>
+    <!--TEACH:END-->
+    <h1>문제 풀어보기</h1>
+    <div class="card">
+      <b>1.</b> 정의역이 <b>{ 1, 3 }</b> 인 두 함수 <b>f(x) = x² + a</b>, <b>g(x) = bx − 8</b> 에 대하여
+      <b>f = g</b> 일 때 상수 a, b 의 값을 구하시오. <span class="hint">(교과서 111쪽)</span>
+      <button class="reveal" id="rv15a" style="margin-top:8px">풀이 보기</button>
+      <div class="ans" id="an15a">
+        <p style="margin:8px 0 0">같은 함수는 정의역의 <b>모든</b> 원소에서 함숫값이 같아야 합니다.</p>
+        <p style="margin:8px 0 0">f(1) = g(1) → <b>1 + a = b − 8</b><br>
+          f(3) = g(3) → <b>9 + a = 3b − 8</b></p>
+        <p style="margin:8px 0 0">아래 식에서 위 식을 빼면 8 = 2b → <b>b = 4</b>,
+          넣으면 1 + a = −4 → <b>a = −5</b></p>
+        <div class="formula"><b>a = −5, b = 4</b></div>
+        <p style="margin:8px 0 0" class="hint">확인: f(x) = x² − 5, g(x) = 4x − 8.
+          f(1) = g(1) = −4, f(3) = g(3) = 4 ✓</p>
+      </div>
+    </div>
+    <div class="card">
+      <b>2.</b> 다음 중 <b>일대일함수 · 일대일대응 · 항등함수 · 상수함수</b> 를 각각 찾으시오.
+      <span class="hint">(교과서 113쪽 3번)</span>
+      <table style="margin-top:8px" id="t15"><tr><th class="l" style="width:46%">함수</th><th class="l">해당하는 것</th></tr></table>
+    </div>
+  </section>
+
+  <section class="screen" data-key="ext" data-photo="1" data-prompt="★도전 문제를 풀어 보고 과정을 적어 보세요. 어려우면 단원을 마친 뒤에 다시 와도 좋습니다. (손으로 푼 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">개념 확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 ★도전 기출 (22년 11월 고1)</span></div>
+    <!--TEACH:END-->
+    <h1>🔭 더 넓게, 더 깊게</h1>
+    <div class="callout">이 문제는 <b>단원 마무리 후에 풀어도 좋습니다.</b>
+      지금은 “어떤 조건을 따져야 하는지” 만 생각해 보세요.</div>
+    <div class="card">
+      <b>★ 도전</b> <span class="hint">(2022년 11월 고1 학력평가)</span>
+      <p style="margin:8px 0 0">두 실수 a, b 와 두 함수 f(x) = −x² − 2x + 1, g(x) = x² − 2x − 1 에 대하여</p>
+      <div class="formula">h(x) = <b>f(x)</b> &nbsp;(x &lt; a) &nbsp;&nbsp;/&nbsp;&nbsp; <b>g(x + b)</b> &nbsp;(x ≥ a)</div>
+      <p style="margin:8px 0 0">라 하자. 함수 h(x) 가 실수 전체의 집합에서 실수 전체의 집합으로의
+        <b>일대일대응</b>이 되도록 하는 a, b 의 모든 순서쌍 (a, b) 만을 원소로 하는 집합을 A 라 할 때,
+        &lt;보기&gt;에서 옳은 것만을 있는 대로 고른 것은?</p>
+      <ul class="tight">
+        <li>ㄱ. (0, k) ∈ A 를 만족시키는 실수 k 는 존재하지 않는다.</li>
+        <li>ㄴ. (−1, 4) ∈ A</li>
+        <li>ㄷ. 집합 { m + b | (m, b) ∈ A 이고 m 은 정수 } 의 모든 원소의 합은 5 + √3 이다.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <b>어디서부터 볼까?</b>
+      <ul class="tight">
+        <li>실수 전체 → 실수 전체의 <b>일대일대응</b>이려면, 그래프가 <b>끊기지 않고</b> 계속
+          <b>증가만</b> 하거나 <b>감소만</b> 해야 합니다.</li>
+        <li>f 는 위로 볼록, g 는 아래로 볼록입니다. 각각 <b>어느 구간에서 감소</b>하는지 먼저 보세요.</li>
+        <li>x = a 에서 <b>이어지는지</b>(값이 맞는지)도 따져야 합니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 17</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function txt(p,x,y,t,o){o=o||{};var e=el("text",{x:x,y:y,"font-size":o.size||13,
+  "text-anchor":o.anchor||"middle",fill:o.fill||"#27272a","font-weight":o.weight||700});
+  e.textContent=t;p.appendChild(e);return e;}
+function clear(s){while(s.firstChild)s.removeChild(s.firstChild);}
+function btnset(box,items,onPick,wide){
+  var bs=[];
+  items.forEach(function(it){
+    var b=document.createElement("button");b.className="rb"+(wide?" wide":"");b.innerHTML=it.t;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb"+(wide?" wide":"");});
+      b.className="rb on"+(wide?" wide":"");onPick(it);};
+    box.appendChild(b);bs.push(b);
+  });
+  return bs;
+}
+
+/* ── 로봇 엔진 (기존 로봇 월드 활동에서 그대로 가져옴) ── */
+var N=6, S=400, PAD=24, CELL=(S-2*PAD)/N;
+  // 방향: 0 동(+x) 1 북(+y) 2 서(−x) 3 남(−y)
+  var DIRNAME=["동쪽","북쪽","서쪽","남쪽"], DX=[1,0,-1,0], DY=[0,1,0,-1];
+  function cx(x){return PAD+(x-0.5)*CELL;}
+  function cy(y){return S-PAD-(y-0.5)*CELL;}
+
+  function drawGrid(svg){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    for(var i=0;i<=N;i++){
+      svg.appendChild(el("line",{x1:PAD+i*CELL,y1:PAD,x2:PAD+i*CELL,y2:S-PAD,stroke:"#e4e4e7","stroke-width":1}));
+      svg.appendChild(el("line",{x1:PAD,y1:PAD+i*CELL,x2:S-PAD,y2:PAD+i*CELL,stroke:"#e4e4e7","stroke-width":1}));
+    }
+    for(var g=1;g<=N;g++){
+      var tx=el("text",{x:cx(g),y:S-6,"font-size":10.5,fill:"#a1a1aa","text-anchor":"middle"});tx.textContent=g;svg.appendChild(tx);
+      var ty=el("text",{x:11,y:cy(g)+4,"font-size":10.5,fill:"#a1a1aa","text-anchor":"middle"});ty.textContent=g;svg.appendChild(ty);
+    }
+  }
+  function drawStar(svg,x,y,got){
+    var p=[],R=CELL*0.30;
+    for(var i=0;i<10;i++){var rr=(i%2)?R*0.44:R,a=-Math.PI/2+i*Math.PI/5;
+      p.push((cx(x)+rr*Math.cos(a)).toFixed(1)+","+(cy(y)+rr*Math.sin(a)).toFixed(1));}
+    svg.appendChild(el("polygon",{points:p.join(" "),fill:got?"#f59e0b":"#fff",
+      stroke:got?"#b45309":"#cbd5e1","stroke-width":1.6,"stroke-linejoin":"round"}));
+  }
+  function drawFlag(svg,x,y){
+    var bx=cx(x)-CELL*0.14, by=cy(y)+CELL*0.28;
+    svg.appendChild(el("line",{x1:bx,y1:by,x2:bx,y2:by-CELL*0.56,stroke:"#52525b","stroke-width":2.4}));
+    svg.appendChild(el("polygon",{points:bx+","+(by-CELL*0.56)+" "+(bx+CELL*0.34)+","+(by-CELL*0.44)+" "+bx+","+(by-CELL*0.32),
+      fill:"#e11d48"}));
+  }
+  function drawRobot(svg,x,y,d){
+    var g=el("g",{}), r=CELL*0.30, a=cx(x), b=cy(y);
+    g.appendChild(el("circle",{cx:a,cy:b,r:r,fill:"#dbeafe",stroke:"#2563eb","stroke-width":2.4}));
+    // 방향 삼각형
+    var ux=DX[d], uy=-DY[d], px=-uy, py=ux, t=r*0.95, w=r*0.5;
+    g.appendChild(el("polygon",{points:(a+ux*t)+","+(b+uy*t)+" "+(a-ux*w*0.4+px*w)+","+(b-uy*w*0.4+py*w)+" "+
+      (a-ux*w*0.4-px*w)+","+(b-uy*w*0.4-py*w),fill:"#2563eb"}));
+    svg.appendChild(g);
+  }
+
+  // 로봇 월드 엔진 -----------------------------------------------------------
+  function World(cfg){
+    var prog=[], run=false, timer=null;
+    var pos={x:cfg.start.x,y:cfg.start.y,d:cfg.start.d}, got=[];
+    var svg=document.getElementById(cfg.svg);
+    var progEl=cfg.prog?document.getElementById(cfg.prog):null;
+    var msgEl=document.getElementById(cfg.msg);
+    var winEl=cfg.win?document.getElementById(cfg.win):null;
+    var scEl=cfg.score?document.getElementById(cfg.score):null;
+    var stars=cfg.stars||[];
+
+    function reset(keepProg){
+      clearTimeout(timer);run=false;
+      pos={x:cfg.start.x,y:cfg.start.y,d:cfg.start.d};
+      got=stars.map(function(){return false;});
+      if(!keepProg)prog=[];
+      msg("");draw();paint();
+    }
+    function msg(t,cls){if(msgEl){msgEl.textContent=t;msgEl.className="msg"+(cls?" "+cls:"");}}
+    function draw(cur){
+      drawGrid(svg);
+      for(var i=0;i<stars.length;i++)drawStar(svg,stars[i][0],stars[i][1],got[i]);
+      if(cfg.goal)drawFlag(svg,cfg.goal[0],cfg.goal[1]);
+      drawRobot(svg,pos.x,pos.y,pos.d);
+      if(scEl)scEl.textContent=got.filter(Boolean).length+" / "+stars.length;
+      if(progEl){
+        if(!prog.length)progEl.innerHTML='<span class="empty">// 명령을 눌러 프로그램을 만드세요</span>';
+        else progEl.innerHTML=prog.map(function(c,i){
+          return '<div><span class="ln">'+(i+1)+'</span> <span'+(i===cur?' class="cur"':'')+'>'+c+'()</span></div>';
+        }).join("");
+      }
+    }
+    function paint(){}                     // 자리 표시(버튼 상태는 바깥에서 관리)
+    function collect(){
+      for(var i=0;i<stars.length;i++)
+        if(stars[i][0]===pos.x&&stars[i][1]===pos.y)got[i]=true;
+    }
+    function step(c){
+      if(c==="move"){
+        var nx=pos.x+DX[pos.d], ny=pos.y+DY[pos.d];
+        if(nx<1||nx>N||ny<1||ny>N)return false;
+        pos.x=nx;pos.y=ny;collect();
+      } else if(c==="turn_left") pos.d=(pos.d+1)%4;
+      else if(c==="turn_right") pos.d=(pos.d+3)%4;
+      return true;
+    }
+    function play(){
+      if(run||!prog.length)return;
+      reset(true);run=true;msg("실행 중…");
+      var i=0;
+      (function tick(){
+        if(i>=prog.length){
+          run=false;
+          var win=cfg.goal ? (pos.x===cfg.goal[0]&&pos.y===cfg.goal[1])
+                           : got.length&&got.every(Boolean);
+          if(win){msg(cfg.okMsg||"성공!","ok");if(winEl){winEl.className="win on";winEl.innerHTML=cfg.winHtml||"🎉 성공!";}
+                  if(cfg.onWin)cfg.onWin();}
+          else msg(cfg.failMsg||"아직이에요. 다시 해 볼까요?","no");
+          draw();return;
+        }
+        var ok=step(prog[i]);
+        if(!ok){run=false;msg("🚧 벽에 부딪혔습니다! 리셋하고 다시 해 보세요.","no");draw(i);return;}
+        draw(i);i++;
+        timer=setTimeout(tick,360);
+      })();
+    }
+    return {
+      push:function(c){if(run)return;prog.push(c);msg("");draw();},
+      play:play, reset:reset, isRunning:function(){return run;},
+      pos:function(){return pos;}
+    };
+  }
+
+  function cmdButtons(boxId,list,world){
+    var box=document.getElementById(boxId);
+    box.innerHTML="";
+    list.forEach(function(c){
+      var b=document.createElement("button");
+      b.className="cmd"+(c==="turn_right"?" new":"");
+      b.textContent=c+"()";
+      b.onclick=function(){world.push(c);};
+      box.appendChild(b);
+    });
+  }
+
+/* ── 화면1 : 깃발까지 ─────────────────────────────────── */
+var w0=World({svg:"w0",prog:"p0",msg:"m0",win:"v0",start:{x:1,y:1,d:0},goal:[3,3],
+  winHtml:"🎉 도착! 예를 들어 <span class='mono'>move, move, turn_left, move, move</span> 로 갈 수 있어요.",
+  okMsg:"깃발 도착!",failMsg:"깃발에 닿지 못했어요. 리셋하고 다시!"});
+cmdButtons("c0",["move","turn_left"],w0);
+document.getElementById("r0").onclick=function(){w0.play();};
+document.getElementById("x0").onclick=function(){w0.reset();};
+w0.reset();
+
+/* ── 화면2 : turn_right 만들기 ───────────────────────── */
+(function(){
+  var d1=document.getElementById("d1");
+  var w1=World({svg:"w1",prog:"p1",msg:"d1x",start:{x:3,y:3,d:0}});
+  cmdButtons("c1",["move","turn_left"],w1);
+  function report(){
+    var p=w1.pos();
+    var name=["동쪽","북쪽","서쪽","남쪽"][p.d];
+    d1.innerHTML="지금 로봇이 보는 방향<br><b style='font-size:17px'>"+name+"</b><br><br>"+
+      (p.d===3?"✅ 처음(동쪽) 에서 <b>오른쪽</b>을 보고 있습니다!":
+       "<span class='hint'>처음에는 동쪽을 보고 있었습니다. 오른쪽은 <b>남쪽</b> 이에요.</span>");
+  }
+  document.getElementById("r1").onclick=function(){w1.play();setTimeout(report,600);};
+  document.getElementById("x1").onclick=function(){w1.reset();report();};
+  w1.reset();report();
+})();
+
+/* ── 화면3 : 별을 먹자 ───────────────────────────────── */
+var w2=World({svg:"w2",prog:"p2",msg:"m2",win:"v2",score:"s2",
+  start:{x:1,y:1,d:0},stars:[[3,1],[3,4],[6,4]],
+  winHtml:"🎉 별 3개 획득! <span class='mono'>turn_right()</span> 를 쓰면 훨씬 짧아집니다.",
+  okMsg:"별을 모두 먹었습니다!",failMsg:"아직 못 먹은 별이 있어요."});
+cmdButtons("c2",["move","turn_left","turn_right"],w2);
+document.getElementById("r2").onclick=function(){w2.play();};
+document.getElementById("x2").onclick=function(){w2.reset();};
+w2.reset();
+
+/* ── 화면4 : turn_left 여러 번 ───────────────────────── */
+(function(){
+  var w3=World({svg:"w3",msg:"m3x",start:{x:3,y:3,d:0}});
+  var ro=document.getElementById("r4");
+  var NAMES=["동쪽","북쪽","서쪽","남쪽"];
+  function show(n){
+    // 명령을 n 번 쌓고 실제로 돌려 보여 준다
+    w3.reset();
+    for(var i=0;i<n;i++) w3.push("turn_left");
+    w3.play();
+    var d=n%4;
+    ro.innerHTML="turn_left() 를 <b>"+n+"번</b><br><br>"+
+      "처음 : 동쪽<br>지금 : <b style='font-size:16px'>"+NAMES[d]+"</b><br><br>"+
+      (d===0?"✅ <b>처음과 같습니다</b> — 아무 일도 일어나지 않았어요.":
+             "<span class='hint'>"+n+" 을 4로 나눈 나머지는 "+(n%4)+" 입니다.</span>");
+  }
+  btnset(document.getElementById("b4"),
+    [1,2,3,4,5,6].map(function(n){return {t:n+"번",n:n};}),
+    function(it){show(it.n);});
+  w3.reset();show(1);
+})();
+
+/* ── 화면5 : 명령어 ↔ 행동 짝짓기 ────────────────────── */
+(function(){
+  var rows=[
+    {c:"move()",k:2},
+    {c:"turn_left()",k:0},
+    {c:"turn_right()",k:1},
+    {c:"turn_5()",k:0}
+  ];
+  var ACT=["제자리에서 왼쪽을 본다","제자리에서 오른쪽을 본다","앞으로 한 칸 이동","바닥의 물건을 줍는다"];
+  var tb=document.getElementById("t5"),done=0;
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td class="mono">'+r.c+'</td><td class="l"></td>';
+    var cell=tr.children[1];
+    ACT.forEach(function(a,k){
+      var b=document.createElement("button");b.className="judge";b.textContent=a;
+      b.onclick=function(){
+        var right=(k===r.k);
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
+          if(done===rows.length){var W=document.getElementById("w5");W.className="win on";
+            W.innerHTML="🎉 모두 짝지었습니다. <b>turn_5() 는 turn_left() 와 같은 행동</b> 이었죠. "+
+              "그리고 <b>‘바닥의 물건을 줍는다’ 는 짝이 없습니다</b> — 그런 명령이 아직 없으니까요.";}}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── 대응 자료 (화면6·8 공용) ────────────────────────── */
+var MAPS=[
+  {id:"A",title:"A. 작품 → 화가",
+   pairs:[["수련","모네"],["별이 빛나는 밤","반 고흐"],["게르니카","피카소"],["두 자매","르누아르"]],
+   Y:["모네","반 고흐","피카소","르누아르"],
+   fn:true, one:true,
+   note:"각 작품에 화가가 <b>하나씩</b> — 함수입니다.<br><br>겹치는 것도 남는 것도 없어요. <b>일대일대응</b> 입니다."},
+  {id:"B",title:"B. 화가 → 작품",
+   pairs:[["모네","수련"],["반 고흐","별이 빛나는 밤"],["피카소","게르니카"],["르누아르","두 자매"]],
+   Y:["수련","별이 빛나는 밤","게르니카","두 자매"],
+   fn:true, one:true,
+   note:"A 의 화살표를 <b>거꾸로 돌린 것</b> 입니다.<br><br>이것도 <b>일대일대응</b> 이에요.<br><br><span class='hint'>거꾸로 돌려도 함수가 되는 이 성질이 뒤에 <b>역함수</b> 로 이어집니다.</span>"},
+  {id:"C",title:"C. 도시 → 국가",
+   pairs:[["서울","한국"],["워싱턴","미국"],["삿포로","일본"],["거제","한국"]],
+   Y:["한국","미국","일본","호주"],
+   fn:true, one:false,
+   note:"각 도시에 나라가 하나씩 — <b>함수입니다.</b><br><br>단 <b>서울·거제가 둘 다 한국</b> 으로 가고, <b>호주</b> 는 짝이 없습니다.<br><br>겹쳐도 남아도 <b>함수는 함수</b> 예요."},
+  {id:"D",title:"D. 국가 → 도시",
+   pairs:[["한국","서울"],["한국","거제"],["미국","워싱턴"],["일본","삿포로"]],
+   Y:["서울","워싱턴","삿포로","거제"],
+   fn:false,
+   note:"<b>함수가 아닙니다.</b><br><br>① <b>한국</b> 에 도시가 <b>둘</b> 대응합니다.<br>② <b>호주</b> 에는 대응하는 도시가 <b>없습니다.</b><br><br><span class='hint'>C 를 거꾸로 돌리면 함수가 깨집니다 — C 가 일대일대응이 아니었기 때문이죠.</span>"}
+];
+
+/* ── 화면6 : 네 대응 ─────────────────────────────────── */
+(function(){
+  var box=document.getElementById("m6"),ro=document.getElementById("r6"),els=[];
+  MAPS.forEach(function(m){
+    var d=document.createElement("div");d.className="mapbox";
+    var rows=m.pairs.map(function(p){return '<tr><td>'+p[0]+'</td><td>→</td><td>'+p[1]+'</td></tr>';}).join("");
+    d.innerHTML='<h3>'+m.title+'</h3><table>'+rows+'</table>';
+    d.onclick=function(){
+      els.forEach(function(x){x.className="mapbox";});d.className="mapbox on";
+      ro.innerHTML="<b>"+m.title+"</b><br><br>"+
+        (m.fn?"<b style='color:#059669'>함수입니다</b>":"<b style='color:#e11d48'>함수가 아닙니다</b>")+
+        "<br><br>"+m.note;
+    };
+    box.appendChild(d);els.push(d);
+  });
+  ro.innerHTML="네 상자를 하나씩 눌러 보세요.";
+})();
+
+/* ── 대응 그림 그리기 (화면7·9 공용) ─────────────────── */
+function drawMap(svg,X,Y,arrows,opt){
+  opt=opt||{};
+  clear(svg);
+  var W=400,H=svg.getAttribute("viewBox").split(" ")[3]|0;
+  var lx=120,rx=280, top=52, gap=Math.min(46,(H-top-30)/Math.max(X.length,Y.length));
+  function yx(i,n){return top+(i-(n-1)/2)*gap+(H-top-20)/2-20;}
+  svg.appendChild(el("ellipse",{cx:lx,cy:H/2+6,rx:58,ry:gap*X.length/2+22,
+    fill:"#eff6ff",stroke:"#2563eb","stroke-width":1.6}));
+  svg.appendChild(el("ellipse",{cx:rx,cy:H/2+6,rx:58,ry:gap*Y.length/2+22,
+    fill:"#fff1f2",stroke:"#e11d48","stroke-width":1.6}));
+  txt(svg,lx,26,opt.xname||"X",{size:14,fill:"#2563eb"});
+  txt(svg,rx,26,opt.yname||"Y",{size:14,fill:"#e11d48"});
+  var px={},py={};
+  X.forEach(function(v,i){var y=yx(i,X.length);px[v]=y;
+    svg.appendChild(el("circle",{cx:lx,cy:y,r:4,fill:"#2563eb"}));
+    txt(svg,lx-12,y+4,v,{size:12.5,anchor:"end",fill:"#1e40af"});});
+  Y.forEach(function(v,i){var y=yx(i,Y.length);py[v]=y;
+    svg.appendChild(el("circle",{cx:rx,cy:y,r:4,fill:"#e11d48"}));
+    txt(svg,rx+12,y+4,v,{size:12.5,anchor:"start",fill:"#9f1239"});});
+  arrows.forEach(function(a){
+    svg.appendChild(el("line",{x1:lx+5,y1:px[a[0]],x2:rx-5,y2:py[a[1]],
+      stroke:a[2]||"#71717a","stroke-width":1.8}));
+    svg.appendChild(el("circle",{cx:rx-7,cy:py[a[1]],r:2.6,fill:a[2]||"#71717a"}));
+  });
+}
+
+/* ── 화면7 : 정의역·공역·치역 그림 ───────────────────── */
+(function(){
+  var svg=document.getElementById("v7"),ro=document.getElementById("r7");
+  var X=["1","2","3"],Y=["a","b","c"],AR=[["1","a"],["2","b"],["3","b"]];
+  var items=[
+    {t:"정의역 X",c:"#2563eb",s:"출발하는 쪽 전체<br><b>X = { 1, 2, 3 }</b>"},
+    {t:"공역 Y",c:"#e11d48",s:"도착할 수 있는 곳 전체<br><b>Y = { a, b, c }</b>"},
+    {t:"치역",c:"#059669",s:"<b>실제로 도착한</b> 값들<br><b>{ a, b }</b><br><br><span class='hint'>c 는 아무도 가지 않았습니다. 그래서 치역 ≠ 공역.</span>"}
+  ];
+  function draw(hi){
+    drawMap(svg,X,Y,AR.map(function(a){return [a[0],a[1],hi==="치역"?"#059669":"#71717a"];}));
+    if(hi==="정의역 X") svg.appendChild(el("ellipse",{cx:120,cy:136,rx:64,ry:76,fill:"none",stroke:"#2563eb","stroke-width":3}));
+    if(hi==="공역 Y") svg.appendChild(el("ellipse",{cx:280,cy:136,rx:64,ry:76,fill:"none",stroke:"#e11d48","stroke-width":3}));
+  }
+  btnset(document.getElementById("b7"),items,function(it){
+    draw(it.t);ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;});
+  draw();ro.innerHTML="세 가지를 차례로 눌러 보세요.";
+})();
+
+/* ── 화면8 : A~D 의 세 집합 ─────────────────────────── */
+(function(){
+  var ro=document.getElementById("r8");
+  btnset(document.getElementById("b8"),MAPS.map(function(m){return {t:m.id,m:m};}),function(it){
+    var m=it.m;
+    if(!m.fn){ ro.innerHTML="<b>"+m.title+"</b><br><br><b style='color:#e11d48'>함수가 아니므로</b> 정의역·공역·치역을 말할 수 없습니다.<br><br>"+m.note; return; }
+    var X=m.pairs.map(function(p){return p[0];});
+    var ran=[];m.pairs.forEach(function(p){if(ran.indexOf(p[1])<0)ran.push(p[1]);});
+    ro.innerHTML="<b>"+m.title+"</b><br><br>"+
+      "정의역 <b>{ "+X.join(", ")+" }</b><br><br>"+
+      "공역 <b>{ "+m.Y.join(", ")+" }</b><br><br>"+
+      "치역 <b>{ "+ran.join(", ")+" }</b><br><br>"+
+      (ran.length===m.Y.length?"<span class='hint'>치역 = 공역 입니다.</span>"
+        :"<span class='hint'>치역 ≠ 공역 — 아무도 가지 않은 원소가 있습니다.</span>");
+  });
+  ro.innerHTML="A~D 를 눌러 확인해 보세요.";
+})();
+
+/* ── 화면9 : 함수 판별 ───────────────────────────────── */
+(function(){
+  var svg=document.getElementById("v9"),ro=document.getElementById("r9");
+  var X=["1","2","3"],Y=["a","b","c"];
+  var CASES=[
+    {t:"①",ar:[["1","a"],["2","b"]],ok:false,why:"3 에 대응하는 것이 <b>없습니다.</b>"},
+    {t:"②",ar:[["1","a"],["2","a"],["2","c"],["3","b"]],ok:false,why:"2 에 <b>a 와 c 둘</b> 이 대응합니다."},
+    {t:"③",ar:[["1","a"],["2","b"],["3","b"]],ok:true,why:"각 원소에 하나씩 — <b>함수</b>. 치역은 { a, b }."},
+    {t:"④",ar:[["1","c"],["2","a"],["3","b"]],ok:true,why:"각 원소에 하나씩 — <b>함수</b>이고 <b>일대일대응</b>."},
+    {t:"⑤",ar:[["1","b"],["2","b"],["3","b"]],ok:true,why:"모두 b 로 — <b>함수</b>. <b>상수함수</b> 입니다."}
+  ];
+  btnset(document.getElementById("b9"),CASES.map(function(c){return {t:c.t,c:c};}),function(it){
+    drawMap(svg,X,Y,it.c.ar);
+    ro.innerHTML="<b>"+it.c.t+"</b><br><br>"+
+      (it.c.ok?"<b style='color:#059669'>함수입니다</b>":"<b style='color:#e11d48'>함수가 아닙니다</b>")+
+      "<br><br>"+it.c.why;
+  });
+  drawMap(svg,X,Y,CASES[0].ar);
+  ro.innerHTML="①~⑤ 를 눌러 보세요.";
+
+  var tb=document.getElementById("t9"),done=0;
+  CASES.forEach(function(c){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td><b>'+c.t+'</b></td><td class="l"></td><td class="l hint"></td>';
+    var cell=tr.children[1];
+    ["함수","함수 아님"].forEach(function(lab,k){
+      var b=document.createElement("button");b.className="judge";b.textContent=lab;
+      b.onclick=function(){
+        var right=(k===0)===c.ok;
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        tr.children[2].innerHTML=right?c.why:"‘하나에 하나씩’ 인지 다시 보세요.";
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
+          if(done===CASES.length){var W=document.getElementById("w9");W.className="win on";
+            W.innerHTML="🎉 다섯 개를 모두 판단했습니다. 함수가 아닌 것은 <b>없거나</b> <b>둘 이상</b> 이었습니다.";}}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── 화면10 : 치역 ───────────────────────────────────── */
+(function(){
+  var ro=document.getElementById("r10");
+  var FN=[
+    {t:"A",e:"y = 2x − 5",dom:"{ 1, 2, 3, 4 }",vals:[1,2,3,4].map(function(x){return 2*x-5;}),
+     ran:"{ −3, −1, 1, 3 }"},
+    {t:"B",e:"y = x² + 3",dom:"{ x | x ≥ 1 }",ran:"{ y | y ≥ 4 }",
+     note:"x ≥ 1 이면 x² ≥ 1 이므로 x² + 3 ≥ 4. <b>가장 작은 값은 x = 1 일 때 4</b> 입니다."},
+    {t:"C",e:"f(x) = | x | − 1",dom:"{ −1, 0, 1 }",ran:"{ −1, 0 }",
+     note:"−1 → 0,&nbsp; 0 → −1,&nbsp; 1 → 0"},
+    {t:"D",e:"g(x) = x² − 1",dom:"{ −1, 0, 1 }",ran:"{ −1, 0 }",
+     note:"−1 → 0,&nbsp; 0 → −1,&nbsp; 1 → 0 &nbsp;— <b>C 와 값이 똑같습니다!</b>"},
+    {t:"E",e:"f(x) = | x |",dom:"{ 0, 1 }",ran:"{ 0, 1 }",note:"0 → 0,&nbsp; 1 → 1"},
+    {t:"F",e:"g(x) = x²",dom:"{ 0, 1 }",ran:"{ 0, 1 }",
+     note:"0 → 0,&nbsp; 1 → 1 &nbsp;— <b>E 와 값이 똑같습니다!</b>"}
+  ];
+  btnset(document.getElementById("b10"),FN.map(function(f){return {t:f.t,f:f};}),function(it){
+    var f=it.f;
+    ro.innerHTML="<b>"+f.t+"</b> &nbsp;"+f.e+"<br><br>"+
+      "정의역 <b>"+f.dom+"</b><br><br>치역 <b>"+f.ran+"</b>"+
+      (f.note?"<br><br><span class='hint'>"+f.note+"</span>":"");
+  });
+  ro.innerHTML="A~F 를 눌러 치역을 확인해 보세요.";
+})();
+
+/* ── 그래프 그리기 도우미 ────────────────────────────── */
+function Plane(svg,lo,hi,H){
+  H=H||300;
+  var W=400,pad=28,sc=Math.min((W-2*pad)/(hi-lo),(H-2*pad)/(hi-lo));
+  var ox=W/2, oy=H/2;
+  function px(x){return ox+x*sc;} function py(y){return oy-y*sc;}
+  return {px:px,py:py,sc:sc,
+    grid:function(){
+      for(var g=Math.ceil(lo);g<=hi;g++){
+        svg.appendChild(el("line",{x1:px(g),y1:py(hi),x2:px(g),y2:py(lo),stroke:"#f1f5f9"}));
+        svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+      }
+      svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+      svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+    },
+    plot:function(fn,color,dom){
+      var pts=[],a=(dom?dom[0]:lo),b=(dom?dom[1]:hi);
+      for(var i=0;i<=300;i++){var x=a+(b-a)*i/300,y=fn(x);
+        if(isFinite(y)&&y>=lo-1&&y<=hi+1)pts.push(px(x)+","+py(y)); else if(pts.length){
+          svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":2.6,"stroke-linejoin":"round"}));pts=[];}}
+      if(pts.length)svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":2.6,"stroke-linejoin":"round"}));
+    },
+    vline:function(x,color){svg.appendChild(el("line",{x1:px(x),y1:py(hi),x2:px(x),y2:py(lo),
+      stroke:color||"#d97706","stroke-width":1.8,"stroke-dasharray":"5 4"}));},
+    hline:function(y,color){svg.appendChild(el("line",{x1:px(lo),y1:py(y),x2:px(hi),y2:py(y),
+      stroke:color||"#d97706","stroke-width":1.8,"stroke-dasharray":"5 4"}));},
+    dot:function(x,y,color,fill){svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:4.5,
+      fill:fill===false?"#fff":color,stroke:color,"stroke-width":2}));}
+  };
+}
+
+/* ── 화면11 : 함수의 그래프 판별 ─────────────────────── */
+(function(){
+  var svg=document.getElementById("v11"),ro=document.getElementById("r11"),cb=document.getElementById("vl11");
+  var G=[
+    {t:"① y = x + 1",f:function(x){return x+1;},ok:true,why:"세로선이 <b>언제나 한 점</b>에서만 만납니다."},
+    {t:"② y = x²",f:function(x){return x*x;},ok:true,why:"세로선이 한 점에서만 만납니다. <b>함수입니다.</b>"},
+    {t:"③ 원 x² + y² = 9",circle:true,ok:false,why:"x = 0 에서 세로선이 <b>두 점</b>(0, 3), (0, −3) 에서 만납니다."},
+    {t:"④ y = | x |",f:function(x){return Math.abs(x);},ok:true,why:"꺾여 있어도 세로선은 한 점에서만 만납니다."},
+    {t:"⑤ x = 2 (세로직선)",vert:true,ok:false,why:"x = 2 에서 <b>무수히 많은 점</b>과 만납니다. 함수가 아닙니다."}
+  ];
+  var cur=G[0];
+  function draw(){
+    clear(svg);
+    var P=Plane(svg,-5,5,300);
+    P.grid();
+    if(cur.circle){
+      svg.appendChild(el("circle",{cx:P.px(0),cy:P.py(0),r:3*P.sc,fill:"none",stroke:"#2563eb","stroke-width":2.6}));
+    } else if(cur.vert){
+      svg.appendChild(el("line",{x1:P.px(2),y1:P.py(5),x2:P.px(2),y2:P.py(-5),stroke:"#2563eb","stroke-width":2.6}));
+    } else P.plot(cur.f,"#2563eb");
+    if(cb.checked){
+      [-3,-1,1,3].forEach(function(x){P.vline(x);});
+      if(cur.circle){ P.dot(0,3,"#e11d48"); P.dot(0,-3,"#e11d48"); P.vline(0,"#e11d48"); }
+    }
+    ro.innerHTML="<b>"+cur.t+"</b><br><br>"+
+      (cur.ok?"<b style='color:#059669'>함수의 그래프입니다</b>":"<b style='color:#e11d48'>함수의 그래프가 아닙니다</b>")+
+      "<br><br>"+cur.why;
+  }
+  btnset(document.getElementById("b11"),G.map(function(g){return {t:g.t.slice(0,1),g:g};}),
+    function(it){cur=it.g;draw();});
+  cb.onchange=draw;
+  draw();
+})();
+
+/* ── 화면12 : 대응 관계 분류 ─────────────────────────── */
+(function(){
+  var rows=[
+    {t:"y = x",k:1,why:"서로 다른 x 는 서로 다른 y 로. 공역(실수)과 치역이 같음 → <b>일대일대응</b>"},
+    {t:"y = | x |",k:0,why:"−1 과 1 이 모두 1 로 갑니다. 일대일함수가 <b>아닙니다.</b>",none:true},
+    {t:"y = x² − 1",k:0,why:"−1 과 1 이 모두 0 으로. 일대일함수가 <b>아닙니다.</b>",none:true},
+    {t:"y = −x + 1",k:1,why:"기울기가 0 이 아닌 일차함수 → <b>일대일대응</b>"},
+    {t:"X : 거제상문고 학생 → Y : 학번",k:1,why:"학생마다 학번이 하나씩, 학번도 겹치지 않습니다 → <b>일대일대응</b>"},
+    {t:"y = 3 (상수)",k:2,why:"모든 x 가 3 하나로 몰립니다 → <b>상수함수</b>"}
+  ];
+  var LAB=["어느 것도 아님","일대일대응","상수함수"];
+  var tb=document.getElementById("t12"),done=0;
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td class="l">'+r.t+'</td><td></td><td class="l hint"></td>';
+    var cell=tr.children[1];
+    LAB.forEach(function(lab,k){
+      var b=document.createElement("button");b.className="judge";b.textContent=lab;
+      b.onclick=function(){
+        var right=(k===r.k);
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        tr.children[2].innerHTML=right?r.why:"서로 다른 것이 서로 다른 곳으로 가나요? 남는 것은 없나요?";
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
+          if(done===rows.length){var W=document.getElementById("w12");W.className="win on";
+            W.innerHTML="🎉 여섯 개를 모두 분류했습니다. 기준은 <b>겹치는가</b> 와 <b>남는가</b> 두 가지뿐입니다.";}}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── 화면13 : 일대일함수·일대일대응 ─────────────────── */
+(function(){
+  var svg=document.getElementById("v13"),ro=document.getElementById("r13"),cb=document.getElementById("hl13");
+  var G=[
+    {t:"y = 2x",f:function(x){return 2*x;},one:true,onto:true,
+     why:"가로선이 <b>한 점</b>에서만 만납니다 → 일대일함수.<br>공역(실수) = 치역(실수) → <b>일대일대응</b>"},
+    {t:"y = x²",f:function(x){return x*x;},one:false,onto:false,
+     why:"가로선 y = 1 이 <b>두 점</b>(−1, 1), (1, 1) 에서 만납니다 → 일대일함수가 아닙니다."},
+    {t:"y = | x |",f:function(x){return Math.abs(x);},one:false,onto:false,
+     why:"y = 2 가 두 점에서 만납니다 → 일대일함수가 아닙니다."},
+    {t:"y = x³",f:function(x){return x*x*x;},one:true,onto:true,
+     why:"계속 증가하므로 가로선이 한 점에서만 만납니다 → <b>일대일대응</b>"}
+  ];
+  var cur=G[0];
+  function draw(){
+    clear(svg);
+    var P=Plane(svg,-5,5,300);P.grid();P.plot(cur.f,"#2563eb");
+    if(cb.checked){
+      [1,2].forEach(function(y){P.hline(y);});
+      if(!cur.one){
+        if(cur.t==="y = x²"){P.dot(-1,1,"#e11d48");P.dot(1,1,"#e11d48");}
+        else {P.dot(-2,2,"#e11d48");P.dot(2,2,"#e11d48");}
+      }
+    }
+    ro.innerHTML="<b>"+cur.t+"</b><br><br>"+
+      "일대일함수 : <b style='color:"+(cur.one?"#059669":"#e11d48")+"'>"+(cur.one?"○":"×")+"</b><br>"+
+      "일대일대응 : <b style='color:"+(cur.onto?"#059669":"#e11d48")+"'>"+(cur.onto?"○":"×")+"</b><br><br>"+cur.why;
+  }
+  btnset(document.getElementById("b13"),G.map(function(g){return {t:g.t,g:g};}),function(it){cur=it.g;draw();});
+  cb.onchange=draw;
+  draw();
+})();
+
+/* ── 화면14 : 항등함수·상수함수 ─────────────────────── */
+(function(){
+  var svg=document.getElementById("v14"),ro=document.getElementById("r14");
+  var G=[
+    {t:"y = x",f:function(x){return x;},k:"항등",
+     why:"모든 x 가 <b>자기 자신</b>으로 갑니다.<br><br>정의역과 공역이 같고 f(x) = x → <b>항등함수</b>"},
+    {t:"y = 2",f:function(){return 2;},k:"상수",
+     why:"모든 x 가 <b>2 하나</b>로 갑니다.<br><br>치역 = { 2 } — 원소가 <b>1개</b>인 집합 → <b>상수함수</b>"},
+    {t:"y = −1",f:function(){return -1;},k:"상수",
+     why:"모든 x 가 −1 로. <b>상수함수</b> 입니다.<br><br>가로로 뻗은 직선이면 모두 상수함수예요."},
+    {t:"y = x + 1",f:function(x){return x+1;},k:"둘 다 아님",
+     why:"기울기가 1 이지만 <b>f(x) ≠ x</b> 입니다 (f(0) = 1).<br><br>항등함수가 아니고 상수함수도 아닙니다."}
+  ];
+  var cur=G[0];
+  function draw(){
+    clear(svg);
+    var P=Plane(svg,-5,5,300);P.grid();
+    P.plot(function(x){return x;},"#e4e4e7");   // y = x 참고선
+    P.plot(cur.f,"#2563eb");
+    ro.innerHTML="<b>"+cur.t+"</b><br><br>분류 : <b>"+cur.k+"함수</b><br><br>"+cur.why+
+      "<br><br><span class='hint'>회색은 참고선 y = x 입니다.</span>";
+  }
+  btnset(document.getElementById("b14"),G.map(function(g){return {t:g.t,g:g};}),function(it){cur=it.g;draw();});
+  draw();
+})();
+
+/* ── 화면15 : 교과서 113쪽 3번 ───────────────────────── */
+(function(){
+  var rows=[
+    {t:"ㄱ. y = 5x + 7",a:"일대일함수 · 일대일대응"},
+    {t:"ㄴ. y = −3",a:"상수함수"},
+    {t:"ㄷ. y = x",a:"일대일함수 · 일대일대응 · 항등함수"},
+    {t:"ㄹ. y = x² (x ≥ 0), 3x (x &lt; 0)",a:"일대일함수 · 일대일대응"}
+  ];
+  var tb=document.getElementById("t15");
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td class="l">'+r.t+'</td><td class="l"><button class="reveal" data-a="'+r.a+'">?</button></td>';
+    tb.appendChild(tr);
+  });
+  [].slice.call(tb.querySelectorAll("button.reveal[data-a]")).forEach(function(b){
+    b.onclick=function(){b.textContent=b.getAttribute("data-a");
+      b.style.color="#2563eb";b.style.fontWeight="700";};
+  });
+})();
+
+/* ── 정답 밝히기 ─────────────────────────────────────── */
+[["rv2","an2"],["rv5","an5"],["rv6","an6"],["rv10","an10"],["rv14","an14"],["rv15a","an15a"]]
+.forEach(function(p){
+  var b=document.getElementById(p[0]),a=document.getElementById(p[1]);
+  if(b&&a)b.onclick=function(){a.classList.toggle("on");
+    b.textContent=a.classList.contains("on")?"접기":"다시 열기";};
+});
+})();
+</script>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>

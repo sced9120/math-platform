@@ -59,6 +59,11 @@
   .box.g{border-color:var(--rose);background:#fff1f2;color:var(--rose)}
   .box.v{border-color:var(--emerald);background:#ecfdf5;color:var(--emerald);font-size:17px}
   .arrow{color:var(--muted);font-size:18px}
+  .trip{display:flex;flex-wrap:wrap;gap:7px;align-items:center;justify-content:center;margin:12px 0}
+  .trip .pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;
+    font-size:13.5px;font-weight:700;white-space:nowrap}
+  .trip .pill b{color:var(--blue)}
+  .trip .ar{font-size:12.5px;font-weight:700;color:var(--violet);white-space:nowrap}
 /* TEACH:CSS */
   .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
   .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
@@ -357,34 +362,46 @@
       그래서 5번은 1번과, 6번은 2번과 같아요 — <b>4로 나눈 나머지</b>만 중요합니다.</div>
   </section>
 
-  <section class="screen" data-key="s9" data-prompt="두 그래프를 보고 합성함수 z = g(f(x)) 의 그래프가 어떤 모양이 될지 설명해 보세요. x 가 변할 때 y 와 z 가 어떻게 따라 변하는지 함께 적어 주세요.">
-    <div class="kicker">추가 탐구</div>
+  <section class="screen" data-key="s9" data-prompt="x 를 움직여 점을 모아 합성함수의 그래프를 만들어 보세요. 그다음 순서를 뒤집었을 때 자취가 어떻게 달라지는지, 왜 그런지 적어 주세요.">
+    <div class="kicker">조작 탐구</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 데스모스 활동 [추가 탐구] 합성함수의 그래프 그리기</span></div>
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-ask">💬 자취를 모으기 전에 예상시키기</span><span class="t-sheet">📄 데스모스 활동 [추가 탐구] 합성함수의 그래프 그리기</span></div>
     <!--TEACH:END-->
-    <h1>⚙️ 합성함수의 그래프</h1>
-    <p><b>y = f(x)</b>, <b>z = g(y)</b> 라 하면 <b>z = g(f(x))</b> 의 그래프를 그릴 수 있습니다.
-       아래에서 <b>x 를 끌어</b> y 와 z 가 어떻게 따라 움직이는지 보세요.</p>
+    <h1>⚙️ 점의 여행 — 합성함수의 그래프</h1>
+    <p><b>첫 출력이 다음 입력으로.</b> 마지막 점의 <b>가로좌표</b>는 다시 <b>처음의 x</b> 입니다.
+       이 한 줄이 합성함수 그래프의 전부입니다.</p>
+    <div class="trip" id="trip9"></div>
     <div class="lab">
-      <svg id="v9" viewBox="0 0 400 320"></svg>
+      <svg id="v9" viewBox="0 0 400 330"></svg>
       <div class="controls">
         <div class="btns" id="b9"></div>
-        <div class="slider"><label>x <span><b id="c9x">1</b></span></label>
-          <input id="c9r" type="range" min="-3" max="3" step="0.1" value="1"></div>
+        <div class="slider"><label>처음 입력 x <span><b id="c9x">1</b></span></label>
+          <input id="c9r" type="range" min="-3" max="3" step="0.25" value="1"></div>
+        <div class="btns">
+          <button class="rb" id="c9stamp">점 남기기</button>
+          <button class="rb" id="c9sweep">자동으로 훑기</button>
+          <button class="rb" id="c9clear">자취 지우기</button>
+        </div>
+        <div class="btns">
+          <button class="rb" id="c9swap">🔄 순서 뒤집기</button>
+          <button class="rb" id="c9hide">최종값 가리기</button>
+        </div>
         <div class="readout" id="r9"></div>
       </div>
     </div>
     <div class="card">
       <b>그리는 요령 4단계</b>
       <ul class="tight">
-        <li><b>①</b> y = f(x) 의 그래프를 본다 — x 를 넣으면 y 가 나온다</li>
-        <li><b>②</b> 그 y 를 z = g(y) 의 입력으로 넣는다</li>
-        <li><b>③</b> x 가 변할 때 y 가 어떻게 변하고, 그에 따라 z 가 어떻게 변하는지 <b>함께</b> 생각한다</li>
-        <li><b>④</b> x축과 z축으로 된 좌표평면에 (x, z) 를 찍어 그린다</li>
+        <li><b>①</b> 왼쪽 위에서 x 를 넣어 <b>중간값</b>을 얻는다</li>
+        <li><b>②</b> 그 중간값을 <b>오른쪽 위 그래프의 가로축</b>에 넣는다</li>
+        <li><b>③</b> 나온 값이 <b>최종값</b></li>
+        <li><b>④</b> 아래 좌표평면에 <b>(처음 x, 최종값)</b> 을 찍는다 — 중간값은 쓰지 않는다</li>
       </ul>
-      <p style="margin:8px 0 0" class="hint">f 와 g 가 <b>꺾이는 곳</b>이나 <b>방향이 바뀌는 곳</b>을 먼저 표시하고,
-        그 사이를 나누어 부분별로 그리면 쉽습니다.</p>
+      <p style="margin:8px 0 0" class="hint">④ 가 가장 많이 틀리는 곳입니다.
+        가로좌표에 <b>중간값을 찍으면 안 됩니다.</b> 반드시 <b>처음 x</b> 입니다.</p>
     </div>
+    <div class="callout"><b>순서를 뒤집어 보세요.</b> 회색 빈 원으로 <b>이전 순서의 자취</b>가 남습니다.
+      입력이 똑같은데 자취가 달라진다면, 그것이 <b>f∘g ≠ g∘f</b> 의 그림 증거입니다.</div>
   </section>
 
   <section class="screen" data-key="s10" data-photo="1" data-prompt="t 시간 후의 연비를 합성함수로 나타내고, 연비가 21.5 km/L 가 되는 시각을 구해 보세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
@@ -709,62 +726,141 @@ function Plane(svg,lo,hi,H,W){
   r.addEventListener("input",draw);draw();
 })();
 
-/* ── 화면9 : 합성함수의 그래프 ──────────────────────── */
+/* ── 화면9 : 점의 여행 — 합성함수의 그래프 ──────────────── */
 (function(){
-  var svg=document.getElementById("v9"),ro=document.getElementById("r9"),r=document.getElementById("c9r");
+  var svg=document.getElementById("v9"),ro=document.getElementById("r9"),r=document.getElementById("c9r"),
+      trip=document.getElementById("trip9");
   var PAIRS=[
-    {t:"f = x + 1, g = x²",f:function(x){return x+1;},g:function(y){return y*y;},
-     fs:"x + 1",gs:"y²",cs:"(x + 1)²"},
-    {t:"f = x², g = x + 1",f:function(x){return x*x;},g:function(y){return y+1;},
-     fs:"x²",gs:"y + 1",cs:"x² + 1"},
-    {t:"f = |x|, g = x − 2",f:function(x){return Math.abs(x);},g:function(y){return y-2;},
-     fs:"|x|",gs:"y − 2",cs:"|x| − 2"},
-    {t:"f = −x, g = x²",f:function(x){return -x;},g:function(y){return y*y;},
-     fs:"−x",gs:"y²",cs:"x²"}
+    {t:"x + 1 과 x²",A:function(x){return x+1;},B:function(y){return y*y;},
+     as:"x + 1",bs:"y²",c1:"(x + 1)²",c2:"x² + 1"},
+    {t:"|x| 과 x − 2",A:function(x){return Math.abs(x);},B:function(y){return y-2;},
+     as:"|x|",bs:"y − 2",c1:"|x| − 2",c2:"|x − 2|"},
+    {t:"2x 과 x²",A:function(x){return 2*x;},B:function(y){return y*y;},
+     as:"2x",bs:"y²",c1:"4x²",c2:"2x²"},
+    {t:"−x 과 x + 3",A:function(x){return -x;},B:function(y){return y+3;},
+     as:"−x",bs:"y + 3",c1:"−x + 3",c2:"−x − 3"}
   ];
-  var cur=PAIRS[0];
+  var cur=PAIRS[0], swapped=false, hide=false, pts=[], ghost=[], timer=null;
+  /* swapped 면 B 를 먼저 적용한다 */
+  function first(){return swapped?cur.B:cur.A;}
+  function second(){return swapped?cur.A:cur.B;}
+  function firstS(){return swapped?cur.bs.replace(/y/g,"x"):cur.as;}
+  function secondS(){return swapped?cur.as.replace(/x/g,"y"):cur.bs;}
+  function compS(){return swapped?cur.c2:cur.c1;}
+  function comp(x){return second()(first()(x));}
+  function stamp(){
+    var x=parseFloat(r.value), z=comp(x);
+    if(!isFinite(z))return;
+    if(!pts.some(function(p){return Math.abs(p[0]-x)<1e-7;}))pts.push([x,z]);
+  }
+  function stopSweep(){if(timer){clearInterval(timer);timer=null;}
+    document.getElementById("c9sweep").textContent="자동으로 훑기";
+    document.getElementById("c9sweep").className="rb";}
+
   function draw(){
     var x=parseFloat(r.value);
-    document.getElementById("c9x").textContent=num(x,1);
+    document.getElementById("c9x").textContent=num(x,2);
     clear(svg);
-    var y=cur.f(x), z=cur.g(y);
-    // 위: f 와 g, 아래: 합성
+    var m=first()(x), z=second()(m);
     var gA=el("g",{transform:"translate(0,0)"}),gB=el("g",{transform:"translate(200,0)"}),
-        gC=el("g",{transform:"translate(100,160)"});
+        gC=el("g",{transform:"translate(100,168)"});
     svg.appendChild(gA);svg.appendChild(gB);svg.appendChild(gC);
-    function mini(host,fn,color,lab,px_,py_){
-      var P=(function(){
-        var pad=18,W=200,H=160,lo=-4,hi=4,sc=Math.min((W-2*pad)/(hi-lo),(H-2*pad)/(hi-lo));
-        var ox=W/2,oy=H/2;
-        return {px:function(v){return ox+v*sc;},py:function(v){return oy-v*sc;},lo:lo,hi:hi};
-      })();
-      host.appendChild(el("rect",{x:6,y:6,width:188,height:148,rx:8,fill:"#fff",stroke:"#e4e4e7"}));
-      host.appendChild(el("line",{x1:P.px(P.lo),y1:P.py(0),x2:P.px(P.hi),y2:P.py(0),stroke:"#cbd5e1"}));
-      host.appendChild(el("line",{x1:P.px(0),y1:P.py(P.lo),x2:P.px(0),y2:P.py(P.hi),stroke:"#cbd5e1"}));
-      var pts=[];
-      for(var i=0;i<=200;i++){var v=P.lo+(P.hi-P.lo)*i/200,w=fn(v);
-        if(isFinite(w)&&w>=P.lo&&w<=P.hi)pts.push(P.px(v)+","+P.py(w));}
-      host.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":2.4}));
-      var t=el("text",{x:100,y:20,"font-size":12,"text-anchor":"middle","font-weight":700,fill:color});
-      t.textContent=lab;host.appendChild(t);
-      if(px_!==undefined&&isFinite(py_)&&py_>=P.lo&&py_<=P.hi&&px_>=P.lo&&px_<=P.hi){
-        host.appendChild(el("line",{x1:P.px(px_),y1:P.py(0),x2:P.px(px_),y2:P.py(py_),
-          stroke:color,"stroke-width":1.4,"stroke-dasharray":"4 3"}));
-        host.appendChild(el("circle",{cx:P.px(px_),cy:P.py(py_),r:4.5,fill:color}));
-      }
+    function P(){
+      var pad=18,W=200,H=160,lo=-4,hi=4,sc=Math.min((W-2*pad)/(hi-lo),(H-2*pad)/(hi-lo));
+      var ox=W/2,oy=H/2;
+      return {px:function(v){return ox+v*sc;},py:function(v){return oy-v*sc;},lo:lo,hi:hi};
     }
-    mini(gA,cur.f,"#2563eb","y = f(x) = "+cur.fs,x,y);
-    mini(gB,cur.g,"#e11d48","z = g(y) = "+cur.gs,y,z);
-    mini(gC,function(v){return cur.g(cur.f(v));},"#7c3aed","z = g(f(x)) = "+cur.cs,x,z);
-    ro.innerHTML="x = <b>"+num(x,1)+"</b><br><br>"+
-      "<b style='color:#2563eb'>f</b> → y = <b>"+num(y)+"</b><br>"+
-      "<b style='color:#e11d48'>g</b> → z = <b>"+num(z)+"</b><br><br>"+
-      "<span class='hint'>왼쪽 위에서 x→y, 오른쪽 위에서 y→z, 아래에서 x→z 를 한 번에 봅니다.</span>";
+    function frame(host,lab,color){
+      host.appendChild(el("rect",{x:6,y:6,width:188,height:156,rx:8,fill:"#fff",stroke:"#e4e4e7"}));
+      var p=P();
+      for(var g=-4;g<=4;g++){
+        host.appendChild(el("line",{x1:p.px(g),y1:p.py(4),x2:p.px(g),y2:p.py(-4),stroke:"#f4f4f5"}));
+        host.appendChild(el("line",{x1:p.px(-4),y1:p.py(g),x2:p.px(4),y2:p.py(g),stroke:"#f4f4f5"}));
+      }
+      host.appendChild(el("line",{x1:p.px(-4),y1:p.py(0),x2:p.px(4),y2:p.py(0),stroke:"#cbd5e1"}));
+      host.appendChild(el("line",{x1:p.px(0),y1:p.py(-4),x2:p.px(0),y2:p.py(4),stroke:"#cbd5e1"}));
+      var t=el("text",{x:100,y:20,"font-size":11.5,"text-anchor":"middle","font-weight":700,fill:color});
+      t.textContent=lab;host.appendChild(t);
+      return p;
+    }
+    function plot(host,p,fn,color){
+      var pts2=[],i,v,w;
+      for(i=0;i<=240;i++){v=-4+8*i/240;w=fn(v);
+        if(isFinite(w)&&w>=-4&&w<=4)pts2.push(p.px(v)+","+p.py(w));
+        else if(pts2.length>1){host.appendChild(el("polyline",{points:pts2.join(" "),fill:"none",
+          stroke:color,"stroke-width":2.4}));pts2=[];}
+        else pts2=[];}
+      if(pts2.length>1)host.appendChild(el("polyline",{points:pts2.join(" "),fill:"none",
+        stroke:color,"stroke-width":2.4}));
+    }
+    function mark(host,p,a,b,color,axisDot){
+      if(!(isFinite(b)&&b>=-4&&b<=4&&a>=-4&&a<=4))return;
+      host.appendChild(el("line",{x1:p.px(a),y1:p.py(0),x2:p.px(a),y2:p.py(b),
+        stroke:color,"stroke-width":1.4,"stroke-dasharray":"4 3"}));
+      host.appendChild(el("line",{x1:p.px(0),y1:p.py(b),x2:p.px(a),y2:p.py(b),
+        stroke:color,"stroke-width":1.4,"stroke-dasharray":"4 3"}));
+      host.appendChild(el("circle",{cx:p.px(a),cy:p.py(b),r:4.5,fill:color}));
+      if(axisDot)host.appendChild(el("circle",{cx:p.px(axisDot[0]),cy:p.py(axisDot[1]),r:4,fill:"#d97706"}));
+    }
+    /* ① 첫 함수 */
+    var pA=frame(gA,"① 첫 함수 : "+firstS(),"#2563eb");
+    plot(gA,pA,first(),"#2563eb");
+    mark(gA,pA,x,m,"#2563eb",[0,m]);
+    /* ② 둘째 함수 — 가로축에 중간값이 들어간다 */
+    var pB=frame(gB,"② 둘째 함수 : "+secondS(),"#e11d48");
+    plot(gB,pB,second(),"#e11d48");
+    if(isFinite(m)&&m>=-4&&m<=4)
+      gB.appendChild(el("circle",{cx:pB.px(m),cy:pB.py(0),r:4.5,fill:"#d97706"}));
+    if(!hide)mark(gB,pB,m,z,"#e11d48");
+    /* ③ 합성 */
+    var pC=frame(gC,"③ 합성 : "+(hide?"?":compS()),"#7c3aed");
+    ghost.forEach(function(q){
+      if(Math.abs(q[1])<=4)gC.appendChild(el("circle",{cx:pC.px(q[0]),cy:pC.py(q[1]),
+        r:3.4,fill:"#fff",stroke:"#a1a1aa","stroke-width":1.6}));
+    });
+    pts.forEach(function(q){
+      if(Math.abs(q[1])<=4)gC.appendChild(el("circle",{cx:pC.px(q[0]),cy:pC.py(q[1]),r:2.8,fill:"#7c3aed"}));
+    });
+    if(!hide)mark(gC,pC,x,z,"#7c3aed");
+    else if(x>=-4&&x<=4)
+      gC.appendChild(el("line",{x1:pC.px(x),y1:pC.py(-4),x2:pC.px(x),y2:pC.py(4),
+        stroke:"#a1a1aa","stroke-width":1.4,"stroke-dasharray":"4 3"}));
+
+    /* 여행 막대 */
+    trip.innerHTML="<span class='pill'>처음 x = <b>"+num(x,2)+"</b></span>"+
+      "<span class='ar'>→ "+firstS()+" →</span>"+
+      "<span class='pill'>중간값 <b>"+num(m,2)+"</b></span>"+
+      "<span class='ar'>→ "+secondS()+" →</span>"+
+      "<span class='pill'>최종값 <b>"+(hide?"?":num(z,2))+"</b></span>";
+
+    ro.innerHTML="자취 <b>"+pts.length+"</b> 점"+(ghost.length?" · 회색 <b>"+ghost.length+"</b> 점(이전 순서)":"")+
+      "<br><br>"+(hide
+        ? "<b>최종값을 가렸습니다.</b><br>③ 의 세로선 위 어디에 점이 올지 <b>먼저 말해 보세요.</b>"
+        : "③ 의 점은 <b>(처음 x, 최종값)</b> = (<b>"+num(x,2)+"</b>, <b>"+num(z,2)+"</b>)<br><br>"+
+          "<span class='hint'>주황 점이 ① 의 세로축에서 ② 의 가로축으로 <b>넘어간 중간값</b>입니다.</span>");
   }
+
   btnset(document.getElementById("b9"),PAIRS.map(function(p){return {t:p.t,p:p};}),
-    function(it){cur=it.p;draw();});
-  r.addEventListener("input",draw);
-  draw();
+    function(it){cur=it.p;pts=[];ghost=[];stopSweep();stamp();draw();});
+  r.addEventListener("input",function(){stopSweep();stamp();draw();});
+  document.getElementById("c9stamp").onclick=function(){stamp();draw();};
+  document.getElementById("c9clear").onclick=function(){stopSweep();pts=[];ghost=[];draw();};
+  document.getElementById("c9swap").onclick=function(){
+    stopSweep();ghost=pts.slice();pts=[];swapped=!swapped;stamp();draw();};
+  document.getElementById("c9hide").onclick=function(){
+    hide=!hide;this.className="rb"+(hide?" on":"");
+    this.textContent=hide?"최종값 보이기":"최종값 가리기";draw();};
+  document.getElementById("c9sweep").onclick=function(){
+    var b=this;
+    if(timer){stopSweep();draw();return;}
+    r.value=-3;stamp();b.textContent="멈추기";b.className="rb on";
+    timer=setInterval(function(){
+      var v=parseFloat(r.value);
+      if(v>=3){stopSweep();draw();return;}
+      r.value=v+0.25;stamp();draw();
+    },130);
+  };
+  stamp();draw();
 })();
 
 /* ── 화면10 : 자동차 연비 ───────────────────────────── */

@@ -1,0 +1,1067 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed;--gold:#f59e0b}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .bad{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid var(--rose);border-radius:10px;padding:12px 15px;margin:12px 0}
+  .lab{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .readout{font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .12s}
+  .rb:hover{border-color:var(--blue);color:var(--blue)}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .rb.wide{display:block;width:100%;text-align:left;margin-bottom:6px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  td.l,th.l{text-align:left}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:17px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .judge{display:inline-block;border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;
+    padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
+  .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
+  .slider input{width:100%}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+  .flip{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin:12px 0}
+  .flip .t{border:1px solid var(--line);border-radius:10px;overflow:hidden;min-width:180px}
+  .flip .t table{margin:0;font-size:13px}
+  .flip .ar{font-size:24px;color:var(--violet)}
+  .steps3{counter-reset:s}
+  .steps3 .st{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+  .steps3 .st:last-child{border-bottom:none}
+  .steps3 .st .n{flex:none;width:24px;height:24px;border-radius:999px;background:var(--blue);color:#fff;
+    font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on" data-key="s1" data-prompt="Q1. x 의 값을 촘촘하게 하면 그래프가 어떻게 그려질까요? 점 7개만 찍었을 때와 무엇이 달라지는지 적어 보세요.">
+    <div class="kicker">공통수학2 · 유리함수와 무리함수</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-write">✍️ 학습지 표 채우기</span><span class="t-sheet">📄 학습지 2-01 ② (생각열기) Q1 1)·2)</span></div>
+    <!--TEACH:END-->
+    <h1>📈 그래프는 어떻게 그렸었나 — y = x²</h1>
+    <p>중학교 3학년으로 돌아가 봅시다. <span class="mono">y = x²</span> 의 그래프를 <b>어떻게</b> 그렸나요?</p>
+    <div class="card">
+      <b>1) 위 식을 만족하는 순서쌍을 찾아보자.</b>
+      <table id="tb1"></table>
+      <button class="reveal" id="rvT1">값 채우기</button>
+    </div>
+    <div class="lab">
+      <svg id="g1" viewBox="0 0 400 320" aria-label="y=x²의 점과 곡선"></svg>
+      <div class="controls">
+        <div class="slider"><label><span>찍는 점의 개수</span><b id="n1v">7 개</b></label>
+          <input type="range" id="n1" min="0" max="4" step="1" value="0" /></div>
+        <div class="readout" id="r1"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>2) x 의 값을 촘촘하게 하면 어떻게 그려질까?</b>
+      <button class="reveal" id="rv1" style="margin-left:8px">슬라이더를 끝까지 민 뒤 열기</button>
+      <div class="ans" id="an1">
+        <p style="margin:8px 0 0">점이 촘촘해지면서 <b>매끄러운 곡선</b>이 됩니다.
+          우리는 늘 이렇게 그래프를 그려 왔습니다.</p>
+        <div class="formula">① 표를 만든다 → ② 점을 찍는다 → ③ 부드럽게 잇는다</div>
+        <p style="margin:8px 0 0">오늘 <b>유리함수</b>도 똑같이 그립니다. 다만 한 가지가 다릅니다 —
+          <b>표에 넣을 수 없는 x</b> 가 생깁니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s2" data-prompt="Q2. y = 1/x 의 그래프를 그리면서, x = 0 을 표에 넣을 수 없는 이유와 x 가 0 에 가까워질 때 y 가 어떻게 되는지 적어 보세요.">
+    <div class="kicker">첫 번째 유리함수</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 직접 그리기</span><span class="t-ask">💬 x = 0 은 왜 못 넣을까?</span><span class="t-sheet">📄 학습지 2-01 ② Q2 — y = 1/x 의 그래프</span><span class="t-book">📗 교과서 127쪽</span></div>
+    <!--TEACH:END-->
+    <h1>1/x — 표에 넣을 수 없는 칸</h1>
+    <div class="card">
+      <table id="tb2"></table>
+      <button class="reveal" id="rvT2">값 채우기</button>
+      <p class="hint" style="margin:8px 0 0">x = 0 칸은 <b>비워 둡니다.</b> 1 ÷ 0 은 계산할 수 없으니까요.</p>
+    </div>
+    <div class="lab">
+      <svg id="g2" viewBox="0 0 400 320" aria-label="y=1/x의 그래프"></svg>
+      <div class="controls">
+        <div class="btns" id="b2"></div>
+        <div class="readout" id="r2"></div>
+      </div>
+    </div>
+    <div class="callout"><b>두 가지를 관찰하세요.</b>
+      <ul class="tight">
+        <li>x 가 <b>0 에 가까워지면</b> |y| 가 한없이 커집니다 → 그래프가 <b>y축</b>에 달라붙습니다.</li>
+        <li>x 가 <b>한없이 커지면</b> y 는 0 에 가까워집니다 → 그래프가 <b>x축</b>에 달라붙습니다.</li>
+      </ul>
+      <p style="margin:8px 0 0">그런데 <b>절대로 닿지는 않습니다.</b> 이 두 직선의 이름을 다음 화면에서 배웁니다.</p></div>
+  </section>
+
+  <section class="screen" data-key="s3" data-prompt="Q3. y = k/x 의 그래프의 특징을 [정의역, 치역, 대칭성, 그래프 위치, 점근선, k의 값] 여섯 가지로 모두 정리해 보세요.">
+    <div class="kicker">일반화</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-write">✍️ 학습지 여섯 칸 채우기</span><span class="t-sheet">📄 학습지 2-01 ② Q3 — y = k/x 의 특징</span><span class="t-book">📗 교과서 127쪽</span></div>
+    <!--TEACH:END-->
+    <h1>🔍 y = k/x — k 를 움직여 보자</h1>
+    <p>학습지의 <span class="mono">y = 2/x</span>, <span class="mono">y = 3/x</span>, <span class="mono">y = −1/x</span> 를 슬라이더로 한꺼번에 봅니다.</p>
+    <div class="lab">
+      <svg id="g3" viewBox="0 0 400 340" aria-label="y=k/x의 그래프"></svg>
+      <div class="controls">
+        <div class="slider"><label><span>k 의 값</span><b id="k3v">1</b></label>
+          <input type="range" id="k3" min="-4" max="4" step="0.5" value="1" /></div>
+        <div class="btns" id="b3"></div>
+        <div class="readout" id="r3"></div>
+      </div>
+    </div>
+    <div class="callout">
+      <b>📗 점근선이란</b> — 곡선이 어떤 직선에 <b>한없이 가까워지지만 만나지는 않을 때</b>,
+      그 직선을 그 곡선의 <b>점근선</b>이라 합니다.
+      <div class="hint" style="margin-top:6px">한자로 漸(점점 점)·近(가까울 근) — “점점 가까워지는 선”.</div>
+    </div>
+    <div class="card">
+      <b>🔢 “가까워진다”를 눈이 아니라 수로 확인해 봅시다</b>
+      <p class="hint" style="margin:6px 0 8px">y = 1/x 에 직접 넣어 봅니다.</p>
+      <table id="tbA"></table>
+      <div class="btns" id="bA" style="margin-top:8px"></div>
+      <div class="readout" id="rA" style="margin-top:8px">버튼을 눌러 값을 채워 보세요.</div>
+    </div>
+    <div class="bad">
+      <b>⚠️ “y = 1/x 는 정의역 전체에서 감소한다” — 맞을까요?</b>
+      <p style="margin:8px 0 0">x 가 커지면 y 가 작아지니 감소처럼 보입니다.
+        <span class="mono">x₁ = −1</span>, <span class="mono">x₂ = 1</span> 을 넣어 보세요.</p>
+      <button class="reveal" data-a="f(−1) = −1, f(1) = 1 — x₁ < x₂ 인데 f(x₁) < f(x₂). 감소가 아닙니다.">두 값 보기</button>
+      <div class="formula">정의역 <b>전체</b>에서 감소가 아니라,
+        <b>x &lt; 0 인 구간</b>과 <b>x &gt; 0 인 구간</b>에서 <b>각각</b> 감소</div>
+      <p class="hint" style="margin:6px 0 0">두 가지가 <b>끊어져 있기</b> 때문입니다. 끊긴 곳을 건너뛰어 비교하면 안 됩니다.</p>
+    </div>
+    <button class="reveal" id="rv3">여섯 가지 특징 정답 열기</button>
+    <div class="ans" id="an3">
+      <table>
+        <tr><th class="l">정의역</th><td class="l">{ x | x ≠ 0 인 실수 }</td></tr>
+        <tr><th class="l">치역</th><td class="l">{ y | y ≠ 0 인 실수 }</td></tr>
+        <tr><th class="l">대칭성</th><td class="l"><b>원점</b>에 대하여 대칭. 또 직선 <b>y = x, y = −x</b> 에 대하여도 대칭</td></tr>
+        <tr><th class="l">그래프 위치</th><td class="l">k &gt; 0 이면 <b>제1·3사분면</b> &nbsp;/&nbsp; k &lt; 0 이면 <b>제2·4사분면</b></td></tr>
+        <tr><th class="l">점근선</th><td class="l"><b>x축 (y = 0)</b> 과 <b>y축 (x = 0)</b> — k 가 아무리 바뀌어도 그대로</td></tr>
+        <tr><th class="l">k 의 값</th><td class="l">|k| 가 커질수록 그래프가 <b>원점에서 멀어진다</b></td></tr>
+      </table>
+      <p class="hint" style="margin:8px 0 0">k 의 <b>부호</b>가 사분면을, k 의 <b>절댓값</b>이 원점에서의 거리를 정합니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s4" data-prompt="Q2. y = 3/x 를 x축으로 2만큼, y축으로 −1만큼 평행이동한 유리함수의 식을 구하고, 왜 x−2 이고 −1 인지 설명해 보세요.">
+    <div class="kicker">평행이동</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 직접 그리기</span><span class="t-sheet">📄 학습지 2-01 ② 「일반적인 유리함수」 Q1 · Q2</span><span class="t-book">📗 교과서 128쪽</span></div>
+    <!--TEACH:END-->
+    <h1>↔️ y = 3/x 를 옮겨 보자</h1>
+    <p>Ⅰ단원에서 배운 <b>평행이동</b>이 그대로 쓰입니다. 슬라이더로 옮겨 보세요.</p>
+    <div class="lab">
+      <svg id="g4" viewBox="0 0 400 340" aria-label="y=3/(x-p)+q의 그래프"></svg>
+      <div class="controls">
+        <div class="slider"><label><span>x축 방향 p</span><b id="p4v">0</b></label>
+          <input type="range" id="p4" min="-4" max="4" step="1" value="0" /></div>
+        <div class="slider"><label><span>y축 방향 q</span><b id="q4v">0</b></label>
+          <input type="range" id="q4" min="-4" max="4" step="1" value="0" /></div>
+        <div class="btns" id="b4"></div>
+        <div class="readout" id="r4"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>Q2. x축으로 2, y축으로 −1 만큼 평행이동한 식은?</b>
+      <button class="reveal" id="rv4" style="margin-left:8px">직접 구한 뒤 열기</button>
+      <div class="ans" id="an4">
+        <div class="formula"><span class="mono">y = 3/(x − 2) − 1</span></div>
+        <p style="margin:8px 0 0">평행이동의 규칙 그대로입니다 — <b>x 자리에 x−2, y 자리에 y+1</b>.</p>
+        <p style="margin:6px 0 0" class="mono">y + 1 = 3/(x − 2) &nbsp;→&nbsp; y = 3/(x − 2) − 1</p>
+        <p class="hint" style="margin:6px 0 0">x 는 <b>빼고</b>(x−2), y 는 <b>더한다</b>(+q 로 넘어감) — 부호가 반대인 이유는 Ⅰ-3 에서 배운 그대로입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s5" data-prompt="Q3. 점근선이 어떻게 바뀌었는지 설명하고, 왜 평행이동한 만큼 그대로 따라가는지 이유를 적어 보세요.">
+    <div class="kicker">점근선의 이동</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-01 ② 「일반적인 유리함수」 Q3</span><span class="t-book">📗 교과서 128쪽</span></div>
+    <!--TEACH:END-->
+    <h1>📍 Q3. 점근선은 어떻게 바뀌었나</h1>
+    <div class="lab">
+      <svg id="g5" viewBox="0 0 400 340" aria-label="점근선의 이동"></svg>
+      <div class="controls">
+        <div class="btns" id="b5"></div>
+        <div class="readout" id="r5"></div>
+      </div>
+    </div>
+    <button class="reveal" id="rv5">정리 열기</button>
+    <div class="ans" id="an5">
+      <table>
+        <tr><th></th><th>y = 3/x</th><th>y = 3/(x−2) − 1</th></tr>
+        <tr><th class="l">점근선</th><td>x = 0, y = 0</td><td><b>x = 2, y = −1</b></td></tr>
+        <tr><th class="l">정의역</th><td>x ≠ 0</td><td><b>x ≠ 2</b></td></tr>
+        <tr><th class="l">치역</th><td>y ≠ 0</td><td><b>y ≠ −1</b></td></tr>
+        <tr><th class="l">대칭의 중심</th><td>(0, 0)</td><td><b>(2, −1)</b></td></tr>
+      </table>
+      <div class="callout"><b>점근선도 그래프의 일부처럼 같이 옮겨집니다.</b>
+        도형 전체를 (2, −1) 만큼 옮겼으니, 그 도형에 달라붙어 있던 직선도 똑같이 옮겨진 것이죠.</div>
+      <div class="formula">점근선의 교점 <b>(p, q)</b> = 그래프의 <b>대칭의 중심</b></div>
+      <p class="hint" style="margin:8px 0 0">이 한 줄이 뒤에 나올 Q5 (8) 번 “(2, −2) 에 대칭” 을 푸는 열쇠입니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s6" data-prompt="Q4. y = (ax+b)/(cx+d) 꼴의 그래프를 그리기 위한 전략을 순서대로 정리해 보세요.">
+    <div class="kicker">전략 세우기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">👁️ 함께 읽기</span><span class="t-write">✍️ 학습지 전략 칸 채우기</span><span class="t-sheet">📄 학습지 2-01 ② 「일반적인 유리함수」 Q4</span><span class="t-book">📗 교과서 128쪽</span></div>
+    <!--TEACH:END-->
+    <h1>🧭 Q4. (ax+b)/(cx+d) 를 그리는 전략</h1>
+    <p>모양이 달라 보여도 <b>전부 y = k/x 를 옮긴 것</b>입니다. 그걸 드러내는 계산을 봅시다.</p>
+    <div class="btns" id="b6"></div>
+    <div class="card" id="c6" style="min-height:150px"></div>
+    <button class="reveal" id="rv6">전략 네 줄로 정리하기</button>
+    <div class="ans" id="an6">
+      <div class="steps3">
+        <div class="st"><div class="n">1</div><div><b>분자를 분모로 나눈다</b> → <span class="mono">y = k/(x−p) + q</span> 꼴로 고친다.
+          <span class="hint">분자에서 분모의 배수를 억지로 만들어 내는 것이 요령입니다.</span></div></div>
+        <div class="st"><div class="n">2</div><div><b>점근선</b>을 긋는다 → <span class="mono">x = p, y = q</span>.
+          <span class="hint">십자로 먼저 그으면 그래프 그릴 자리가 정해집니다.</span></div></div>
+        <div class="st"><div class="n">3</div><div><b>k 의 부호</b>로 방향을 정한다 → k &gt; 0 이면 오른쪽 위·왼쪽 아래,
+          k &lt; 0 이면 오른쪽 아래·왼쪽 위.</div></div>
+        <div class="st"><div class="n">4</div><div><b>확인점 두 개</b>를 찍는다 →
+          <span class="mono"><b>(p+1, q+k)</b></span> 와 <span class="mono"><b>(p−1, q−k)</b></span>.
+          <span class="hint">점근선에서 좌우로 한 칸씩. 분모가 ±1 이 되니 계산이 필요 없습니다.</span></div></div>
+      </div>
+      <div class="callout"><b>왜 (p±1) 인가?</b> &nbsp;<span class="mono">y = k/(x−p) + q</span> 에
+        <span class="mono">x = p+1</span> 을 넣으면 분모가 <b>1</b> 이 되어 <span class="mono">y = k + q</span>.
+        <span class="mono">x = p−1</span> 이면 분모가 <b>−1</b> 이라 <span class="mono">y = −k + q</span>.
+        <b>k 가 그대로 눈에 보입니다.</b></div>
+    </div>
+    <div class="bad">
+      <b>⚠️ 분모가 0 이 되면 <u>언제나</u> 수직점근선일까?</b>
+      <div class="formula"><span class="mono">r(x) = (2x + 2)/(x + 1)</span></div>
+      <p style="margin:8px 0 0">x = −1 에서 분모가 0 입니다. 그러면 x = −1 이 점근선일까요?</p>
+      <div class="lab" style="margin-top:10px">
+        <svg id="gR" viewBox="0 0 400 250" aria-label="r(x)=(2x+2)/(x+1)의 그래프"></svg>
+        <div class="controls">
+          <div class="btns" id="bR"></div>
+          <div class="readout" id="rR"></div>
+        </div>
+      </div>
+      <button class="reveal" id="rvR">결론 열기</button>
+      <div class="ans" id="anR">
+        <p style="margin:8px 0 0" class="mono">r(x) = 2(x+1)/(x+1) = <b>2</b>, 단 x ≠ −1</p>
+        <p style="margin:8px 0 0"><b>쌍곡선이 아닙니다.</b> 높이 2 인 <b>수평인 직선</b>에
+          <b>(−1, 2) 한 점만 뚫린</b> 모양입니다.</p>
+        <p style="margin:6px 0 0">x 를 −1 에 가까이 보내도 r(x) 는 <b>계속 2</b> — 한없이 커지지 않습니다.
+          그러니 <b>x = −1 은 점근선이 아닙니다.</b></p>
+        <div class="formula">분자와 분모에 <b>같은 인수</b>가 있으면 → <b>점근선이 아니라 구멍</b></div>
+        <p class="hint" style="margin:6px 0 0">그래서 <b>1단계(변형)를 먼저</b> 해야 합니다.
+          변형해 보면 k 가 아예 없다는 걸 알게 되니까요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s7" data-prompt="Q5 (1)~(6) 중 변형이 가장 어려웠던 문항 번호와, 분자를 분모로 나누는 과정을 직접 써 보세요.">
+    <div class="kicker">연습 ①</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 그리고 화면으로 확인</span><span class="t-sheet">📄 학습지 2-01 ② Q5 (1)~(6)</span></div>
+    <!--TEACH:END-->
+    <h1>✏️ Q5. 그래프를 그리고 점근선을 구하시오</h1>
+    <div class="btns" id="b7"></div>
+    <div class="lab">
+      <svg id="g7" viewBox="0 0 400 340" aria-label="유리함수 그래프"></svg>
+      <div class="controls">
+        <div class="readout" id="r7"></div>
+        <label style="font-size:13px;font-weight:700;display:flex;gap:6px;align-items:center;margin-top:4px">
+          <input type="checkbox" id="c7a" checked /> 점근선 보이기</label>
+      </div>
+    </div>
+    <div class="card" id="c7" style="min-height:90px"></div>
+  </section>
+
+  <section class="screen" data-key="s8" data-prompt="Q5 (7)(8) 처럼 조건에서 식을 거꾸로 찾을 때, 가장 먼저 무엇을 정하면 되나요? 두 문항의 풀이를 직접 써 보세요.">
+    <div class="kicker">연습 ② — 거꾸로 찾기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 풀고 화면으로 확인</span><span class="t-sheet">📄 학습지 2-01 ② Q5 (7)·(8)</span><span class="t-book">📗 교과서 129쪽 3번</span></div>
+    <!--TEACH:END-->
+    <h1>🔄 조건을 보고 식을 찾아보자</h1>
+    <div class="callout"><b>순서를 뒤집기만 하면 됩니다.</b>
+      점근선 <b>(p, q)</b> 를 먼저 쓰고 <span class="mono">y = k/(x−p) + q</span> 로 놓은 뒤,
+      <b>지나는 점 하나</b>를 대입해 k 를 구합니다.</div>
+    <div class="btns" id="b8"></div>
+    <div class="lab">
+      <svg id="g8" viewBox="0 0 400 340" aria-label="조건에서 찾은 유리함수"></svg>
+      <div class="card" id="c8" style="margin:0;min-height:160px"></div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s9" data-prompt="y = (2x+3)/(x+1) 의 역함수를 두 가지 방법으로 구하고, 두 방법이 왜 같은 답을 주는지 자신만의 언어로 정리해 보세요.">
+    <div class="kicker">역함수 ①</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 두 방법 정리</span><span class="t-ask">💬 어느 쪽이 더 빠른가?</span><span class="t-sheet">📄 학습지 2-01 ② 「역함수를 구해보자 — 두 가지 방법」</span></div>
+    <!--TEACH:END-->
+    <h1>🔁 y = (2x+3)/(x+1) 의 역함수</h1>
+    <p>학습지가 요구하는 <b>두 가지 방법</b>을 나란히 놓고 비교해 봅시다.</p>
+    <div class="btns" id="b9"></div>
+    <div class="card" id="c9" style="min-height:190px"></div>
+    <div class="lab">
+      <svg id="g9" viewBox="0 0 400 340" aria-label="원래 함수와 역함수"></svg>
+      <div class="controls">
+        <div class="readout" id="r9"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s10" data-prompt="y = k/(x−p) + q 의 역함수는 y = k/(x−q) + p 입니다. 점근선이 어떻게 바뀌는지 쓰고, 원래 그래프를 어느 방향으로 얼마나 평행이동하면 역함수와 겹치는지 구해 보세요.">
+    <div class="kicker">역함수 ② — 개념 탐구 속으로</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-book">📗 교과서 134쪽 [개념 탐구 속으로]</span><span class="t-sheet">📄 학습지 보완 제안 ④</span></div>
+    <!--TEACH:END-->
+    <h1>🔬 점근선이 서로 뒤바뀐다</h1>
+    <p>앞 화면은 숫자 하나짜리였습니다. 이제 <b>일반형</b>으로 해 봅시다.</p>
+    <div class="formula"><span class="mono">y = k/(x − p) + q</span> 의 역함수는?</div>
+    <div class="lab">
+      <svg id="g10" viewBox="0 0 400 340" aria-label="일반형과 그 역함수"></svg>
+      <div class="controls">
+        <div class="slider"><label><span>p</span><b id="p10v">−1</b></label>
+          <input type="range" id="p10" min="-4" max="4" step="1" value="-1" /></div>
+        <div class="slider"><label><span>q</span><b id="q10v">2</b></label>
+          <input type="range" id="q10" min="-4" max="4" step="1" value="2" /></div>
+        <div class="slider"><label><span>k</span><b id="k10v">1</b></label>
+          <input type="range" id="k10" min="-4" max="4" step="1" value="1" /></div>
+        <div class="readout" id="r10"></div>
+      </div>
+    </div>
+    <button class="reveal" id="rv10">세 가지 발견 열기</button>
+    <div class="ans" id="an10">
+      <div class="steps3">
+        <div class="st"><div class="n">1</div><div>역함수는 <span class="mono"><b>y = k/(x − q) + p</b></span> —
+          <b>k 는 그대로</b>이고 <b>p 와 q 만 자리를 바꿉니다.</b></div></div>
+        <div class="st"><div class="n">2</div><div>점근선은 <span class="mono">x = p, y = q</span> →
+          <span class="mono"><b>x = q, y = p</b></span> 로 <b>서로 뒤바뀝니다.</b>
+          <span class="hint">점 (p, q) 가 (q, p) 로 간다 — 이것이 바로 y = x 대칭입니다.</span></div></div>
+        <div class="st"><div class="n">3</div><div>원래 그래프를 <b>(q − p, p − q)</b> 만큼 평행이동하면 역함수와 <b>완전히 겹칩니다.</b>
+          <span class="hint">이동 방향의 기울기가 −1 — y = x 와 수직입니다.</span></div></div>
+      </div>
+      <div class="callout"><b>왜 겹칠까?</b> 두 그래프는 모양(k)이 같고 위치(점근선)만 다릅니다.
+        점근선의 교점이 (p, q) → (q, p) 로 옮겨간 만큼만 밀어 주면 포개집니다.</div>
+    </div>
+    <div class="card">
+      <b>적용 — <span class="mono">y = (3x−1)/(x−2)</span> 의 역함수를 점근선만으로 구해 보세요.</b>
+      <button class="reveal" id="rv10b" style="margin-left:8px">풀이 열기</button>
+      <div class="ans" id="an10b">
+        <p style="margin:8px 0 0" class="mono">3x−1 = 3(x−2) + 5 → y = 5/(x−2) + 3 &nbsp;&nbsp;(k=5, p=2, q=3)</p>
+        <p style="margin:6px 0 0">p 와 q 를 바꾸면 —</p>
+        <p style="margin:6px 0 0" class="mono">역함수 y = 5/(x−3) + 2 = <b>(2x−1)/(x−3)</b></p>
+        <p class="hint" style="margin:6px 0 0">x, y 를 바꿔 직접 정리해도 같은 답이 나옵니다. 확인해 보세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="ext" data-photo="1" data-prompt="잠수부 문제를 풀고, 이 함수의 점근선이 실제 상황에서 무엇을 뜻하는지 설명해 보세요. (손으로 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">개념 확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 교과서 125~129쪽 [스스로 익히기]</span><span class="t-book">📗 교과서 129쪽 [역량 키우기]</span></div>
+    <!--TEACH:END-->
+    <h1>🤿 잠수부의 산소 농도</h1>
+    <p>수심 <span class="mono">x</span> m 에서 안전하게 호흡하려면 공기 중 산소의 비율을
+      <span class="mono">f(x) = 1980/(x + 99)</span> (%) 로 맞춰야 한다고 합니다.</p>
+    <div class="lab">
+      <svg id="gE" viewBox="0 0 400 280" aria-label="수심에 따른 산소 농도"></svg>
+      <div class="controls">
+        <div class="slider"><label><span>수심 x</span><b id="xEv">0 m</b></label>
+          <input type="range" id="xE" min="0" max="150" step="1" value="0" /></div>
+        <div class="readout" id="rE"></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>풀어 보기</b>
+      <ul class="tight">
+        <li>수심 <b>45 m</b> 에서 산소의 비율은?
+          <button class="reveal" data-a="1980/144 = 13.75 %">답 보기</button></li>
+        <li>산소의 비율을 <b>10 %</b> 로 맞췄다면 수심은?
+          <button class="reveal" data-a="x + 99 = 198 → x = 99 m">답 보기</button></li>
+        <li><b>★ 생각해 보기</b> — x 를 아무리 키워도 f(x) 는 어떤 값에 가까워지나요?
+          그 값이 이 상황에서 무엇을 뜻할까요? <span class="hint">(점근선 y = 0)</span></li>
+        <li>지상(x = 0)에서의 값은 20 % 입니다. 우리가 숨 쉬는 공기의 산소 비율과 비교해 보세요.</li>
+        <li>교과서 <b>125~129쪽 [스스로 익히기]</b> 를 해결하고 막힌 곳을 아래에 적어 두세요.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>다음 시간</b> — 이번엔 <b>무리함수</b>입니다.
+      오늘 쓴 전략(<b>기본형으로 고치기 → 평행이동 → 확인</b>)이 그대로 한 번 더 쓰입니다.</div>
+  </section>
+
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 1</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>
+
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function txt(p,x,y,t,o){o=o||{};var e=el("text",{x:x,y:y,"font-size":o.size||13,
+  "text-anchor":o.anchor||"middle",fill:o.fill||"#27272a","font-weight":o.weight||700});
+  e.textContent=t;p.appendChild(e);return e;}
+function clear(s){while(s.firstChild)s.removeChild(s.firstChild);}
+function btnset(box,items,onPick,wide){
+  var bs=[];
+  items.forEach(function(it){
+    var b=document.createElement("button");b.className="rb"+(wide?" wide":"");b.innerHTML=it.t;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb"+(wide?" wide":"");});
+      b.className="rb on"+(wide?" wide":"");onPick(it);};
+    box.appendChild(b);bs.push(b);
+  });
+  return bs;
+}
+function num(v,d){d=(d===undefined?2:d);return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toString();}
+function Plane(svg,lo,hi,H,W){
+  H=H||340;W=W||400;
+  var pad=26,sc=Math.min((W-2*pad)/(hi-lo),(H-2*pad)/(hi-lo));
+  var ox=W/2, oy=H/2;
+  function px(x){return ox+x*sc;} function py(y){return oy-y*sc;}
+  return {px:px,py:py,sc:sc,lo:lo,hi:hi,
+    grid:function(){
+      for(var g=Math.ceil(lo);g<=hi;g++){
+        svg.appendChild(el("line",{x1:px(g),y1:py(hi),x2:px(g),y2:py(lo),stroke:"#f1f5f9"}));
+        svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+      }
+      svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+      svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+    },
+    yx:function(){svg.appendChild(el("line",{x1:px(lo),y1:py(lo),x2:px(hi),y2:py(hi),
+      stroke:"#7c3aed","stroke-width":2,"stroke-dasharray":"6 4"}));
+      txt(svg,px(hi)-8,py(hi)+16,"y = x",{size:11.5,anchor:"end",fill:"#7c3aed"});},
+    plot:function(fn,color,dom,w){
+      var pts=[],a=dom?dom[0]:lo,b=dom?dom[1]:hi;
+      for(var i=0;i<=320;i++){var x=a+(b-a)*i/320,y=fn(x);
+        if(isFinite(y)&&y>=lo-0.5&&y<=hi+0.5)pts.push(px(x)+","+py(y));
+        else if(pts.length){svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round"}));pts=[];}}
+      if(pts.length)svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round"}));
+    },
+    dot:function(x,y,color,lab){
+      svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:5,fill:color}));
+      if(lab)txt(svg,px(x)+10,py(y)-8,lab,{size:12,anchor:"start",fill:color});
+    },
+    seg:function(x1,y1,x2,y2,color,dash){
+      var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":1.6};
+      if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));}
+  };
+}
+
+
+/* 직사각형 좌표틀 — x 와 y 의 범위를 따로 줄 수 있다 */
+function Frame(svg,x0,x1,y0,y1,W,H,pad){
+  pad=pad||30;
+  function px(x){return pad+(x-x0)/(x1-x0)*(W-2*pad);}
+  function py(y){return H-pad-(y-y0)/(y1-y0)*(H-2*pad);}
+  var F={x0:x0,x1:x1,y0:y0,y1:y1,px:px,py:py};
+  F.grid=function(sx,sy){
+    sx=sx||1;sy=sy||1;
+    for(var g=Math.ceil(x0/sx)*sx;g<=x1;g+=sx)
+      svg.appendChild(el("line",{x1:px(g),y1:py(y0),x2:px(g),y2:py(y1),stroke:"#f1f5f9"}));
+    for(var h=Math.ceil(y0/sy)*sy;h<=y1;h+=sy)
+      svg.appendChild(el("line",{x1:px(x0),y1:py(h),x2:px(x1),y2:py(h),stroke:"#f1f5f9"}));
+    if(y0<=0&&y1>=0)svg.appendChild(el("line",{x1:px(x0),y1:py(0),x2:px(x1),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+    if(x0<=0&&x1>=0)svg.appendChild(el("line",{x1:px(0),y1:py(y0),x2:px(0),y2:py(y1),stroke:"#cbd5e1","stroke-width":1.5}));
+    return F;};
+  F.ticks=function(sx,sy){
+    sx=sx||1;sy=sy||1;
+    var ay=(y0<=0&&y1>=0)?0:y0, ax=(x0<=0&&x1>=0)?0:x0;
+    for(var g=Math.ceil(x0/sx)*sx;g<=x1;g+=sx){if(Math.abs(g)<1e-9)continue;
+      txt(svg,px(g),py(ay)+14,String(Math.round(g*100)/100),{size:10,weight:400,fill:"#94a3b8"});}
+    for(var h=Math.ceil(y0/sy)*sy;h<=y1;h+=sy){if(Math.abs(h)<1e-9)continue;
+      txt(svg,px(ax)-7,py(h)+4,String(Math.round(h*100)/100),{size:10,weight:400,anchor:"end",fill:"#94a3b8"});}
+    return F;};
+  F.plot=function(fn,color,dom,w,dash){
+    var a=dom?dom[0]:x0,b=dom?dom[1]:x1,pts=[],i,x,y,o;
+    for(i=0;i<=420;i++){x=a+(b-a)*i/420;y=fn(x);
+      if(isFinite(y)&&y>=y0&&y<=y1)pts.push(px(x)+","+py(y));
+      else if(pts.length>1){o={points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round"};
+        if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("polyline",o));pts=[];}
+      else pts=[];}
+    if(pts.length>1){o={points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round"};
+      if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("polyline",o));}
+    return F;};
+  F.dot=function(x,y,color,lab,r){
+    if(x<x0||x>x1||y<y0||y>y1)return F;
+    svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:r||5,fill:color}));
+    if(lab)txt(svg,px(x)+9,py(y)-9,lab,{size:11,anchor:"start",fill:color});return F;};
+  F.vline=function(x,color,lab){
+    if(x<x0||x>x1)return F;
+    svg.appendChild(el("line",{x1:px(x),y1:py(y0),x2:px(x),y2:py(y1),
+      stroke:color,"stroke-width":1.8,"stroke-dasharray":"7 4"}));
+    if(lab)txt(svg,px(x)+5,py(y1)+13,lab,{size:11,anchor:"start",fill:color});return F;};
+  F.hline=function(y,color,lab){
+    if(y<y0||y>y1)return F;
+    svg.appendChild(el("line",{x1:px(x0),y1:py(y),x2:px(x1),y2:py(y),
+      stroke:color,"stroke-width":1.8,"stroke-dasharray":"7 4"}));
+    if(lab)txt(svg,px(x1)-5,py(y)-7,lab,{size:11,anchor:"end",fill:color});return F;};
+  F.yx=function(){svg.appendChild(el("line",{x1:px(Math.max(x0,y0)),y1:py(Math.max(x0,y0)),
+    x2:px(Math.min(x1,y1)),y2:py(Math.min(x1,y1)),stroke:"#7c3aed","stroke-width":1.6,"stroke-dasharray":"5 4"}));
+    txt(svg,px(Math.min(x1,y1))-6,py(Math.min(x1,y1))+15,"y = x",{size:11,anchor:"end",fill:"#7c3aed"});return F;};
+  F.arrow=function(ax,ay,bx,by,color){
+    svg.appendChild(el("line",{x1:px(ax),y1:py(ay),x2:px(bx),y2:py(by),
+      stroke:color,"stroke-width":2.2,"stroke-dasharray":"4 3"}));
+    var a=Math.atan2(py(by)-py(ay),px(bx)-px(ax));
+    svg.appendChild(el("polygon",{points:[px(bx)+","+py(by),
+      (px(bx)-9*Math.cos(a-0.4))+","+(py(by)-9*Math.sin(a-0.4)),
+      (px(bx)-9*Math.cos(a+0.4))+","+(py(by)-9*Math.sin(a+0.4))].join(" "),fill:color}));return F;};
+  return F;
+}
+/* 유리함수 k/(x−p)+q 를 두 가지로 나눠 그린다 */
+function rat(F,k,p,q,color,w,dash){
+  var f=function(x){return k/(x-p)+q;};
+  F.plot(f,color,[F.x0,p-1e-4],w,dash);
+  F.plot(f,color,[p+1e-4,F.x1],w,dash);
+  return F;
+}
+/* 수를 −(U+2212) 와 ½ 단위로 예쁘게 */
+function fmt(v){
+  var s=Math.round(v*2)/2, m=s<0?"−":"";
+  return Math.abs(s-Math.round(s))<1e-9 ? m+Math.abs(Math.round(s))
+                                        : m+Math.abs(Math.round(s*2))+"/2";
+}
+/* y = k/(x−p)+q 를 사람이 읽는 꼴로 */
+function den(p){return p===0?"x":(p>0?"(x − "+fmt(p)+")":"(x + "+fmt(-p)+")");}
+function tail(q){return q===0?"":(q>0?" + "+fmt(q):" − "+fmt(-q));}
+function ratStr(k,p,q){return "y = "+fmt(k)+"/"+den(p)+tail(q);}
+
+/* ── 화면1 : y = x² 로 그래프 그리는 법 되짚기 ───────────── */
+(function(){
+  var tb=document.getElementById("tb1"),rvT=document.getElementById("rvT1"),
+      svg=document.getElementById("g1"),r=document.getElementById("n1"),
+      ro=document.getElementById("r1"),nv=document.getElementById("n1v");
+  var XS=[-3,-2,-1,0,1,2,3],shown=false;
+  function table(){
+    var h="<tr><th>x</th>";XS.forEach(function(x){h+="<td>"+x+"</td>";});h+="</tr>";
+    h+="<tr><th>y</th>";XS.forEach(function(x){h+="<td>"+(shown?"<b>"+(x*x)+"</b>":"&nbsp;")+"</td>";});h+="</tr>";
+    tb.innerHTML=h;
+  }
+  rvT.onclick=function(){shown=!shown;table();rvT.textContent=shown?"값 숨기기":"값 채우기";};
+  table();
+  var COUNTS=[7,13,25,61,201];
+  function draw(){
+    clear(svg);
+    var n=COUNTS[+r.value];nv.textContent=n+" 개";
+    var F=Frame(svg,-3.6,3.6,-1.2,10,400,320,32).grid(1,1).ticks(1,2);
+    if(n>=61)F.plot(function(x){return x*x;},"#bfdbfe",null,3);
+    for(var i=0;i<n;i++){
+      var x=-3+6*i/(n-1),y=x*x;
+      svg.appendChild(el("circle",{cx:F.px(x),cy:F.py(y),r:n>60?1.8:3.6,fill:"#2563eb"}));
+    }
+    ro.innerHTML="점 <b>"+n+"</b> 개<br><br>"+
+      (n<=13?"<span class='hint'>아직 점들이 뚝뚝 떨어져 있습니다.</span>":
+       n<=25?"<span class='hint'>슬슬 모양이 보이기 시작합니다.</span>":
+       "✅ <b>매끄러운 곡선</b>처럼 보입니다.<br><span class='hint'>점 사이를 부드럽게 이어 그린 것이 우리가 아는 그래프입니다.</span>");
+  }
+  r.addEventListener("input",draw);draw();
+})();
+
+/* ── 화면2 : y = 1/x ────────────────────────────────────── */
+(function(){
+  var tb=document.getElementById("tb2"),rvT=document.getElementById("rvT2"),
+      svg=document.getElementById("g2"),box=document.getElementById("b2"),ro=document.getElementById("r2");
+  var XS=[[-4,"−4","−1/4"],[-2,"−2","−1/2"],[-1,"−1","−1"],[-0.5,"−1/2","−2"],[-0.25,"−1/4","−4"],
+          [0,"0","✕"],[0.25,"1/4","4"],[0.5,"1/2","2"],[1,"1","1"],[2,"2","1/2"],[4,"4","1/4"]];
+  var shown=false;
+  function table(){
+    var h="<tr><th>x</th>";XS.forEach(function(v){h+="<td>"+v[1]+"</td>";});h+="</tr>";
+    h+="<tr><th>y</th>";XS.forEach(function(v){
+      h+="<td>"+(shown?(v[2]==="✕"?"<b style='color:#e11d48'>✕</b>":"<b>"+v[2]+"</b>"):"&nbsp;")+"</td>";});h+="</tr>";
+    tb.innerHTML=h;
+  }
+  rvT.onclick=function(){shown=!shown;table();rvT.textContent=shown?"값 숨기기":"값 채우기";};
+  table();
+  var stage=0;
+  function draw(){
+    clear(svg);
+    var F=Frame(svg,-5,5,-5,5,400,320,30).grid(1,1).ticks(1,1);
+    if(stage>=2){F.vline(0,"#e11d48","x = 0 (y축)");F.hline(0,"#e11d48","y = 0 (x축)");}
+    if(stage>=1)rat(F,1,0,0,"#2563eb");
+    XS.forEach(function(v){if(v[0]!==0)F.dot(v[0],1/v[0],"#1d4ed8",null,3.4);});
+    ro.innerHTML=["<span class='hint'>표의 점만 찍었습니다. 두 덩어리로 갈라져 있죠?</span>",
+      "<b>곡선으로 이었습니다.</b><br><br><span class='hint'>왼쪽 갈래와 오른쪽 갈래는 <b>이어지지 않습니다.</b> x = 0 을 건널 수 없으니까요.</span>",
+      "<b>두 축에 한없이 가까워집니다.</b><br><br><span class='hint'>붉은 점선에 닿을 듯 닿지 않습니다. 다음 화면에서 이 선의 이름을 배웁니다.</span>"][stage];
+  }
+  ["① 점만 찍기","② 곡선으로 잇기","③ 다가가는 두 직선"].forEach(function(t,i){
+    var b=document.createElement("button");b.className="rb"+(i===0?" on":"");b.textContent=t;
+    b.onclick=function(){stage=i;[].slice.call(box.children).forEach(function(x){x.className="rb";});
+      b.className="rb on";draw();};
+    box.appendChild(b);
+  });
+  draw();
+})();
+
+/* ── 화면3 : y = k/x ────────────────────────────────────── */
+(function(){
+  var svg=document.getElementById("g3"),r=document.getElementById("k3"),
+      ro=document.getElementById("r3"),kv=document.getElementById("k3v"),box=document.getElementById("b3");
+  function draw(){
+    clear(svg);
+    var k=+r.value;if(k===0)k=0.5;
+    kv.textContent=num(k,1);
+    var F=Frame(svg,-5,5,-5,5,400,340,30).grid(1,1).ticks(1,1);
+    F.vline(0,"#e11d48",null);F.hline(0,"#e11d48",null);
+    rat(F,1,0,0,"#e5e7eb",2);
+    rat(F,k,0,0,k>0?"#2563eb":"#7c3aed");
+    ro.innerHTML="<b>y = "+num(k,1)+"/x</b><br><br>"+
+      "사분면 : <b>"+(k>0?"제 1 · 3":"제 2 · 4")+"</b><br>"+
+      "점근선 : <b>x = 0, y = 0</b> <span class='hint'>(k 와 무관)</span><br>"+
+      "|k| = "+num(Math.abs(k),1)+" → 원점에서 "+(Math.abs(k)>1?"<b>멀어짐</b>":"<b>가까워짐</b>")+
+      "<br><br><span class='hint'>회색은 비교용 y = 1/x 입니다.</span>";
+  }
+  [["y = 2/x",2],["y = 3/x",3],["y = −1/x",-1]].forEach(function(p){
+    var b=document.createElement("button");b.className="rb";b.textContent=p[0];
+    b.onclick=function(){r.value=p[1];[].slice.call(box.children).forEach(function(x){x.className="rb";});
+      b.className="rb on";draw();};
+    box.appendChild(b);
+  });
+  r.addEventListener("input",draw);draw();
+})();
+
+/* ── 화면3 : 점근선을 수로 확인 ──────────────────────────── */
+(function(){
+  var tb=document.getElementById("tbA"),box=document.getElementById("bA"),ro=document.getElementById("rA");
+  if(!tb)return;
+  var SETS=[
+    {t:"x 를 키우면",xs:[1,10,100,1000],
+     msg:"x 가 커질수록 1/x 는 <b>0 에 가까워집니다.</b> 하지만 <b>0 이 되지는 않습니다</b> — 1/1000 도 0 보다 큽니다.<br><br>그래서 <b>y = 0 (x축)</b> 이 점근선입니다."},
+    {t:"x 를 0 에 붙이면",xs:[1,0.1,0.01,0.001],
+     msg:"x 가 0 에 가까워질수록 1/x 는 <b>한없이 커집니다.</b> 1/0.001 = 1000 이죠.<br><br>그래서 <b>x = 0 (y축)</b> 이 점근선입니다."}
+  ];
+  function fm(v){var s=String(v);return s.length>8?v.toExponential(0):s;}
+  function show(S){
+    var h="<tr><th>x</th>";S.xs.forEach(function(x){h+="<td>"+fm(x)+"</td>";});h+="</tr>";
+    h+="<tr><th>1/x</th>";S.xs.forEach(function(x){h+="<td><b>"+fm(Math.round(1/x*1e6)/1e6)+"</b></td>";});h+="</tr>";
+    tb.innerHTML=h;ro.innerHTML=S.msg;
+  }
+  SETS.forEach(function(S,i){
+    var b=document.createElement("button");b.className="rb";b.textContent=S.t;
+    b.onclick=function(){[].slice.call(box.children).forEach(function(e){e.className="rb";});
+      b.className="rb on";show(S);};
+    box.appendChild(b);
+  });
+  tb.innerHTML="<tr><th>x</th><td>?</td><td>?</td><td>?</td><td>?</td></tr>"+
+               "<tr><th>1/x</th><td>?</td><td>?</td><td>?</td><td>?</td></tr>";
+})();
+
+/* ── 화면6 : 구멍 vs 점근선 ──────────────────────────────── */
+(function(){
+  var svg=document.getElementById("gR"),box=document.getElementById("bR"),ro=document.getElementById("rR");
+  if(!svg)return;
+  var mode=0;
+  function draw(){
+    clear(svg);
+    var F=Frame(svg,-5,3,-1,5,400,250,30).grid(1,1).ticks(2,1);
+    if(mode===1){F.vline(-1,"#fca5a5","x = −1 ?");}
+    /* y = 2 인 직선, x = −1 만 비어 있다 */
+    F.plot(function(){return 2;},"#2563eb",[-5,-1.02],2.8);
+    F.plot(function(){return 2;},"#2563eb",[-0.98,3],2.8);
+    F.dot(-1,2,"#e11d48",null,5.5,true);
+    txt(svg,F.px(1.6),F.py(2.5),"r(x) = 2",{size:12,fill:"#2563eb"});
+    if(mode===1)txt(svg,F.px(-1),F.py(3.6),"구멍",{size:11,fill:"#e11d48"});
+    ro.innerHTML=mode===0
+      ? "<span class='hint'>그래프를 먼저 보세요. 쌍곡선처럼 보이나요?</span>"
+      : "x = −0.9 → r = <b>2</b><br>x = −0.99 → r = <b>2</b><br>x = −0.999 → r = <b>2</b><br><br>"+
+        "<b>커지지 않습니다.</b> 계속 2 입니다.<br><br><span class='hint'>점근선의 조건 “한없이 가까워진다”가 성립하지 않죠.</span>";
+  }
+  ["그래프 보기","x = −1 근처 값 보기"].forEach(function(t,i){
+    var b=document.createElement("button");b.className="rb"+(i===0?" on":"");b.textContent=t;
+    b.onclick=function(){mode=i;[].slice.call(box.children).forEach(function(e){e.className="rb";});
+      b.className="rb on";draw();};
+    box.appendChild(b);
+  });
+  draw();
+})();
+
+/* ── 화면4 : 평행이동 ────────────────────────────────────── */
+(function(){
+  var svg=document.getElementById("g4"),rp=document.getElementById("p4"),rq=document.getElementById("q4"),
+      ro=document.getElementById("r4"),pv=document.getElementById("p4v"),qv=document.getElementById("q4v"),
+      box=document.getElementById("b4");
+  function draw(){
+    clear(svg);
+    var p=+rp.value,q=+rq.value;pv.textContent=(p<0?"−":"")+Math.abs(p);qv.textContent=(q<0?"−":"")+Math.abs(q);
+    var F=Frame(svg,-7,7,-7,7,400,340,30).grid(1,1).ticks(2,2);
+    rat(F,3,0,0,"#e5e7eb",2.2);
+    F.vline(p,"#e11d48",null);F.hline(q,"#e11d48",null);
+    rat(F,3,p,q,"#2563eb");
+    F.dot(p,q,"#e11d48",null,4);
+    ro.innerHTML="<b>"+ratStr(3,p,q)+"</b><br><br>"+
+      "평행이동 : x축 <b>"+fmt(p)+"</b>, y축 <b>"+fmt(q)+"</b><br>"+
+      "점근선 : <b>x = "+fmt(p)+", y = "+fmt(q)+"</b><br><br>"+
+      (p===2&&q===-1?"✅ <b>학습지 Q2 의 답입니다.</b>":
+        "<span class='hint'>회색이 원래의 y = 3/x 입니다.</span>");
+  }
+  [["Q2 대로 (2, −1)",2,-1],["처음으로 (0, 0)",0,0]].forEach(function(t){
+    var b=document.createElement("button");b.className="rb";b.textContent=t[0];
+    b.onclick=function(){rp.value=t[1];rq.value=t[2];
+      [].slice.call(box.children).forEach(function(x){x.className="rb";});b.className="rb on";draw();};
+    box.appendChild(b);
+  });
+  rp.addEventListener("input",draw);rq.addEventListener("input",draw);draw();
+})();
+
+/* ── 화면5 : 점근선의 이동 ───────────────────────────────── */
+(function(){
+  var svg=document.getElementById("g5"),box=document.getElementById("b5"),ro=document.getElementById("r5");
+  var mode=0;
+  function draw(){
+    clear(svg);
+    var F=Frame(svg,-7,7,-7,7,400,340,30).grid(1,1).ticks(2,2);
+    if(mode===0||mode===2){F.vline(0,"#94a3b8",mode===2?null:"x = 0");F.hline(0,"#94a3b8",mode===2?null:"y = 0");
+      rat(F,3,0,0,mode===2?"#cbd5e1":"#2563eb",mode===2?2.2:2.6);F.dot(0,0,"#94a3b8",null,4);}
+    if(mode===1||mode===2){F.vline(2,"#e11d48","x = 2");F.hline(-1,"#e11d48","y = −1");
+      rat(F,3,2,-1,"#2563eb");F.dot(2,-1,"#e11d48",null,4);}
+    if(mode===2)F.arrow(0,0,2,-1,"#059669");
+    ro.innerHTML=["<b>y = 3/x</b><br>점근선 x = 0, y = 0<br>대칭의 중심 (0, 0)",
+      "<b>y = 3/(x−2) − 1</b><br>점근선 <b>x = 2, y = −1</b><br>대칭의 중심 <b>(2, −1)</b>",
+      "<b>겹쳐 보기</b><br><br>초록 화살표가 <b>(2, −1) 만큼의 평행이동</b> 입니다.<br><br>" +
+      "<span class='hint'>그래프도, 점근선도, 대칭의 중심도 <b>똑같이</b> 그만큼 옮겨졌습니다.</span>"][mode];
+  }
+  ["y = 3/x","y = 3/(x−2) − 1","겹쳐 보기"].forEach(function(t,i){
+    var b=document.createElement("button");b.className="rb"+(i===0?" on":"");b.textContent=t;
+    b.onclick=function(){mode=i;[].slice.call(box.children).forEach(function(x){x.className="rb";});
+      b.className="rb on";draw();};
+    box.appendChild(b);
+  });
+  draw();
+})();
+
+/* ── 화면6 : 변형 전략 ───────────────────────────────────── */
+(function(){
+  var box=document.getElementById("b6"),card=document.getElementById("c6");
+  var P=[
+    {t:"y = 2x/(x−1)",steps:["분자 2x 에서 분모 (x−1) 의 배수를 만든다",
+      "2x = 2(x−1) + 2",
+      "y = (2(x−1) + 2)/(x−1) = 2 + 2/(x−1)"],
+     a:"y = 2/(x−1) + 2",asym:"x = 1, y = 2",k:"k = 2 &gt; 0"},
+    {t:"y = (6x+1)/(2x+1)",steps:["분자 6x+1 에서 분모 (2x+1) 의 배수를 만든다",
+      "6x+1 = 3(2x+1) − 2",
+      "y = 3 − 2/(2x+1) = 3 − 2/(2(x + 1/2))",
+      "= 3 − 1/(x + 1/2)"],
+     a:"y = −1/(x + 1/2) + 3",asym:"x = −1/2, y = 3",k:"k = −1 &lt; 0"},
+    {t:"y = (5−2x)/(x−2)",steps:["분자 5−2x 에서 분모 (x−2) 의 배수를 만든다",
+      "5−2x = −2(x−2) + 1",
+      "y = −2 + 1/(x−2)"],
+     a:"y = 1/(x−2) − 2",asym:"x = 2, y = −2",k:"k = 1 &gt; 0"}
+  ];
+  var bs=[];
+  P.forEach(function(p){
+    var b=document.createElement("button");b.className="rb";b.innerHTML=p.t;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
+    box.appendChild(b);bs.push(b);
+  });
+  function show(p){
+    var h="<div class='formula'><span class='mono'>"+p.t+"</span></div><div class='steps3'>";
+    p.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
+    h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'><b class='mono'>"+p.a+"</b></div>"+
+      "<p style='margin:6px 0 0'>점근선 <b>"+p.asym+"</b> &nbsp;·&nbsp; "+p.k+"</p>";
+    card.innerHTML=h;
+  }
+  card.innerHTML="<p class='hint' style='margin:0'>식을 눌러 변형 과정을 보세요.</p>";
+})();
+
+/* ── 화면7 : Q5 (1)~(6) ─────────────────────────────────── */
+(function(){
+  var box=document.getElementById("b7"),svg=document.getElementById("g7"),
+      ro=document.getElementById("r7"),card=document.getElementById("c7"),cb=document.getElementById("c7a");
+  var P=[
+    {n:"(1)",t:"y = 1/(x+1) − 2",k:1,p:-1,q:-2,steps:["이미 k/(x−p)+q 꼴입니다.","x+1 = x−(−1) 이므로 p = −1"]},
+    {n:"(2)",t:"y = 2/(3−x) + 1",k:-2,p:3,q:1,steps:["분모의 x 앞 부호를 +로 만든다","2/(3−x) = −2/(x−3)","y = −2/(x−3) + 1"]},
+    {n:"(3)",t:"y = (2x+1)/x",k:1,p:0,q:2,steps:["2x+1 = 2·x + 1","y = 2 + 1/x"]},
+    {n:"(4)",t:"y = 2x/(x−1)",k:2,p:1,q:2,steps:["2x = 2(x−1) + 2","y = 2 + 2/(x−1)"]},
+    {n:"(5)",t:"y = (6x+1)/(2x+1)",k:-1,p:-0.5,q:3,steps:["6x+1 = 3(2x+1) − 2","y = 3 − 2/(2x+1)","= 3 − 1/(x + 1/2)"]},
+    {n:"(6)",t:"y = (5−2x)/(x−2)",k:1,p:2,q:-2,steps:["5−2x = −2(x−2) + 1","y = −2 + 1/(x−2)"]}
+  ];
+  var cur=null;
+  function draw(){
+    clear(svg);
+    if(!cur){Frame(svg,-5,5,-5,5,400,340,30).grid(1,1).ticks(1,1);
+      ro.innerHTML="<span class='hint'>번호를 고르세요.</span>";return;}
+    var p=cur,F=Frame(svg,p.p-5,p.p+5,p.q-5,p.q+5,400,340,30).grid(1,1).ticks(2,2);
+    if(cb.checked){F.vline(p.p,"#e11d48","x = "+fmt(p.p));F.hline(p.q,"#e11d48","y = "+fmt(p.q));}
+    rat(F,p.k,p.p,p.q,"#2563eb");
+    F.dot(p.p,p.q,"#e11d48",null,4);
+    /* 확인점 (p+1, q+k) 와 (p−1, q−k) */
+    F.dot(p.p+1,p.q+p.k,"#059669","("+fmt(p.p+1)+", "+fmt(p.q+p.k)+")",4.5);
+    F.dot(p.p-1,p.q-p.k,"#059669","("+fmt(p.p-1)+", "+fmt(p.q-p.k)+")",4.5);
+    ro.innerHTML="<b>"+p.n+" "+p.t+"</b><br><br>기본형<br><b>"+ratStr(p.k,p.p,p.q)+"</b><br><br>점근선<br><b>x = "+
+      fmt(p.p)+", &nbsp;y = "+fmt(p.q)+"</b><br><br>"+
+      "k = <b>"+fmt(p.k)+"</b> "+(p.k>0?"(오른쪽 위·왼쪽 아래)":"(오른쪽 아래·왼쪽 위)")+
+      "<br><br>확인점 <b style='color:#059669'>("+fmt(p.p+1)+", "+fmt(p.q+p.k)+")</b>, "+
+      "<b style='color:#059669'>("+fmt(p.p-1)+", "+fmt(p.q-p.k)+")</b>"+
+      "<br><span class='hint'>점근선에서 좌우 한 칸 — 위아래로 k 만큼</span>";
+  }
+  function show(p){
+    cur=p;
+    var h="<div class='formula' style='margin:0 0 8px'><span class='mono'>"+p.n+" &nbsp;"+p.t+"</span></div><div class='steps3'>";
+    p.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
+    h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'>"+
+      "<b class='mono'>"+ratStr(p.k,p.p,p.q)+"</b><br>점근선 <b class='mono'>x = "+fmt(p.p)+", y = "+fmt(p.q)+"</b></div>";
+    card.innerHTML=h;draw();
+  }
+  var bs=[];
+  P.forEach(function(p){
+    var b=document.createElement("button");b.className="rb";b.textContent=p.n;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
+    box.appendChild(b);bs.push(b);
+  });
+  cb.addEventListener("change",draw);
+  card.innerHTML="<p class='hint' style='margin:0'>학습지에 먼저 그리고, 번호를 눌러 확인하세요.</p>";
+  draw();
+})();
+
+/* ── 화면8 : 조건에서 식 찾기 ────────────────────────────── */
+(function(){
+  var box=document.getElementById("b8"),svg=document.getElementById("g8"),card=document.getElementById("c8");
+  var P=[
+    {n:"(7)",cond:"원점을 지나고, 점근선이 x = 1, y = −2",k:-2,p:1,q:-2,pt:[0,0],
+     steps:["점근선이 x = 1, y = −2 → <b>y = k/(x−1) − 2</b> 로 놓는다",
+            "원점 (0, 0) 을 대입 : 0 = k/(0−1) − 2",
+            "−k − 2 = 0 → <b>k = −2</b>"],
+     a:"y = −2/(x−1) − 2 &nbsp;=&nbsp; −2x/(x−1)"},
+    {n:"(8)",cond:"(2, −2) 에 대칭이고 (3, 3) 을 지남",k:5,p:2,q:-2,pt:[3,3],
+     steps:["<b>대칭의 중심 = 점근선의 교점</b> → x = 2, y = −2",
+            "<b>y = k/(x−2) − 2</b> 로 놓는다",
+            "(3, 3) 을 대입 : 3 = k/1 − 2 → <b>k = 5</b>"],
+     a:"y = 5/(x−2) − 2 &nbsp;=&nbsp; (9 − 2x)/(x−2)"},
+    {n:"➕",cond:"교과서 129쪽 3번 — 점근선 x = 1, y = 2 이고 (0, 1) 을 지나는 y = (ax+b)/(x+c)",
+     k:1,p:1,q:2,pt:[0,1],
+     steps:["점근선 x = 1 → x + c = 0 이 x = 1 → <b>c = −1</b>",
+            "점근선 y = 2 → 분자·분모의 x 계수 비 → <b>a = 2</b>",
+            "(0, 1) 대입 : (0 + b)/(0 − 1) = 1 → <b>b = −1</b>"],
+     a:"y = (2x − 1)/(x − 1) &nbsp;=&nbsp; 1/(x−1) + 2 &nbsp;&nbsp;(a=2, b=−1, c=−1)"}
+  ];
+  var bs=[];
+  P.forEach(function(p){
+    var b=document.createElement("button");b.className="rb";b.textContent=p.n;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
+    box.appendChild(b);bs.push(b);
+  });
+  function show(p){
+    clear(svg);
+    var F=Frame(svg,p.p-5,p.p+5,p.q-5,p.q+5,400,340,30).grid(1,1).ticks(2,2);
+    F.vline(p.p,"#e11d48","x = "+fmt(p.p));F.hline(p.q,"#e11d48","y = "+fmt(p.q));
+    rat(F,p.k,p.p,p.q,"#2563eb");
+    F.dot(p.p,p.q,"#e11d48",null,4);
+    F.dot(p.pt[0],p.pt[1],"#059669","("+fmt(p.pt[0])+", "+fmt(p.pt[1])+")",5.5);
+    var h="<p style='margin:0 0 8px'><b>"+p.n+"</b> "+p.cond+"</p><div class='steps3'>";
+    p.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div>"+s+"</div></div>";});
+    h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe;margin-bottom:0'><b class='mono'>"+p.a+"</b></div>";
+    card.innerHTML=h;
+  }
+  clear(svg);Frame(svg,-5,5,-5,5,400,340,30).grid(1,1).ticks(1,1);
+  card.innerHTML="<p class='hint' style='margin:0'>학습지에 먼저 풀고, 번호를 눌러 확인하세요.</p>";
+})();
+
+/* ── 화면9 : 역함수 두 가지 방법 ─────────────────────────── */
+(function(){
+  var box=document.getElementById("b9"),card=document.getElementById("c9"),
+      svg=document.getElementById("g9"),ro=document.getElementById("r9");
+  var M=[
+    {t:"방법 ① x, y 를 바꾸기",steps:[
+      "y = (2x+3)/(x+1) 에서 x 와 y 를 바꾼다 → x = (2y+3)/(y+1)",
+      "양변에 (y+1) 을 곱한다 → x(y+1) = 2y + 3",
+      "xy + x = 2y + 3 → xy − 2y = 3 − x",
+      "y(x − 2) = 3 − x → <b>y = (3 − x)/(x − 2)</b>"],
+     a:"y = (3 − x)/(x − 2) = 1/(x−2) − 1",
+     note:"정직한 방법입니다. <b>y 를 한쪽으로 모으는</b> 것이 요령이에요."},
+    {t:"방법 ② 점근선을 활용",steps:[
+      "먼저 기본형으로 고친다 → 2x+3 = 2(x+1) + 1",
+      "<b>y = 1/(x+1) + 2</b> &nbsp; (k=1, p=−1, q=2), 점근선 x = −1, y = 2",
+      "역함수는 y = x 대칭 → 점근선도 <b>뒤바뀐다</b> → x = 2, y = −1",
+      "k 는 그대로 → <b>y = 1/(x−2) − 1</b>"],
+     a:"y = 1/(x−2) − 1 = (3 − x)/(x − 2)",
+     note:"계산이 거의 없습니다. <b>점근선만 서로 바꾸면</b> 끝이에요."},
+    {t:"두 방법 비교",steps:[
+      "두 방법의 답이 <b>완전히 같습니다.</b>",
+      "① 은 언제나 통하지만 식 정리가 길다",
+      "② 는 점근선만 보면 되지만 <b>기본형으로 고치는 단계</b>가 먼저 필요하다",
+      "그래프에서 두 곡선이 <b>y = x 에 대칭</b>임을 확인해 보자"],
+     a:"y = (3 − x)/(x − 2)",
+     note:"다음 화면에서 이 ②번 방법이 <b>왜</b> 되는지 일반형으로 밝힙니다."}
+  ];
+  function draw(){
+    clear(svg);
+    var F=Frame(svg,-6,6,-6,6,400,340,30).grid(1,1).ticks(2,2);
+    F.yx();
+    F.vline(-1,"#bfdbfe",null);F.hline(2,"#bfdbfe",null);
+    F.vline(2,"#fecdd3",null);F.hline(-1,"#fecdd3",null);
+    rat(F,1,-1,2,"#2563eb");
+    rat(F,1,2,-1,"#e11d48");
+    F.dot(-1,2,"#2563eb",null,4);F.dot(2,-1,"#e11d48",null,4);
+    txt(svg,F.px(4.4),F.py(3.6),"f",{size:13,fill:"#2563eb"});
+    txt(svg,F.px(4.6),F.py(0.4),"f⁻¹",{size:13,fill:"#e11d48"});
+    ro.innerHTML="<b style='color:#2563eb'>f : y = 1/(x+1) + 2</b><br>점근선 x = −1, y = 2<br><br>"+
+      "<b style='color:#e11d48'>f⁻¹ : y = 1/(x−2) − 1</b><br>점근선 x = 2, y = −1<br><br>"+
+      "<span class='hint'>점 <b>(−1, 2)</b> 가 <b>(2, −1)</b> 로 — 좌표가 그대로 뒤바뀌었습니다.</span>";
+  }
+  var bs=[];
+  M.forEach(function(m){
+    var b=document.createElement("button");b.className="rb";b.textContent=m.t;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";
+      var h="<div class='steps3'>";
+      m.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
+      h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'><b class='mono'>"+m.a+"</b></div>"+
+        "<p class='hint' style='margin:6px 0 0'>💡 "+m.note+"</p>";
+      card.innerHTML=h;};
+    box.appendChild(b);bs.push(b);
+  });
+  card.innerHTML="<p class='hint' style='margin:0'>학습지에 먼저 두 방법을 적어 보고, 버튼을 누르세요.</p>";
+  draw();
+})();
+
+/* ── 화면10 : 개념 탐구 속으로 ───────────────────────────── */
+(function(){
+  var svg=document.getElementById("g10"),rp=document.getElementById("p10"),rq=document.getElementById("q10"),
+      rk=document.getElementById("k10"),ro=document.getElementById("r10"),
+      pv=document.getElementById("p10v"),qv=document.getElementById("q10v"),kv=document.getElementById("k10v");
+  var sg=fmt;
+  function draw(){
+    clear(svg);
+    var p=+rp.value,q=+rq.value,k=+rk.value;if(k===0)k=1;
+    pv.textContent=sg(p);qv.textContent=sg(q);kv.textContent=sg(k);
+    var F=Frame(svg,-7,7,-7,7,400,340,30).grid(1,1).ticks(2,2);
+    F.yx();
+    F.vline(p,"#bfdbfe",null);F.hline(q,"#bfdbfe",null);
+    F.vline(q,"#fecdd3",null);F.hline(p,"#fecdd3",null);
+    rat(F,k,p,q,"#2563eb");
+    rat(F,k,q,p,"#e11d48");
+    F.dot(p,q,"#2563eb","("+sg(p)+", "+sg(q)+")",4.5);
+    F.dot(q,p,"#e11d48","("+sg(q)+", "+sg(p)+")",4.5);
+    if(p!==q)F.arrow(p,q,q,p,"#059669");
+    ro.innerHTML="<b style='color:#2563eb'>"+ratStr(k,p,q)+"</b><br>"+
+      "점근선 x = "+sg(p)+", y = "+sg(q)+"<br><br>"+
+      "<b style='color:#e11d48'>역함수 "+ratStr(k,q,p)+"</b><br>"+
+      "점근선 x = "+sg(q)+", y = "+sg(p)+"<br><br>"+
+      "평행이동 <b>("+sg(q-p)+", "+sg(p-q)+")</b>"+
+      (p===q?"<br><span class='hint'>p = q 이면 역함수가 <b>자기 자신</b>입니다!</span>":
+        "<br><span class='hint'>초록 화살표 방향의 기울기는 −1 — y = x 와 수직입니다.</span>");
+  }
+  [rp,rq,rk].forEach(function(r){r.addEventListener("input",draw);});draw();
+})();
+
+/* ── 확장 화면 : 잠수부 ──────────────────────────────────── */
+(function(){
+  var svg=document.getElementById("gE"),r=document.getElementById("xE"),
+      ro=document.getElementById("rE"),xv=document.getElementById("xEv");
+  function f(x){return 1980/(x+99);}
+  function draw(){
+    clear(svg);
+    var x=+r.value;xv.textContent=x+" m";
+    var F=Frame(svg,0,150,0,25,400,280,36).grid(25,5).ticks(25,5);
+    F.hline(0,"#e11d48","y = 0 (점근선)");
+    F.plot(f,"#2563eb",[0,150]);
+    F.dot(x,f(x),"#e11d48",null,5.5);
+    F.dot(45,f(45),"#059669",null,3.5);
+    F.dot(99,f(99),"#059669",null,3.5);
+    txt(svg,F.px(75),F.py(24),"수심 x (m) 에 따른 산소 비율 (%)",{size:11,fill:"#52525b"});
+    ro.innerHTML="수심 <b>"+x+" m</b><br>산소 비율 <b>"+num(f(x),2)+" %</b><br><br>"+
+      (x===45?"✅ <b>45 m → 13.75 %</b>":
+       x===99?"✅ <b>99 m → 10 %</b>":
+       x===0?"<span class='hint'>지상에서는 20 % 입니다.</span>":
+       "<span class='hint'>초록 점 두 개가 문제의 답입니다. 슬라이더를 45 와 99 에 맞춰 보세요.</span>");
+  }
+  r.addEventListener("input",draw);draw();
+})();
+
+/* ── 정답 밝히기 ─────────────────────────────────────── */
+[].slice.call(document.querySelectorAll("button.reveal[data-a]")).forEach(function(b){
+  b.onclick=function(){b.textContent=b.getAttribute("data-a");
+    b.style.color="#2563eb";b.style.fontWeight="700";};
+});
+[["rv1","an1"],["rv3","an3"],["rv4","an4"],["rv5","an5"],["rv6","an6"],["rvR","anR"],["rv10","an10"],["rv10b","an10b"]].forEach(function(p){
+  var b=document.getElementById(p[0]),a=document.getElementById(p[1]);
+  if(b&&a)b.onclick=function(){a.classList.toggle("on");
+    b.textContent=a.classList.contains("on")?"접기":"다시 열기";};
+});
+})();
+</script>

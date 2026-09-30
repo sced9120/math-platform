@@ -1,0 +1,751 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#fff;--panel:#f8fafc;--ink:#27272a;--muted:#52525b;--line:#e4e4e7;--blue:#2563eb;--blue-soft:#eff6ff;--rose:#e11d48;--emerald:#059669;--amber:#d97706;--violet:#7c3aed;--gold:#f59e0b}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:18px 20px 24px}
+  .steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .dot{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:#fff;cursor:pointer;transition:all .15s}
+  .dot.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .dot.done{border-color:var(--blue);color:var(--blue)}
+  .screen{display:none}.screen.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--blue);text-transform:uppercase}
+  h1{font-size:22px;margin:4px 0 10px}h2{font-size:18px;margin:16px 0 8px}p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .callout{background:var(--blue-soft);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin:12px 0}
+  .bad{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid var(--rose);border-radius:10px;padding:12px 15px;margin:12px 0}
+  .lab{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+  @media (max-width:680px){.lab{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;touch-action:none;user-select:none;display:block;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .controls{display:flex;flex-direction:column;gap:10px}
+  .readout{font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .readout b{color:var(--blue)}
+  .hint{font-size:12px;color:var(--muted)}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .rb{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .12s}
+  .rb:hover{border-color:var(--blue);color:var(--blue)}
+  .rb.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .rb.wide{display:block;width:100%;text-align:left;margin-bottom:6px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:var(--panel)}
+  td.l,th.l{text-align:left}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  button.btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+  button.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:5px;font-size:13px}
+  .reveal{border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .ans{display:none;margin-top:8px}.ans.on{display:block;animation:fade .2s ease}
+  .win{display:none;background:#dcfce7;border:1px solid #86efac;color:#065f46;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  .win.on{display:block;animation:pop .25s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+  .formula{font-size:17px;text-align:center;padding:11px;margin:10px 0;background:#fff;border:1px dashed var(--line);border-radius:10px}
+  ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+  .judge{display:inline-block;border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;
+    padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
+  .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
+  .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
+  .slider input{width:100%}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+  .flip{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin:12px 0}
+  .flip .t{border:1px solid var(--line);border-radius:10px;overflow:hidden;min-width:180px}
+  .flip .t table{margin:0;font-size:13px}
+  .flip .ar{font-size:24px;color:var(--violet)}
+  .steps3{counter-reset:s}
+  .steps3 .st{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+  .steps3 .st:last-child{border-bottom:none}
+  .steps3 .st .n{flex:none;width:24px;height:24px;border-radius:999px;background:var(--blue);color:#fff;
+    font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+/* TEACH:CSS */
+  .teach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 2px}
+  .teach span{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;line-height:1.55;white-space:nowrap}
+  .t-show{background:#f4f4f5;border:1px solid #e4e4e7;color:#52525b}
+  .t-ask{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+  .t-write{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+  .t-book{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+  .t-sheet{background:#fffbeb;border:1px solid #fde68a;color:#92400e;white-space:normal}
+  .turn{display:flex;gap:9px;align-items:flex-start;background:#ecfdf5;border:1px solid #6ee7b7;
+    border-left:4px solid #059669;border-radius:10px;padding:11px 14px;margin:11px 0;
+    font-size:14px;color:#065f46;font-weight:600;line-height:1.55}
+  .turn i{font-style:normal;font-size:17px;line-height:1.3}
+</style>
+
+<!-- NAV:START -->
+<div id="archiveNav" style="display:none">
+  <a href="../index.html">← 활동 목록</a>
+</div>
+<style>
+  #archiveNav{padding:10px 20px;border-bottom:1px solid #e4e4e7;background:#fafafa;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic",sans-serif}
+  #archiveNav a{color:#2563eb;text-decoration:none;font-size:14px;font-weight:600}
+  #archiveNav a:hover{text-decoration:underline}
+</style>
+<script>
+  // 플랫폼 안(iframe)에서는 목록이 없으므로 감춘다. 단독으로 열었을 때만 보인다.
+  (function () {
+    var inFrame = true;
+    try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!inFrame) document.getElementById("archiveNav").style.display = "block";
+  })();
+</script>
+<!-- NAV:END -->
+
+<div class="wrap">
+  <div class="steps" id="steps"></div>
+
+  <section class="screen on" data-key="s1" data-prompt="Q1. 오늘 본 종단속도 함수는 우리가 알던 y=ax²+bx+c, y=ax 와 어떻게 다른가요? 눈에 보이는 차이를 모두 적어 보세요.">
+    <div class="kicker">공통수학2 · 유리함수와 무리함수</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 학습지 2-01 ① [생각열기] 자연 현상을 표현하는 함수 · Q1</span></div>
+    <!--TEACH:END-->
+    <h1>🪂 낙하하는 닐의 걱정</h1>
+    <p>닐은 자유낙하하는 물체가 <b>v = gt</b> 라는 속도를 가진다는 걸 알고 있습니다.
+      그러면 <b>오랫동안 떨어지면 속도가 무한히 올라가는 것</b> 아닐까요? 인공지능에게 물어봤습니다.</p>
+    <div class="callout">🤖 “공기의 저항 때문에 속도는 어느 값에 <b>가까워지다가 멈춥니다</b>.
+      이것을 <b>종단속도</b>라고 합니다.”
+      <div class="hint" style="margin-top:6px">※ 식이나 설명이 틀릴 수도 있습니다. <b>함수의 형태만</b> 보세요.</div></div>
+    <div class="lab">
+      <svg id="g1" viewBox="0 0 400 300" aria-label="자유낙하와 종단속도 비교"></svg>
+      <div class="controls">
+        <div class="slider"><label><span>떨어진 시간 t</span><b id="t1v">0 초</b></label>
+          <input type="range" id="t1" min="0" max="20" step="0.2" value="0" /></div>
+        <div class="readout" id="r1"></div>
+        <div class="hint">파란 선이 <b>v = 9.8t</b> (공기저항 없음), 붉은 곡선이 인공지능이 알려준
+          <b>v = 55t / (t + 5)</b> 입니다.</div>
+      </div>
+    </div>
+    <div class="card">
+      <b>Q1. 우리가 알던 <span class="mono">y = ax² + bx + c</span>, <span class="mono">y = ax</span> 등의 함수와 어떻게 다른가?</b>
+      <button class="reveal" id="rv1" style="margin-left:8px">의견을 먼저 말한 뒤 열기</button>
+      <div class="ans" id="an1">
+        <ul class="tight">
+          <li><b>분모에 문자가 있다.</b> 지금까지는 분모가 늘 숫자였습니다.</li>
+          <li>아무리 t 를 키워도 <b>넘지 못하는 선</b>이 있습니다. (뒤에서 <b>점근선</b>이라 부릅니다)</li>
+          <li>분모가 0 이 되는 값은 <b>쓸 수 없습니다.</b> 정의역에 구멍이 생깁니다.</li>
+        </ul>
+        <div class="formula">분모에 문자가 있는 식 → <b>유리식</b> &nbsp;·&nbsp; 문자가 근호 안에 있는 식 → <b>무리식</b></div>
+      </div>
+    </div>
+    <div class="turn"><i>🙋</i><div>오늘은 이 두 가지 새로운 식을 <b>정의</b>하고 <b>계산</b>하는 법을 배웁니다.
+      그래프는 다음 시간에 그립니다.</div></div>
+  </section>
+
+  <section class="screen" data-key="s2" data-prompt="Q2. 유리수와 무리수의 특징을 각각 적고, 그것이 유리식·무리식으로 어떻게 확장되는지 표를 채워 정리해 보세요.">
+    <div class="kicker">개념 세우기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-write">✍️ 학습지 표 채우기</span><span class="t-sheet">📄 학습지 2-01 ① Q2 (유리수·유리식·무리수·무리식 표)</span></div>
+    <!--TEACH:END-->
+    <h1>🔁 수에서 식으로 — 이름이 그대로 넘어온다</h1>
+    <p>중학교에서 배운 <b>유리수·무리수</b>를 떠올려 보세요. 이름이 <b>식</b>으로 그대로 옮겨옵니다.</p>
+    <div class="card">
+      <b>먼저 분류해 봅시다.</b> 식을 누르고, 세 칸 중 어디에 들어가는지 고르세요.
+      <div class="btns" id="b2" style="margin-top:8px"></div>
+      <div class="readout" id="r2" style="margin-top:10px">식을 하나 고르세요.</div>
+      <div class="btns" id="b2c" style="margin-top:8px"></div>
+      <div class="win" id="w2" style="margin-top:8px">🎉 여덟 개 모두 분류했습니다!</div>
+    </div>
+    <button class="reveal" id="rv2">표 정답 열기</button>
+    <div class="ans" id="an2">
+      <table>
+        <tr><th></th><th>유리수</th><th>유리식</th><th>무리수</th><th>무리식</th></tr>
+        <tr><th class="l">형태<br>또는 정의</th>
+          <td><span class="mono">(정수)/(정수)</span><br>분모 ≠ 0</td>
+          <td><span class="mono">(다항식)/(다항식)</span><br>분모 ≠ 0</td>
+          <td>유리수로 나타낼 수<br>없는 실수</td>
+          <td>유리식으로 나타낼 수<br>없는 식<br>(문자가 근호 안)</td></tr>
+        <tr><th class="l">성질</th>
+          <td>사칙연산이 닫혀 있다<br>(÷0 제외)<br>유한소수·순환소수</td>
+          <td>사칙연산이 닫혀 있다<br>(÷0 제외)<br><b>정수도 유리수</b>인 것처럼<br><b>다항식도 유리식</b></td>
+          <td>순환하지 않는<br>무한소수</td>
+          <td>제곱하면 근호가 풀린다<br>분모를 유리화할 수 있다<br>근호 안 ≥ 0 이라는<br><b>조건</b>이 붙는다</td></tr>
+      </table>
+      <div class="callout">가장 중요한 한 줄 — <b>정수도 유리수</b>인 것처럼,
+        <b>다항식도 유리식</b>입니다. (분모가 1 이라고 보면 되니까요)</div>
+    </div>
+    <div class="bad">
+      <b>⚠️ 두 주장을 반례로 무너뜨려 보세요</b>
+      <p style="margin:8px 0 0">㉠ “근호가 보이면 <b>모두</b> 무리식이다.”
+        <button class="reveal" data-a="√3·x 는 근호가 보이지만 다항식입니다. 문자 x 가 근호 밖에 있으니까요.">반례 보기</button></p>
+      <p style="margin:8px 0 0">㉡ “무리식의 <b>값</b>은 항상 무리수다.”
+        <button class="reveal" data-a="무리식 √x 에 x = 4 를 넣으면 값은 2 — 유리수입니다.">반례 보기</button></p>
+      <div class="formula">식의 이름은 <b>한 번 대입한 값</b>이 아니라 <b>식의 생김새</b>로 정한다</div>
+      <p class="hint" style="margin:6px 0 0">㉡ 이 특히 중요합니다. √x 는 <b>x 가 4, 9, 16 일 때 값이 유리수</b> 지만
+        그래도 여전히 <b>무리식</b> 입니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s3" data-prompt="유리식과 무리식의 정의를 빈칸을 채워 완성하고, 약분을 해도 정의역은 왜 그대로인지 한 줄로 적어 보세요.">
+    <div class="kicker">정의 굳히기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">👁️ 함께 읽기</span><span class="t-write">✍️ 학습지 빈칸 채우기</span><span class="t-sheet">📄 학습지 2-01 ① (스스로 정리하기) 단어 총정리</span><span class="t-book">📗 교과서 125쪽</span></div>
+    <!--TEACH:END-->
+    <h1>📝 단어 총정리 — 유리식, 무리식</h1>
+    <div class="card">
+      <p style="margin:0"><b>1. 유리식</b> — 분모와 분자가 모두
+        <button class="reveal" data-a="다항식">□□□</button> 으로 이루어진 식.
+        특히, <b>다항식도 유리식</b>이다.</p>
+      <p style="margin:10px 0 0"><b>2. 무리식</b> — 식의 변수가
+        <button class="reveal" data-a="근호(루트)">□□</button> 에 포함되어 있는 식 중
+        유리식으로 나타낼 수 없는 식.</p>
+      <p class="hint" style="margin:6px 0 0">예: √x, √(x−1), 1/√x, 2x + √(3x−1) 등등</p>
+    </div>
+    <h2>교과서 125쪽 — 유리식의 성질</h2>
+    <div class="callout">
+      <div class="formula" style="margin:4px 0">① <span class="mono">A/B = (A×C)/(B×C)</span> &nbsp;(단, BC ≠ 0)</div>
+      <div class="formula" style="margin:4px 0">② <span class="mono">A/B = (A÷C)/(B÷C)</span> &nbsp;(단, C ≠ 0)</div>
+      <p style="margin:8px 0 0">①은 <b>통분</b>의 근거, ②는 <b>약분</b>의 근거입니다. 분수를 다루던 방법이 그대로 옵니다.</p>
+    </div>
+    <div class="bad">
+      <b>⚠️ 오늘 가장 조심할 것 — 약분해도 정의역은 그대로</b>
+      <p style="margin:8px 0 0" class="mono">(x+1)/(x²−1) = (x+1)/((x+1)(x−1)) = 1/(x−1)</p>
+      <p style="margin:6px 0 0">약분한 결과만 보면 <b>x ≠ 1</b> 만 빼면 될 것 같습니다. 하지만
+        성질 ②의 조건이 <b>C ≠ 0</b>, 즉 <b>x + 1 ≠ 0</b> 이었죠.
+        약분을 <b>할 수 있으려면</b> 애초에 x ≠ −1 이어야 했습니다.</p>
+      <div class="formula">정의역은 <b>약분하기 전의 식</b>으로 정한다 → x ≠ 1 <b>이고</b> x ≠ −1</div>
+      <p class="hint" style="margin:6px 0 0">이 함정이 뒤쪽 Q2 (3) 번에 그대로 나옵니다.</p>
+    </div>
+    <div class="card">
+      <b>❓ 이 두 함수는 같은 함수일까?</b>
+      <div class="formula"><span class="mono">f(x) = (x² − 1)/(x − 1)</span> &nbsp;와&nbsp; <span class="mono">g(x) = x + 1</span></div>
+      <p style="margin:8px 0 0">약분하면 <span class="mono">f(x) = x + 1</span> 이니 같아 보입니다. 그런데—</p>
+      <div class="btns" id="bSame" style="margin-top:8px"></div>
+      <div class="readout" id="rSame" style="margin-top:8px">x 값을 눌러 두 함수에 넣어 보세요.</div>
+      <button class="reveal" id="rvSame" style="margin-top:8px">결론 열기</button>
+      <div class="ans" id="anSame">
+        <p style="margin:8px 0 0"><b>다른 함수입니다.</b> 두 함수가 같으려면 <b>정의역과 대응이 모두</b> 같아야 합니다.</p>
+        <table style="margin-top:8px">
+          <tr><th></th><th>f(x) = (x²−1)/(x−1)</th><th>g(x) = x + 1</th></tr>
+          <tr><th class="l">정의역</th><td><b>{ x | x ≠ 1 }</b></td><td>실수 전체</td></tr>
+          <tr><th class="l">f(1), g(1)</th><td><b>정의되지 않음</b></td><td>2</td></tr>
+          <tr><th class="l">그래프</th><td>직선 y=x+1 에서 <b>(1, 2) 만 뚫린</b> 모양</td><td>직선 y = x + 1</td></tr>
+        </table>
+        <p class="hint" style="margin:8px 0 0">약분은 <b>식을 간단히</b> 할 뿐, <b>금지된 입력을 되살리지는 못합니다.</b></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s4" data-prompt="Q1 (1)~(6) 유리식의 계산 중 가장 막혔던 문항의 번호와, 어디서 막혔는지 적어 보세요.">
+    <div class="kicker">계산 연습 ①</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 풀고 화면으로 확인</span><span class="t-sheet">📄 학습지 2-01 ① Q1 (1)~(6) 유리식의 계산</span></div>
+    <!--TEACH:END-->
+    <h1>➗ 유리식의 계산 (1)~(6)</h1>
+    <div class="callout"><b>순서는 늘 같습니다.</b>
+      ① 분모를 <b>인수분해</b> → ② 곱셈·나눗셈은 <b>약분</b>, 덧셈·뺄셈은 <b>통분</b> → ③ 마지막에 한 번 더 <b>약분</b>
+      <div class="hint" style="margin-top:6px">나눗셈은 <b>역수를 곱하기</b>. 분수 계산과 똑같습니다.</div></div>
+    <div class="btns" id="b4"></div>
+    <div class="card" id="c4" style="min-height:130px"></div>
+    <p class="hint">(1) 번은 학습지에 풀이가 있습니다. 나머지를 먼저 풀고 눌러 확인하세요.</p>
+  </section>
+
+  <section class="screen" data-key="s5" data-prompt="Q1 (7)~(12) 무리식의 계산에서 반복해서 쓰인 공식은 무엇인가요? 그 공식이 왜 근호를 없애 주는지 설명해 보세요.">
+    <div class="kicker">계산 연습 ②</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 풀고 화면으로 확인</span><span class="t-sheet">📄 학습지 2-01 ① Q1 (7)~(12) 무리식의 계산</span><span class="t-book">📗 교과서 130쪽 예제 1</span></div>
+    <!--TEACH:END-->
+    <h1>√ 무리식의 계산 (7)~(12)</h1>
+    <div class="callout"><b>단 하나의 공식으로 거의 다 됩니다.</b>
+      <div class="formula">(√A + √B)(√A − √B) = A − B</div>
+      근호가 <b>통째로 사라집니다.</b> 이것이 <b>분모의 유리화</b>의 원리이기도 합니다.
+      <div class="hint" style="margin-top:6px">분모가 √A + √B 이면 <b>√A − √B</b> 를 분자·분모에 곱하세요.</div></div>
+    <div class="btns" id="b5"></div>
+    <div class="card" id="c5" style="min-height:130px"></div>
+    <div class="card">
+      <b>➕ 교과서 130쪽 예제 1 — 분모의 유리화 한 문항 더</b>
+      <div class="formula"><span class="mono">x / (√(x+4) + 2)</span> 를 간단히 하시오.</div>
+      <button class="reveal" id="rv5">풀이 열기</button>
+      <div class="ans" id="an5">
+        <p style="margin:8px 0 0">분모의 짝 <b>√(x+4) − 2</b> 를 분자·분모에 곱합니다.</p>
+        <p style="margin:6px 0 0" class="mono">= x(√(x+4) − 2) / ((x+4) − 4) = x(√(x+4) − 2) / x = <b>√(x+4) − 2</b></p>
+        <p class="hint" style="margin:6px 0 0">마지막에 x 로 약분했으므로 <b>x ≠ 0</b> 이 꼭 필요했습니다.
+          또 근호 안이 실수여야 하니 <b>x ≥ −4</b> 도 함께 붙습니다. 정리하면 −4 ≤ x, x ≠ 0.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="s6" data-prompt="다항함수·유리함수·무리함수의 관계를 한 문장으로 정리하고, ‘다항함수도 유리함수다’ 가 왜 성립하는지 적어 보세요.">
+    <div class="kicker">함수로 올라가기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-show">👁️ 함께 읽기</span><span class="t-write">✍️ 학습지 빈칸 채우기</span><span class="t-sheet">📄 학습지 2-01 ① 「유리함수, 무리함수」 정의 빈칸</span><span class="t-book">📗 교과서 126·130쪽</span></div>
+    <!--TEACH:END-->
+    <h1>📐 유리함수 · 무리함수의 정의</h1>
+    <div class="card">
+      <p style="margin:0">두 다항식 <span class="mono">p(x)</span>, <span class="mono">q(x)</span> <span class="mono">(p(x) ≠ 0)</span> 에 대하여
+        <span class="mono">f(x) = q(x) / p(x)</span> 인 함수를
+        <button class="reveal" data-a="유리함수">□□□□</button> 라 한다.</p>
+      <p style="margin:10px 0 0">특히, <span class="mono">f(x)</span> 가 <span class="mono">x</span> 에 대한 <b>다항식</b>일 때, 이 함수를
+        <button class="reveal" data-a="다항함수">□□□□</button> 라고 한다.</p>
+      <p style="margin:10px 0 0"><b>다항식은 유리식이므로 다항함수는 유리함수이다.</b></p>
+      <p style="margin:10px 0 0">정의역이 주어지지 않을 때 —</p>
+      <ul class="tight">
+        <li>다항함수의 정의역은 <button class="reveal" data-a="실수 전체의 집합">□□□□□</button></li>
+        <li>다항함수가 아닌 유리함수의 정의역은 <button class="reveal" data-a="분모를 0 으로 만드는 값을 제외한 실수 전체">□□□□□</button></li>
+        <li>무리함수의 정의역은 <button class="reveal" data-a="근호 안의 식이 0 이상이 되게 하는 실수 전체">□□□□□</button></li>
+      </ul>
+      <p class="hint" style="margin:8px 0 0">예) <span class="mono">y = (2x−1)/(x+1)</span> 의 정의역은 { x | x ≠ −1 인 모든 실수 } &nbsp;·&nbsp;
+        <span class="mono">y = √(3x−2)</span> 의 정의역은 { x | x ≥ 2/3 }</p>
+    </div>
+    <h2>판정해 봅시다</h2>
+    <p class="hint">함수를 누르고, 세 칸 중 어디에 들어가는지 고르세요.</p>
+    <div class="btns" id="b6"></div>
+    <div class="readout" id="r6" style="margin-top:10px">함수를 하나 고르세요.</div>
+    <div class="btns" id="b6c" style="margin-top:8px"></div>
+    <div class="win" id="w6" style="margin-top:8px">🎉 여섯 개 모두 맞혔습니다!</div>
+  </section>
+
+  <section class="screen" data-key="s7" data-prompt="Q2 (3) 번과 (6) 번의 정의역을 쓰고, 다른 문항과 달리 조심해야 했던 점을 각각 적어 보세요.">
+    <div class="kicker">정의역 훈련</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학습지에 풀고 화면으로 확인</span><span class="t-ask">💬 (3)·(6) 은 반드시 발문</span><span class="t-sheet">📄 학습지 2-01 ① Q2 (1)~(6) 정의역 구하기</span></div>
+    <!--TEACH:END-->
+    <h1>🎯 Q2. 다음 함수의 정의역을 구하시오</h1>
+    <div class="callout"><b>규칙은 세 개뿐입니다.</b>
+      <ul class="tight"><li>분모에 있으면 → <b>≠ 0</b></li>
+        <li>근호 안에 있으면 → <b>≥ 0</b></li>
+        <li>근호가 <b>분모에</b> 있으면 → <b>&gt; 0</b> &nbsp;<span class="hint">(등호가 사라집니다!)</span></li></ul></div>
+    <div class="btns" id="b7"></div>
+    <div class="lab" style="grid-template-columns:1fr 1fr">
+      <svg id="g7" viewBox="0 0 400 120" aria-label="정의역을 나타낸 수직선"></svg>
+      <div class="card" id="c7" style="margin:0;min-height:110px"></div>
+    </div>
+  </section>
+
+  <section class="screen" data-key="ext" data-photo="1" data-prompt="이집트 분수 규칙 1/x = 1/(x+1) + 1/(x(x+1)) 이 성립하는 이유를 통분으로 보이고, 2/7 을 서로 다른 단위분수의 합으로 나타내 보세요. (손으로 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">개념 확장 탐구</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-ask">💬 발문 — 학생 의견 듣기</span><span class="t-sheet">📄 교과서 125~126쪽 [스스로 익히기]</span><span class="t-book">📗 교과서 126쪽 읽을거리</span></div>
+    <!--TEACH:END-->
+    <h1>🏺 이집트 사람들의 분수</h1>
+    <p>고대 이집트 사람들은 <b>분자가 1 인 분수(단위분수)</b> 만 썼습니다.
+      그래서 <span class="mono">2/3</span> 같은 수도 단위분수의 <b>합</b>으로 바꿔 적어야 했습니다.</p>
+    <div class="card">
+      <b>그들이 쓴 규칙</b>
+      <div class="formula"><span class="mono">1/x = 1/(x+1) + 1/(x(x+1))</span></div>
+      <button class="reveal" id="rvE">왜 성립하는지 열기</button>
+      <div class="ans" id="anE">
+        <p style="margin:8px 0 0">오른쪽을 통분하면 —</p>
+        <p style="margin:6px 0 0" class="mono">1/(x+1) + 1/(x(x+1)) = x/(x(x+1)) + 1/(x(x+1)) = (x+1)/(x(x+1)) = 1/x</p>
+        <p class="hint" style="margin:6px 0 0">오늘 배운 <b>통분</b>과 <b>약분</b>만으로 끝납니다. (단, x ≠ 0, x ≠ −1)</p>
+      </div>
+    </div>
+    <div class="card">
+      <b>해 보기</b>
+      <ul class="tight">
+        <li>이 규칙으로 <span class="mono">1/2</span> 를 쪼개면 <span class="mono">1/3 + 1/6</span> 이 됩니다. 직접 확인해 보세요.</li>
+        <li><span class="mono">2/3 = 1/2 + 1/6</span> 임을 보이세요.</li>
+        <li><b>★ 도전</b> — <span class="mono">2/7</span> 을 서로 다른 단위분수의 합으로 나타내 보세요.
+          <span class="hint">(힌트: 2/7 = 1/7 + 1/7 에서 뒤쪽 1/7 에 규칙을 쓰면?)</span></li>
+        <li>교과서 <b>125~126쪽 [스스로 익히기]</b> 를 해결하고 막힌 곳을 아래에 적어 두세요.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>다음 시간</b> — 오늘 정의한 유리함수의 <b>그래프</b>를 그립니다.
+      첫 화면에서 본 <b>“넘지 못하는 선”</b> 의 정확한 이름을 그때 배웁니다.</div>
+  </section>
+
+  <!-- FREE:START -->
+  <section class="screen" data-key="free" data-photo="1" data-prompt="오늘 수업에서 새로 알게 된 것, 아직 헷갈리는 것, 더 알고 싶은 것을 자유롭게 남겨 보세요. (글로 써도 되고, 공책에 쓴 것을 사진으로 올려도 됩니다.)">
+    <div class="kicker">마무리</div>
+    <h1>✍️ 오늘 수업 자유 기록</h1>
+    <p>오늘 수업에서 <b>새로 알게 된 것</b>, 아직 <b>헷갈리는 것</b>, 더 <b>알고 싶은 것</b>을
+       아래 기록칸에 자유롭게 남겨 보세요. 짧아도 좋습니다.</p>
+    <div class="callout">글로 써도 되고, <b>공책에 쓴 것을 사진으로 찍어 올려도</b> 됩니다.
+      선생님은 이 기록을 읽고 다음 수업을 준비합니다.</div>
+  </section>
+  <!-- FREE:END -->
+
+  <div class="nav">
+    <button class="btn" id="prev">&laquo; 이전</button>
+    <span class="tag" id="counter">1 / 1</span>
+    <button class="btn primary" id="next">다음 &raquo;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll(".screen")),N=screens.length,idx=0;
+  var stepsEl=document.getElementById("steps"),counter=document.getElementById("counter");
+  var prevBtn=document.getElementById("prev"),nextBtn=document.getElementById("next");
+  for(var i=0;i<N;i++){(function(k){var d=document.createElement("div");d.className="dot";d.textContent=k+1;d.onclick=function(){go(k);};stepsEl.appendChild(d);})(i);}
+  var dots=[].slice.call(stepsEl.children);
+  function go(k){idx=Math.max(0,Math.min(N-1,k));for(var i=0;i<N;i++){screens[i].classList.toggle("on",i===idx);dots[i].classList.toggle("active",i===idx);dots[i].classList.toggle("done",i<idx);}counter.textContent=(idx+1)+" / "+N;prevBtn.disabled=idx===0;nextBtn.textContent=idx===N-1?"완료 ✓":"다음 »";}
+  prevBtn.onclick=function(){go(idx-1);};nextBtn.onclick=function(){if(idx<N-1)go(idx+1);};
+  go(0);
+})();
+</script>
+
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function txt(p,x,y,t,o){o=o||{};var e=el("text",{x:x,y:y,"font-size":o.size||13,
+  "text-anchor":o.anchor||"middle",fill:o.fill||"#27272a","font-weight":o.weight||700});
+  e.textContent=t;p.appendChild(e);return e;}
+function clear(s){while(s.firstChild)s.removeChild(s.firstChild);}
+function btnset(box,items,onPick,wide){
+  var bs=[];
+  items.forEach(function(it){
+    var b=document.createElement("button");b.className="rb"+(wide?" wide":"");b.innerHTML=it.t;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb"+(wide?" wide":"");});
+      b.className="rb on"+(wide?" wide":"");onPick(it);};
+    box.appendChild(b);bs.push(b);
+  });
+  return bs;
+}
+function num(v,d){d=(d===undefined?2:d);return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toString();}
+function Plane(svg,lo,hi,H,W){
+  H=H||340;W=W||400;
+  var pad=26,sc=Math.min((W-2*pad)/(hi-lo),(H-2*pad)/(hi-lo));
+  var ox=W/2, oy=H/2;
+  function px(x){return ox+x*sc;} function py(y){return oy-y*sc;}
+  return {px:px,py:py,sc:sc,lo:lo,hi:hi,
+    grid:function(){
+      for(var g=Math.ceil(lo);g<=hi;g++){
+        svg.appendChild(el("line",{x1:px(g),y1:py(hi),x2:px(g),y2:py(lo),stroke:"#f1f5f9"}));
+        svg.appendChild(el("line",{x1:px(lo),y1:py(g),x2:px(hi),y2:py(g),stroke:"#f1f5f9"}));
+      }
+      svg.appendChild(el("line",{x1:px(lo),y1:py(0),x2:px(hi),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+      svg.appendChild(el("line",{x1:px(0),y1:py(lo),x2:px(0),y2:py(hi),stroke:"#cbd5e1","stroke-width":1.5}));
+    },
+    yx:function(){svg.appendChild(el("line",{x1:px(lo),y1:py(lo),x2:px(hi),y2:py(hi),
+      stroke:"#7c3aed","stroke-width":2,"stroke-dasharray":"6 4"}));
+      txt(svg,px(hi)-8,py(hi)+16,"y = x",{size:11.5,anchor:"end",fill:"#7c3aed"});},
+    plot:function(fn,color,dom,w){
+      var pts=[],a=dom?dom[0]:lo,b=dom?dom[1]:hi;
+      for(var i=0;i<=320;i++){var x=a+(b-a)*i/320,y=fn(x);
+        if(isFinite(y)&&y>=lo-0.5&&y<=hi+0.5)pts.push(px(x)+","+py(y));
+        else if(pts.length){svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round"}));pts=[];}}
+      if(pts.length)svg.appendChild(el("polyline",{points:pts.join(" "),fill:"none",stroke:color,"stroke-width":w||2.6,"stroke-linejoin":"round"}));
+    },
+    dot:function(x,y,color,lab){
+      svg.appendChild(el("circle",{cx:px(x),cy:py(y),r:5,fill:color}));
+      if(lab)txt(svg,px(x)+10,py(y)-8,lab,{size:12,anchor:"start",fill:color});
+    },
+    seg:function(x1,y1,x2,y2,color,dash){
+      var o={x1:px(x1),y1:py(y1),x2:px(x2),y2:py(y2),stroke:color,"stroke-width":1.6};
+      if(dash)o["stroke-dasharray"]=dash;svg.appendChild(el("line",o));}
+  };
+}
+
+
+/* ── 화면1 : 자유낙하 vs 종단속도 ───────────────────────── */
+(function(){
+  var svg=document.getElementById("g1"),r=document.getElementById("t1"),
+      ro=document.getElementById("r1"),tv=document.getElementById("t1v");
+  var W=400,H=300,pad=42,TX=20,TY=200;
+  function px(t){return pad+t/TX*(W-pad-14);}
+  function py(v){return H-pad-v/TY*(H-pad-24);}
+  function v1(t){return 9.8*t;}
+  function v2(t){return 55*t/(t+5);}
+  function draw(){
+    clear(svg);
+    var t=+r.value;tv.textContent=num(t,1)+" 초";
+    for(var g=0;g<=TY;g+=25)
+      svg.appendChild(el("line",{x1:px(0),y1:py(g),x2:px(TX),y2:py(g),stroke:"#f1f5f9"}));
+    svg.appendChild(el("line",{x1:px(0),y1:py(0),x2:px(TX),y2:py(0),stroke:"#cbd5e1","stroke-width":1.5}));
+    svg.appendChild(el("line",{x1:px(0),y1:py(0),x2:px(0),y2:py(TY),stroke:"#cbd5e1","stroke-width":1.5}));
+    txt(svg,px(TX)-4,py(0)+18,"t (초)",{size:11,anchor:"end",fill:"#52525b"});
+    txt(svg,px(0)+4,py(TY)-6,"v (m/s)",{size:11,anchor:"start",fill:"#52525b"});
+    /* 종단속도 점근선 */
+    svg.appendChild(el("line",{x1:px(0),y1:py(55),x2:px(TX),y2:py(55),
+      stroke:"#e11d48","stroke-width":1.6,"stroke-dasharray":"6 4",opacity:".6"}));
+    txt(svg,px(TX)-4,py(55)-7,"v = 55 — 넘지 못하는 선",{size:10.5,anchor:"end",fill:"#e11d48"});
+    function line(f,color){
+      var p=[];
+      for(var i=0;i<=200;i++){var x=TX*i/200,y=f(x);
+        if(y<=TY)p.push(px(x)+","+py(y));}
+      svg.appendChild(el("polyline",{points:p.join(" "),fill:"none",stroke:color,"stroke-width":2.6,"stroke-linejoin":"round"}));
+    }
+    line(v1,"#2563eb");line(v2,"#e11d48");
+    txt(svg,px(17),py(v1(17))-9,"v = 9.8t",{size:11,fill:"#2563eb"});
+    txt(svg,px(15),py(v2(15))+18,"v = 55t/(t+5)",{size:11,fill:"#e11d48"});
+    if(t>0){
+      if(v1(t)<=TY){svg.appendChild(el("circle",{cx:px(t),cy:py(v1(t)),r:5,fill:"#2563eb"}));}
+      svg.appendChild(el("circle",{cx:px(t),cy:py(v2(t)),r:5,fill:"#e11d48"}));
+      svg.appendChild(el("line",{x1:px(t),y1:py(0),x2:px(t),y2:py(Math.min(v1(t),TY)),
+        stroke:"#94a3b8","stroke-width":1,"stroke-dasharray":"3 3"}));
+    }
+    ro.innerHTML="t = <b>"+num(t,1)+"</b> 초<br><br>"+
+      "공기저항 없음 &nbsp;v = <b>"+num(v1(t),1)+"</b> m/s<br>"+
+      "종단속도 모델 &nbsp;v = <b>"+num(v2(t),1)+"</b> m/s<br><br>"+
+      (t>=18?"<span class='hint'>파란 선은 계속 올라가지만, 붉은 곡선은 <b>55 에 가까워지기만</b> 합니다.</span>":
+       t>=8?"<span class='hint'>붉은 곡선의 기울기가 점점 완만해집니다.</span>":
+       "<span class='hint'>슬라이더를 끝까지 밀어 보세요.</span>");
+  }
+  r.addEventListener("input",draw);draw();
+})();
+
+/* ── 화면2 : 유리식·무리식 분류 ──────────────────────────── */
+(function(){
+  var box=document.getElementById("b2"),cbox=document.getElementById("b2c"),
+      ro=document.getElementById("r2"),win=document.getElementById("w2");
+  var CATS=["다항식","다항식이 아닌 유리식","무리식"];
+  var ITEMS=[
+    {t:"2x + 3",c:0,why:"분모가 1(없음)인 <b>다항식</b>. 물론 유리식이기도 합니다."},
+    {t:"3/(x+1)",c:1,why:"분모에 <b>문자</b>가 있으니 다항식이 아닌 <b>유리식</b>."},
+    {t:"(x² − 1)/2",c:0,why:"분모가 <b>상수 2</b> 입니다. 문자가 없으니 그냥 <b>다항식</b>."},
+    {t:"√x",c:2,why:"문자가 <b>근호 안</b>에 있으니 <b>무리식</b>."},
+    {t:"√3 · x",c:0,why:"근호 안에 있는 건 <b>숫자 3</b> 뿐, 문자 x 는 밖에 있습니다. 계수가 무리수인 <b>다항식</b>."},
+    {t:"1/√x",c:2,why:"분모의 근호 안에 문자가 있습니다. <b>무리식</b>."},
+    {t:"(x + 1)/x",c:1,why:"분모에 문자 x 가 있으니 <b>유리식</b>."},
+    {t:"x/√2",c:0,why:"분모가 <b>상수 √2</b> 입니다. 유리화하면 (√2/2)x — 계수만 무리수인 <b>다항식</b>."}
+  ];
+  var pick=null,done={},bs=[];
+  ITEMS.forEach(function(it,i){
+    var b=document.createElement("button");b.className="rb";b.innerHTML=it.t;
+    b.onclick=function(){pick=i;bs.forEach(function(x,j){x.className="rb"+(done[j]?" on":"");});
+      b.className="rb on";ro.innerHTML="<b>"+it.t+"</b> &nbsp;— 어디에 들어갈까요?";cbox.style.display="flex";};
+    box.appendChild(b);bs.push(b);
+  });
+  CATS.forEach(function(c,k){
+    var b=document.createElement("button");b.className="rb";b.textContent=c;
+    b.onclick=function(){
+      if(pick===null){ro.textContent="먼저 식을 하나 고르세요.";return;}
+      var it=ITEMS[pick];
+      if(k===it.c){done[pick]=1;bs[pick].className="rb on";
+        ro.innerHTML="✅ <b>"+it.t+"</b> → "+CATS[it.c]+"<br><br>"+it.why;
+        if(Object.keys(done).length===ITEMS.length)win.classList.add("on");}
+      else ro.innerHTML="❌ 다시 — <b>"+it.t+"</b> 에서 <b>문자</b>가 어디에 있는지 보세요. (분모? 근호 안?)";
+    };
+    cbox.appendChild(b);
+  });
+  cbox.style.display="none";
+})();
+
+/* ── 화면3 : f 와 g 는 같은 함수인가 ─────────────────────── */
+(function(){
+  var box=document.getElementById("bSame"),ro=document.getElementById("rSame");
+  if(!box)return;
+  [0,1,2,3].forEach(function(x){
+    var b=document.createElement("button");b.className="rb";b.textContent="x = "+x;
+    b.onclick=function(){
+      [].slice.call(box.children).forEach(function(e){e.className="rb";});b.className="rb on";
+      var g=x+1;
+      if(x===1) ro.innerHTML="<b>x = 1</b><br><br>f(1) = (1−1)/(1−1) = <b style='color:#e11d48'>0/0 — 계산할 수 없음</b><br>"+
+        "g(1) = <b>2</b><br><br>❗ <b>여기서 갈라집니다.</b>";
+      else ro.innerHTML="<b>x = "+x+"</b><br><br>f("+x+") = ("+(x*x)+"−1)/("+x+"−1) = <b>"+g+"</b><br>"+
+        "g("+x+") = <b>"+g+"</b><br><br>✅ 값이 같습니다.";
+    };
+    box.appendChild(b);
+  });
+})();
+
+/* ── 화면4 : 유리식의 계산 ───────────────────────────────── */
+(function(){
+  var box=document.getElementById("b4"),card=document.getElementById("c4");
+  var P=[
+    {n:"(1)",cond:"x ≠ 0, −2",q:"2/(x+2) + 1/x",steps:[
+      "분모가 x+2 와 x → 공통분모는 x(x+2)",
+      "= 2x/(x(x+2)) + (x+2)/(x(x+2))",
+      "= (2x + x + 2)/(x(x+2))"],a:"(3x + 2) / (x(x+2))",
+      tip:"학습지에 풀이가 있는 문항. 통분의 기본형입니다."},
+    {n:"(2)",cond:"x ≠ 1, −2, −1/3",q:"(3x+1)/(x²+x−2) × (x+2)/(6x+2)",steps:[
+      "인수분해: x²+x−2 = (x+2)(x−1),  6x+2 = 2(3x+1)",
+      "= (3x+1)/((x+2)(x−1)) × (x+2)/(2(3x+1))",
+      "3x+1 끼리, x+2 끼리 약분"],a:"1 / (2(x−1))",
+      tip:"곱셈은 <b>인수분해 먼저</b>, 그러면 약분할 짝이 보입니다."},
+    {n:"(3)",cond:"x ≠ 2, −2",q:"1/(x−2) − 1/(x+2)",steps:[
+      "공통분모 (x−2)(x+2)",
+      "= ((x+2) − (x−2)) / ((x−2)(x+2))",
+      "= 4 / ((x−2)(x+2))"],a:"4 / (x² − 4)",
+      tip:"분자에서 <b>괄호를 꼭</b> 쓰세요. 빼기라서 부호가 뒤집힙니다."},
+    {n:"(4)",cond:"x ≠ 1, −1",q:"(x−1)/(x³+1) ÷ (x²−1)/(x²−x+1)",steps:[
+      "x³+1 = (x+1)(x²−x+1),  x²−1 = (x+1)(x−1)",
+      "나눗셈 → 역수를 곱하기",
+      "= (x−1)/((x+1)(x²−x+1)) × (x²−x+1)/((x+1)(x−1))",
+      "x−1 끼리, x²−x+1 끼리 약분"],a:"1 / (x+1)²",
+      tip:"세제곱의 합 <b>a³+b³ = (a+b)(a²−ab+b²)</b> 이 열쇠입니다."},
+    {n:"(5)",cond:"x ≠ 3, −1",q:"x/(x−3) − (x+3)/(x+1)",steps:[
+      "공통분모 (x−3)(x+1)",
+      "분자 = x(x+1) − (x+3)(x−3) = (x² + x) − (x² − 9)",
+      "= x + 9"],a:"(x + 9) / ((x−3)(x+1))  =  (x + 9) / (x² − 2x − 3)",
+      tip:"(x+3)(x−3) = x² − 9 — 곱셈공식으로 한 번에."},
+    {n:"(6)",cond:"x ≠ −3, 1, 2",q:"(x−2)/(x+3) ÷ (x−2)/(x²+2x−3)",steps:[
+      "x²+2x−3 = (x+3)(x−1)",
+      "= (x−2)/(x+3) × (x+3)(x−1)/(x−2)",
+      "x−2 끼리, x+3 끼리 모두 약분"],a:"x − 1",
+      tip:"답이 <b>다항식</b>이 되었습니다. 다항식도 유리식이니 이상할 게 없죠."}
+  ];
+  var bs=[];
+  P.forEach(function(p,i){
+    var b=document.createElement("button");b.className="rb";b.textContent=p.n;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
+    box.appendChild(b);bs.push(b);
+  });
+  function show(p){
+    var h="<div class='formula'><span class='mono'>"+p.n+" &nbsp;"+p.q+"</span></div>"+
+      "<div class='steps3'>";
+    p.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
+    h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'>= <b class='mono'>"+p.a+"</b>"+
+      "<div style='font-size:13.5px;margin-top:6px;color:#92400e'>단, <b class='mono'>"+p.cond+"</b></div></div>"+
+      "<p class='hint' style='margin:6px 0 0'>💡 "+p.tip+"</p>";
+    card.innerHTML=h;
+  }
+  card.innerHTML="<p class='hint' style='margin:0'>번호를 눌러 풀이를 확인하세요.</p>";
+})();
+
+/* ── 화면5 : 무리식의 계산 ───────────────────────────────── */
+(function(){
+  var box=document.getElementById("b5"),card=document.getElementById("c5");
+  var P=[
+    {n:"(7)",cond:"x ≥ 1",q:"(√(x+2) − √(x−1))(√(x+2) + √(x−1))",steps:[
+      "꼴이 (√A − √B)(√A + √B), A = x+2, B = x−1",
+      "= A − B = (x+2) − (x−1)"],a:"3",
+      tip:"문자가 <b>완전히 사라졌습니다.</b> 값이 x 에 관계없이 3."},
+    {n:"(8)",cond:"x ≥ 0, x ≠ 1",q:"1/(1+√x) + 1/(1−√x)",steps:[
+      "공통분모 (1+√x)(1−√x) = 1 − x",
+      "분자 = (1−√x) + (1+√x) = 2"],a:"2 / (1 − x)",
+      tip:"분모끼리 곱하는 순간 근호가 사라집니다. (x ≥ 0, x ≠ 1)"},
+    {n:"(9)",cond:"x ≥ −2",q:"(√(x+2) + 1)(√(x+2) − 1)",steps:[
+      "A = x+2, B = 1 로 보면 (√A + √B)(√A − √B)",
+      "= (x+2) − 1"],a:"x + 1",
+      tip:"1 = √1 로 보면 됩니다. 같은 공식."},
+    {n:"(10)",cond:"x ≥ 0, x ≠ 1",q:"(√x+1)/(√x−1) + (√x−1)/(√x+1)",steps:[
+      "공통분모 (√x−1)(√x+1) = x − 1",
+      "분자 = (√x+1)² + (√x−1)²",
+      "= (x + 2√x + 1) + (x − 2√x + 1) = 2x + 2"],a:"(2x + 2) / (x − 1)",
+      tip:"가운데 <b>2√x 가 서로 지워집니다.</b> 그래서 근호가 남지 않죠."},
+    {n:"(11)",cond:"x ≥ 0",q:"(√x + √(x+4))(√x − √(x+4))",steps:[
+      "A = x, B = x+4",
+      "= x − (x+4)"],a:"−4",
+      tip:"순서가 (√A + √B)(√A − √B) 이므로 <b>A − B</b>. 부호 조심."},
+    {n:"(12)",cond:"x ≥ 0, x ≠ 9",q:"(√x−3)/(√x+3) + (√x+3)/(√x−3)",steps:[
+      "공통분모 (√x+3)(√x−3) = x − 9",
+      "분자 = (√x−3)² + (√x+3)²",
+      "= (x − 6√x + 9) + (x + 6√x + 9) = 2x + 18"],a:"(2x + 18) / (x − 9)",
+      tip:"(10) 과 완전히 같은 구조입니다. 숫자만 1 → 3 으로."}
+  ];
+  var bs=[];
+  P.forEach(function(p){
+    var b=document.createElement("button");b.className="rb";b.textContent=p.n;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
+    box.appendChild(b);bs.push(b);
+  });
+  function show(p){
+    var h="<div class='formula'><span class='mono'>"+p.n+" &nbsp;"+p.q+"</span></div><div class='steps3'>";
+    p.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
+    h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'>= <b class='mono'>"+p.a+"</b>"+
+      "<div style='font-size:13.5px;margin-top:6px;color:#92400e'>단, <b class='mono'>"+p.cond+"</b></div></div>"+
+      "<p class='hint' style='margin:6px 0 0'>💡 "+p.tip+"</p>";
+    card.innerHTML=h;
+  }
+  card.innerHTML="<p class='hint' style='margin:0'>번호를 눌러 풀이를 확인하세요.</p>";
+})();
+
+/* ── 화면6 : 함수 판정 ──────────────────────────────────── */
+(function(){
+  var box=document.getElementById("b6"),cbox=document.getElementById("b6c"),
+      ro=document.getElementById("r6"),win=document.getElementById("w6");
+  var CATS=["다항함수","다항함수가 아닌 유리함수","무리함수"];
+  var ITEMS=[
+    {t:"y = x² − 3x",c:0,d:"실수 전체",why:"분모도 근호도 없습니다. <b>다항함수</b>이고, 동시에 유리함수."},
+    {t:"y = 1/x",c:1,d:"{ x | x ≠ 0 }",why:"분모가 x → 0 을 뺍니다."},
+    {t:"y = √(x+1)",c:2,d:"{ x | x ≥ −1 }",why:"근호 안 x+1 ≥ 0."},
+    {t:"y = (2x−1)/(x+1)",c:1,d:"{ x | x ≠ −1 }",why:"분모 x+1 ≠ 0."},
+    {t:"y = 5",c:0,d:"실수 전체",why:"상수함수도 <b>다항함수</b>입니다. (0차)"},
+    {t:"y = 2x + √(3x−1)",c:2,d:"{ x | x ≥ 1/3 }",why:"근호 안 3x−1 ≥ 0. 앞의 2x 는 상관없습니다."}
+  ];
+  var pick=null,done={},bs=[];
+  ITEMS.forEach(function(it,i){
+    var b=document.createElement("button");b.className="rb";b.innerHTML=it.t;
+    b.onclick=function(){pick=i;bs.forEach(function(x,j){x.className="rb"+(done[j]?" on":"");});
+      b.className="rb on";ro.innerHTML="<b>"+it.t+"</b> &nbsp;— 어떤 함수일까요?";cbox.style.display="flex";};
+    box.appendChild(b);bs.push(b);
+  });
+  CATS.forEach(function(c,k){
+    var b=document.createElement("button");b.className="rb";b.textContent=c;
+    b.onclick=function(){
+      if(pick===null){ro.textContent="먼저 함수를 하나 고르세요.";return;}
+      var it=ITEMS[pick];
+      if(k===it.c){done[pick]=1;bs[pick].className="rb on";
+        ro.innerHTML="✅ <b>"+it.t+"</b> → "+CATS[it.c]+"<br>정의역 <b>"+it.d+"</b><br><br>"+it.why;
+        if(Object.keys(done).length===ITEMS.length)win.classList.add("on");}
+      else ro.innerHTML="❌ 다시 — 분모에 문자가 있나요? 근호 안에 문자가 있나요?";
+    };
+    cbox.appendChild(b);
+  });
+  cbox.style.display="none";
+})();
+
+/* ── 화면7 : 정의역 수직선 ──────────────────────────────── */
+(function(){
+  var box=document.getElementById("b7"),svg=document.getElementById("g7"),card=document.getElementById("c7");
+  var LO=-4,HI=4,W=400,H=120,pad=26;
+  function px(x){return pad+(x-LO)/(HI-LO)*(W-2*pad);}
+  var AY=62;
+  var P=[
+    {n:"(1)",cond:"x ≠ 0, −2",q:"y = 3/(x−1)",kind:"hole",hole:[[1,"1"]],
+      a:"{ x | x ≠ 1 }",why:"분모 x−1 ≠ 0 → x ≠ 1."},
+    {n:"(2)",cond:"x ≠ 1, −2, −1/3",q:"y = 3x/(3x+1)",kind:"hole",hole:[[-1/3,"−1/3"]],
+      a:"{ x | x ≠ −1/3 }",why:"분모 3x+1 ≠ 0 → x ≠ −1/3. <b>분자의 3x 는 아무 상관 없습니다.</b>"},
+    {n:"(3)",cond:"x ≠ 2, −2",q:"y = 2x + 1 − (x+1)/(x²−1)",kind:"hole",hole:[[-1,"−1"],[1,"1"]],
+      a:"{ x | x ≠ −1 이고 x ≠ 1 }",
+      why:"⚠️ 약분하면 1/(x−1) 이 되지만, <b>약분하기 전</b> 분모가 x²−1 = (x+1)(x−1) 이었습니다. <b>둘 다</b> 빼야 합니다."},
+    {n:"(4)",cond:"x ≠ 1, −1",q:"y = √x",kind:"ray",at:0,dir:1,closed:true,
+      a:"{ x | x ≥ 0 }",why:"근호 안 x ≥ 0. 등호가 <b>있습니다</b> (√0 = 0 은 실수)."},
+    {n:"(5)",cond:"x ≠ 3, −1",q:"y = √(2−x)",kind:"ray",at:2,dir:-1,closed:true,
+      a:"{ x | x ≤ 2 }",why:"2−x ≥ 0 → x ≤ 2. <b>부등호 방향이 뒤집힙니다.</b>"},
+    {n:"(6)",cond:"x ≠ −3, 1, 2",q:"y = 2/√(x−1)",kind:"ray",at:1,dir:1,closed:false,
+      a:"{ x | x > 1 }",why:"근호가 <b>분모</b>에 있습니다. x−1 ≥ 0 이면서 √(x−1) ≠ 0 → <b>x−1 > 0</b>. 등호가 사라집니다."}
+  ];
+  function axis(){
+    clear(svg);
+    svg.appendChild(el("line",{x1:px(LO),y1:AY,x2:px(HI),y2:AY,stroke:"#94a3b8","stroke-width":1.6}));
+    for(var g=LO;g<=HI;g++){
+      svg.appendChild(el("line",{x1:px(g),y1:AY-5,x2:px(g),y2:AY+5,stroke:"#94a3b8"}));
+      txt(svg,px(g),AY+22,String(g),{size:11,weight:400,fill:"#52525b"});
+    }
+    txt(svg,px(HI),AY-14,"x",{size:11,fill:"#52525b"});
+  }
+  function show(p){
+    axis();
+    if(p.kind==="hole"){
+      svg.appendChild(el("line",{x1:px(LO)+2,y1:AY,x2:px(HI)-2,y2:AY,
+        stroke:"#2563eb","stroke-width":5,opacity:".85"}));
+      p.hole.forEach(function(h){
+        svg.appendChild(el("circle",{cx:px(h[0]),cy:AY,r:5.5,fill:"#fff",stroke:"#e11d48","stroke-width":2.4}));
+        txt(svg,px(h[0]),AY-14,h[1],{size:11.5,fill:"#e11d48"});
+      });
+      txt(svg,px(0),18,"뚫린 점을 뺀 실수 전체",{size:11.5,fill:"#2563eb"});
+    }else{
+      var a=p.dir>0?p.at:LO, b=p.dir>0?HI:p.at;
+      svg.appendChild(el("line",{x1:px(a),y1:AY,x2:px(b)+(p.dir>0?-2:0),y2:AY,
+        stroke:"#2563eb","stroke-width":5,opacity:".85"}));
+      svg.appendChild(el("circle",{cx:px(p.at),cy:AY,r:5.5,
+        fill:p.closed?"#2563eb":"#fff",stroke:"#2563eb","stroke-width":2.4}));
+      txt(svg,px(p.at),AY-14,String(p.at),{size:11.5,fill:"#2563eb"});
+      txt(svg,px(0),18,p.closed?"● 채운 점 — 등호 포함":"○ 빈 점 — 등호 없음",
+        {size:11.5,fill:p.closed?"#2563eb":"#e11d48"});
+    }
+    card.innerHTML="<div class='formula' style='margin:0 0 8px'><span class='mono'>"+p.n+" &nbsp;"+p.q+"</span></div>"+
+      "<div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe;margin:0'>정의역 = <b class='mono'>"+p.a+"</b></div>"+
+      "<p class='hint' style='margin:8px 0 0'>"+p.why+"</p>";
+  }
+  var bs=[];
+  P.forEach(function(p){
+    var b=document.createElement("button");b.className="rb";b.textContent=p.n;
+    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
+    box.appendChild(b);bs.push(b);
+  });
+  axis();
+  card.innerHTML="<p class='hint' style='margin:0'>학습지에 먼저 풀고, 번호를 눌러 확인하세요.</p>";
+})();
+
+/* ── 정답 밝히기 ─────────────────────────────────────── */
+[].slice.call(document.querySelectorAll("button.reveal[data-a]")).forEach(function(b){
+  b.onclick=function(){b.textContent=b.getAttribute("data-a");
+    b.style.color="#2563eb";b.style.fontWeight="700";};
+});
+[["rv1","an1"],["rv2","an2"],["rv5","an5"],["rvE","anE"],["rvSame","anSame"]].forEach(function(p){
+  var b=document.getElementById(p[0]),a=document.getElementById(p[1]);
+  if(b&&a)b.onclick=function(){a.classList.toggle("on");
+    b.textContent=a.classList.contains("on")?"접기":"다시 열기";};
+});
+})();
+</script>

@@ -10,6 +10,7 @@ export default async function TeacherUnitDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const me = (await supabase.auth.getUser()).data.user?.id ?? "";
   const { data: unit } = await supabase
     .from("units")
     .select("*")
@@ -28,6 +29,7 @@ export default async function TeacherUnitDetailPage({
       .from("profiles")
       .select("class_no")
       .eq("role", "student")
+        .eq("teacher_id", me) // 내 학생만 (관리자도 — 다른 교사 학급이 섞이지 않게)
       .eq("grade", unit.grade),
   ]);
 

@@ -4,6 +4,7 @@ import ProgressBoard, { type BoardData } from "@/components/teacher/progress-boa
 // 진도 현황: 반 × 활동 완료율 (권한 가드는 teacher layout이 처리)
 export default async function TeacherProgressPage() {
   const supabase = await createClient();
+  const me = (await supabase.auth.getUser()).data.user?.id ?? "";
 
   const [subjectsRes, unitsRes, activitiesRes, studentsRes, progressRes] =
     await Promise.all([
@@ -17,7 +18,8 @@ export default async function TeacherProgressPage() {
       supabase
         .from("profiles")
         .select("id, grade, class_no")
-        .eq("role", "student"),
+        .eq("role", "student")
+        .eq("teacher_id", me), // 내 학생만 (관리자도 — 다른 교사 학급이 섞이지 않게)
       supabase.from("progress").select("student_id, activity_id, completed"),
     ]);
 

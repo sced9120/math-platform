@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { isSignupOpen } from "@/lib/site-settings";
+import SignupToggle from "@/components/teacher/signup-toggle";
 import TeachersManager, {
   type TeacherRow,
 } from "@/components/teacher/teachers-manager";
@@ -11,11 +13,19 @@ export default async function TeachersPage() {
   if (profile.role !== "admin") redirect("/teacher");
 
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("profiles")
-    .select("id, name, must_change_password, created_at")
-    .eq("role", "teacher")
-    .order("created_at");
+  const [{ data }, openSignup] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, name, must_change_password, created_at")
+      .eq("role", "teacher")
+      .order("created_at"),
+    isSignupOpen(),
+  ]);
 
-  return <TeachersManager initialTeachers={(data as TeacherRow[]) ?? []} />;
+  return (
+    <>
+      <SignupToggle initialOpen={openSignup} />
+      <TeachersManager initialTeachers={(data as TeacherRow[]) ?? []} />
+    </>
+  );
 }

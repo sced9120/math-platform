@@ -63,6 +63,16 @@ export default async function TeacherPage() {
         </Link>
 
         <Link
+          href="/teacher/hands-on"
+          className="rounded-xl border border-blue-200 bg-white p-6 shadow-sm hover:border-blue-400"
+        >
+          <h3 className="mb-1 font-semibold text-zinc-900">🖐 만져보는 수학</h3>
+          <p className="text-sm text-zinc-500">
+            바로 쓰는 조작 자료 · 링크만 나눠 주거나(기록 없음) 내 소단원에 활동 한 화면으로 추가
+          </p>
+        </Link>
+
+        <Link
           href="/teacher/export"
           className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-blue-400"
         >

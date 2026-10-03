@@ -41,6 +41,7 @@ export default async function SubmissionsPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const me = (await supabase.auth.getUser()).data.user?.id ?? "";
 
   const { data: activity } = await supabase
     .from("activities")
@@ -62,6 +63,7 @@ export default async function SubmissionsPage({
     .from("profiles")
     .select("id, grade, class_no, student_no, name")
     .eq("role", "student")
+        .eq("teacher_id", me) // 내 학생만 (관리자도 — 다른 교사 학급이 섞이지 않게)
     .eq("grade", activity.units.grade);
   if (activity.assigned_classes !== null) {
     studentQuery = studentQuery.in("class_no", activity.assigned_classes);

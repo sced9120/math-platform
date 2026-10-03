@@ -21,7 +21,7 @@ export default async function TeacherLayout({
             수학 학습 플랫폼{" "}
             <span className="text-blue-600">{admin ? "관리자" : "교사"}</span>
           </Link>
-          <nav className="flex gap-4 text-sm text-zinc-600">
+          <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-600">
             <Link href="/teacher/students" className="hover:text-zinc-900">
               학생 관리
             </Link>
@@ -36,6 +36,9 @@ export default async function TeacherLayout({
             </Link>
             <Link href="/teacher/export" className="hover:text-zinc-900">
               기록 다운로드
+            </Link>
+            <Link href="/teacher/hands-on" className="hover:text-zinc-900">
+              🖐 만져보는 수학
             </Link>
             {admin && (
               <>

@@ -11,6 +11,8 @@ export type Profile = {
   name: string;
   role: Role;
   must_change_password: boolean;
+  teacher_id?: string | null; // 학생의 담당 교사
+  class_code?: string | null; // 교사의 학급 코드 (0016 이후)
 };
 
 // admin은 교사 기능을 모두 포함한다

@@ -19,7 +19,7 @@ export default function PromptsManager() {
   const [error, setError] = useState<string | null>(null);
 
   async function load() {
-    const res = await fetch("/api/admin/prompts");
+    const res = await fetch("/api/teacher/prompts");
     const data = await res.json().catch(() => null);
     if (!res.ok) {
       setError(data?.error ?? "불러오지 못했습니다.");
@@ -41,7 +41,7 @@ export default function PromptsManager() {
     setBusy(key);
     setError(null);
     setNotice((n) => ({ ...n, [key]: "" }));
-    const res = await fetch("/api/admin/prompts", {
+    const res = await fetch("/api/teacher/prompts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key, content: drafts[key] }),
@@ -59,7 +59,7 @@ export default function PromptsManager() {
   async function restore(key: string) {
     if (!confirm("이 프롬프트를 기본값으로 되돌릴까요? 수정한 내용은 사라집니다.")) return;
     setBusy(key);
-    const res = await fetch("/api/admin/prompts", {
+    const res = await fetch("/api/teacher/prompts", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key }),
@@ -79,10 +79,10 @@ export default function PromptsManager() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-lg font-semibold text-zinc-900">AI 프롬프트 관리</h2>
+        <h2 className="text-lg font-semibold text-zinc-900">내 AI 프롬프트</h2>
         <p className="mt-1 text-sm text-zinc-500">
-          AI의 성격·규칙을 코드 수정 없이 여기서 바꿀 수 있습니다. 저장하면 다음
-          응답부터 적용됩니다.
+          <b>내 학생</b>이 쓰는 문답·첨삭 AI 의 성격·규칙입니다. 다른 선생님의 학생에게는
+          영향이 없습니다. 저장하면 다음 응답부터 적용됩니다. (고치지 않으면 기본 프롬프트)
         </p>
       </div>
 

@@ -12,13 +12,13 @@ export type AiModel = {
   sort_order: number;
 };
 
-// 관리자가 모델을 하나도 안 넣었을 때 쓰는 기본 목록 (OpenAI 키만 있으면 바로 동작)
+// 교사가 모델을 하나도 안 넣었을 때 쓰는 기본 목록 (그 교사의 OpenAI 키만 있으면 바로 동작)
 export const DEFAULT_MODELS: Omit<AiModel, "id">[] = [
   { provider: "openai", model_id: "gpt-5-mini", label: "GPT-5 mini (빠름·저렴)", enabled: true, sort_order: 0 },
   { provider: "openai", model_id: "gpt-5", label: "GPT-5 (정확)", enabled: true, sort_order: 1 },
 ];
 
-// 제공자별 메타: 키 발급 도움말 + 공식 모델 문서 링크 (관리자 화면에 노출)
+// 제공자별 메타: 키 발급 도움말 + 공식 모델 문서 링크 (교사 AI 설정 화면에 노출)
 export const PROVIDER_META: Record<
   Provider,
   { label: string; keyName: string; keyHelpUrl: string; modelDocUrl: string; help: string }
@@ -48,34 +48,34 @@ export const PROVIDER_META: Record<
 
 export const PROVIDERS = Object.keys(PROVIDER_META) as Provider[];
 
-// provider별 API 키: DB(ai_secrets) 우선, 없으면 환경변수
-const ENV_KEY: Record<Provider, string | undefined> = {
-  openai: process.env.OPENAI_API_KEY,
-  gemini: process.env.GEMINI_API_KEY,
-  anthropic: process.env.ANTHROPIC_API_KEY,
-};
+// ── 교사별 AI 설정 (0017) ──────────────────────────────────────────
+// 키·모델은 교사마다 따로다. ownerId = 이 요청의 AI 설정 주인
+//   학생 요청 → 담당 교사, 교사 요청(조작 활동 만들기·테스트) → 본인
+// 서버 환경변수 키로 대신 쓰지 않는다 — 모르는 교사의 학생이
+// 사이트 운영자의 키를 쓰게 되는 것을 막기 위해서다.
 
-export async function getApiKey(provider: Provider): Promise<string | null> {
+export async function getApiKey(provider: Provider, ownerId: string): Promise<string | null> {
   try {
     const { data } = await createAdminClient()
       .from("ai_secrets")
       .select("api_key")
+      .eq("owner_id", ownerId)
       .eq("provider", provider)
       .maybeSingle();
     const key = (data?.api_key as string | undefined)?.trim();
-    if (key) return key;
+    return key || null;
   } catch {
-    // 테이블 미생성 등 → 환경변수로 폴백
+    return null;
   }
-  return ENV_KEY[provider] ?? null;
 }
 
-// 활성 모델 목록 (관리자 미설정 시 기본 목록). 학생 선택지로 사용.
-export async function getEnabledModels(): Promise<Omit<AiModel, "id">[]> {
+// 켜 둔 모델 목록 (하나도 없으면 기본 목록 — 그래도 그 제공자의 키는 있어야 돈다)
+export async function getEnabledModels(ownerId: string): Promise<Omit<AiModel, "id">[]> {
   try {
     const { data } = await createAdminClient()
       .from("ai_models")
       .select("provider, model_id, label, enabled, sort_order")
+      .eq("owner_id", ownerId)
       .eq("enabled", true)
       .order("sort_order");
     const rows = (data as Omit<AiModel, "id">[] | null) ?? [];
@@ -86,11 +86,12 @@ export async function getEnabledModels(): Promise<Omit<AiModel, "id">[]> {
   return DEFAULT_MODELS;
 }
 
-// 학생이 보낸 model_id가 실제 활성 모델인지 검증하고 provider를 반환
+// 학생이 보낸 model_id가 그 교사의 활성 모델인지 검증하고 provider를 반환
 export async function resolveModel(
-  modelId: string | undefined
+  modelId: string | undefined,
+  ownerId: string
 ): Promise<{ provider: Provider; model_id: string } | null> {
-  const models = await getEnabledModels();
+  const models = await getEnabledModels(ownerId);
   const picked = modelId
     ? models.find((m) => m.model_id === modelId)
     : models[0]; // 미선택 시 첫 번째(기본)

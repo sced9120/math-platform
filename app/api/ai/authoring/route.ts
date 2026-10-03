@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { askAuthoring, validateChatHistory } from "@/lib/ai/authoring";
-import { resolveModel } from "@/lib/ai/models";
-import { consumeQuota, isGuardError, requireAiUser } from "@/lib/ai/server";
+import { consumeQuota, isGuardError, pickModel, requireAiUser } from "@/lib/ai/server";
 
 // 활동 하나를 만드는 데 20~35초쯤 걸린다(실측). 기본 제한(10~15초)으로는 잘려
 // 클라이언트가 504 HTML 을 받고 "네트워크 오류"로 보인다. 넉넉히 늘린다.
@@ -12,6 +11,7 @@ export const maxDuration = 120;
 //
 // 학생용 기능과 다른 점
 //   · 교사(admin 포함)만 쓸 수 있다. 학생이 호출하면 403.
+//   · 교사 "본인"의 API 키·모델·한도를 쓴다 (0017 — 교사별 AI 설정).
 //   · 대화는 캐싱하지 않는다 — 매 턴 맥락이 달라 적중이 없고, 대화를 DB 에 남기지 않는다.
 //   · 그래도 일일 한도는 건다. 실수로 반복 호출되는 것을 막기 위해서다.
 export async function POST(request: Request) {
@@ -35,19 +35,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
   }
 
-  const picked = await resolveModel(body?.model);
-  if (!picked) {
-    return NextResponse.json(
-      { error: "사용 가능한 AI 모델이 없습니다. AI 설정에서 모델을 켜 주세요." },
-      { status: 503 }
-    );
+  // 교사 본인의 모델·키 (guard.ownerId = 본인)
+  const call = await pickModel(body?.model, guard);
+  if (isGuardError(call)) {
+    return NextResponse.json({ error: call.error, code: call.code }, { status: call.status });
   }
 
   // consumeQuota 는 DB 오류를 그대로 던진다. 감싸지 않으면 500 HTML 이 나가
   // 클라이언트가 이유를 볼 수 없다(실제로 그렇게 막혔다).
   let remaining: number | null;
   try {
-    remaining = await consumeQuota(guard.userId, "authoring");
+    remaining = await consumeQuota(guard.userId, "authoring", guard.ownerId);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return NextResponse.json(
@@ -67,10 +65,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const reply = await askAuthoring(
-      { provider: picked.provider, model: picked.model_id },
-      messages
-    );
+    const reply = await askAuthoring(call, messages);
     return NextResponse.json({ reply, remaining });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "AI 호출에 실패했습니다.";

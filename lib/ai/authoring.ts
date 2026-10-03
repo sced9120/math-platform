@@ -108,7 +108,7 @@ ${SAMPLE_SCREEN}
 - 고쳐 달라고 하면 **전체 HTML 을 다시** 냅니다. 조각만 주지 않습니다(교사가 통째로 복사하기 때문).
 - 수업에서 어떻게 쓸지 한 줄 곁들이면 좋습니다.`;
 
-export type AuthoringCall = { provider: Provider; model: string };
+export type AuthoringCall = { provider: Provider; model: string; ownerId: string };
 
 export function validateChatHistory(v: unknown): ChatMessage[] | null {
   if (!Array.isArray(v) || v.length === 0 || v.length > 40) return null;

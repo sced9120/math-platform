@@ -33,13 +33,15 @@ async function requireTeacher() {
 }
 
 // 이 교사의 학생 로그인에 붙일 학급 코드.
-//  - 관리자(사이트 운영자)의 학생은 코드 없이 학번만 쓴다 (예전 그대로)
+//  - 관리자의 학생, 그리고 관리자에게서 학생을 넘겨받은 교사(class_code = '')의 학생은
+//    코드 없이 학번만 쓴다 (예전 그대로)
 //  - 그 밖의 교사는 코드가 필요하다. 없으면(0016 이전에 만든 교사 등) 지금 만들어 준다.
 async function classCodeFor(
   admin: ReturnType<typeof createAdminClient>,
   actor: { user: { id: string }; role: "teacher" | "admin"; classCode: string | null }
 ): Promise<string | null> {
   if (actor.role === "admin") return null;
+  if (actor.classCode === "") return null; // 코드 없는 학급
   if (actor.classCode) return actor.classCode;
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = generateClassCode();

@@ -1,9 +1,6 @@
 import "server-only";
-import { callChatJson, callChatJsonWithImages } from "@/lib/ai/provider";
+import { callChatJson, callChatJsonWithImages, type Call } from "@/lib/ai/provider";
 import { getSystemPrompt } from "@/lib/ai/prompts";
-import type { Provider } from "@/lib/ai/models";
-
-type Call = { provider: Provider; model: string };
 
 // 문제풀이 첨삭 — 두 가지 모드
 //  - correction: 단계별 오류 판정 (docs/03_AI_FEATURES.md 골격)
@@ -90,10 +87,10 @@ const SOCRATIC_SCHEMA = {
 // ---------- 진입점 ----------
 
 // 모드별 시스템 프롬프트(DB override or 기본값) + JSON 스키마
-async function config(mode: FeedbackMode) {
+async function config(mode: FeedbackMode, ownerId: string) {
   return mode === "socratic"
-    ? { system: await getSystemPrompt("feedback_socratic"), schema: SOCRATIC_SCHEMA }
-    : { system: await getSystemPrompt("feedback_correction"), schema: CORRECTION_SCHEMA };
+    ? { system: await getSystemPrompt("feedback_socratic", ownerId), schema: SOCRATIC_SCHEMA }
+    : { system: await getSystemPrompt("feedback_correction", ownerId), schema: CORRECTION_SCHEMA };
 }
 
 // 텍스트 풀이 첨삭
@@ -103,7 +100,7 @@ export async function reviewSolutionText(params: {
   question: string;
   solution: string;
 }): Promise<CorrectionResult | SocraticResult> {
-  const { system, schema } = await config(params.mode);
+  const { system, schema } = await config(params.mode, params.call.ownerId);
   return callChatJson(params.call, {
     system,
     messages: [
@@ -123,7 +120,7 @@ export async function reviewSolutionImages(params: {
   question: string;
   images: string[];
 }): Promise<CorrectionResult | SocraticResult> {
-  const { system, schema } = await config(params.mode);
+  const { system, schema } = await config(params.mode, params.call.ownerId);
   return callChatJsonWithImages(params.call, {
     system,
     text: `[문제]\n${params.question}\n\n[학생 풀이] — 아래 이미지는 학생이 손으로 쓴 풀이입니다. 순서대로 읽어 분석하세요.`,

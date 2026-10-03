@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 type ProviderInfo = {
   provider: "openai" | "gemini" | "anthropic";
@@ -23,18 +24,22 @@ type ModelRow = {
   sort_order: number;
 };
 
-type Limits = { socratic: number; feedback: number };
+type Limits = { socratic: number; feedback: number; authoring: number };
 
 export default function SettingsManager() {
   const [providers, setProviders] = useState<ProviderInfo[] | null>(null);
   const [models, setModels] = useState<ModelRow[]>([]);
   const [limits, setLimits] = useState<Limits | null>(null);
-  const [defaultLimits, setDefaultLimits] = useState<Limits>({ socratic: 20, feedback: 10 });
+  const [defaultLimits, setDefaultLimits] = useState<Limits>({
+    socratic: 20,
+    feedback: 10,
+    authoring: 40,
+  });
   const [error, setError] = useState<string | null>(null);
   const [help, setHelp] = useState<string | null>(null); // 펼친 도움말 provider
 
   async function load() {
-    const res = await fetch("/api/admin/settings");
+    const res = await fetch("/api/teacher/ai-settings");
     const data = await res.json().catch(() => null);
     if (!res.ok) {
       setError(data?.error ?? "불러오지 못했습니다.");
@@ -56,10 +61,14 @@ export default function SettingsManager() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h2 className="text-lg font-semibold text-zinc-900">AI 설정</h2>
+        <h2 className="text-lg font-semibold text-zinc-900">내 AI 설정</h2>
         <p className="mt-1 text-sm text-zinc-500">
-          제공자별 API 키를 등록하고, 학생이 고를 수 있는 모델을 관리합니다.
-          최신 모델 ID는 각 제공자 공식 문서에서 확인해 추가하세요.
+          여기 등록한 <b>내 API 키</b>로 <b>내 학생</b>의 AI 문답·첨삭과 내 조작 활동 만들기가
+          동작합니다. 다른 선생님의 키나 사이트 키를 대신 쓰지 않으므로, 키가 없으면 내 학생은
+          AI 를 쓸 수 없습니다. 최신 모델 ID는 각 제공자 공식 문서에서 확인해 추가하세요.{" "}
+          <Link href="/teacher/prompts" className="text-blue-600 hover:underline">
+            AI 프롬프트(성격·규칙) 고치기 →
+          </Link>
         </p>
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -83,7 +92,7 @@ export default function SettingsManager() {
 
       {/* 모델 목록 */}
       <section className="flex flex-col gap-4">
-        <h3 className="font-semibold text-zinc-900">2. 학생이 고를 수 있는 모델</h3>
+        <h3 className="font-semibold text-zinc-900">2. 내 학생이 고를 수 있는 모델</h3>
         <p className="text-sm text-zinc-500">
           모델을 여러 개 추가하면 학생 화면에 선택 메뉴가 생깁니다. 하나뿐이면
           그 모델이 자동 사용됩니다. 아직 없으면 GPT-5 mini/GPT-5가 기본으로
@@ -99,11 +108,11 @@ export default function SettingsManager() {
 
       {/* 일일 한도 */}
       <section className="flex flex-col gap-4">
-        <h3 className="font-semibold text-zinc-900">3. 학생 일일 사용 한도</h3>
+        <h3 className="font-semibold text-zinc-900">3. 일일 사용 한도</h3>
         <p className="text-sm text-zinc-500">
-          학생 1명이 하루에 쓸 수 있는 AI 횟수입니다. 비용 통제를 위한 안전장치이니
-          필요한 만큼만 올리세요. (기본값: 질문 {defaultLimits.socratic}회 · 첨삭{" "}
-          {defaultLimits.feedback}회)
+          내 학생 1명이 하루에 쓸 수 있는 AI 횟수와, 내가 조작 활동 만들기에 쓸 횟수입니다.
+          내 키에서 비용이 나가니 필요한 만큼만 올리세요. (기본값: 질문 {defaultLimits.socratic}회
+          · 첨삭 {defaultLimits.feedback}회 · 활동 만들기 {defaultLimits.authoring}회)
         </p>
         {limits && (
           <LimitsEditor limits={limits} onChanged={load} onError={setError} />
@@ -124,6 +133,7 @@ function LimitsEditor({
 }) {
   const [socratic, setSocratic] = useState(String(limits.socratic));
   const [feedback, setFeedback] = useState(String(limits.feedback));
+  const [authoring, setAuthoring] = useState(String(limits.authoring));
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -131,13 +141,14 @@ function LimitsEditor({
     setBusy(true);
     onError("");
     setSaved(false);
-    const res = await fetch("/api/admin/settings", {
+    const res = await fetch("/api/teacher/ai-settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         kind: "limits",
         socratic: Number(socratic),
         feedback: Number(feedback),
+        authoring: Number(authoring),
       }),
     });
     const data = await res.json().catch(() => null);
@@ -172,6 +183,7 @@ function LimitsEditor({
     <div className="flex flex-wrap items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
       {field("소크라테스식 질문", socratic, setSocratic)}
       {field("문제풀이 첨삭", feedback, setFeedback)}
+      {field("조작 활동 만들기 (나)", authoring, setAuthoring)}
       <button
         onClick={save}
         disabled={busy}
@@ -205,7 +217,7 @@ function ApiKeyCard({
     setBusy(true);
     onError("");
     setSaved(false);
-    const res = await fetch("/api/admin/settings", {
+    const res = await fetch("/api/teacher/ai-settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ kind: "key", provider: info.provider, apiKey: value }),
@@ -223,7 +235,7 @@ function ApiKeyCard({
   async function remove() {
     if (!confirm(`${info.label} 키를 삭제할까요?`)) return;
     setBusy(true);
-    await fetch("/api/admin/settings", {
+    await fetch("/api/teacher/ai-settings", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ kind: "key", provider: info.provider }),
@@ -334,7 +346,7 @@ function ModelsEditor({
     e.preventDefault();
     setBusy(true);
     onError("");
-    const res = await fetch("/api/admin/settings", {
+    const res = await fetch("/api/teacher/ai-settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ kind: "model", provider, modelId, label }),
@@ -350,7 +362,7 @@ function ModelsEditor({
   }
 
   async function toggle(m: ModelRow) {
-    await fetch("/api/admin/settings", {
+    await fetch("/api/teacher/ai-settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: m.id, enabled: !m.enabled }),
@@ -360,7 +372,7 @@ function ModelsEditor({
 
   async function remove(m: ModelRow) {
     if (!confirm(`'${m.label}' 모델을 삭제할까요?`)) return;
-    await fetch("/api/admin/settings", {
+    await fetch("/api/teacher/ai-settings", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ kind: "model", id: m.id }),

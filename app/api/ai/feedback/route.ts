@@ -15,8 +15,8 @@ import {
   requireAiUser,
   setCached,
   consumeQuota,
+  pickModel,
 } from "@/lib/ai/server";
-import { resolveModel } from "@/lib/ai/models";
 
 // 문제풀이 첨삭 (서버 전용)
 //  입력: 텍스트(solution) 또는 사진/PDF(images: data URL 배열)
@@ -112,36 +112,32 @@ export async function POST(request: Request) {
     scopeKey = "free:" + createHash("sha256").update(question).digest("hex").slice(0, 16);
   }
 
-  // 학생이 고른 모델 검증
-  const picked = await resolveModel(body?.model);
-  if (!picked) {
-    return NextResponse.json(
-      { error: "사용 가능한 AI 모델이 없습니다. 선생님(관리자)에게 문의하세요." },
-      { status: 503 }
-    );
+  // 학생이 고른 모델 검증 + 담당 교사의 키 확인 (없으면 한도를 깎지 않고 알린다)
+  const call = await pickModel(body?.model, guard);
+  if (isGuardError(call)) {
+    return NextResponse.json({ error: call.error, code: call.code }, { status: call.status });
   }
 
   // 1) 캐시 확인 (한도 차감 전 — 캐시 적중은 무료)
-  //    모델·모드·입력이 모두 같을 때만 캐시 재사용 (모델별 결과 분리).
+  //    교사·모델·모드·입력이 모두 같을 때만 재사용한다. 교사마다 프롬프트와 키가
+  //    다르므로 다른 교사의 결과(그 교사의 키로 만든 것)를 쓰지 않는다.
   const inputKey = hasImages
     ? "img:" + createHash("sha256").update(imageList.join("")).digest("hex")
     : "txt:" + solution!.trim();
-  const key = cacheKey("feedback", picked.model_id, scopeKey, mode, inputKey);
+  const key = cacheKey("feedback", call.ownerId, call.model, scopeKey, mode, inputKey);
   const cached = await getCached<unknown>(key);
   if (cached) {
     return NextResponse.json({ result: cached, mode, cached: true });
   }
 
   // 2) 일일 한도
-  const remaining = await consumeQuota(guard.userId, "feedback");
+  const remaining = await consumeQuota(guard.userId, "feedback", guard.ownerId);
   if (remaining === null) {
     return NextResponse.json(
       { error: "오늘의 AI 첨삭 한도를 모두 사용했습니다. 내일 다시 이용할 수 있어요." },
       { status: 429 }
     );
   }
-
-  const call = { provider: picked.provider, model: picked.model_id };
 
   // 3) 호출 + 캐시 저장
   try {

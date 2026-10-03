@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import FreeFeedback from "@/components/student/free-feedback";
 import { getEnabledModels } from "@/lib/ai/models";
-import { getAiLimits } from "@/lib/ai/server";
+import { aiOwnerOf, getAiLimits } from "@/lib/ai/server";
 
 // 문제풀이 첨삭 — 자유 문제 모드 (내가 가진 아무 문제나 첨삭 받기)
 export default async function FreeFeedbackPage() {
@@ -10,14 +10,16 @@ export default async function FreeFeedbackPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // AI 모델·한도는 담당 교사(학생) 또는 본인(교사)의 설정을 쓴다
+  const aiOwner = await aiOwnerOf(supabase, user!.id);
   const [{ data: me }, allModels, limits] = await Promise.all([
     supabase
       .from("profiles")
       .select("ai_consent_at")
       .eq("id", user!.id)
       .single<{ ai_consent_at: string | null }>(),
-    getEnabledModels(),
-    getAiLimits(),
+    getEnabledModels(aiOwner),
+    getAiLimits(aiOwner),
   ]);
 
   const models = allModels.map((m) => ({ model_id: m.model_id, label: m.label }));

@@ -3,6 +3,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { toStudentId, defaultPassword, type StudentRow } from "@/lib/types";
+import { classLoginPath } from "@/lib/class-code";
+import CopyLinkButton from "@/components/copy-link-button";
 
 type CreateResult = {
   studentId: string;
@@ -80,8 +82,10 @@ export default function StudentsManager({
   isAdmin = false,
   teacherNames = {},
   studentTeachers = {},
+  classCode: initialClassCode = null,
 }: {
   meId: string;
+  classCode?: string | null; // 가입 교사의 학급 코드 — 학생은 학번 + 이 코드로 로그인
   initialStudents: StudentProfile[];
   roster?: RosterStudent[];
   rosterReady?: boolean;
@@ -96,6 +100,8 @@ export default function StudentsManager({
   const [results, setResults] = useState<CreateResult[] | null>(null);
   const [students, setStudents] = useState<StudentProfile[]>(initialStudents);
   const [message, setMessage] = useState<string | null>(null);
+  // 학급 코드가 없던 가입 교사는 첫 학생을 만들 때 생긴다 — 서버 응답으로 갱신
+  const [classCode, setClassCode] = useState<string | null>(initialClassCode);
 
   // 전체 명단에서 골라 담기
   const [roster, setRoster] = useState<RosterStudent[]>(initialRoster);
@@ -158,6 +164,7 @@ export default function StudentsManager({
       setMessage(data.error ?? "생성에 실패했습니다.");
     } else {
       setResults(data.results);
+      if (data.classCode) setClassCode(data.classCode);
       setText("");
       setParsed([]);
       await reloadAll();
@@ -167,10 +174,10 @@ export default function StudentsManager({
 
   function downloadResultsCsv() {
     if (!results) return;
-    const header = "학번,이름,초기비밀번호,결과\n";
+    const header = classCode ? "학번,학급코드,이름,초기비밀번호,결과\n" : "학번,이름,초기비밀번호,결과\n";
     const body = results
       .map((r) =>
-        [r.studentId, r.name, r.password ?? "", r.ok ? "생성됨" : r.error].join(",")
+        [r.studentId, ...(classCode ? [classCode] : []), r.name, r.password ?? "", r.ok ? "생성됨" : r.error].join(",")
       )
       .join("\n");
     // BOM을 붙여 Excel에서 한글이 깨지지 않게 한다
@@ -329,6 +336,23 @@ export default function StudentsManager({
           을 실행하면 전체 학생 명단에서 담당 학생을 골라 담을 수 있습니다.
           {isAdmin && " 그전까지 아래 '담당 교사' 열은 비어 보입니다."}
         </div>
+      )}
+
+      {/* 가입 교사: 학생은 학번 + 학급 코드로 로그인한다 (학번은 학교마다 겹치므로) */}
+      {classCode && (
+        <section className="rounded-xl border border-blue-200 bg-blue-50 p-5 print:hidden">
+          <h2 className="text-sm font-semibold text-zinc-900">학생 로그인 안내</h2>
+          <p className="mt-1 text-sm text-zinc-700">
+            내 학급 코드: <b className="font-mono text-lg tracking-wider text-blue-700">{classCode}</b>
+            <span className="ml-2 text-zinc-500">
+              학생은 <b>학번 + 학급 코드 + 비밀번호</b>로 로그인합니다.
+            </span>
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+            <span className="text-zinc-600">코드가 미리 채워진 로그인 주소를 나눠 주면 편합니다:</span>
+            <CopyLinkButton path={classLoginPath(classCode)} label="🔗 학생 로그인 링크 복사" />
+          </div>
+        </section>
       )}
 
       {/* 일괄 생성 */}

@@ -181,7 +181,7 @@ export default function HandsOnManager({
 
       {loadError && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-          만져보는 수학 목록을 불러오지 못했습니다. 데이터베이스에 마이그레이션 0016 을 실행했는지
+          만져보는 수학 목록을 불러오지 못했습니다. 데이터베이스에 마이그레이션 0017 을 실행했는지
           확인하세요.
         </p>
       )}

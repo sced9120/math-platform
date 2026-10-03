@@ -48,7 +48,7 @@ export default async function TeacherPage() {
 
         {teaching && (
           <>
-            <ArchivePublish />
+            {!profile.self_signup && <ArchivePublish />}
             <Link href="/teacher/students" className={card}>
               <h3 className="mb-1 font-semibold text-zinc-900">학생 관리</h3>
               <p className="text-sm text-zinc-500">

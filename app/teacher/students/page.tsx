@@ -51,6 +51,7 @@ export default async function TeacherStudentsPage() {
       isAdmin={isAdmin}
       teacherNames={teacherNames}
       studentTeachers={studentTeachers}
+      classCode={profile.self_signup ? (profile.class_code ?? null) : null}
     />
   );
 }

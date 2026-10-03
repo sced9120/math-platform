@@ -44,8 +44,8 @@ export default async function StudentActivityPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // AI 모델·한도는 담당 교사(학생) 또는 본인(교사)의 설정을 쓴다
-  const aiOwner = await aiOwnerOf(supabase, user!.id);
+  // AI 모델·한도는 이 활동을 만든 교사의 설정을 쓴다 (위에서 학생이 볼 수 있는 활동임을 확인함)
+  const aiOwner = await aiOwnerOf(supabase, user!.id, id);
 
   const [
     { data: unit },

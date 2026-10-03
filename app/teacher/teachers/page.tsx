@@ -21,13 +21,14 @@ export default async function TeachersPage() {
   const [{ data }, openSignup, holdings] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, name, must_change_password, created_at")
+      // self_signup 은 0017 이후에만 있으므로 컬럼을 나열하지 않는다
+      .select("*")
       .eq("role", "teacher")
       .order("created_at"),
     isSignupOpen(),
     adminHoldings(profile.id),
   ]);
-  const teachers = (data as TeacherRow[]) ?? [];
+  const teachers = (data as (TeacherRow & { self_signup?: boolean })[]) ?? [];
 
   return (
     <>
@@ -35,7 +36,10 @@ export default async function TeachersPage() {
       {holdings && (
         <HandoverPanel
           holdings={holdings}
-          teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
+          // 넘겨받을 수 있는 것은 학교 교사(관리자가 만든 교사)뿐 — 가입 교사는 학교 학생을 담을 수 없다
+          teachers={teachers
+            .filter((t) => t.self_signup !== true)
+            .map((t) => ({ id: t.id, name: t.name }))}
         />
       )}
       <TeachersManager initialTeachers={teachers} />

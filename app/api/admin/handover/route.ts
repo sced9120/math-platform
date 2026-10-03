@@ -28,8 +28,8 @@ export async function POST(request: Request) {
   if (error) {
     return NextResponse.json(
       {
-        error: error.message.includes("target must be a teacher")
-          ? "교사 계정에만 넘길 수 있습니다."
+        error: error.message.includes("target must be a school teacher")
+          ? "관리자가 만든 학교 교사 계정에만 넘길 수 있습니다."
           : error.message.includes("transfer_teaching")
             ? "DB 에 0017 마이그레이션을 먼저 실행하세요."
             : `넘기지 못했습니다 — ${error.message}`,

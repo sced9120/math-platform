@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// 사이트 설정 (마이그레이션 0016 의 site_settings — 서버만 읽고 쓴다)
+// 사이트 설정 (마이그레이션 0017 의 site_settings — 서버만 읽고 쓴다)
 
 // 누구나 교사로 가입할 수 있는가.
 //  - 표가 아직 없으면(마이그레이션 전) 막아 둔다 — 자료 분리 정책 없이 가입이 열리면 안 되기 때문.

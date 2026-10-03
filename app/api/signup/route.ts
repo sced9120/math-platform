@@ -8,7 +8,7 @@ import { generateClassCode } from "@/lib/class-code";
 // 보안 원칙
 //  - 로그인 없이 열린 경로라, 관리자가 가입을 열어 둔 경우에만 만든다(사이트 설정).
 //  - 만들 수 있는 역할은 teacher 뿐이다. admin 은 절대 만들지 않는다.
-//  - 새 교사는 자기 자료·자기 학생만 보도록 DB 정책(0016)이 막아 준다.
+//  - 새 교사는 자기 자료·자기 학생만 보도록 DB 정책(0017)이 막아 준다. 학교 학생 명단도 안 보인다.
 //  - service role key 는 이 서버 코드에서만 쓰이며 클라이언트로 나가지 않는다.
 
 const ID_RE = /^[a-z][a-z0-9_]{2,29}$/; // 영문으로 시작 → 숫자뿐인 학번과 겹치지 않는다
@@ -70,6 +70,7 @@ export async function POST(request: Request) {
       name,
       role: "teacher",
       must_change_password: false, // 본인이 정한 비밀번호
+      self_signup: true, // 가입 교사 — 학교 학생 명단이 보이지 않고, 학생은 학급 코드로 로그인
       class_code: generateClassCode(),
     });
     profileError = error;

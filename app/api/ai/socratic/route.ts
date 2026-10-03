@@ -7,6 +7,7 @@ import {
   requireAiUser,
   consumeQuota,
   pickModel,
+  activityOwner,
 } from "@/lib/ai/server";
 
 // 소크라테스 챗봇 (서버 전용 — API 키는 여기서만 사용된다)
@@ -48,13 +49,19 @@ export async function POST(request: Request) {
   }
 
   // 학생이 고른 모델 검증 + 담당 교사의 키 확인 (없으면 한도를 깎지 않고 알린다)
-  const call = await pickModel(body?.model, guard);
+  // 활동 안의 AI 는 그 활동을 만든 교사의 키·모델·한도를 쓴다 (활동 접근 권한은 위에서 확인했다).
+  // 자유 모드는 guard.ownerId(나를 담은 교사 중 키가 있는 교사).
+  const ai = {
+    ...guard,
+    ownerId: (activityId && (await activityOwner(activityId))) || guard.ownerId,
+  };
+  const call = await pickModel(body?.model, ai);
   if (isGuardError(call)) {
     return NextResponse.json({ error: call.error, code: call.code }, { status: call.status });
   }
 
   // 일일 한도 (턴 단위) — 담당 교사가 정한 한도
-  const remaining = await consumeQuota(guard.userId, "socratic", guard.ownerId);
+  const remaining = await consumeQuota(guard.userId, "socratic", ai.ownerId);
   if (remaining === null) {
     return NextResponse.json(
       { error: "오늘의 AI 질문 한도를 모두 사용했습니다. 내일 다시 이용할 수 있어요." },

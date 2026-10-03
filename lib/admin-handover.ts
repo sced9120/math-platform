@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// 관리자 → 교사 계정 넘기기 (0017 transfer_teaching)
+// 관리자 → 교사 계정 넘기기 (0017_open_platform 의 transfer_teaching)
 //
 // 관리자는 교사 계정만 관리한다. 다만 예전에는 관리자가 직접 수업을 했으므로,
 // 아직 학생이나 자료를 갖고 있으면 그것을 교사 계정으로 넘길 때까지 수업 메뉴를 남겨 둔다.
@@ -13,7 +13,7 @@ export type AdminHoldings = {
   activities: number;
 };
 
-// 관리자가 지금 가진 학생·자료 수. (0016 전이라 owner_id 가 없으면 자료 수는 null)
+// 관리자가 지금 가진 학생(내 목록)·자료 수. (0017 전이라 owner_id 가 없으면 null)
 export async function adminHoldings(adminId: string): Promise<AdminHoldings | null> {
   const db = createAdminClient();
   const count = async (q: PromiseLike<{ count: number | null; error: unknown }>) => {
@@ -23,9 +23,8 @@ export async function adminHoldings(adminId: string): Promise<AdminHoldings | nu
   const [students, subjects, units, activities] = await Promise.all([
     count(
       db
-        .from("profiles")
-        .select("id", { count: "exact", head: true })
-        .eq("role", "student")
+        .from("teacher_students")
+        .select("student_id", { count: "exact", head: true })
         .eq("teacher_id", adminId)
     ),
     count(db.from("subjects").select("id", { count: "exact", head: true }).eq("owner_id", adminId)),

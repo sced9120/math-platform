@@ -30,7 +30,8 @@ export default function HandoverPanel({
         `내 학생 ${holdings.students}명과 교과 ${holdings.subjects}·단원 ${holdings.units}·소단원 ${holdings.activities}개,\n` +
           `그리고 AI 키·모델·한도·프롬프트를 「${t.name}」 교사 계정으로 넘길까요?\n\n` +
           "· 학생은 지금처럼 학번만으로 로그인합니다 (학급 코드 없음)\n" +
-          "· 학생 기록(진도·서술·사진)은 그대로이고, 이제 그 교사 계정에서 보입니다\n" +
+          "· 학생 기록(진도·서술·사진)은 그대로이고, 그 교사 계정에서 보입니다\n" +
+          "· 이 관리자 계정의 학생 목록에서는 빠집니다 (계정은 그대로)\n" +
           "· 넘긴 뒤 이 관리자 계정에는 교사 관리·만져보는 수학만 남습니다"
       )
     )
@@ -50,11 +51,10 @@ export default function HandoverPanel({
       subjects: number;
       units: number;
       activities: number;
-      codeless: boolean;
     };
     setDone(
-      `「${t.name}」 계정으로 학생 ${r.students}명, 교과 ${r.subjects}·단원 ${r.units}·소단원 ${r.activities}개를 넘겼습니다.` +
-        (r.codeless ? " 이 교사의 학생은 앞으로도 학급 코드 없이 학번만으로 로그인합니다." : "")
+      `「${t.name}」 계정으로 학생 ${r.students}명, 교과 ${r.subjects}·단원 ${r.units}·소단원 ${r.activities}개와 ` +
+        "AI 설정을 넘겼습니다. 학생은 지금처럼 학번만으로 로그인합니다."
     );
     router.refresh();
   }
@@ -81,6 +81,7 @@ export default function HandoverPanel({
           {teachers.length === 0 ? (
             <p className="mt-3 text-sm text-zinc-700">
               먼저 아래 <b>교사 계정 만들기</b>에서 선생님이 수업에 쓸 교사 계정을 만드세요.
+              (직접 가입한 교사 계정은 학교 학생을 담을 수 없어 받을 수 없습니다)
             </p>
           ) : (
             <div className="mt-3 flex flex-wrap items-center gap-2">

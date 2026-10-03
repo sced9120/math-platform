@@ -1,6 +1,6 @@
 import type { ScreenConfig, ScreenType } from "@/lib/screens";
 
-// 만져보는 수학 — 로그인 없이 누구나 여는 조작 자료 (마이그레이션 0016)
+// 만져보는 수학 — 로그인 없이 누구나 여는 조작 자료 (마이그레이션 0017)
 // config 는 활동 화면(activity_screens.config)과 같은 모양이라
 // 교사가 자기 소단원에 그대로 복사해 넣을 수 있다.
 export type Manipulative = {

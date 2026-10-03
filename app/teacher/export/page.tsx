@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { myStudentIds } from "@/lib/my-students";
 import ExportBuilder, {
   type ExportActivity,
   type ExportStudent,
@@ -9,6 +10,7 @@ import ExportBuilder, {
 export default async function ExportPage() {
   const supabase = await createClient();
   const me = (await supabase.auth.getUser()).data.user?.id ?? "";
+  const myIds = await myStudentIds(supabase, me);
 
   const [{ data: students }, { data: units }, { data: activities }] =
     await Promise.all([
@@ -16,7 +18,7 @@ export default async function ExportPage() {
         .from("profiles")
         .select("id, grade, class_no, student_no, name")
         .eq("role", "student")
-        .eq("teacher_id", me) // 내 학생만 (관리자도 — 다른 교사 학급이 섞이지 않게)
+        .in("id", myIds) // 내 목록에 담은 학생만 (관리자도 — 다른 교사 학급이 섞이지 않게)
         .order("grade")
         .order("class_no")
         .order("student_no"),

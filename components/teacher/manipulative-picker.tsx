@@ -29,7 +29,7 @@ export default function ManipulativePicker({
       .order("order_index")
       .then(({ data, error }) => {
         if (!alive) return;
-        if (error) setError("목록을 불러오지 못했습니다. (마이그레이션 0016 실행 여부 확인)");
+        if (error) setError("목록을 불러오지 못했습니다. (마이그레이션 0017 실행 여부 확인)");
         else setItems((data as Manipulative[]) ?? []);
       });
     return () => {

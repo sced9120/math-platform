@@ -1087,6 +1087,8 @@ revoke all on function public.is_my_student(uuid) from public;
 grant execute on function public.is_my_student(uuid) to authenticated;
 
 
+
+
 -- ---------- 0012_screen_responses ----------
 
 -- ============================================================
@@ -1554,50 +1556,76 @@ alter table public.ai_usage
   check (feature in ('socratic', 'feedback', 'authoring'));
 
 
--- ---------- 0016_open_platform ----------
+-- ---------- 0016_teacher_students ----------
 
--- ============================================================
--- 0016: 누구나 교사로 가입해 "내 학급"을 꾸리는 구조 + 만져보는 수학
+-- 0016: 담당 학생을 여러 교사가 나눠 가질 수 있게
 --
--- 지금까지는 한 학교(관리자 1명 + 그가 만든 교사)만 쓰는 사이트라
--- 교사면 누구나 모든 교과·단원·활동과 모든 학생 기록을 고칠 수 있었다.
--- 누구나 교사로 가입하게 열면 모르는 교사가 남의 자료를 지우거나
--- 남의 학생 기록을 볼 수 있으므로, 이제 "교사마다 자기 공간"으로 나눈다.
+-- 0011 은 학생 한 명에 담당 교사 하나만 두었다 (profiles.teacher_id).
+-- 그래서 관리자가 학생을 일괄 등록하면 그 학생은 전부 관리자의 것이 되고,
+-- 교사 화면에는 끝내 나타나지 않는다. 교사가 가져올 방법도 없었다.
+-- 한 학생을 교과 교사와 담임이 함께 보는 경우도 담지 못한다.
 --
---  1) 교과·단원·소단원(activities)·활동(activity_screens)에 주인(owner_id)
---     - 교사(관리자 포함)는 자기가 만든 것만 보고 고친다
---     - 학생은 "자기 담당 교사"가 만든 것만 본다
---     - 기존 자료는 전부 가장 먼저 만들어진 관리자에게 붙인다 (지금 화면 그대로)
---  2) 학생 기록(progress·screen_responses·첨부 사진)은 담당 교사만
---  3) 학급 코드 — 학번(10101)은 학교마다 겹치므로, 새 교사의 학생은
---     "학번 + 학급 코드"로 로그인한다. (기존 학생은 지금처럼 학번만)
---  4) 사이트 설정 — 누구나 교사 가입 허용 여부 (관리자가 켜고 끔)
---  5) 만져보는 수학 — 로그인 없이 누구나 여는 조작 자료 모음.
---     교사는 이것을 자기 소단원에 "활동 한 화면"으로 복사해 넣는다.
---
--- 이 파일은 여러 번 실행해도 되게(멱등) 작성했다.
--- 실행 순서: 이 SQL 을 먼저 실행 → 그다음 새 코드 배포.
--- (지금 배포된 코드도 이 SQL 실행 후 그대로 동작한다)
--- ============================================================
+-- 담당 관계를 teacher_students 표로 옮긴다.
+--  - 교사: 서버에 등록된 전체 학생 명단을 보고, 그중 골라 자기 목록에 담는다
+--  - 한 학생이 여러 교사의 목록에 동시에 있어도 된다
+--  - profiles.teacher_id 는 남기되 뜻이 바뀐다: "이 계정을 만든 사람"
+--    담당(목록에 담김)과 달리 계정 삭제 권한의 근거로만 쓴다.
 
+-- 1) 담당 표 -----------------------------------------------------------------
+create table if not exists public.teacher_students (
+  teacher_id uuid not null references public.profiles (id) on delete cascade,
+  student_id uuid not null references public.profiles (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (teacher_id, student_id)
+);
 
--- 0. 헬퍼 ---------------------------------------------------------------------
+-- "이 학생을 담당하는 교사들" 조회용 (관리자 화면)
+create index if not exists teacher_students_student_id_idx
+  on public.teacher_students (student_id);
 
--- 내 담당 교사 (학생 화면에서 "어느 교사의 자료를 보여 줄지" 정할 때)
-create or replace function public.my_teacher_id()
-returns uuid
+-- 지금 있는 담당 관계를 그대로 옮긴다 — 아무도 목록을 잃지 않게.
+insert into public.teacher_students (teacher_id, student_id)
+select s.teacher_id, s.id
+from public.profiles s
+where s.role = 'student'
+  and s.teacher_id is not null
+on conflict do nothing;
+
+-- 2) 헬퍼 -------------------------------------------------------------------
+-- security definer: 정책 안에서 표를 다시 읽을 때 생기는 무한재귀를 막는다.
+
+-- 로그인한 교사가 이 학생을 자기 목록에 담고 있는가
+create or replace function public.teaches_student(p_student_id uuid)
+returns boolean
 language sql stable security definer
 set search_path = public
 as $$
-  select teacher_id from public.profiles where id = auth.uid();
+  select exists (
+    select 1 from public.teacher_students ts
+    where ts.student_id = p_student_id
+      and ts.teacher_id = auth.uid()
+  );
 $$;
 
-revoke all on function public.my_teacher_id() from public;
-grant execute on function public.my_teacher_id() to authenticated;
+-- 이 id 가 학생 계정인가 (교사를 학생으로 담는 것을 막는 데 쓴다)
+create or replace function public.is_student_profile(p_id uuid)
+returns boolean
+language sql stable security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.profiles
+    where id = p_id and role = 'student'
+  );
+$$;
 
--- 내가 담당하는 학생인가 — 관리자도 예외 없이 "자기 학생"만.
--- (0011 의 is_my_student 는 관리자에게 전부 허용한다. 기록 열람은 이 엄격한 버전을 쓴다)
-create or replace function public.is_own_student(p_student_id uuid)
+revoke all on function public.teaches_student(uuid) from public;
+revoke all on function public.is_student_profile(uuid) from public;
+grant execute on function public.teaches_student(uuid) to authenticated;
+grant execute on function public.is_student_profile(uuid) to authenticated;
+
+-- 0011 이 만든 판별 함수도 담당 표를 보게 바꾼다 (뜻은 그대로)
+create or replace function public.is_my_student(p_student_id uuid)
 returns boolean
 language sql stable security definer
 set search_path = public
@@ -1606,84 +1634,243 @@ as $$
     select 1 from public.profiles s
     where s.id = p_student_id
       and s.role = 'student'
-      and s.teacher_id = auth.uid()
+      and (public.is_admin() or public.teaches_student(s.id))
   );
 $$;
 
-revoke all on function public.is_own_student(uuid) from public;
-grant execute on function public.is_own_student(uuid) to authenticated;
+-- 3) 담당 표의 보안 정책 -----------------------------------------------------
+alter table public.teacher_students enable row level security;
 
--- 저장소 경로의 첫 폴더(학생 uuid 문자열)로 판별하는 버전
-create or replace function public.is_own_student_folder(p_folder text)
+drop policy if exists "teacher_students_admin_all" on public.teacher_students;
+drop policy if exists "teacher_students_own" on public.teacher_students;
+
+create policy "teacher_students_admin_all"
+  on public.teacher_students for all
+  using (public.is_admin())
+  with check (public.is_admin() and public.is_student_profile(student_id));
+
+-- 교사는 자기 줄만 넣고 뺀다. 남의 목록은 읽지도 고치지도 못한다.
+create policy "teacher_students_own"
+  on public.teacher_students for all
+  using (public.is_teacher() and teacher_id = auth.uid())
+  with check (
+    public.is_teacher()
+    and teacher_id = auth.uid()
+    and public.is_student_profile(student_id)
+  );
+
+-- 4) profiles 정책을 담당 표 기준으로 -----------------------------------------
+-- 0011 의 정책은 teacher_id 컬럼을 직접 보고 있었다. 담당 표를 보도록 갈아 끼운다.
+drop policy if exists "profiles_select_own_or_mine" on public.profiles;
+
+create policy "profiles_select_own_or_mine"
+  on public.profiles for select
+  using (
+    id = auth.uid()                                          -- 본인
+    or public.is_admin()                                     -- 관리자는 전부
+    or (public.is_teacher() and public.teaches_student(id))  -- 내 목록에 담은 학생
+  );
+
+-- 0011 의 쓰기 정책은 for all 이라 삭제까지 열려 있었다. 담당이 하나뿐일 때는
+-- 그래도 됐지만, 이제는 학생을 담기만 하면 남의 학생 프로필을 지울 수 있게 된다.
+-- 프로필 생성·삭제는 앱에서 전부 service role 로만 하므로 교사에게는 수정만 준다.
+-- (계정 삭제는 서버 API 가 "만든 사람인지" 확인한 뒤 auth 쪽에서 처리한다)
+drop policy if exists "profiles_teacher_own_students" on public.profiles;
+drop policy if exists "profiles_teacher_update_mine" on public.profiles;
+
+create policy "profiles_teacher_update_mine"
+  on public.profiles for update
+  using (public.is_teacher() and public.teaches_student(id))
+  with check (public.is_teacher() and public.teaches_student(id));
+
+-- 5) 전체 학생 명단 -----------------------------------------------------------
+-- 담당이 아니어도 보여야 하므로 위 정책으로는 안 되고, 함수로 따로 연다.
+-- 내려보내는 것은 명렬표에 있는 값(학년·반·번호·이름)까지다.
+-- 비밀번호 상태나 다른 교사의 담당 여부 같은 것은 담지 않는다.
+create or replace function public.all_students()
+returns table (
+  id         uuid,
+  grade      int,
+  class_no   int,
+  student_no int,
+  name       text,
+  is_mine    boolean
+)
+language sql stable security definer
+set search_path = public
+as $$
+  select p.id, p.grade, p.class_no, p.student_no, p.name,
+         exists (
+           select 1 from public.teacher_students ts
+           where ts.student_id = p.id and ts.teacher_id = auth.uid()
+         ) as is_mine
+  from public.profiles p
+  where p.role = 'student'
+    and public.is_teacher()   -- 교사·관리자가 아니면 빈 결과
+  order by p.grade, p.class_no, p.student_no;
+$$;
+
+revoke all on function public.all_students() from public;
+grant execute on function public.all_students() to authenticated;
+
+
+-- ---------- 0017_open_platform ----------
+
+-- ============================================================
+-- 0017: 누구나 교사로 가입하는 플랫폼 — 교사별 공간 + 교사별 AI + 만져보는 수학
+--
+-- 0016 까지는 한 학교(관리자 + 관리자가 만든 교사)만 쓰는 사이트였다.
+--   - 교사면 누구나 모든 교과·단원·소단원을 고치고, 모든 학생 기록을 볼 수 있었다
+--   - 교사는 서버의 "전체 학생 명단"을 보고 아무 학생이나 자기 목록에 담을 수 있었다(0016)
+--   - AI 키·모델·한도·프롬프트는 사이트에 하나였다
+-- 누구나 교사로 가입하게 열면 모르는 사람이 이 모든 것에 닿게 되므로 이렇게 나눈다.
+--
+--  1) 교사 두 종류
+--     - 학교 교사: 관리자 + 관리자가 만든 교사 (self_signup = false)
+--       학교 학생 명단을 보고 골라 담는다(0016 그대로). 학생은 학번만으로 로그인.
+--     - 가입 교사: /signup 으로 직접 가입 (self_signup = true)
+--       학교 명단이 보이지 않는다. 자기가 만든 학생만. 학생은 학번 + 학급 코드로 로그인.
+--  2) 교과·단원·소단원(activities)·활동(activity_screens)에 주인(owner_id)
+--     - 교사(관리자 포함)는 자기가 만든 것만 보고 고친다
+--     - 학생은 자기를 담은 교사들이 만든 것만 본다
+--     - 기존 자료는 가장 먼저 만들어진 관리자에게 붙인다 (지금 화면 그대로)
+--  3) 학생 기록(진도·서술·사진)은 그 학생을 담은 교사만 본다 (관리자도 예외 없음)
+--  4) AI 키·모델·한도·프롬프트를 교사마다 따로
+--     - 학생의 AI 는 그 활동을 만든 교사(자유 질문·첨삭은 담당 교사)의 설정을 쓴다
+--     - 조작 활동 만들기는 교사 본인의 설정을 쓴다
+--  5) 관리자 → 교사로 넘기기 함수 (관리자는 교사 계정만 관리하게)
+--  6) 사이트 설정(누구나 교사 가입 허용) + 만져보는 수학(로그인 없이 쓰는 공개 자료)
+--
+-- 0016_teacher_students 다음에 실행. 여러 번 실행해도 된다(멱등).
+-- 지금 배포된 코드도 이 SQL 실행 후 그대로 동작한다. (그다음 새 코드 배포)
+-- ============================================================
+
+
+-- 1. 교사 종류 · 학급 코드 ------------------------------------------------------
+alter table public.profiles add column if not exists self_signup boolean not null default false;
+alter table public.profiles add column if not exists class_code text;
+
+-- 학급 코드는 가입 교사에게만 있다. 겹치면 안 된다.
+create unique index if not exists profiles_class_code_key
+  on public.profiles (class_code)
+  where class_code is not null;
+
+
+-- 2. 헬퍼 -----------------------------------------------------------------------
+-- 모두 security definer — 정책 안에서 표를 다시 읽을 때 생기는 무한재귀를 막는다.
+
+-- 학교 교사인가 (관리자 또는 관리자가 만든 교사)
+create or replace function public.is_school_staff(p_id uuid)
+returns boolean
+language sql stable security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.profiles
+    where id = p_id and role in ('admin', 'teacher') and not self_signup
+  );
+$$;
+
+-- (학생 화면) 이 교사가 나를 목록에 담고 있는가 — 담당 교사의 자료만 보여 줄 때
+create or replace function public.taught_by(p_teacher_id uuid)
+returns boolean
+language sql stable security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.teacher_students
+    where student_id = auth.uid() and teacher_id = p_teacher_id
+  );
+$$;
+
+-- 저장소 경로의 첫 폴더(학생 uuid 문자열)로 "내가 담은 학생인가" 판별
+create or replace function public.teaches_student_folder(p_folder text)
+returns boolean
+language sql stable security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.teacher_students
+    where student_id::text = p_folder and teacher_id = auth.uid()
+  );
+$$;
+
+-- 이 학생을 내 목록에 담을 수 있는가
+--  - 내가 만든 학생은 언제나
+--  - 학교 교사는 학교 학생(학교 교사가 만든 학생)도
+--  - 가입 교사는 남이 만든 학생을 담을 수 없다
+create or replace function public.can_claim_student(p_student_id uuid)
 returns boolean
 language sql stable security definer
 set search_path = public
 as $$
   select exists (
     select 1 from public.profiles s
-    where s.id::text = p_folder
+    where s.id = p_student_id
       and s.role = 'student'
-      and s.teacher_id = auth.uid()
+      and (
+        s.teacher_id = auth.uid()
+        or (
+          public.is_school_staff(auth.uid())
+          and (s.teacher_id is null or public.is_school_staff(s.teacher_id))
+        )
+      )
   );
 $$;
 
-revoke all on function public.is_own_student_folder(text) from public;
-grant execute on function public.is_own_student_folder(text) to authenticated;
+revoke all on function public.is_school_staff(uuid) from public;
+revoke all on function public.taught_by(uuid) from public;
+revoke all on function public.teaches_student_folder(text) from public;
+revoke all on function public.can_claim_student(uuid) from public;
+grant execute on function public.is_school_staff(uuid) to authenticated;
+grant execute on function public.taught_by(uuid) to authenticated;
+grant execute on function public.teaches_student_folder(text) to authenticated;
+grant execute on function public.can_claim_student(uuid) to authenticated;
 
 
--- 1. 사이트 설정 --------------------------------------------------------------
-create table if not exists public.site_settings (
-  key        text primary key,
-  value      jsonb not null,
-  updated_at timestamptz not null default now()
-);
-
--- 정책 없음 = 서버(service role)만 읽고 쓴다
-alter table public.site_settings enable row level security;
-
-insert into public.site_settings (key, value)
-values ('open_signup', 'true'::jsonb)
-on conflict (key) do nothing;
-
-
--- 2. 학급 코드 ----------------------------------------------------------------
-alter table public.profiles add column if not exists class_code text;
-
-create unique index if not exists profiles_class_code_key
-  on public.profiles (class_code)
-  where class_code is not null;
-
--- 헷갈리는 글자(0/o, 1/l/i)를 뺀 6자리
-create or replace function public.new_class_code()
-returns text
-language plpgsql volatile
+-- 3. 학생 명단 · 담기 — 가입 교사에게 학교 명단을 열지 않는다 --------------------
+create or replace function public.all_students()
+returns table (
+  id         uuid,
+  grade      int,
+  class_no   int,
+  student_no int,
+  name       text,
+  is_mine    boolean
+)
+language sql stable security definer
 set search_path = public
 as $$
-declare
-  v_chars text := 'abcdefghjkmnpqrstuvwxyz23456789';
-  v_code  text;
-begin
-  loop
-    v_code := '';
-    for i in 1..6 loop
-      v_code := v_code || substr(v_chars, 1 + floor(random() * length(v_chars))::int, 1);
-    end loop;
-    exit when not exists (select 1 from public.profiles where class_code = v_code);
-  end loop;
-  return v_code;
-end;
+  select p.id, p.grade, p.class_no, p.student_no, p.name,
+         exists (
+           select 1 from public.teacher_students ts
+           where ts.student_id = p.id and ts.teacher_id = auth.uid()
+         ) as is_mine
+  from public.profiles p
+  where p.role = 'student'
+    and public.is_teacher()   -- 교사·관리자가 아니면 빈 결과
+    and (
+      p.teacher_id = auth.uid()                          -- 내가 만든 학생
+      or (
+        public.is_school_staff(auth.uid())               -- 학교 교사에게는 학교 학생
+        and (p.teacher_id is null or public.is_school_staff(p.teacher_id))
+      )
+    )
+  order by p.grade, p.class_no, p.student_no;
 $$;
 
-revoke all on function public.new_class_code() from public;
+drop policy if exists "teacher_students_own" on public.teacher_students;
+create policy "teacher_students_own"
+  on public.teacher_students for all
+  using (public.is_teacher() and teacher_id = auth.uid())
+  with check (
+    public.is_teacher()
+    and teacher_id = auth.uid()
+    and public.can_claim_student(student_id)
+  );
 
--- 관리자는 학급 코드가 없다 — 관리자 학생은 지금처럼 학번만으로 로그인한다.
--- 그 밖의 교사에게는 코드를 하나씩 준다.
-update public.profiles
-set class_code = public.new_class_code()
-where role = 'teacher' and class_code is null;
 
-
--- 3. 주인(owner_id) -----------------------------------------------------------
+-- 4. 자료의 주인 ----------------------------------------------------------------
 alter table public.subjects   add column if not exists owner_id uuid references public.profiles (id) on delete set null;
 alter table public.units      add column if not exists owner_id uuid references public.profiles (id) on delete set null;
 alter table public.activities add column if not exists owner_id uuid references public.profiles (id) on delete set null;
@@ -1717,9 +1904,7 @@ create index if not exists units_owner_idx      on public.units (owner_id);
 create index if not exists activities_owner_idx on public.activities (owner_id);
 
 
--- 4. 자료 정책: 교사는 자기 것만 --------------------------------------------
--- 0001·0010·0013 의 "교사면 전부" 정책을 지우고 주인 기준으로 바꾼다.
-
+-- 5. 자료 정책: 교사는 자기 것만, 학생은 담당 교사 것만 ---------------------------
 -- 교과
 drop policy if exists "subjects_teacher_all" on public.subjects;
 drop policy if exists "subjects_owner_all"   on public.subjects;
@@ -1731,11 +1916,7 @@ create policy "subjects_owner_all"
 drop policy if exists "subjects_student_read_published" on public.subjects;
 create policy "subjects_student_read_published"
   on public.subjects for select
-  using (
-    is_published
-    and grade = public.my_grade()
-    and owner_id = public.my_teacher_id()
-  );
+  using (is_published and grade = public.my_grade() and public.taught_by(owner_id));
 
 -- 단원 (교과에 넣을 때는 내 교과에만)
 drop policy if exists "units_teacher_all" on public.units;
@@ -1759,7 +1940,7 @@ create policy "units_student_read_published"
   using (
     is_published
     and grade = public.my_grade()
-    and owner_id = public.my_teacher_id()
+    and public.taught_by(owner_id)
     and (
       subject_id is null
       or exists (
@@ -1802,27 +1983,27 @@ create policy "activity_screens_owner_all"
   );
 
 
--- 5. 학생 기록 정책: 담당 교사만 ---------------------------------------------
+-- 6. 학생 기록 정책: 그 학생을 담은 교사만 (관리자도 예외 없음) --------------------
 drop policy if exists "progress_teacher_all"          on public.progress;
 drop policy if exists "progress_teacher_own_students" on public.progress;
 create policy "progress_teacher_own_students"
   on public.progress for all
-  using (public.is_teacher() and public.is_own_student(student_id))
-  with check (public.is_teacher() and public.is_own_student(student_id));
+  using (public.is_teacher() and public.teaches_student(student_id))
+  with check (public.is_teacher() and public.teaches_student(student_id));
 
 drop policy if exists "screen_responses_teacher_all"          on public.screen_responses;
 drop policy if exists "screen_responses_teacher_own_students" on public.screen_responses;
 create policy "screen_responses_teacher_own_students"
   on public.screen_responses for all
-  using (public.is_teacher() and public.is_own_student(student_id))
-  with check (public.is_teacher() and public.is_own_student(student_id));
+  using (public.is_teacher() and public.teaches_student(student_id))
+  with check (public.is_teacher() and public.teaches_student(student_id));
 
 drop policy if exists "ai_usage_select_own_or_teacher" on public.ai_usage;
 create policy "ai_usage_select_own_or_teacher"
   on public.ai_usage for select
-  using (student_id = auth.uid() or public.is_own_student(student_id));
+  using (student_id = auth.uid() or public.teaches_student(student_id));
 
--- 학생 첨부 사진: 본인 또는 담당 교사만
+-- 학생 첨부 사진: 본인 또는 담은 교사만
 drop policy if exists "student_uploads_select_own_or_teacher" on storage.objects;
 create policy "student_uploads_select_own_or_teacher" on storage.objects
   for select to authenticated
@@ -1830,7 +2011,7 @@ create policy "student_uploads_select_own_or_teacher" on storage.objects
     bucket_id = 'student-uploads'
     and (
       (storage.foldername(name))[1] = auth.uid()::text
-      or (public.is_teacher() and public.is_own_student_folder((storage.foldername(name))[1]))
+      or (public.is_teacher() and public.teaches_student_folder((storage.foldername(name))[1]))
     )
   );
 
@@ -1841,7 +2022,7 @@ create policy "student_uploads_delete_own_or_teacher" on storage.objects
     bucket_id = 'student-uploads'
     and (
       (storage.foldername(name))[1] = auth.uid()::text
-      or (public.is_teacher() and public.is_own_student_folder((storage.foldername(name))[1]))
+      or (public.is_teacher() and public.teaches_student_folder((storage.foldername(name))[1]))
     )
   );
 
@@ -1857,8 +2038,8 @@ create policy "activity_files_teacher_delete" on storage.objects
   using (bucket_id = 'activity-files' and public.is_teacher() and owner = auth.uid());
 
 
--- 6. 학생용 함수: "내 담당 교사의 자료"만 -------------------------------------
--- 6-1. 단원 가시성 헬퍼 (save_response·submit_answer 가 이것을 쓴다)
+-- 7. 학생용 함수: "나를 담은 교사의 자료"만 --------------------------------------
+-- 7-1. 단원 가시성 헬퍼 (save_response·submit_answer 와 아래 함수들이 쓴다)
 create or replace function public.unit_visible_to_me(p_unit_id uuid)
 returns boolean
 language sql stable security definer
@@ -1872,12 +2053,13 @@ as $$
     where u.id = p_unit_id
       and u.is_published
       and u.grade = p.grade
-      and u.owner_id = p.teacher_id
+      and exists (select 1 from public.teacher_students ts
+                  where ts.student_id = p.id and ts.teacher_id = u.owner_id)
       and (u.subject_id is null or (s.is_published and s.grade = p.grade))
   );
 $$;
 
--- 6-2. 소단원 목록 (0010 본문 + 주인 조건)
+-- 7-2. 소단원 목록 (0010 본문 + 담당 교사 조건)
 create or replace function public.student_activities(
   p_unit_id uuid default null,
   p_activity_id uuid default null
@@ -1907,7 +2089,8 @@ as $$
   where a.is_published
     and u.is_published
     and u.grade = p.grade
-    and u.owner_id = p.teacher_id
+    and exists (select 1 from public.teacher_students ts
+                where ts.student_id = p.id and ts.teacher_id = u.owner_id)
     and (u.subject_id is null or (s.is_published and s.grade = p.grade))
     and (a.assigned_classes is null or p.class_no = any(a.assigned_classes))
     and (p_unit_id is null or a.unit_id = p_unit_id)
@@ -1915,7 +2098,7 @@ as $$
   order by a.order_index;
 $$;
 
--- 6-3. 화면 조회 (0013 본문 + 주인·교과 조건)
+-- 7-3. 화면 조회 (0013 본문 + 단원 가시성)
 create or replace function public.student_screens(p_activity_id uuid)
 returns table (
   screen_key  text,
@@ -1947,7 +2130,7 @@ as $$
   order by s.order_index;
 $$;
 
--- 6-4. 글·사진 저장 (0013 본문 + 주인·교과 조건)
+-- 7-4. 글·사진 저장 (0013 본문 + 단원 가시성)
 create or replace function public.save_screen_response(
   p_activity_id uuid,
   p_screen_key  text,
@@ -2021,7 +2204,7 @@ begin
 end;
 $$;
 
--- 6-5. 단답·선택형 채점 (0013 본문 + 주인·교과 조건)
+-- 7-5. 단답·선택형 채점 (0013 본문 + 단원 가시성)
 create or replace function public.submit_screen_answer(
   p_activity_id  uuid,
   p_screen_key   text,
@@ -2098,7 +2281,163 @@ end;
 $$;
 
 
--- 7. 만져보는 수학 ------------------------------------------------------------
+-- 8. AI 를 교사별로 ------------------------------------------------------------
+alter table public.ai_secrets add column if not exists owner_id uuid references public.profiles (id) on delete cascade;
+alter table public.ai_models  add column if not exists owner_id uuid references public.profiles (id) on delete cascade;
+alter table public.ai_limits  add column if not exists owner_id uuid references public.profiles (id) on delete cascade;
+alter table public.ai_prompts add column if not exists owner_id uuid references public.profiles (id) on delete cascade;
+
+-- 지금 있는 사이트 설정은 가장 먼저 만든 관리자의 것이 된다 → 실행 직후에도 AI 는 지금처럼 돈다
+do $$
+declare
+  v_admin uuid;
+begin
+  select id into v_admin from public.profiles
+  where role = 'admin' order by created_at limit 1;
+
+  if v_admin is not null then
+    update public.ai_secrets set owner_id = v_admin where owner_id is null;
+    update public.ai_models  set owner_id = v_admin where owner_id is null;
+    update public.ai_limits  set owner_id = v_admin where owner_id is null;
+    update public.ai_prompts set owner_id = v_admin where owner_id is null;
+  end if;
+
+  -- 주인을 정할 수 없는 행(관리자가 없는 새 사이트)은 쓸 사람이 없으므로 지운다
+  delete from public.ai_secrets where owner_id is null;
+  delete from public.ai_models  where owner_id is null;
+  delete from public.ai_limits  where owner_id is null;
+  delete from public.ai_prompts where owner_id is null;
+end $$;
+
+alter table public.ai_secrets alter column owner_id set not null;
+alter table public.ai_models  alter column owner_id set not null;
+alter table public.ai_limits  alter column owner_id set not null;
+alter table public.ai_prompts alter column owner_id set not null;
+
+-- 기본키를 "교사 + 항목"으로. 이미 바뀌었으면 건너뛴다.
+do $$
+declare
+  r record;
+begin
+  for r in
+    select * from (values
+      ('ai_secrets', 'provider'),
+      ('ai_limits',  'feature'),
+      ('ai_prompts', 'key')
+    ) as t(tbl, col)
+  loop
+    if exists (
+      select 1 from pg_constraint
+      where conrelid = ('public.' || r.tbl)::regclass
+        and contype = 'p'
+        and array_length(conkey, 1) = 1
+    ) then
+      execute format('alter table public.%I drop constraint %I', r.tbl, r.tbl || '_pkey');
+      execute format('alter table public.%I add primary key (owner_id, %I)', r.tbl, r.col);
+    end if;
+  end loop;
+end $$;
+
+create index if not exists ai_models_owner_idx on public.ai_models (owner_id, sort_order);
+
+-- ai_secrets·ai_limits·ai_prompts: 정책 없음 그대로 = 서버(service role)만.
+--   키는 절대 브라우저로 내려가지 않는다. 교사 화면은 서버 API 가 "자기 것"만 다룬다.
+-- ai_models: 모델 이름은 비밀이 아니다. 내 것 + 나를 담은 교사들 것만 읽는다(학생 선택지).
+drop policy if exists "ai_models_read_authenticated" on public.ai_models;
+drop policy if exists "ai_models_read_own_or_teacher" on public.ai_models;
+create policy "ai_models_read_own_or_teacher"
+  on public.ai_models for select
+  to authenticated
+  using (owner_id = auth.uid() or public.taught_by(owner_id));
+
+
+-- 9. 관리자 → 교사로 넘기기 ----------------------------------------------------
+-- 관리자가 지금 가진 학생 목록·자료·AI 설정을 학교 교사 한 명에게 넘긴다.
+--  - 학생: 받는 교사의 목록에 담고 관리자 목록에서는 뺀다. 관리자가 만든 학생 계정의
+--    "만든 사람"도 넘긴다(계정 삭제 권한). 학생 이메일은 그대로 → 학번만으로 로그인.
+--  - 받는 교사에게 같은 항목(같은 제공자의 키, 같은 기능의 한도, 같은 프롬프트)이
+--    이미 있으면 그 항목은 받는 교사 것을 그대로 둔다.
+create or replace function public.transfer_teaching(p_to uuid)
+returns jsonb
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_from       uuid := auth.uid();
+  v_students   int;
+  v_subjects   int;
+  v_units      int;
+  v_activities int;
+begin
+  if v_from is null or not public.is_admin() then
+    raise exception 'admin only';
+  end if;
+  if not exists (
+    select 1 from public.profiles
+    where id = p_to and role = 'teacher' and not self_signup
+  ) then
+    raise exception 'target must be a school teacher';
+  end if;
+
+  insert into public.teacher_students (teacher_id, student_id)
+  select p_to, student_id from public.teacher_students where teacher_id = v_from
+  on conflict do nothing;
+  delete from public.teacher_students where teacher_id = v_from;
+  get diagnostics v_students = row_count;
+
+  update public.profiles set teacher_id = p_to
+  where role = 'student' and teacher_id = v_from;
+
+  update public.subjects set owner_id = p_to where owner_id = v_from;
+  get diagnostics v_subjects = row_count;
+  update public.units set owner_id = p_to where owner_id = v_from;
+  get diagnostics v_units = row_count;
+  update public.activities set owner_id = p_to where owner_id = v_from;
+  get diagnostics v_activities = row_count;
+
+  update public.ai_secrets s set owner_id = p_to
+  where s.owner_id = v_from
+    and not exists (select 1 from public.ai_secrets t
+                    where t.owner_id = p_to and t.provider = s.provider);
+  update public.ai_models set owner_id = p_to where owner_id = v_from;
+  update public.ai_limits l set owner_id = p_to
+  where l.owner_id = v_from
+    and not exists (select 1 from public.ai_limits t
+                    where t.owner_id = p_to and t.feature = l.feature);
+  update public.ai_prompts pr set owner_id = p_to
+  where pr.owner_id = v_from
+    and not exists (select 1 from public.ai_prompts t
+                    where t.owner_id = p_to and t.key = pr.key);
+
+  return jsonb_build_object(
+    'students', v_students,
+    'subjects', v_subjects,
+    'units', v_units,
+    'activities', v_activities
+  );
+end;
+$$;
+
+revoke all on function public.transfer_teaching(uuid) from public;
+grant execute on function public.transfer_teaching(uuid) to authenticated;
+
+
+-- 10. 사이트 설정 ---------------------------------------------------------------
+create table if not exists public.site_settings (
+  key        text primary key,
+  value      jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+-- 정책 없음 = 서버(service role)만 읽고 쓴다
+alter table public.site_settings enable row level security;
+
+insert into public.site_settings (key, value)
+values ('open_signup', 'true'::jsonb)
+on conflict (key) do nothing;
+
+
+-- 11. 만져보는 수학 -------------------------------------------------------------
 -- 로그인 없이 누구나 여는 조작 자료. 쓰기는 관리자만.
 -- 교사는 이것을 자기 소단원에 "활동 한 화면"으로 복사해 넣는다(복사본이라 원본과 따로 논다).
 -- 정답이 섞일 수 있는 질문(questions)은 여기 두지 않는다 — 공개 조회라 그대로 노출되기 때문.
@@ -2174,170 +2513,3 @@ values
       "lines":[],"circles":[{"center":"O","r":5}],"readouts":["distance"]}}'::jsonb,
    true, null)
 on conflict (slug) do nothing;
-
-
--- ---------- 0017_teacher_ai ----------
-
--- ============================================================
--- 0017: AI 를 교사별로 + 관리자는 교사 관리 전용으로
---
--- 지금까지 AI 키·모델·한도·프롬프트는 사이트에 하나였다(관리자가 관리).
--- 누구나 교사로 가입하는 구조에서는 모르는 교사의 학생이 운영자의 키를 쓰게 되므로,
---  1) 키·모델·한도·프롬프트를 교사마다 따로 둔다.
---     - 학생의 AI(문답·첨삭)는 "담당 교사"의 것을 쓴다
---     - 교사의 조작 활동 만들기는 교사 "본인"의 것을 쓴다
---  2) 관리자가 지금 가진 학생·자료·AI 설정을 교사 계정으로 넘기는 함수를 둔다.
---     넘긴 뒤 관리자는 교사 계정만 관리한다.
---
--- 기존 설정(키·모델·한도·프롬프트)은 가장 먼저 만들어진 관리자에게 붙인다.
--- → 실행 직후에도 관리자 학생의 AI 는 지금처럼 동작한다.
---
--- 0016 다음에 실행. 여러 번 실행해도 된다(멱등).
--- ============================================================
-
-
--- 0. 기존 설정의 주인 ----------------------------------------------------------
--- 각 표에 owner_id 를 붙이고, 비어 있는 행은 가장 먼저 만든 관리자에게 준다.
-alter table public.ai_secrets add column if not exists owner_id uuid references public.profiles (id) on delete cascade;
-alter table public.ai_models  add column if not exists owner_id uuid references public.profiles (id) on delete cascade;
-alter table public.ai_limits  add column if not exists owner_id uuid references public.profiles (id) on delete cascade;
-alter table public.ai_prompts add column if not exists owner_id uuid references public.profiles (id) on delete cascade;
-
-do $$
-declare
-  v_admin uuid;
-begin
-  select id into v_admin from public.profiles
-  where role = 'admin' order by created_at limit 1;
-
-  if v_admin is not null then
-    update public.ai_secrets set owner_id = v_admin where owner_id is null;
-    update public.ai_models  set owner_id = v_admin where owner_id is null;
-    update public.ai_limits  set owner_id = v_admin where owner_id is null;
-    update public.ai_prompts set owner_id = v_admin where owner_id is null;
-  end if;
-
-  -- 주인을 정할 수 없는 행(관리자가 없는 새 사이트)은 쓸 사람이 없으므로 지운다
-  delete from public.ai_secrets where owner_id is null;
-  delete from public.ai_models  where owner_id is null;
-  delete from public.ai_limits  where owner_id is null;
-  delete from public.ai_prompts where owner_id is null;
-end $$;
-
-alter table public.ai_secrets alter column owner_id set not null;
-alter table public.ai_models  alter column owner_id set not null;
-alter table public.ai_limits  alter column owner_id set not null;
-alter table public.ai_prompts alter column owner_id set not null;
-
-
--- 1. 기본키를 "교사 + 항목"으로 -----------------------------------------------
--- (provider) → (owner_id, provider) 처럼 바꾼다. 이미 바뀌었으면 건너뛴다.
-do $$
-declare
-  r record;
-begin
-  for r in
-    select * from (values
-      ('ai_secrets', 'provider'),
-      ('ai_limits',  'feature'),
-      ('ai_prompts', 'key')
-    ) as t(tbl, col)
-  loop
-    if exists (
-      select 1 from pg_constraint
-      where conrelid = ('public.' || r.tbl)::regclass
-        and contype = 'p'
-        and array_length(conkey, 1) = 1
-    ) then
-      execute format('alter table public.%I drop constraint %I', r.tbl, r.tbl || '_pkey');
-      execute format('alter table public.%I add primary key (owner_id, %I)', r.tbl, r.col);
-    end if;
-  end loop;
-end $$;
-
-create index if not exists ai_models_owner_idx on public.ai_models (owner_id, sort_order);
-
-
--- 2. 정책 ----------------------------------------------------------------------
--- ai_secrets·ai_limits·ai_prompts: 정책 없음 그대로 = 서버(service role)만.
---   키는 절대 브라우저로 내려가지 않는다. 교사 화면은 서버 API 가 "자기 것"만 다룬다.
--- ai_models: 모델 이름은 비밀이 아니다. 내 것 + 내 담당 교사 것만 읽는다(학생 선택지).
-drop policy if exists "ai_models_read_authenticated" on public.ai_models;
-drop policy if exists "ai_models_read_own_or_teacher" on public.ai_models;
-create policy "ai_models_read_own_or_teacher"
-  on public.ai_models for select
-  to authenticated
-  using (owner_id = auth.uid() or owner_id = public.my_teacher_id());
-
-
--- 3. 관리자 → 교사로 넘기기 ----------------------------------------------------
--- 관리자가 지금 가진 학생·교과·단원·소단원과 AI 설정을 교사 한 명에게 넘긴다.
---  - 받는 교사에게 같은 항목(같은 제공자의 키, 같은 기능의 한도, 같은 프롬프트)이
---    이미 있으면 그 항목은 받는 교사 것을 그대로 둔다.
---  - 넘겨받은 학생은 지금처럼 "학번만으로" 로그인한다(이메일이 바뀌지 않음).
---    받는 교사가 앞으로 추가할 학생도 같은 방식이 되도록 학급 코드를 '' 로 둔다.
---    ('' = 코드 없는 학급. 유니크 인덱스라 사이트에 한 계정만 가질 수 있다)
-create or replace function public.transfer_teaching(p_to uuid)
-returns jsonb
-language plpgsql security definer
-set search_path = public
-as $$
-declare
-  v_from       uuid := auth.uid();
-  v_students   int;
-  v_subjects   int;
-  v_units      int;
-  v_activities int;
-  v_codeless   boolean := false;
-begin
-  if v_from is null or not public.is_admin() then
-    raise exception 'admin only';
-  end if;
-  if not exists (select 1 from public.profiles where id = p_to and role = 'teacher') then
-    raise exception 'target must be a teacher';
-  end if;
-
-  update public.profiles set teacher_id = p_to
-  where role = 'student' and teacher_id = v_from;
-  get diagnostics v_students = row_count;
-
-  update public.subjects set owner_id = p_to where owner_id = v_from;
-  get diagnostics v_subjects = row_count;
-  update public.units set owner_id = p_to where owner_id = v_from;
-  get diagnostics v_units = row_count;
-  update public.activities set owner_id = p_to where owner_id = v_from;
-  get diagnostics v_activities = row_count;
-
-  update public.ai_secrets s set owner_id = p_to
-  where s.owner_id = v_from
-    and not exists (select 1 from public.ai_secrets t
-                    where t.owner_id = p_to and t.provider = s.provider);
-  update public.ai_models set owner_id = p_to where owner_id = v_from;
-  update public.ai_limits l set owner_id = p_to
-  where l.owner_id = v_from
-    and not exists (select 1 from public.ai_limits t
-                    where t.owner_id = p_to and t.feature = l.feature);
-  update public.ai_prompts pr set owner_id = p_to
-  where pr.owner_id = v_from
-    and not exists (select 1 from public.ai_prompts t
-                    where t.owner_id = p_to and t.key = pr.key);
-
-  if v_students > 0 and not exists (
-    select 1 from public.profiles where class_code = '' and id <> p_to
-  ) then
-    update public.profiles set class_code = '' where id = p_to;
-    v_codeless := true;
-  end if;
-
-  return jsonb_build_object(
-    'students', v_students,
-    'subjects', v_subjects,
-    'units', v_units,
-    'activities', v_activities,
-    'codeless', v_codeless
-  );
-end;
-$$;
-
-revoke all on function public.transfer_teaching(uuid) from public;
-grant execute on function public.transfer_teaching(uuid) to authenticated;

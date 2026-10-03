@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     await setSignupOpen(body.openSignup);
   } catch {
     return NextResponse.json(
-      { error: "저장하지 못했습니다. (마이그레이션 0016 실행 여부 확인)" },
+      { error: "저장하지 못했습니다. (마이그레이션 0017 실행 여부 확인)" },
       { status: 500 }
     );
   }

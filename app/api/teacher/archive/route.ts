@@ -8,7 +8,12 @@ import {
   type ExportScreen,
 } from "@/lib/archive-export";
 
-// 공개 아카이브 내보내기 (교사 전용)
+// 공개 아카이브 내보내기 (학교 교사 전용)
+//
+// 누구나 교사로 가입하는 구조(0017)라서
+//  - 실행은 학교 교사(관리자 + 관리자가 만든 교사)만 — 가입 교사가 이 사이트의 GitHub 토큰으로
+//    커밋하게 두지 않는다
+//  - 내보내는 자료도 학교 교사가 만든 것만 — 가입 교사의 자료가 공개 아카이브에 섞이지 않게
 //
 // 배포된 앱은 깃 저장소에 파일을 쓸 수 없다(파일 시스템이 임시다).
 // 그래서 GitHub API 로 직접 커밋한다 → GitHub Pages 가 알아서 다시 빌드한다.
@@ -22,7 +27,7 @@ const REPO = process.env.GITHUB_REPO ?? "sced9120/math-platform";
 const BRANCH = process.env.GITHUB_BRANCH ?? "main";
 const API = "https://api.github.com";
 
-async function requireTeacher() {
+async function requireSchoolStaff() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -30,10 +35,21 @@ async function requireTeacher() {
   if (!user) return null;
   const { data: me } = await supabase
     .from("profiles")
-    .select("role")
+    .select("*") // self_signup 은 0017 이후에만 있으므로 컬럼을 나열하지 않는다
     .eq("id", user.id)
-    .single();
-  return me?.role === "teacher" || me?.role === "admin" ? user : null;
+    .single<{ role: string; self_signup?: boolean }>();
+  const staff = me?.role === "teacher" || me?.role === "admin";
+  return staff && me?.self_signup !== true ? user : null;
+}
+
+// 학교 교사 id 들 (가입 교사 제외)
+async function schoolStaffIds(db: ReturnType<typeof createAdminClient>): Promise<Set<string>> {
+  const { data } = await db.from("profiles").select("*").in("role", ["admin", "teacher"]);
+  return new Set(
+    ((data ?? []) as { id: string; self_signup?: boolean }[])
+      .filter((p) => p.self_signup !== true)
+      .map((p) => p.id)
+  );
 }
 
 function gh(token: string) {
@@ -56,20 +72,25 @@ function gh(token: string) {
 // 공개된 소단원의 화면을 모아 파일 내용을 만든다
 async function buildFiles() {
   const db = createAdminClient();
+  const staff = await schoolStaffIds(db);
+  // owner_id 가 아직 없으면(0017 전) 그대로, 있으면 학교 교사의 자료만
+  const bySchool = <T extends { owner_id?: string | null }>(rows: T[] | null) =>
+    (rows ?? []).filter((r) => r.owner_id === undefined || (!!r.owner_id && staff.has(r.owner_id)));
 
-  const [{ data: subjects }, { data: units }, { data: acts }, { data: screens }] =
+  const [{ data: subjects }, { data: units }, { data: actRows }, { data: screens }] =
     await Promise.all([
-      db.from("subjects").select("id, title, grade").eq("is_published", true),
-      db.from("units").select("id, title, grade, subject_id").eq("is_published", true),
-      db.from("activities").select("id, title, unit_id, order_index").eq("is_published", true),
+      db.from("subjects").select("*").eq("is_published", true),
+      db.from("units").select("*").eq("is_published", true),
+      db.from("activities").select("*").eq("is_published", true),
       db
         .from("activity_screens")
         .select("activity_id, screen_key, order_index, type, title, config, questions, sheet")
         .order("order_index"),
     ]);
 
-  const subjectOf = new Map((subjects ?? []).map((x) => [x.id, x]));
-  const unitOf = new Map((units ?? []).map((x) => [x.id, x]));
+  const subjectOf = new Map(bySchool(subjects).map((x) => [x.id, x]));
+  const unitOf = new Map(bySchool(units).map((x) => [x.id, x]));
+  const acts = bySchool(actRows);
   const byActivity = new Map<string, ExportScreen[]>();
   for (const sc of (screens ?? []) as (ExportScreen & { activity_id: string })[]) {
     const list = byActivity.get(sc.activity_id) ?? [];
@@ -122,8 +143,8 @@ async function buildFiles() {
 }
 
 export async function POST() {
-  if (!(await requireTeacher())) {
-    return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
+  if (!(await requireSchoolStaff())) {
+    return NextResponse.json({ error: "학교 교사만 아카이브를 내보낼 수 있습니다." }, { status: 403 });
   }
   const token = process.env.GITHUB_TOKEN;
   if (!token) {

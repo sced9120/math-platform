@@ -1,7 +1,7 @@
 import { requireProfile, isStaff } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getEnabledModels } from "@/lib/ai/models";
-import { getAiLimits } from "@/lib/ai/server";
+import { aiOwnerOf, getAiLimits } from "@/lib/ai/server";
 import { createClient } from "@/lib/supabase/server";
 import AuthoringStudio from "@/components/teacher/authoring-studio";
 
@@ -11,14 +11,16 @@ export default async function AuthoringPage() {
   if (!isStaff(profile.role)) redirect("/dashboard");
 
   const supabase = await createClient();
+  // AI 모델·한도는 담당 교사(학생) 또는 본인(교사)의 설정을 쓴다
+  const aiOwner = await aiOwnerOf(supabase, profile.id);
   const [{ data: me }, models, limits, { data: acts }] = await Promise.all([
     supabase
       .from("profiles")
       .select("ai_consent_at")
       .eq("id", profile.id)
       .single<{ ai_consent_at: string | null }>(),
-    getEnabledModels(),
-    getAiLimits(),
+    getEnabledModels(aiOwner),
+    getAiLimits(aiOwner),
     // 만든 화면을 붙일 곳 — 단원별로 묶어 고르게 한다
     supabase
       .from("activities")

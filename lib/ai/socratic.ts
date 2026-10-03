@@ -28,17 +28,18 @@ export function validateChatHistory(input: unknown): ChatMessage[] | null {
 export async function askSocratic(params: {
   provider: Provider;
   model: string;
+  ownerId: string; // 담당 교사 (그 교사의 키·프롬프트를 쓴다)
   activityContext: string;
   messages: ChatMessage[];
 }): Promise<string> {
-  const base = await getSystemPrompt("chat_socratic");
+  const base = await getSystemPrompt("chat_socratic", params.ownerId);
   const system = `${base}
 
 [지금 대화의 맥락]
 ${params.activityContext}`;
 
   return callChat(
-    { provider: params.provider, model: params.model },
+    { provider: params.provider, model: params.model, ownerId: params.ownerId },
     { system, messages: params.messages }
   );
 }

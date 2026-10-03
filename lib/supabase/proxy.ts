@@ -40,8 +40,15 @@ export async function updateSession(request: NextRequest) {
   const isSetup = path.startsWith("/setup") || path.startsWith("/api/setup");
   // 체험판 — 로그인 없이 둘러보는 읽기 전용 화면. 저장·AI 는 전부 막혀 있다.
   const isDemo = path.startsWith("/demo");
+  // 누구나 여는 곳: 첫 화면, 만져보는 수학(기록 저장 없음), 교사 가입
+  // (가입 가능 여부는 /api/signup 에서 서버가 사이트 설정을 보고 정한다)
+  const isPublic =
+    path === "/" ||
+    path.startsWith("/hands-on") ||
+    path.startsWith("/signup") ||
+    path.startsWith("/api/signup");
 
-  if (!user && !isLoginPage && !isSetup && !isDemo) {
+  if (!user && !isLoginPage && !isSetup && !isDemo && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

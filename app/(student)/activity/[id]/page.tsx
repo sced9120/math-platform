@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ActivityRunner from "@/components/student/activity-runner";
 import { getEnabledModels } from "@/lib/ai/models";
-import { getAiLimits } from "@/lib/ai/server";
+import { aiOwnerOf, getAiLimits } from "@/lib/ai/server";
 import type { Activity } from "@/lib/types";
 import type { Screen } from "@/lib/screens";
 
@@ -44,6 +44,9 @@ export default async function StudentActivityPage({
     data: { user },
   } = await supabase.auth.getUser();
 
+  // AI 모델·한도는 이 활동을 만든 교사의 설정을 쓴다 (위에서 학생이 볼 수 있는 활동임을 확인함)
+  const aiOwner = await aiOwnerOf(supabase, user!.id, id);
+
   const [
     { data: unit },
     { data: progress },
@@ -71,8 +74,8 @@ export default async function StudentActivityPage({
         .select("ai_consent_at")
         .eq("id", user!.id)
         .single<{ ai_consent_at: string | null }>(),
-      getEnabledModels(),
-      getAiLimits(),
+      getEnabledModels(aiOwner),
+      getAiLimits(aiOwner),
     ]);
 
   // 화면(+질문)키 → 저장해 둔 기록 (기록칸이 열릴 때 그대로 채워진다)

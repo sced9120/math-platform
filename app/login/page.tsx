@@ -4,11 +4,14 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { loginEmail, normalizeClassCode } from "@/lib/class-code";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [studentId, setStudentId] = useState("");
+  // 학급 코드 — 선생님이 나눠 준 링크(/login?c=코드)로 오면 미리 채워진다
+  const [classCode, setClassCode] = useState(searchParams.get("c") ?? "");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(
     searchParams.get("error") === "no-profile"
@@ -32,14 +35,18 @@ function LoginForm() {
     setLoading(true);
 
     const supabase = createClient();
-    // 학번을 내부 가상 이메일로 변환해 로그인 (학생에겐 학번만 노출)
+    // 학번(+학급 코드) 또는 교사 아이디를 내부 가상 이메일로 바꿔 로그인
     const { error } = await supabase.auth.signInWithPassword({
-      email: `${studentId.trim()}@school.local`,
+      email: loginEmail(studentId, classCode),
       password,
     });
 
     if (error) {
-      setError("학번 또는 비밀번호가 올바르지 않습니다.");
+      setError(
+        normalizeClassCode(classCode)
+          ? "학번·학급 코드·비밀번호를 다시 확인하세요."
+          : "학번(아이디) 또는 비밀번호가 올바르지 않습니다. 학급 코드를 받았다면 함께 입력하세요."
+      );
       setLoading(false);
       return;
     }
@@ -63,7 +70,7 @@ function LoginForm() {
       )}
       <div className="flex flex-col gap-1">
         <label htmlFor="studentId" className="text-sm font-medium text-zinc-700">
-          학번
+          학번 <span className="font-normal text-zinc-400">(선생님은 아이디)</span>
         </label>
         <input
           id="studentId"
@@ -73,6 +80,22 @@ function LoginForm() {
           placeholder="예: 10315"
           value={studentId}
           onChange={(e) => setStudentId(e.target.value)}
+          className="rounded-md border border-zinc-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="classCode" className="text-sm font-medium text-zinc-700">
+          학급 코드 <span className="font-normal text-zinc-400">(받았을 때만)</span>
+        </label>
+        <input
+          id="classCode"
+          type="text"
+          autoCapitalize="none"
+          autoComplete="off"
+          placeholder="선생님께 받은 코드 · 없으면 비워 두세요"
+          value={classCode}
+          onChange={(e) => setClassCode(e.target.value)}
           className="rounded-md border border-zinc-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
         />
       </div>
@@ -101,6 +124,21 @@ function LoginForm() {
       >
         {loading ? "로그인 중..." : "로그인"}
       </button>
+
+      <div className="flex flex-col gap-1 border-t border-zinc-100 pt-4 text-center text-sm text-zinc-500">
+        <p>
+          선생님이신가요?{" "}
+          <Link href="/signup" className="text-blue-600 hover:underline">
+            가입해서 내 학급 만들기
+          </Link>
+        </p>
+        <p>
+          <Link href="/hands-on" className="text-blue-600 hover:underline">
+            🖐 만져보는 수학
+          </Link>{" "}
+          은 로그인 없이 쓸 수 있어요
+        </p>
+      </div>
     </form>
   );
 }

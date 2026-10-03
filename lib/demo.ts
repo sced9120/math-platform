@@ -8,6 +8,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 //  2) 공개된 것만 — 교과·단원·활동이 모두 is_published 여야 한다.
 //  3) 정답을 내보내지 않는다 — problem 유형의 answer/tolerance 를 지운다.
 //  4) 학생 개인정보(profiles, progress)는 아예 건드리지 않는다.
+//  5) 학교 교사(관리자 + 관리자가 만든 교사)의 자료만 — 누구나 교사로 가입하는 구조라
+//     가입 교사의 자료가 체험판에 섞이면 안 된다. (0017 이전엔 owner_id 가 없어 그대로 통과)
 
 export type DemoActivity = {
   id: string;
@@ -30,6 +32,22 @@ function stripAnswer(content: unknown): Record<string, unknown> {
   return safe;
 }
 
+// 학교 교사 = 관리자 + 관리자가 만든 교사 (가입 교사 제외). profiles 의 역할만 읽는다(개인정보 아님).
+// self_signup 은 0017 이후에만 있으므로 컬럼을 나열하지 않는다.
+async function schoolStaffIds(db: ReturnType<typeof createAdminClient>): Promise<Set<string>> {
+  const { data } = await db.from("profiles").select("*").in("role", ["admin", "teacher"]);
+  return new Set(
+    ((data ?? []) as { id: string; self_signup?: boolean }[])
+      .filter((p) => p.self_signup !== true)
+      .map((p) => p.id)
+  );
+}
+
+// owner_id 컬럼이 아직 없으면(undefined) 통과, 있으면 학교 교사의 것만
+function ownedBySchool(row: { owner_id?: string | null }, staff: Set<string>): boolean {
+  return row.owner_id === undefined || (!!row.owner_id && staff.has(row.owner_id));
+}
+
 // 체험용으로 보여 줄 교과 하나 (가장 앞선 공개 교과)
 export async function getDemoSubject(): Promise<{
   subject: DemoSubject;
@@ -37,15 +55,19 @@ export async function getDemoSubject(): Promise<{
   activities: DemoActivity[];
 } | null> {
   const db = createAdminClient();
+  const staff = await schoolStaffIds(db);
 
-  const { data: subject } = await db
+  // owner_id 는 0017 이후에만 있으므로 컬럼을 나열하지 않는다
+  const { data: subjects } = await db
     .from("subjects")
-    .select("id, title, grade")
+    .select("*")
     .eq("is_published", true)
-    .order("order_index")
-    .limit(1)
-    .maybeSingle<DemoSubject>();
-  if (!subject) return null;
+    .order("order_index");
+  const found = ((subjects ?? []) as (DemoSubject & { owner_id?: string | null })[]).find((x) =>
+    ownedBySchool(x, staff)
+  );
+  if (!found) return null;
+  const subject: DemoSubject = { id: found.id, title: found.title, grade: found.grade };
 
   const { data: units } = await db
     .from("units")
@@ -111,14 +133,15 @@ export async function getDemoActivity(id: string): Promise<
   | null
 > {
   const db = createAdminClient();
+  const staff = await schoolStaffIds(db);
 
   const { data: a } = await db
     .from("activities")
-    .select("id, title, type, unit_id, order_index, content, is_published")
+    .select("*")
     .eq("id", id)
     .eq("is_published", true)
-    .maybeSingle<DemoActivity & { is_published: boolean }>();
-  if (!a) return null;
+    .maybeSingle<DemoActivity & { is_published: boolean; owner_id?: string | null }>();
+  if (!a || !ownedBySchool(a, staff)) return null;
 
   const { data: unit } = await db
     .from("units")

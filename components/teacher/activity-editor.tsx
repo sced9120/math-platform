@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import ScreenBody from "@/components/student/screen-body";
 import ScreenLibrary from "@/components/teacher/screen-library";
+import ManipulativePicker from "@/components/teacher/manipulative-picker";
+import { appendScreen } from "@/lib/client/append-screen";
+import type { Manipulative } from "@/lib/manipulatives";
 import {
   DEFAULT_PLANE,
   QUESTION_TYPE_LABEL,
@@ -43,6 +46,7 @@ export default function ActivityEditor({
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [libraryOpen, setLibraryOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const cur = screens[selected];
   // 타자 칠 때마다 저장하지 않도록 잠깐 모았다 보낸다
@@ -100,27 +104,45 @@ export default function ActivityEditor({
   async function copyFrom(src: Screen) {
     setBusy(true);
     setError(null);
-    const { data, error } = await supabase
-      .from("activity_screens")
-      .insert({
-        activity_id: unitActivityId,
-        screen_key: nextScreenKey(screens.map((s) => s.screen_key)),
-        order_index: screens.length,
+    try {
+      const created = await appendScreen(supabase, unitActivityId, {
         type: src.type,
         title: src.title,
         config: src.config,
         questions: src.questions,
         sheet: src.sheet,
         teach: src.teach,
-      })
-      .select("*")
-      .single<Screen>();
-    setBusy(false);
-    if (error) return setError("가져오지 못했습니다.");
-    setScreens((prev) => [...prev, data]);
-    setSelected(screens.length);
-    setLibraryOpen(false);
-    router.refresh();
+      });
+      setScreens((prev) => [...prev, created]);
+      setSelected(screens.length);
+      setLibraryOpen(false);
+      router.refresh();
+    } catch {
+      setError("가져오지 못했습니다.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // 만져보는 수학의 자료를 이 소단원 끝에 활동 한 화면으로 복사한다
+  async function addFromLibrary(m: Manipulative) {
+    setBusy(true);
+    setError(null);
+    try {
+      const created = await appendScreen(supabase, unitActivityId, {
+        type: m.type,
+        title: m.title,
+        config: m.config,
+      });
+      setScreens((prev) => [...prev, created]);
+      setSelected(screens.length);
+      setPickerOpen(false);
+      router.refresh();
+    } catch {
+      setError("만져보는 수학 자료를 가져오지 못했습니다.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function move(dir: -1 | 1) {
@@ -232,7 +254,22 @@ export default function ActivityEditor({
         >
           📚 다른 활동에서 가져오기
         </button>
+        <button
+          onClick={() => setPickerOpen((v) => !v)}
+          disabled={busy}
+          className="rounded-md border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+        >
+          🖐 만져보는 수학에서
+        </button>
       </div>
+
+      {pickerOpen && (
+        <ManipulativePicker
+          busy={busy}
+          onPick={addFromLibrary}
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
 
       {libraryOpen && (
         <ScreenLibrary
@@ -361,7 +398,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function ConfigFields({
+export function ConfigFields({
   screen,
   onChange,
 }: {

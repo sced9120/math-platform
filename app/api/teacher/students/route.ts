@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { toStudentId, defaultPassword, type StudentRow } from "@/lib/types";
+import { generateClassCode, studentEmail } from "@/lib/class-code";
 
 // 학생 계정 일괄 생성 (교사 전용).
 // service role key는 이 서버 코드에서만 사용된다 — 클라이언트 노출 금지.
@@ -19,11 +20,38 @@ async function requireTeacher() {
 
   const { data: me } = await supabase
     .from("profiles")
-    .select("role")
+    // self_signup·class_code 는 0017 이후에만 있으므로 컬럼을 나열하지 않는다
+    .select("*")
     .eq("id", user.id)
-    .single();
+    .single<{ role: string; self_signup?: boolean; class_code?: string | null }>();
   if (me?.role !== "teacher" && me?.role !== "admin") return null;
-  return { user, role: me.role as "teacher" | "admin" };
+  return {
+    user,
+    role: me.role as "teacher" | "admin",
+    selfSignup: me.self_signup === true,
+    classCode: me.class_code ?? null,
+  };
+}
+
+// 이 교사의 학생 로그인에 붙일 학급 코드.
+//  - 학교 교사(관리자 + 관리자가 만든 교사)의 학생: 코드 없이 학번만 (예전 그대로)
+//  - 가입 교사의 학생: 학번 + 학급 코드 — 학번은 학교마다 겹치기 때문.
+//    코드가 없으면(드문 경우) 지금 만들어 준다.
+async function classCodeFor(
+  admin: ReturnType<typeof createAdminClient>,
+  actor: { user: { id: string }; selfSignup: boolean; classCode: string | null }
+): Promise<string | null> {
+  if (!actor.selfSignup) return null;
+  if (actor.classCode) return actor.classCode;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const code = generateClassCode();
+    const { error } = await admin
+      .from("profiles")
+      .update({ class_code: code })
+      .eq("id", actor.user.id);
+    if (!error) return code;
+  }
+  throw new Error("학급 코드를 만들지 못했습니다.");
 }
 
 // 이 학생을 내 목록에 담고 있는가 (관리자는 전부).
@@ -90,6 +118,15 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient();
   const results = [];
+  let classCode: string | null;
+  try {
+    classCode = await classCodeFor(admin, actor);
+  } catch {
+    return NextResponse.json(
+      { error: "학급 코드를 만들지 못했습니다. (마이그레이션 0017 실행 여부 확인)" },
+      { status: 500 }
+    );
+  }
 
   for (const s of students) {
     const row = {
@@ -120,7 +157,7 @@ export async function POST(request: Request) {
     const password = givenPw || defaultPassword(studentId);
 
     const { data: created, error: authError } = await admin.auth.admin.createUser({
-      email: `${studentId}@school.local`,
+      email: studentEmail(studentId, classCode),
       password,
       email_confirm: true,
     });
@@ -162,7 +199,7 @@ export async function POST(request: Request) {
     results.push({ studentId, name: row.name, password, ok: true });
   }
 
-  return NextResponse.json({ results });
+  return NextResponse.json({ results, classCode });
 }
 
 // 학생 비밀번호 재설정 (분실 시). 새 비밀번호 미지정이면 학번으로 초기화.

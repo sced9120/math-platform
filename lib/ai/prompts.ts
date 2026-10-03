@@ -62,12 +62,14 @@ export const PROMPT_META: Record<PromptKey, { label: string; desc: string }> = {
 export const PROMPT_KEYS = Object.keys(DEFAULT_PROMPTS) as PromptKey[];
 export const MAX_PROMPT_LENGTH = 6000;
 
-// DB override가 있으면 그것을, 없으면 기본값을 반환 (AI 호출 시 사용)
-export async function getSystemPrompt(key: PromptKey): Promise<string> {
+// 그 교사가 고친 프롬프트가 있으면 그것을, 없으면 기본값을 반환 (AI 호출 시 사용)
+// ownerId = AI 설정 주인 (학생 요청이면 담당 교사)
+export async function getSystemPrompt(key: PromptKey, ownerId: string): Promise<string> {
   try {
     const { data } = await createAdminClient()
       .from("ai_prompts")
       .select("content")
+      .eq("owner_id", ownerId)
       .eq("key", key)
       .maybeSingle();
     const content = (data?.content as string | undefined)?.trim();

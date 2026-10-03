@@ -6,21 +6,20 @@ import { getApiKey, type Provider } from "@/lib/ai/models";
 
 // ============================================================
 // AI provider 추상화 — OpenAI / Gemini / Anthropic.
-// 호출부는 {provider, model}을 넘기고, 키는 DB(ai_secrets) 또는 환경변수에서.
+// 호출부는 {provider, model, ownerId}를 넘기고, 키는 그 교사의 것(ai_secrets)을 쓴다.
 // (docs/03_AI_FEATURES.md "AI 호출 추상화 설계")
 // ============================================================
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 
-type Call = { provider: Provider; model: string };
+// ownerId = AI 설정 주인 (학생 요청이면 담당 교사, 교사 요청이면 본인)
+export type Call = { provider: Provider; model: string; ownerId: string };
 
-async function keyOrThrow(provider: Provider): Promise<string> {
-  const key = await getApiKey(provider);
-  if (!key) {
-    throw new Error(
-      `${provider} API 키가 설정되지 않았습니다. 관리자 설정에서 키를 등록하세요.`
-    );
-  }
+export const NO_KEY_ERROR = "AI_KEY_MISSING";
+
+async function keyOrThrow(call: Call): Promise<string> {
+  const key = await getApiKey(call.provider, call.ownerId);
+  if (!key) throw new Error(NO_KEY_ERROR);
   return key;
 }
 
@@ -38,11 +37,11 @@ export async function callChat(
 ): Promise<string> {
   switch (call.provider) {
     case "openai":
-      return openaiChat(call.model, params);
+      return openaiChat(call, params);
     case "gemini":
-      return geminiChat(call.model, params);
+      return geminiChat(call, params);
     case "anthropic":
-      return anthropicChat(call.model, params);
+      return anthropicChat(call, params);
   }
 }
 
@@ -68,13 +67,13 @@ export async function callChatJsonWithImages<T>(
   let raw: string;
   switch (call.provider) {
     case "openai":
-      raw = await openaiJson(call.model, params);
+      raw = await openaiJson(call, params);
       break;
     case "gemini":
-      raw = await geminiJson(call.model, params);
+      raw = await geminiJson(call, params);
       break;
     case "anthropic":
-      raw = await anthropicJson(call.model, params);
+      raw = await anthropicJson(call, params);
       break;
   }
   if (!raw) throw new Error("AI 응답이 비어 있습니다.");
@@ -83,8 +82,8 @@ export async function callChatJsonWithImages<T>(
 
 // ================= OpenAI =================
 
-async function openaiClient(): Promise<OpenAI> {
-  return new OpenAI({ apiKey: await keyOrThrow("openai") });
+async function openaiClient(call: Call): Promise<OpenAI> {
+  return new OpenAI({ apiKey: await keyOrThrow(call) });
 }
 // gpt-5 계열만 reasoning_effort를 지원 → 다른 모델엔 넣지 않는다
 function openaiExtra(model: string, effort: "low" | "medium") {
@@ -92,10 +91,11 @@ function openaiExtra(model: string, effort: "low" | "medium") {
 }
 
 async function openaiChat(
-  model: string,
+  call: Call,
   params: { system: string; messages: ChatMessage[]; maxTokens?: number }
 ): Promise<string> {
-  const client = await openaiClient();
+  const { model } = call;
+  const client = await openaiClient(call);
   const res = await client.chat.completions.create({
     model,
     // GPT-5 계열은 이 예산 안에 '추론 토큰'까지 들어간다. 너무 작으면 추론이 다 써 버려
@@ -108,10 +108,11 @@ async function openaiChat(
 }
 
 async function openaiJson(
-  model: string,
+  call: Call,
   params: { system: string; text: string; images: string[]; schema: Record<string, unknown> }
 ): Promise<string> {
-  const client = await openaiClient();
+  const { model } = call;
+  const client = await openaiClient(call);
   const content: OpenAI.Chat.ChatCompletionContentPart[] = [
     { type: "text", text: params.text },
     ...params.images.map(
@@ -136,15 +137,16 @@ async function openaiJson(
 
 // ================= Gemini =================
 
-async function geminiClient(): Promise<GoogleGenAI> {
-  return new GoogleGenAI({ apiKey: await keyOrThrow("gemini") });
+async function geminiClient(call: Call): Promise<GoogleGenAI> {
+  return new GoogleGenAI({ apiKey: await keyOrThrow(call) });
 }
 
 async function geminiChat(
-  model: string,
+  call: Call,
   params: { system: string; messages: ChatMessage[]; maxTokens?: number }
 ): Promise<string> {
-  const ai = await geminiClient();
+  const { model } = call;
+  const ai = await geminiClient(call);
   const res = await ai.models.generateContent({
     model,
     contents: params.messages.map((m) => ({
@@ -157,10 +159,11 @@ async function geminiChat(
 }
 
 async function geminiJson(
-  model: string,
+  call: Call,
   params: { system: string; text: string; images: string[]; schema: Record<string, unknown> }
 ): Promise<string> {
-  const ai = await geminiClient();
+  const { model } = call;
+  const ai = await geminiClient(call);
   const parts: Array<
     { text: string } | { inlineData: { mimeType: string; data: string } }
   > = [{ text: params.text }];
@@ -183,15 +186,16 @@ async function geminiJson(
 
 // ================= Anthropic (Claude) =================
 
-async function anthropicClient(): Promise<Anthropic> {
-  return new Anthropic({ apiKey: await keyOrThrow("anthropic") });
+async function anthropicClient(call: Call): Promise<Anthropic> {
+  return new Anthropic({ apiKey: await keyOrThrow(call) });
 }
 
 async function anthropicChat(
-  model: string,
+  call: Call,
   params: { system: string; messages: ChatMessage[]; maxTokens?: number }
 ): Promise<string> {
-  const client = await anthropicClient();
+  const { model } = call;
+  const client = await anthropicClient(call);
   const res = await client.messages.create({
     model,
     max_tokens: params.maxTokens ?? 8000,
@@ -203,10 +207,11 @@ async function anthropicChat(
 }
 
 async function anthropicJson(
-  model: string,
+  call: Call,
   params: { system: string; text: string; images: string[]; schema: Record<string, unknown> }
 ): Promise<string> {
-  const client = await anthropicClient();
+  const { model } = call;
+  const client = await anthropicClient(call);
   const blocks: Anthropic.ContentBlockParam[] = [{ type: "text", text: params.text }];
   for (const url of params.images) {
     const { mimeType, data } = splitDataUrl(url);

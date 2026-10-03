@@ -11,6 +11,9 @@ export type Profile = {
   name: string;
   role: Role;
   must_change_password: boolean;
+  teacher_id?: string | null; // 학생의 담당 교사
+  self_signup?: boolean; // 0017: /signup 으로 직접 가입한 교사 (학교 학생 명단이 안 보임)
+  class_code?: string | null; // 0017: 가입 교사의 학급 코드
 };
 
 // admin은 교사 기능을 모두 포함한다

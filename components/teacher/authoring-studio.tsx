@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { nextScreenKey } from "@/lib/screens";
+import { appendScreen } from "@/lib/client/append-screen";
 import AiConsent from "@/components/student/ai-consent";
 
 // 조작 활동 만들기 — 왼쪽 챗봇 / 오른쪽 코드·미리보기 탭.
@@ -160,43 +160,17 @@ if(s.length&&![].some.call(s,function(x){return x.classList.contains("on");}))s[
   }
 
   // 만든 화면을 활동에 붙인다.
-  // 쓰기 권한은 activity_screens 의 RLS(is_teacher)가 DB 에서 막아 준다.
+  // 쓰기 권한은 activity_screens 의 RLS(내 소단원만)가 DB 에서 막아 준다.
   async function save() {
     if (!saveTo || !code.trim() || saving) return;
     setSaving(true);
     setSaveErr(null);
-    const supabase = createClient();
     try {
-      // 화면키는 학생 기록이 붙는 값이다. 지금 있는 화면뿐 아니라
-      // 지워진 화면의 기록이 남아 있는 키까지 피해야 옛 답이 새 화면에 붙지 않는다.
-      // (docs/07_SCREEN_ARCHITECTURE.md — "화면키를 바꾸거나 재사용하지 않는다")
-      const [{ data: rows, error: readErr }, { data: used }] = await Promise.all([
-        supabase
-          .from("activity_screens")
-          .select("screen_key, order_index")
-          .eq("activity_id", saveTo),
-        supabase
-          .from("screen_responses")
-          .select("screen_key")
-          .eq("activity_id", saveTo),
-      ]);
-      if (readErr) throw new Error(readErr.message);
-
-      const existing = (rows ?? []) as { screen_key: string; order_index: number }[];
-      const taken = [
-        ...existing.map((r) => r.screen_key),
-        ...((used ?? []) as { screen_key: string }[]).map((r) => r.screen_key),
-      ];
-      const { error } = await supabase.from("activity_screens").insert({
-        activity_id: saveTo,
-        screen_key: nextScreenKey(taken),
-        order_index: existing.reduce((m, r) => Math.max(m, r.order_index + 1), 0),
+      await appendScreen(createClient(), saveTo, {
         type: "html",
         title: saveTitle.trim() || guessTitle(code),
         config: { html: code },
-        questions: [],
       });
-      if (error) throw new Error(error.message);
 
       const act = activities.find((a) => a.id === saveTo);
       setSaved({ id: saveTo, title: act?.title ?? "활동" });

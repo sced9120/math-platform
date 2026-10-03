@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { myStudentIds } from "@/lib/my-students";
 import { createClient } from "@/lib/supabase/server";
 import SubmissionsTable, {
   type SubmissionRow,
@@ -41,6 +42,8 @@ export default async function SubmissionsPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const me = (await supabase.auth.getUser()).data.user?.id ?? "";
+  const myIds = await myStudentIds(supabase, me);
 
   const { data: activity } = await supabase
     .from("activities")
@@ -62,6 +65,7 @@ export default async function SubmissionsPage({
     .from("profiles")
     .select("id, grade, class_no, student_no, name")
     .eq("role", "student")
+        .in("id", myIds) // 내 목록에 담은 학생만 (관리자도 — 다른 교사 학급이 섞이지 않게)
     .eq("grade", activity.units.grade);
   if (activity.assigned_classes !== null) {
     studentQuery = studentQuery.in("class_no", activity.assigned_classes);

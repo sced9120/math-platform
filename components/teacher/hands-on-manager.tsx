@@ -6,14 +6,21 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import ScreenBody from "@/components/student/screen-body";
 import CopyLinkButton from "@/components/copy-link-button";
+import SchoolLevelTabs from "@/components/school-level-tabs";
 import { ConfigFields } from "@/components/teacher/activity-editor";
 import { appendScreen } from "@/lib/client/append-screen";
 import { DEFAULT_PLANE, SCREEN_TYPE_LABEL, type Screen } from "@/lib/screens";
 import {
   MANIPULATIVE_TYPES,
+  SCHOOL_LEVELS,
   SLUG_RE,
+  countByLevel,
+  firstLevelWithItems,
+  groupByTopic,
   manipulativePath,
+  schoolLevelLabel,
   type Manipulative,
+  type SchoolLevel,
 } from "@/lib/manipulatives";
 
 export type TargetActivity = { id: string; title: string; unit: string; eligible: boolean };
@@ -25,6 +32,7 @@ const EMPTY_DRAFT: Draft = {
   title: "",
   summary: "",
   topic: "",
+  school_level: "middle",
   order_index: 0,
   type: "plane",
   config: { plane: DEFAULT_PLANE },
@@ -44,17 +52,14 @@ export default function HandsOnManager({
 }) {
   const router = useRouter();
   const [items, setItems] = useState<Manipulative[]>(initialItems);
+  const [level, setLevel] = useState<SchoolLevel>(() => firstLevelWithItems(initialItems));
   const [draft, setDraft] = useState<Draft | null>(null);
   const [addingFor, setAddingFor] = useState<string | null>(null); // 소단원에 추가 중인 자료 id
   const [target, setTarget] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ ok: boolean; text: string; href?: string } | null>(null);
 
-  const groups = new Map<string, Manipulative[]>();
-  for (const m of items) {
-    const k = m.topic || "기타";
-    groups.set(k, [...(groups.get(k) ?? []), m]);
-  }
+  const shown = items.filter((m) => m.school_level === level);
   const eligibleTargets = targets.filter((t) => t.eligible);
   const blockedCount = targets.length - eligibleTargets.length;
 
@@ -111,6 +116,7 @@ export default function HandsOnManager({
       title: draft.title.trim(),
       summary: draft.summary.trim(),
       topic: draft.topic.trim(),
+      school_level: draft.school_level,
       order_index: draft.order_index,
       type: draft.type,
       config: draft.config,
@@ -131,6 +137,7 @@ export default function HandsOnManager({
       });
     }
     setDraft(null);
+    setLevel(record.school_level); // 저장한 자료가 보이는 학교급으로
     setNotice({ ok: true, text: "저장했습니다." });
     await reload();
   }
@@ -170,7 +177,7 @@ export default function HandsOnManager({
           </Link>
           {isAdmin && !draft && (
             <button
-              onClick={() => setDraft({ ...EMPTY_DRAFT })}
+              onClick={() => setDraft({ ...EMPTY_DRAFT, school_level: level })}
               className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
             >
               + 새 자료
@@ -213,12 +220,21 @@ export default function HandsOnManager({
         />
       )}
 
-      {items.length === 0 && !loadError ? (
+      <SchoolLevelTabs
+        current={level}
+        counts={countByLevel(items)}
+        onSelect={(l) => {
+          setLevel(l);
+          setAddingFor(null);
+        }}
+      />
+
+      {shown.length === 0 && !loadError ? (
         <p className="rounded-xl border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500">
-          아직 자료가 없습니다.
+          {schoolLevelLabel(level)} 자료는 아직 없습니다.
         </p>
       ) : (
-        [...groups.entries()].map(([topic, list]) => (
+        groupByTopic(shown).map(([topic, list]) => (
           <section key={topic}>
             <h3 className="mb-2 text-sm font-semibold text-zinc-500">{topic}</h3>
             <div className="grid gap-3 md:grid-cols-2">
@@ -395,6 +411,25 @@ function DraftEditor({
                 className={input}
               />
             </label>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-medium text-zinc-600">학교급 (메뉴)</span>
+            <div className="flex gap-1">
+              {SCHOOL_LEVELS.map((l) => (
+                <button
+                  key={l.key}
+                  type="button"
+                  onClick={() => set({ school_level: l.key })}
+                  className={`rounded-md border px-3 py-1.5 text-sm ${
+                    draft.school_level === l.key
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50"
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
           </div>
           <label className="flex flex-col gap-1">
             <span className="text-xs font-medium text-zinc-600">한 줄 설명</span>

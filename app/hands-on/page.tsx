@@ -1,34 +1,45 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SCREEN_TYPE_LABEL } from "@/lib/screens";
-import { manipulativePath, type Manipulative } from "@/lib/manipulatives";
+import SchoolLevelTabs from "@/components/school-level-tabs";
+import {
+  countByLevel,
+  firstLevelWithItems,
+  groupByTopic,
+  isSchoolLevel,
+  manipulativePath,
+  schoolLevelLabel,
+  type Manipulative,
+} from "@/lib/manipulatives";
 
 export const metadata = { title: "만져보는 수학" };
 
-// 만져보는 수학 목록 — 누구나, 로그인 없이.
+// 만져보는 수학 목록 — 누구나, 로그인 없이. 학교급(초·중·고)별 메뉴로 나눈다 (?level=middle).
 // 공개된 자료만 보인다 (RLS manipulatives_public_read 가 거른다).
-export default async function HandsOnListPage() {
+export default async function HandsOnListPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const { level: levelParam } = await searchParams;
   const supabase = await createClient();
   const { data } = await supabase
     .from("manipulatives")
-    .select("id, slug, title, summary, topic, order_index, type")
+    .select("id, slug, title, summary, topic, school_level, order_index, type")
     .eq("is_published", true)
     .order("topic")
     .order("order_index");
 
   const items = (data as Pick<
     Manipulative,
-    "id" | "slug" | "title" | "summary" | "topic" | "order_index" | "type"
+    "id" | "slug" | "title" | "summary" | "topic" | "school_level" | "order_index" | "type"
   >[] | null) ?? [];
 
-  const groups = new Map<string, typeof items>();
-  for (const m of items) {
-    const k = m.topic || "기타";
-    groups.set(k, [...(groups.get(k) ?? []), m]);
-  }
+  const level = isSchoolLevel(levelParam) ? levelParam : firstLevelWithItems(items);
+  const shown = items.filter((m) => m.school_level === level);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">🖐 만져보는 수학</h1>
         <p className="mt-2 text-sm text-zinc-600">
@@ -43,12 +54,18 @@ export default async function HandsOnListPage() {
         </p>
       </div>
 
-      {items.length === 0 ? (
+      <SchoolLevelTabs
+        current={level}
+        counts={countByLevel(items)}
+        hrefFor={(l) => `/hands-on?level=${l}`}
+      />
+
+      {shown.length === 0 ? (
         <p className="rounded-xl border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500">
-          아직 공개된 자료가 없습니다.
+          {schoolLevelLabel(level)} 자료는 준비 중입니다.
         </p>
       ) : (
-        [...groups.entries()].map(([topic, list]) => (
+        groupByTopic(shown).map(([topic, list]) => (
           <section key={topic}>
             <h2 className="mb-3 text-sm font-semibold text-zinc-500">{topic}</h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

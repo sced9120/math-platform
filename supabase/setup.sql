@@ -1,7 +1,7 @@
 -- ============================================================
 -- 수학 학습 플랫폼 — 전체 DB 설정 (한 번에 실행)
 -- 새 Supabase 프로젝트의 SQL Editor에 통째로 붙여넣고 Run 하세요.
--- (개별 마이그레이션 0001~0017을 순서대로 합친 파일입니다)
+-- (개별 마이그레이션 0001~0018을 순서대로 합친 파일입니다)
 -- ============================================================
 
 
@@ -2513,3 +2513,795 @@ values
       "lines":[],"circles":[{"center":"O","r":5}],"readouts":["distance"]}}'::jsonb,
    true, null)
 on conflict (slug) do nothing;
+
+
+-- ===== 0018_hands_on_levels.sql =====
+
+-- ============================================================
+-- 0018 만져보는 수학 — 학교급 메뉴 + 중학교 '작도'
+--  1) manipulatives.school_level: 초등학교(elementary) · 중학교(middle) · 고등학교(high)
+--     목록·교사 화면·활동 가져오기 창이 이 값으로 메뉴를 나눈다.
+--     지금 있는 예시 4개(도형의 방정식)는 고등학교로 들어간다.
+--  2) 중학교 '작도'에 자유 작도(눈금 없는 자와 컴퍼스)를 넣는다.
+--     HTML 원본은 content/hands-on/compass-straightedge.html,
+--     아래 insert 는 scripts/build-hands-on-sql.mjs 가 만든 것과 같다.
+-- 0017 다음에 실행하세요. 여러 번 실행해도 안전합니다.
+-- ============================================================
+
+alter table public.manipulatives
+  add column if not exists school_level text not null default 'high'
+  check (school_level in ('elementary', 'middle', 'high'));
+
+create index if not exists manipulatives_level_idx
+  on public.manipulatives (school_level, topic, order_index);
+
+-- 자유 작도 — 눈금 없는 자와 컴퍼스  (원본: content/hands-on/compass-straightedge.html)
+insert into public.manipulatives
+  (slug, title, summary, topic, school_level, order_index, type, config, is_published, owner_id)
+values (
+  'compass-straightedge',
+  '자유 작도 — 눈금 없는 자와 컴퍼스',
+  '자를 고정해 가장자리로 곧은 선을, 컴퍼스 침을 고정하고 연필을 돌려 원을 그립니다. 끝없이 넓은 종이에서 확대·축소하며 작도해 보세요.',
+  '작도', 'middle', 1, 'html',
+  jsonb_build_object('height', 660, 'html', $hands_on$<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>자유 작도 — 눈금 없는 자와 컴퍼스</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; color: #1f2937; }
+  #app { height: 660px; display: flex; flex-direction: column; user-select: none; -webkit-user-select: none; }
+  #bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px; border-bottom: 1px solid #e5e7eb; background: #f9fafb; }
+  .grp { display: flex; align-items: center; gap: 4px; padding-right: 6px; margin-right: 2px; border-right: 1px solid #e5e7eb; }
+  .grp:last-child { border-right: 0; }
+  button { font: inherit; font-size: 13px; border: 1px solid #d1d5db; background: #fff; color: #374151; border-radius: 8px; padding: 6px 9px; cursor: pointer; line-height: 1; white-space: nowrap; }
+  button:hover { background: #f3f4f6; }
+  button.on { background: #2563eb; border-color: #2563eb; color: #fff; }
+  button.lock.on { background: #f59e0b; border-color: #f59e0b; color: #fff; }
+  button:disabled { opacity: .4; cursor: default; }
+  button.warn { border-color: #fca5a5; color: #b91c1c; }
+  .dot { width: 22px; height: 22px; padding: 0; border-radius: 999px; border: 2px solid #fff; box-shadow: 0 0 0 1px #d1d5db; }
+  .dot.on { box-shadow: 0 0 0 2px #2563eb; }
+  #stage { position: relative; flex: 1; overflow: hidden; touch-action: none; background: #fdfdfb; }
+  #cv { position: absolute; inset: 0; display: block; }
+  #hint { position: absolute; left: 10px; bottom: 10px; max-width: min(560px, calc(100% - 190px)); background: rgba(255,255,255,.92); border: 1px solid #e5e7eb; border-radius: 10px; padding: 7px 10px; font-size: 12.5px; line-height: 1.5; color: #374151; pointer-events: none; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  #zoom { position: absolute; right: 10px; bottom: 10px; display: flex; gap: 4px; align-items: center; background: rgba(255,255,255,.92); border: 1px solid #e5e7eb; border-radius: 10px; padding: 4px; }
+  #zoom button { padding: 5px 8px; }
+  #zv { min-width: 46px; text-align: center; font-size: 12px; color: #4b5563; }
+  @media (max-width: 560px) { #hint { max-width: calc(100% - 20px); bottom: 56px; } button { padding: 6px 7px; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="bar">
+    <div class="grp">
+      <button data-mode="hand" title="화면 이동 (스페이스바를 누른 채 끌어도 됩니다)">✋ 이동</button>
+      <button data-mode="pen" class="on" title="펜으로 긋기">✏️ 펜</button>
+      <button data-mode="point" title="점 찍기">• 점</button>
+      <button data-mode="erase" title="지우개 — 지울 선이나 점을 누르거나 문지르세요">🧽 지우개</button>
+    </div>
+    <div class="grp">
+      <button id="bRuler" class="on" title="눈금 없는 자 꺼내기/넣기">📏 자</button>
+      <button id="bRulerLock" class="lock" title="자를 움직이지 않게 고정 — 고정하면 가장자리를 따라 곧은 선이 그어집니다">🔒 자 고정</button>
+      <button id="bComp" class="on" title="컴퍼스 꺼내기/넣기">🧭 컴퍼스</button>
+      <button id="bPin" class="lock" title="컴퍼스 침 고정 — 고정한 뒤 연필 끝을 끌면 원이 그려집니다">📌 침 고정</button>
+    </div>
+    <div class="grp" id="colors"></div>
+    <div class="grp">
+      <button id="bUndo" title="되돌리기 (Ctrl+Z)">↶</button>
+      <button id="bRedo" title="다시 하기 (Ctrl+Shift+Z)">↷</button>
+      <button id="bGrid" title="격자 보이기">격자</button>
+      <button id="bClear" class="warn" title="그린 것 모두 지우기">모두 지우기</button>
+    </div>
+  </div>
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <div id="hint"></div>
+    <div id="zoom">
+      <button id="zOut" title="축소">−</button>
+      <span id="zv">100%</span>
+      <button id="zIn" title="확대">+</button>
+      <button id="zHome" title="처음 보기로">⌖</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  "use strict";
+  var TAU = Math.PI * 2;
+  var cv = document.getElementById("cv");
+  var ctx = cv.getContext("2d");
+  var stage = document.getElementById("stage");
+  var hintEl = document.getElementById("hint");
+  var W = 0, H = 0, DPR = 1;
+
+  // ── 보기(무한 캔버스) — 화면좌표 = (세계좌표 - o) × z ─────────────
+  var V = { ox: 0, oy: 0, z: 1 };
+  var ZMIN = 0.08, ZMAX = 10;
+
+  // ── 상태 ─────────────────────────────────────────────────────
+  var S = { mode: "pen", color: "#111827", grid: false, objs: [], hist: [], fut: [], ver: 0, focus: "compass" };
+  var COLORS = [["#111827", "검정"], ["#2563eb", "파랑"], ["#dc2626", "빨강"], ["#059669", "초록"]];
+  // 눈금 없는 자: 중심(x,y), 각 a, 길이·폭은 실제 물건처럼 고정
+  var R = { on: true, x: 0, y: 175, a: 0, len: 680, wid: 58, fixed: false };
+  // 컴퍼스: 침(nx,ny), 벌린 거리 r, 방향 a(침→연필), 다리 길이 LEG
+  var LEG = 230, MAXR = LEG * 2 * 0.95, MINR = 3;
+  var C = { on: true, nx: -150, ny: 40, r: 170, a: 0, pinned: false, flip: false };
+
+  var op = null;        // 지금 하는 조작
+  var preview = null;   // 그리는 중인 선
+  var snapMark = null;  // 붙는 점 표시
+  var edgeHot = null;   // 펜이 닿을 자의 가장자리 (+1/-1)
+  var pointers = new Map();
+  var pinch = null;
+  var spaceDown = false;
+
+  // ── 수학 도우미 ───────────────────────────────────────────────
+  function d2(a, b) { var dx = a.x - b.x, dy = a.y - b.y; return Math.sqrt(dx * dx + dy * dy); }
+  function wrap(t) { while (t > Math.PI) t -= TAU; while (t <= -Math.PI) t += TAU; return t; }
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+  function segDist(p, a, b) {
+    var vx = b.x - a.x, vy = b.y - a.y, L = vx * vx + vy * vy;
+    var t = L ? clamp(((p.x - a.x) * vx + (p.y - a.y) * vy) / L, 0, 1) : 0;
+    return d2(p, { x: a.x + vx * t, y: a.y + vy * t });
+  }
+  function toWorld(sx, sy) { return { x: sx / V.z + V.ox, y: sy / V.z + V.oy }; }
+  function px(n) { return n / V.z; } // 화면 n픽셀을 세계 길이로
+
+  // ── 자 ────────────────────────────────────────────────────────
+  function rAxes() { var c = Math.cos(R.a), s = Math.sin(R.a); return { ux: c, uy: s, vx: -s, vy: c }; }
+  function rLocal(p) { var A = rAxes(), dx = p.x - R.x, dy = p.y - R.y; return { u: dx * A.ux + dy * A.uy, v: dx * A.vx + dy * A.vy }; }
+  function rWorld(u, v) { var A = rAxes(); return { x: R.x + A.ux * u + A.vx * v, y: R.y + A.uy * u + A.vy * v }; }
+  function rKnob() { return rWorld(R.len / 2 - 30, 0); }
+  function rHit(p) { var L = rLocal(p); return Math.abs(L.u) <= R.len / 2 && Math.abs(L.v) <= R.wid / 2; }
+  // 펜이 가장자리 가까이 있는가 → 어느 쪽 가장자리, 가장자리 위의 위치 u
+  function rNearEdge(p, tol) {
+    var L = rLocal(p);
+    if (Math.abs(L.u) > R.len / 2 + tol) return null;
+    var best = null;
+    [1, -1].forEach(function (sg) {
+      var dist = Math.abs(L.v - sg * R.wid / 2);
+      if (dist < tol && (!best || dist < best.dist)) best = { sign: sg, u: clamp(L.u, -R.len / 2, R.len / 2), dist: dist };
+    });
+    return best;
+  }
+
+  // ── 컴퍼스 ────────────────────────────────────────────────────
+  function cPen() { return { x: C.nx + C.r * Math.cos(C.a), y: C.ny + C.r * Math.sin(C.a) }; }
+  function cNormal() { var n = { x: Math.sin(C.a), y: -Math.cos(C.a) }; return C.flip ? { x: -n.x, y: -n.y } : n; }
+  function cHinge() {
+    var P = cPen(), n = cNormal(), h = Math.sqrt(Math.max(LEG * LEG - (C.r / 2) * (C.r / 2), 0));
+    return { x: (C.nx + P.x) / 2 + n.x * h, y: (C.ny + P.y) / 2 + n.y * h };
+  }
+  function cKnob() { var Hh = cHinge(), n = cNormal(); return { x: Hh.x + n.x * 56, y: Hh.y + n.y * 56 }; }
+  // 세워 놓을 때는 경첩이 화면 위쪽으로 오게 (돌리는 중에는 바꾸지 않아 부드럽게 돈다)
+  function cUpright() { C.flip = Math.cos(C.a) < 0; }
+
+  // ── 붙는 점: 찍은 점·선분 끝점·원의 중심·교점 ───────────────────
+  var snapCache = { ver: -1, pts: [] };
+  function inArc(o, th) {
+    var span = o.a1 - o.a0;
+    if (Math.abs(span) >= TAU - 1e-6) return true;
+    var d = th - o.a0;
+    if (span >= 0) { d = ((d % TAU) + TAU) % TAU; return d <= span + 1e-6; }
+    d = ((-d % TAU) + TAU) % TAU; return d <= -span + 1e-6;
+  }
+  function onSeg(o, p) { return segDist(p, { x: o.x1, y: o.y1 }, { x: o.x2, y: o.y2 }) < 1e-4 * Math.max(1, d2({ x: o.x1, y: o.y1 }, { x: o.x2, y: o.y2 })); }
+  function interLL(a, b) {
+    var x1 = a.x1, y1 = a.y1, x2 = a.x2, y2 = a.y2, x3 = b.x1, y3 = b.y1, x4 = b.x2, y4 = b.y2;
+    var den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    if (Math.abs(den) < 1e-9) return [];
+    var t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
+    var u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
+    if (t < -1e-6 || t > 1 + 1e-6 || u < -1e-6 || u > 1 + 1e-6) return [];
+    return [{ x: x1 + t * (x2 - x1), y: y1 + t * (y2 - y1) }];
+  }
+  function interLC(s, c) {
+    var dx = s.x2 - s.x1, dy = s.y2 - s.y1, fx = s.x1 - c.cx, fy = s.y1 - c.cy;
+    var A = dx * dx + dy * dy, B = 2 * (fx * dx + fy * dy), Cc = fx * fx + fy * fy - c.r * c.r;
+    var disc = B * B - 4 * A * Cc, out = [];
+    if (A < 1e-12 || disc < 0) return out;
+    var sq = Math.sqrt(disc);
+    [(-B - sq) / (2 * A), (-B + sq) / (2 * A)].forEach(function (t) {
+      if (t < -1e-6 || t > 1 + 1e-6) return;
+      var p = { x: s.x1 + t * dx, y: s.y1 + t * dy };
+      if (inArc(c, Math.atan2(p.y - c.cy, p.x - c.cx))) out.push(p);
+    });
+    return out;
+  }
+  function interCC(a, b) {
+    var dx = b.cx - a.cx, dy = b.cy - a.cy, d = Math.sqrt(dx * dx + dy * dy);
+    if (d < 1e-9 || d > a.r + b.r + 1e-9 || d < Math.abs(a.r - b.r) - 1e-9) return [];
+    var l = (a.r * a.r - b.r * b.r + d * d) / (2 * d), h = Math.sqrt(Math.max(a.r * a.r - l * l, 0));
+    var mx = a.cx + dx * l / d, my = a.cy + dy * l / d, out = [];
+    [[mx + h * dy / d, my - h * dx / d], [mx - h * dy / d, my + h * dx / d]].forEach(function (q, i) {
+      if (i === 1 && h < 1e-9) return;
+      var p = { x: q[0], y: q[1] };
+      if (inArc(a, Math.atan2(p.y - a.cy, p.x - a.cx)) && inArc(b, Math.atan2(p.y - b.cy, p.x - b.cx))) out.push(p);
+    });
+    return out;
+  }
+  function snapPoints() {
+    if (snapCache.ver === S.ver) return snapCache.pts;
+    var pts = [], segs = [], arcs = [];
+    S.objs.forEach(function (o) {
+      if (o.t === "pt") pts.push({ x: o.x, y: o.y });
+      else if (o.t === "seg") { segs.push(o); pts.push({ x: o.x1, y: o.y1 }, { x: o.x2, y: o.y2 }); }
+      else if (o.t === "arc") {
+        arcs.push(o); pts.push({ x: o.cx, y: o.cy });
+        if (Math.abs(o.a1 - o.a0) < TAU - 1e-6) {
+          pts.push({ x: o.cx + o.r * Math.cos(o.a0), y: o.cy + o.r * Math.sin(o.a0) });
+          pts.push({ x: o.cx + o.r * Math.cos(o.a1), y: o.cy + o.r * Math.sin(o.a1) });
+        }
+      }
+    });
+    var i, j;
+    for (i = 0; i < segs.length; i++) for (j = i + 1; j < segs.length; j++) pts.push.apply(pts, interLL(segs[i], segs[j]));
+    for (i = 0; i < segs.length; i++) for (j = 0; j < arcs.length; j++) pts.push.apply(pts, interLC(segs[i], arcs[j]));
+    for (i = 0; i < arcs.length; i++) for (j = i + 1; j < arcs.length; j++) pts.push.apply(pts, interCC(arcs[i], arcs[j]));
+    snapCache = { ver: S.ver, pts: pts };
+    return pts;
+  }
+  function findSnap(p, tolPx, except) {
+    var tol = px(tolPx), best = null, bd = tol;
+    snapPoints().forEach(function (q) {
+      if (except && d2(q, except) < 1e-6) return;
+      var d = d2(p, q);
+      if (d < bd) { bd = d; best = q; }
+    });
+    return best;
+  }
+
+  // ── 기록(되돌리기) ────────────────────────────────────────────
+  function commit(next) { S.hist.push(S.objs); if (S.hist.length > 200) S.hist.shift(); S.objs = next; S.fut = []; S.ver++; syncButtons(); }
+  function addObj(o) { commit(S.objs.concat([o])); }
+  function undo() { if (!S.hist.length) return; S.fut.push(S.objs); S.objs = S.hist.pop(); S.ver++; syncButtons(); draw(); }
+  function redo() { if (!S.fut.length) return; S.hist.push(S.objs); S.objs = S.fut.pop(); S.ver++; syncButtons(); draw(); }
+  function nextLabel() {
+    var used = {};
+    S.objs.forEach(function (o) { if (o.t === "pt") used[o.label] = 1; });
+    var abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    for (var k = 0; k < 10; k++) for (var i = 0; i < abc.length; i++) {
+      var l = abc[i] + (k ? String(k) : "");
+      if (!used[l]) return l;
+    }
+    return "P";
+  }
+
+  // ── 지우개 ────────────────────────────────────────────────────
+  function hitObj(o, p, tol) {
+    if (o.t === "pt") return d2(o, p) < tol + px(4);
+    if (o.t === "seg") return segDist(p, { x: o.x1, y: o.y1 }, { x: o.x2, y: o.y2 }) < tol;
+    if (o.t === "arc") return Math.abs(d2(p, { x: o.cx, y: o.cy }) - o.r) < tol && inArc(o, Math.atan2(p.y - o.cy, p.x - o.cx));
+    if (o.t === "free") {
+      for (var i = 1; i < o.pts.length; i++) if (segDist(p, { x: o.pts[i - 1][0], y: o.pts[i - 1][1] }, { x: o.pts[i][0], y: o.pts[i][1] }) < tol) return true;
+      return o.pts.length === 1 && d2(p, { x: o.pts[0][0], y: o.pts[0][1] }) < tol;
+    }
+    return false;
+  }
+  function eraseAt(p) {
+    var tol = px(9), keep = S.objs.filter(function (o) { return !hitObj(o, p, tol); });
+    if (keep.length !== S.objs.length) { S.objs = keep; S.ver++; op.changed = true; }
+  }
+  // 빠르게 문질러도 사이를 건너뛰지 않도록 지나온 길을 촘촘히 훑는다
+  function eraseAlong(a, b) {
+    var n = Math.max(1, Math.ceil(d2(a, b) / px(4)));
+    for (var i = 1; i <= n; i++) eraseAt({ x: a.x + (b.x - a.x) * i / n, y: a.y + (b.y - a.y) * i / n });
+  }
+
+  // ── 그리기 ────────────────────────────────────────────────────
+  var queued = false;
+  function draw() { if (!queued) { queued = true; requestAnimationFrame(render); } }
+
+  function render() {
+    queued = false;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.fillStyle = "#fdfdfb";
+    ctx.fillRect(0, 0, W, H);
+    if (S.grid) drawGrid();
+    ctx.setTransform(DPR * V.z, 0, 0, DPR * V.z, -V.ox * V.z * DPR, -V.oy * V.z * DPR);
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    // 자는 투명 아크릴이라 그린 선이 비쳐 보여야 한다 — 자를 먼저 깔고 그 위에 선을 그린다
+    if (R.on) drawRuler();
+    S.objs.forEach(function (o) { if (o.t !== "pt") drawObj(o); });
+    if (preview) drawObj(preview);
+    S.objs.forEach(function (o) { if (o.t === "pt") drawObj(o); });
+    if (C.on) drawCompass();
+    if (snapMark) {
+      ctx.strokeStyle = "#e11d48"; ctx.lineWidth = px(2);
+      ctx.beginPath(); ctx.arc(snapMark.x, snapMark.y, px(8), 0, TAU); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(snapMark.x - px(12), snapMark.y); ctx.lineTo(snapMark.x + px(12), snapMark.y);
+      ctx.moveTo(snapMark.x, snapMark.y - px(12)); ctx.lineTo(snapMark.x, snapMark.y + px(12)); ctx.stroke();
+    }
+    document.getElementById("zv").textContent = Math.round(V.z * 100) + "%";
+  }
+
+  function drawGrid() {
+    var step = 50; while (step * V.z < 22) step *= 2; while (step * V.z > 90) step /= 2;
+    var x0 = Math.floor(V.ox / step) * step, y0 = Math.floor(V.oy / step) * step;
+    ctx.fillStyle = "#d4d4d8";
+    for (var x = x0; x < V.ox + W / V.z; x += step)
+      for (var y = y0; y < V.oy + H / V.z; y += step)
+        ctx.fillRect((x - V.ox) * V.z - 1, (y - V.oy) * V.z - 1, 2, 2);
+  }
+
+  function drawObj(o) {
+    ctx.strokeStyle = o.c || "#111827";
+    ctx.lineWidth = px(o.w || 2.2);
+    if (o.t === "seg") { ctx.beginPath(); ctx.moveTo(o.x1, o.y1); ctx.lineTo(o.x2, o.y2); ctx.stroke(); }
+    else if (o.t === "arc") { ctx.beginPath(); ctx.arc(o.cx, o.cy, o.r, o.a0, o.a1, o.a1 < o.a0); ctx.stroke(); }
+    else if (o.t === "free") {
+      var p = o.pts; ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]);
+      if (p.length === 1) ctx.lineTo(p[0][0] + 0.01, p[0][1]);
+      for (var i = 1; i < p.length - 1; i++) ctx.quadraticCurveTo(p[i][0], p[i][1], (p[i][0] + p[i + 1][0]) / 2, (p[i][1] + p[i + 1][1]) / 2);
+      if (p.length > 1) ctx.lineTo(p[p.length - 1][0], p[p.length - 1][1]);
+      ctx.stroke();
+    } else if (o.t === "pt") {
+      ctx.fillStyle = o.c || "#111827";
+      ctx.beginPath(); ctx.arc(o.x, o.y, px(4), 0, TAU); ctx.fill();
+      ctx.font = "600 " + px(15) + "px -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+      ctx.fillText(o.label, o.x + px(7), o.y - px(7));
+    }
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+  }
+
+  // 눈금 없는 자 — 반투명 아크릴 판. 눈금이 없다.
+  function drawRuler() {
+    var L = R.len, Wd = R.wid;
+    ctx.save();
+    ctx.translate(R.x, R.y); ctx.rotate(R.a);
+    ctx.shadowColor = "rgba(15,23,42,.18)"; ctx.shadowBlur = 10; ctx.shadowOffsetY = 3;
+    roundRect(-L / 2, -Wd / 2, L, Wd, 7);
+    var g = ctx.createLinearGradient(0, -Wd / 2, 0, Wd / 2);
+    g.addColorStop(0, "rgba(224,242,254,.88)"); g.addColorStop(.5, "rgba(186,230,253,.72)"); g.addColorStop(1, "rgba(147,214,250,.78)");
+    ctx.fillStyle = g; ctx.fill();
+    ctx.shadowColor = "transparent";
+    ctx.lineWidth = px(R.fixed ? 2.6 : 1.4);
+    ctx.strokeStyle = R.fixed ? "#f59e0b" : "rgba(3,105,161,.75)";
+    ctx.stroke();
+    // 아크릴 두께감
+    ctx.strokeStyle = "rgba(255,255,255,.9)"; ctx.lineWidth = px(1.5);
+    ctx.beginPath(); ctx.moveTo(-L / 2 + 8, -Wd / 2 + 4); ctx.lineTo(L / 2 - 8, -Wd / 2 + 4); ctx.stroke();
+    ctx.strokeStyle = "rgba(3,105,161,.25)";
+    ctx.beginPath(); ctx.moveTo(-L / 2 + 8, Wd / 2 - 4); ctx.lineTo(L / 2 - 8, Wd / 2 - 4); ctx.stroke();
+    // 펜이 닿을 가장자리
+    if (edgeHot) {
+      ctx.strokeStyle = S.color; ctx.globalAlpha = .45; ctx.lineWidth = px(5);
+      ctx.beginPath(); ctx.moveTo(-L / 2, edgeHot * Wd / 2); ctx.lineTo(L / 2, edgeHot * Wd / 2); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = "rgba(3,105,161,.32)";
+    ctx.font = "600 13px -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("눈금 없는 자", -40, 0);
+    var kx = L / 2 - 30;
+    if (!R.fixed) {
+      ctx.fillStyle = "rgba(255,255,255,.95)"; ctx.strokeStyle = "rgba(3,105,161,.8)"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(kx, 0, 15, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = "#0369a1"; ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.arc(kx, 0, 8, -2.6, 1.9); ctx.stroke();
+      var ax = kx + 8 * Math.cos(1.9), ay = 8 * Math.sin(1.9);
+      ctx.fillStyle = "#0369a1"; ctx.beginPath(); ctx.moveTo(ax - 5, ay - 1); ctx.lineTo(ax + 3, ay + 4); ctx.lineTo(ax + 2, ay - 5); ctx.closePath(); ctx.fill();
+    } else {
+      ctx.fillStyle = "#f59e0b"; roundRect(kx - 9, -3, 18, 14, 3); ctx.fill();
+      ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 2.6;
+      ctx.beginPath(); ctx.arc(kx, -3, 6, Math.PI, 0); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function taper(a, b, wa, wb, fill, stroke) {
+    var dx = b.x - a.x, dy = b.y - a.y, L = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / L, ny = dx / L;
+    ctx.beginPath();
+    ctx.moveTo(a.x + nx * wa, a.y + ny * wa); ctx.lineTo(b.x + nx * wb, b.y + ny * wb);
+    ctx.lineTo(b.x - nx * wb, b.y - ny * wb); ctx.lineTo(a.x - nx * wa, a.y - ny * wa); ctx.closePath();
+    ctx.fillStyle = fill; ctx.fill();
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+  }
+  function along(a, b, t) { return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }; }
+  function toward(a, b, len) { var L = d2(a, b) || 1; return { x: a.x + (b.x - a.x) * len / L, y: a.y + (b.y - a.y) * len / L }; }
+
+  // 컴퍼스 — 침 다리, 연필 다리, 경첩, 손잡이
+  function drawCompass() {
+    var N = { x: C.nx, y: C.ny }, P = cPen(), Hh = cHinge(), K = cKnob();
+    ctx.save();
+    ctx.shadowColor = "rgba(15,23,42,.22)"; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
+    // 손잡이
+    taper(Hh, K, 5, 5, "#64748b", "#334155");
+    ctx.shadowColor = "transparent";
+    ctx.fillStyle = "#475569"; ctx.beginPath(); ctx.arc(K.x, K.y, 10, 0, TAU); ctx.fill();
+    ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1;
+    for (var i = 1; i <= 3; i++) { var q = along(Hh, K, 0.25 * i), r = toward(q, { x: q.x + (K.y - Hh.y), y: q.y - (K.x - Hh.x) }, 4.5); ctx.beginPath(); ctx.moveTo(2 * q.x - r.x, 2 * q.y - r.y); ctx.lineTo(r.x, r.y); ctx.stroke(); }
+    // 침 다리
+    var Nn = toward(N, Hh, 22);
+    taper(Hh, Nn, 7.5, 3.6, "#94a3b8", "#475569");
+    ctx.strokeStyle = "#1f2937"; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.moveTo(Nn.x, Nn.y); ctx.lineTo(N.x, N.y); ctx.stroke();
+    // 연필 다리: 금속 → 고정 고리 → 연필 몸통 → 나무 → 심
+    var A1 = along(Hh, P, 0.5), B1 = toward(P, Hh, 30), T1 = toward(P, Hh, 8);
+    taper(Hh, A1, 7.5, 5.5, "#94a3b8", "#475569");
+    taper(toward(A1, Hh, 4), toward(A1, P, 8), 7.5, 7.5, "#334155");
+    taper(toward(A1, P, 8), B1, 5.5, 5.5, "#fbbf24", "#b45309");
+    taper(B1, T1, 5.5, 2, "#f1d5a8", "#b45309");
+    taper(T1, P, 2, 0.3, C.pinned ? S.color : "#1f2937");
+    // 경첩
+    var g = ctx.createRadialGradient(Hh.x - 4, Hh.y - 4, 2, Hh.x, Hh.y, 14);
+    g.addColorStop(0, "#f8fafc"); g.addColorStop(.6, "#94a3b8"); g.addColorStop(1, "#475569");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(Hh.x, Hh.y, 13, 0, TAU); ctx.fill();
+    ctx.fillStyle = "#334155"; ctx.beginPath(); ctx.arc(Hh.x, Hh.y, 3, 0, TAU); ctx.fill();
+    ctx.restore();
+    // 침 고정 표시 · 끌 수 있는 곳 표시 (화면 크기 고정)
+    if (C.pinned) {
+      ctx.strokeStyle = "#dc2626"; ctx.lineWidth = px(2.2);
+      ctx.beginPath(); ctx.arc(N.x, N.y, px(7), 0, TAU); ctx.stroke();
+    } else {
+      ctx.fillStyle = "rgba(37,99,235,.18)"; ctx.beginPath(); ctx.arc(N.x, N.y, px(9), 0, TAU); ctx.fill();
+    }
+    ctx.fillStyle = C.pinned ? "rgba(220,38,38,.16)" : "rgba(245,158,11,.22)";
+    ctx.beginPath(); ctx.arc(P.x, P.y, px(11), 0, TAU); ctx.fill();
+  }
+
+  // ── 보기 조작 ─────────────────────────────────────────────────
+  function zoomAt(sx, sy, f) {
+    var z = clamp(V.z * f, ZMIN, ZMAX), w = toWorld(sx, sy);
+    V.z = z; V.ox = w.x - sx / z; V.oy = w.y - sy / z; draw();
+  }
+  // 처음 보기: 큰 화면은 100%, 좁은 화면(휴대폰·작은 창)은 자와 컴퍼스가 다 보이게 줄인다
+  function fitZoom(w, h) { return clamp(Math.min(w / 760, h / 600), 0.35, 1); }
+  function home() { V.z = fitZoom(W, H); V.ox = -W / 2 / V.z; V.oy = -H / 2 / V.z + 20; draw(); }
+
+  function resize() {
+    var r = stage.getBoundingClientRect(), nw = Math.max(r.width, 10), nh = Math.max(r.height, 10);
+    if (!W) { V.z = fitZoom(nw, nh); V.ox = -nw / 2 / V.z; V.oy = -nh / 2 / V.z + 20; }
+    else { var cx = V.ox + W / 2 / V.z, cy = V.oy + H / 2 / V.z; V.ox = cx - nw / 2 / V.z; V.oy = cy - nh / 2 / V.z; }
+    W = nw; H = nh; DPR = window.devicePixelRatio || 1;
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    cv.style.width = W + "px"; cv.style.height = H + "px";
+    draw();
+  }
+
+  // ── 입력 ──────────────────────────────────────────────────────
+  function local(e) { var r = stage.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+
+  function begin(e, s) {
+    var p = toWorld(s.x, s.y), tol = px(16);
+    if (e.button === 1 || spaceDown) { op = { k: "pan", sx: s.x, sy: s.y, ox: V.ox, oy: V.oy }; return; }
+
+    // 컴퍼스가 위에 있으니 먼저 본다
+    if (C.on) {
+      var P = cPen(), N = { x: C.nx, y: C.ny }, Hh = cHinge(), K = cKnob();
+      var aNow = Math.atan2(p.y - C.ny, p.x - C.nx);
+      if (d2(p, P) < Math.max(tol, 12)) {
+        S.focus = "compass";
+        if (C.pinned) { op = { k: "cdraw", a0: C.a, last: aNow, acc: 0 }; preview = { t: "arc", cx: C.nx, cy: C.ny, r: C.r, a0: C.a, a1: C.a, c: S.color }; }
+        else op = { k: "copen" };
+        return;
+      }
+      // 침이 고정돼 있으면 침 끝은 잡지 않는다 — 그 점에서 자로 선을 시작할 수 있게
+      if (!C.pinned && d2(p, N) < Math.max(tol, 10)) { S.focus = "compass"; op = { k: "cmove", p0: p, n0: N }; return; }
+      var nearPinned = C.pinned && d2(p, N) < Math.max(tol, 12);
+      var onBody = !nearPinned && (d2(p, K) < Math.max(tol, 14) || segDist(p, Hh, K) < Math.max(px(9), 6) || d2(p, Hh) < Math.max(tol, 15) ||
+        segDist(p, Hh, N) < Math.max(px(9), 8) || segDist(p, Hh, P) < Math.max(px(9), 8));
+      if (onBody) {
+        S.focus = "compass";
+        op = C.pinned ? { k: "crot", off: wrap(aNow - C.a) } : { k: "cmove", p0: p, n0: N };
+        return;
+      }
+    }
+    if (R.on) {
+      if (R.fixed && S.mode === "pen") {
+        var ne = rNearEdge(p, px(18));
+        if (ne) {
+          S.focus = "ruler";
+          var u0 = snapU(ne.sign, ne.u);
+          op = { k: "rline", sign: ne.sign, u0: u0 };
+          var a = rWorld(u0, ne.sign * R.wid / 2);
+          preview = { t: "seg", x1: a.x, y1: a.y, x2: a.x, y2: a.y, c: S.color };
+          return;
+        }
+      }
+      if (!R.fixed) {
+        if (d2(p, rKnob()) < Math.max(px(18), 16)) { S.focus = "ruler"; op = rotStart(p); return; }
+        if (rHit(p)) { S.focus = "ruler"; op = { k: "rmove", p0: p, c0: { x: R.x, y: R.y } }; return; }
+      }
+    }
+    if (S.mode === "hand" || (e.pointerType === "mouse" && e.button === 2)) { op = { k: "pan", sx: s.x, sy: s.y, ox: V.ox, oy: V.oy }; return; }
+    if (S.mode === "pen") { op = { k: "free", last: s }; preview = { t: "free", pts: [[p.x, p.y]], c: S.color }; return; }
+    if (S.mode === "point") { op = { k: "point", s0: s }; return; }
+    if (S.mode === "erase") { op = { k: "erase", before: S.objs, changed: false, last: p }; eraseAt(p); }
+  }
+
+  // 자 가장자리 위의 위치 u — 가장자리 위(또는 아주 가까이)에 있는 점에 붙는다
+  function snapU(sign, u) {
+    var q = rWorld(u, sign * R.wid / 2), sp = findSnap(q, 12);
+    if (sp) { var L = rLocal(sp); if (Math.abs(L.v - sign * R.wid / 2) < px(3)) { snapMark = sp; return clamp(L.u, -R.len / 2, R.len / 2); } }
+    snapMark = null;
+    return u;
+  }
+
+  // 자 돌리기: 가장자리가 어떤 점 위에 있으면 그 점을 축으로, 아니면 가운데를 축으로 돈다
+  function rotStart(p) {
+    var pivot = null, sign = 0;
+    snapPoints().some(function (q) {
+      var L = rLocal(q);
+      if (Math.abs(L.u) > R.len / 2) return false;
+      if (Math.abs(L.v - R.wid / 2) < px(2)) { pivot = q; sign = 1; return true; }
+      if (Math.abs(L.v + R.wid / 2) < px(2)) { pivot = q; sign = -1; return true; }
+      return false;
+    });
+    var c = pivot || { x: R.x, y: R.y };
+    var o = { k: "rrot", pivot: c, sign: sign, off: wrap(Math.atan2(p.y - c.y, p.x - c.x) - R.a) };
+    if (pivot) { var L = rLocal(pivot); o.pu = L.u; }
+    return o;
+  }
+
+  function move(e, s) {
+    var p = toWorld(s.x, s.y);
+    if (!op) { hover(p); return; }
+    switch (op.k) {
+      case "pan":
+        V.ox = op.ox - (s.x - op.sx) / V.z; V.oy = op.oy - (s.y - op.sy) / V.z; break;
+      case "free": {
+        if (Math.abs(s.x - op.last.x) + Math.abs(s.y - op.last.y) < 1.5) return;
+        op.last = s; preview.pts.push([p.x, p.y]); break;
+      }
+      case "rline": {
+        var L = rLocal(p), u1 = snapU(op.sign, clamp(L.u, -R.len / 2, R.len / 2));
+        var a = rWorld(op.u0, op.sign * R.wid / 2), b = rWorld(u1, op.sign * R.wid / 2);
+        preview.x1 = a.x; preview.y1 = a.y; preview.x2 = b.x; preview.y2 = b.y; edgeHot = op.sign; break;
+      }
+      case "rmove": {
+        R.x = op.c0.x + p.x - op.p0.x; R.y = op.c0.y + p.y - op.p0.y;
+        // 가장자리가 점 가까이 가면 점에 딱 붙인다
+        snapMark = null;
+        var best = null, A = rAxes();
+        snapPoints().forEach(function (q) {
+          var Lq = rLocal(q);
+          if (Math.abs(Lq.u) > R.len / 2) return;
+          [1, -1].forEach(function (sg) {
+            var d = Lq.v - sg * R.wid / 2;
+            if (Math.abs(d) < px(9) && (!best || Math.abs(d) < Math.abs(best.d))) best = { d: d, q: q };
+          });
+        });
+        if (best) { R.x += A.vx * best.d; R.y += A.vy * best.d; snapMark = best.q; }
+        break;
+      }
+      case "rrot": {
+        var ang = wrap(Math.atan2(p.y - op.pivot.y, p.x - op.pivot.x) - op.off);
+        snapMark = op.sign ? op.pivot : null;
+        if (op.sign) {
+          // 축(점)에서 다른 점을 향하는 각에 가까우면 그 각으로 맞춘다
+          var pv = op.pivot;
+          snapPoints().forEach(function (q) {
+            if (d2(q, pv) < px(4)) return;
+            var aq = Math.atan2(q.y - pv.y, q.x - pv.x);
+            [aq, wrap(aq + Math.PI)].forEach(function (cand) {
+              var diff = Math.abs(wrap(cand - ang)), dist = d2(q, pv) * Math.sin(diff);
+              if (diff < Math.PI / 2 && dist < px(8)) { ang = cand; snapMark = q; }
+            });
+          });
+          R.a = ang;
+          var A2 = rAxes();
+          R.x = op.pivot.x - A2.ux * op.pu - A2.vx * op.sign * R.wid / 2;
+          R.y = op.pivot.y - A2.uy * op.pu - A2.vy * op.sign * R.wid / 2;
+        } else R.a = ang;
+        break;
+      }
+      case "cmove": {
+        var n = { x: op.n0.x + p.x - op.p0.x, y: op.n0.y + p.y - op.p0.y }, sp = findSnap(n, 12);
+        snapMark = sp; if (sp) n = sp;
+        C.nx = n.x; C.ny = n.y; break;
+      }
+      case "copen": {
+        var t = p, sp2 = findSnap(p, 12, { x: C.nx, y: C.ny });
+        snapMark = sp2; if (sp2) t = sp2;
+        C.r = clamp(d2(t, { x: C.nx, y: C.ny }), MINR, MAXR);
+        C.a = Math.atan2(t.y - C.ny, t.x - C.nx); cUpright(); break;
+      }
+      case "cdraw": {
+        var th = Math.atan2(p.y - C.ny, p.x - C.nx);
+        op.acc = clamp(op.acc + wrap(th - op.last), -TAU, TAU); op.last = th;
+        C.a = op.a0 + op.acc; preview.a1 = C.a; break;
+      }
+      case "crot":
+        C.a = Math.atan2(p.y - C.ny, p.x - C.nx) - op.off; break;
+      case "erase": eraseAlong(op.last, p); op.last = p; break;
+    }
+    draw(); hint();
+  }
+
+  function end(s) {
+    if (!op) return;
+    var p = toWorld(s.x, s.y);
+    switch (op.k) {
+      case "free": if (preview.pts.length > 1) addObj(preview); break;
+      case "rline": if (d2({ x: preview.x1, y: preview.y1 }, { x: preview.x2, y: preview.y2 }) > px(3)) addObj(preview); break;
+      case "cdraw": if (Math.abs(op.acc) > 0.015) addObj({ t: "arc", cx: C.nx, cy: C.ny, r: C.r, a0: op.a0, a1: op.a0 + op.acc, c: S.color }); break;
+      case "point": {
+        if (Math.abs(s.x - op.s0.x) + Math.abs(s.y - op.s0.y) > 8) break;
+        var sp = findSnap(p, 12) || p;
+        addObj({ t: "pt", x: sp.x, y: sp.y, label: nextLabel(), c: S.color }); break;
+      }
+      case "erase": if (op.changed) { S.hist.push(op.before); S.fut = []; syncButtons(); } break;
+    }
+    op = null; preview = null; snapMark = null; edgeHot = null;
+    draw(); hint();
+  }
+
+  // 아무것도 누르지 않을 때: 붙을 점·자 가장자리 미리 보여 주기
+  function hover(p) {
+    var cursor = S.mode === "hand" ? "grab" : S.mode === "erase" ? "cell" : "crosshair";
+    snapMark = null; edgeHot = null;
+    if (C.on) {
+      var P = cPen(), N = { x: C.nx, y: C.ny }, Hh = cHinge(), K = cKnob();
+      if (d2(p, P) < px(16) || d2(p, N) < px(16) || d2(p, K) < Math.max(px(16), 14) || d2(p, Hh) < 15 ||
+          segDist(p, Hh, N) < Math.max(px(9), 8) || segDist(p, Hh, P) < Math.max(px(9), 8)) cursor = "grab";
+    }
+    if (cursor !== "grab" && R.on) {
+      if (R.fixed && S.mode === "pen") { var ne = rNearEdge(p, px(18)); if (ne) { edgeHot = ne.sign; cursor = "crosshair"; } }
+      else if (!R.fixed && (rHit(p) || d2(p, rKnob()) < 16)) cursor = d2(p, rKnob()) < 16 ? "alias" : "grab";
+    }
+    if (S.mode === "point" && cursor === "crosshair") snapMark = findSnap(p, 12);
+    stage.style.cursor = cursor;
+    draw();
+  }
+
+  stage.addEventListener("pointerdown", function (e) {
+    if (e.target !== cv) return;
+    stage.setPointerCapture(e.pointerId);
+    var s = local(e);
+    pointers.set(e.pointerId, s);
+    if (pointers.size === 2) {
+      // 두 손가락: 그리던 것을 취소하고 확대·이동
+      if (op && op.k === "erase" && op.changed) S.objs = op.before, S.ver++;
+      op = null; preview = null; snapMark = null;
+      var it = pointers.values(), a = it.next().value, b = it.next().value;
+      pinch = { d: d2(a, b) || 1, m: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, z: V.z, ox: V.ox, oy: V.oy };
+      draw(); return;
+    }
+    if (pointers.size > 2) return;
+    if (e.pointerType === "mouse" && e.button !== 0 && e.button !== 1) return;
+    begin(e, s); draw(); hint();
+  });
+  stage.addEventListener("pointermove", function (e) {
+    var s = local(e);
+    if (pointers.has(e.pointerId)) pointers.set(e.pointerId, s);
+    if (pinch && pointers.size >= 2) {
+      var it = pointers.values(), a = it.next().value, b = it.next().value;
+      var z = clamp(pinch.z * (d2(a, b) / pinch.d), ZMIN, ZMAX), m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      var w = { x: pinch.m.x / pinch.z + pinch.ox, y: pinch.m.y / pinch.z + pinch.oy };
+      V.z = z; V.ox = w.x - m.x / z; V.oy = w.y - m.y / z; draw(); return;
+    }
+    move(e, s);
+  });
+  function up(e) {
+    var s = local(e);
+    var had = pointers.has(e.pointerId);
+    pointers.delete(e.pointerId);
+    if (pinch) { if (pointers.size < 2) pinch = null; return; }
+    if (had) end(s);
+  }
+  stage.addEventListener("pointerup", up);
+  stage.addEventListener("pointercancel", up);
+  stage.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  stage.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    var s = local(e);
+    zoomAt(s.x, s.y, Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0016)));
+  }, { passive: false });
+  stage.addEventListener("dblclick", function (e) {
+    if (!C.on) return;
+    var p = toWorld(local(e).x, local(e).y);
+    if (d2(p, { x: C.nx, y: C.ny }) < px(18) || d2(p, cHinge()) < 18) togglePin();
+  });
+  window.addEventListener("keydown", function (e) {
+    if (e.code === "Space") { spaceDown = true; stage.style.cursor = "grab"; e.preventDefault(); }
+    var mod = e.ctrlKey || e.metaKey;
+    if (mod && (e.key === "z" || e.key === "Z")) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); }
+    if (mod && (e.key === "y" || e.key === "Y")) { e.preventDefault(); redo(); }
+    if (e.key === "Escape" && op) { op = null; preview = null; snapMark = null; draw(); }
+  });
+  window.addEventListener("keyup", function (e) { if (e.code === "Space") spaceDown = false; });
+
+  // ── 버튼 ──────────────────────────────────────────────────────
+  var $ = function (id) { return document.getElementById(id); };
+  document.querySelectorAll("[data-mode]").forEach(function (b) {
+    b.addEventListener("click", function () { S.mode = b.getAttribute("data-mode"); syncButtons(); hint(); });
+  });
+  var colorsEl = $("colors");
+  COLORS.forEach(function (c) {
+    var b = document.createElement("button");
+    b.className = "dot"; b.title = c[1] + " 펜"; b.style.background = c[0]; b.setAttribute("data-color", c[0]);
+    b.addEventListener("click", function () { S.color = c[0]; syncButtons(); draw(); });
+    colorsEl.appendChild(b);
+  });
+  function centerWorld() { return toWorld(W / 2, H / 2); }
+  $("bRuler").addEventListener("click", function () {
+    R.on = !R.on;
+    if (R.on) { var c = centerWorld(); R.x = c.x; R.y = c.y + px(110); R.a = 0; R.fixed = false; S.focus = "ruler"; }
+    syncButtons(); draw(); hint();
+  });
+  $("bRulerLock").addEventListener("click", function () { if (!R.on) return; R.fixed = !R.fixed; S.focus = "ruler"; if (R.fixed) S.mode = "pen"; syncButtons(); draw(); hint(); });
+  $("bComp").addEventListener("click", function () {
+    C.on = !C.on;
+    if (C.on) { var c = centerWorld(); C.nx = c.x - 80; C.ny = c.y - px(20); C.r = 150; C.a = 0; C.pinned = false; cUpright(); S.focus = "compass"; }
+    syncButtons(); draw(); hint();
+  });
+  function togglePin() { if (!C.on) return; C.pinned = !C.pinned; if (!C.pinned) cUpright(); S.focus = "compass"; syncButtons(); draw(); hint(); }
+  $("bPin").addEventListener("click", togglePin);
+  $("bUndo").addEventListener("click", undo);
+  $("bRedo").addEventListener("click", redo);
+  $("bGrid").addEventListener("click", function () { S.grid = !S.grid; syncButtons(); draw(); });
+  // 확인 창을 띄울 수 없는 곳(iframe)이라 두 번 눌러 지운다
+  var clearArm = 0;
+  $("bClear").addEventListener("click", function () {
+    var b = $("bClear");
+    if (!S.objs.length) return;
+    if (Date.now() - clearArm < 2500) { commit([]); clearArm = 0; b.textContent = "모두 지우기"; draw(); return; }
+    clearArm = Date.now(); b.textContent = "한 번 더 누르면 지웁니다";
+    setTimeout(function () { if (Date.now() - clearArm >= 2400) b.textContent = "모두 지우기"; }, 2500);
+  });
+  $("zIn").addEventListener("click", function () { zoomAt(W / 2, H / 2, 1.25); });
+  $("zOut").addEventListener("click", function () { zoomAt(W / 2, H / 2, 0.8); });
+  $("zHome").addEventListener("click", home);
+  ["zoom"].forEach(function (id) { $(id).addEventListener("pointerdown", function (e) { e.stopPropagation(); }); });
+
+  function syncButtons() {
+    document.querySelectorAll("[data-mode]").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-mode") === S.mode); });
+    document.querySelectorAll("[data-color]").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-color") === S.color); });
+    $("bRuler").classList.toggle("on", R.on);
+    $("bRulerLock").classList.toggle("on", R.on && R.fixed);
+    $("bRulerLock").disabled = !R.on;
+    $("bRulerLock").textContent = R.fixed ? "🔓 자 풀기" : "🔒 자 고정";
+    $("bComp").classList.toggle("on", C.on);
+    $("bPin").classList.toggle("on", C.on && C.pinned);
+    $("bPin").disabled = !C.on;
+    $("bPin").textContent = C.pinned ? "📍 침 풀기" : "📌 침 고정";
+    $("bGrid").classList.toggle("on", S.grid);
+    $("bUndo").disabled = !S.hist.length;
+    $("bRedo").disabled = !S.fut.length;
+  }
+
+  // 지금 할 수 있는 일을 한 줄로 알려 준다
+  function hint() {
+    var t;
+    if (op && op.k === "cdraw") t = "🧭 원하는 만큼 돌린 뒤 손을 떼세요. 한 바퀴를 넘기면 원이 닫힙니다.";
+    else if (op && op.k === "rline") t = "📏 자의 가장자리를 따라 곧은 선이 그어집니다. 점 가까이에서 멈추면 그 점에 붙습니다.";
+    else if (S.mode === "erase") t = "🧽 지울 선이나 점을 누르거나 문지르세요. 실수했다면 ↶ 로 되돌립니다.";
+    else if (S.mode === "point") t = "• 점을 찍을 곳을 누르세요. 교점·끝점·원의 중심 가까이 누르면 그 위치에 정확히 찍힙니다.";
+    else if (S.mode === "hand") t = "✋ 빈 곳을 끌어 화면을 옮깁니다. 휠(또는 두 손가락)로 확대·축소합니다.";
+    else if (S.focus === "compass" && C.on) {
+      t = C.pinned
+        ? "📌 침 고정됨 — <b>연필 끝</b>을 끌어 돌리면 원(호)이 그려집니다. <b>손잡이</b>를 끌면 그리지 않고 돌아갑니다. 벌린 거리를 바꾸려면 '침 풀기'."
+        : "🧭 <b>침 끝</b>을 끌어 중심에 놓고, <b>연필 끝</b>을 끌어 원하는 만큼 벌리세요(점 가까이 가면 붙습니다). 그다음 <b>침 고정</b>. (침을 두 번 눌러도 고정)";
+    } else if (S.focus === "ruler" && R.on) {
+      t = R.fixed
+        ? "🔒 자 고정됨 — 펜으로 <b>자의 가장자리</b>를 따라 그으면 곧은 선이 됩니다. 옮기려면 '자 풀기'."
+        : "📏 <b>몸통</b>을 끌어 옮기고 <b>↻ 손잡이</b>로 돌리세요. 가장자리가 점에 닿으면 붙고, 그 점을 축으로 돌아 다른 점에도 맞춰집니다. 맞췄으면 <b>자 고정</b>.";
+    } else t = "✏️ 펜: 자유롭게 그립니다. 📏 자를 고정하면 가장자리를 따라 곧은 선, 🧭 컴퍼스 침을 고정하면 원을 그릴 수 있습니다.";
+    hintEl.innerHTML = t;
+  }
+
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+  window.addEventListener("resize", resize);
+  cUpright();
+  resize(); syncButtons(); hint();
+})();
+</script>
+</body>
+</html>
+$hands_on$::text),
+  true, null
+)
+on conflict (slug) do update
+  set type = excluded.type, config = excluded.config, updated_at = now();

@@ -79,8 +79,7 @@ cp .env.local.example .env.local
 
 Supabase 대시보드 **SQL Editor**에 [`supabase/setup.sql`](supabase/setup.sql)
 **전체를 한 번에** 붙여넣고 Run 하세요 (테이블·RLS 정책·함수가 모두 만들어집니다).
-그다음 **`0012` → `0013` → `0014` → `0015` → `0016` → `0017` 을 순서대로** 이어서 실행하세요.
-(`setup.sql` 은 `0001~0017` 을 모두 합친 파일입니다 — 새로 설치할 때는 이것 하나면 됩니다.)
+(`setup.sql` 은 `0001~0018` 을 모두 합친 파일입니다 — 새로 설치할 때는 이것 하나면 됩니다.)
 
 > supabase CLI 로 하고 싶다면 `supabase init` 과 `supabase link --project-ref <ref>` 를 먼저 해야
 > `supabase db push` 가 동작합니다. 이 저장소에는 `config.toml` 이 없어 기본은 SQL Editor 방식입니다.
@@ -99,6 +98,7 @@ Supabase 대시보드 **SQL Editor**에 [`supabase/setup.sql`](supabase/setup.sq
 | `0015_ai_usage_authoring.sql` | 위와 한 쌍 — `ai_usage` 쪽 제약도 넓힙니다. **0014 만 실행하면 제작 챗봇이 500 으로 실패합니다** |
 | `0016_teacher_students.sql` | 담당을 **여러 교사가 나눠 가질 수 있게** (`teacher_students`). 교사가 **서버 전체 명단에서 골라** 자기 목록에 담습니다. 관리자가 만든 학생이 교사에게 안 보이던 문제를 없앱니다 |
 | `0017_open_platform.sql` | **누구나 교사 가입 + 교사별 공간 + 교사별 AI + 만져보는 수학.** 교과·단원·소단원·활동에 주인(`owner_id`) — 교사는 자기 것만, 학생은 자기를 담은 교사 것만. 학생 기록은 담은 교사만. 가입 교사(`self_signup`)에게는 학교 명단이 안 보이고 학생은 학급 코드(`class_code`)로 로그인. AI 키·모델·한도·프롬프트를 교사별로(`owner_id`), 관리자 → 교사 넘기기(`transfer_teaching`), 사이트 설정(`site_settings`), 공개 조작 자료(`manipulatives`). **이 SQL 을 먼저 실행한 뒤 새 코드를 배포하세요** |
+| `0018_hands_on_levels.sql` | 만져보는 수학을 **학교급(초등학교·중학교·고등학교) 메뉴**로 나눕니다 (`manipulatives.school_level`, 기존 예시는 고등학교). 중학교 **작도**에 **자유 작도(눈금 없는 자와 컴퍼스)** 를 넣습니다. **이 SQL 을 먼저 실행한 뒤 새 코드를 배포하세요** |
 
 > `0011` 을 실행하면 기존 학생은 **가장 먼저 만들어진 교사/관리자**에게 자동 배정됩니다
 > (아무에게도 안 보이게 되는 것을 막기 위함). 이후 관리자 화면에서 확인할 수 있습니다.
@@ -124,7 +124,9 @@ select to_regclass('public.screen_responses')  as "0012",
          where conname = 'ai_usage_feature_check'
            and pg_get_constraintdef(oid) like '%authoring%')             as "0015",
        to_regclass('public.teacher_students')  as "0016",
-       to_regclass('public.manipulatives')     as "0017";
+       to_regclass('public.manipulatives')     as "0017",
+       (select count(*) from information_schema.columns
+         where table_name = 'manipulatives' and column_name = 'school_level') as "0018";
 ```
 
 `null` 또는 `0` 으로 나오는 번호부터 순서대로 실행하면 됩니다.
@@ -209,6 +211,10 @@ http://localhost:3000 접속. (포트가 사용 중이면 `PORT=3001 npm run dev
   (먼저 `/setup` 으로 관리자를 만들어야 함).
 - **만져보는 수학**(`/hands-on`)은 사이트 전체가 함께 보는 공개 자료입니다(관리자가 관리).
   교사는 링크만 나눠 주거나(기록 없음), **내 소단원에 추가**해 활동 한 화면으로 씁니다(복사본).
+  **학교급(초등학교·중학교·고등학교) 메뉴**로 나뉩니다(`/hands-on?level=middle`).
+  HTML 로 만든 자료는 `content/hands-on/` 에 두고 `node scripts/build-hands-on-sql.mjs` 로
+  `supabase/hands-on.sql` 을 만들어 SQL Editor 에서 실행합니다(없으면 새로 넣고, 있으면 HTML 만 바꿈 —
+  관리자가 화면에서 고친 제목·학교급·공개 여부는 유지).
 
 **학번 규칙**: 학년(1자리) + 반(2자리) + 번호(2자리). 예: 1학년 3반 15번 → `10315`
 - 학교 학생(관리자·학교 교사가 만든 학생): `10315@school.local` — 학번만으로 로그인 (예전 그대로)

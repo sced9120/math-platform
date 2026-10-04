@@ -3,7 +3,15 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { SCREEN_TYPE_LABEL } from "@/lib/screens";
-import type { Manipulative } from "@/lib/manipulatives";
+import SchoolLevelTabs from "@/components/school-level-tabs";
+import {
+  countByLevel,
+  firstLevelWithItems,
+  groupByTopic,
+  schoolLevelLabel,
+  type Manipulative,
+  type SchoolLevel,
+} from "@/lib/manipulatives";
 
 // 만져보는 수학 목록에서 하나를 고른다 (활동 편집기의 "활동 추가"에서 연다).
 // 공개된 자료만 보인다 — RLS(manipulatives_public_read)가 거른다.
@@ -18,6 +26,7 @@ export default function ManipulativePicker({
 }) {
   const [items, setItems] = useState<Manipulative[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [level, setLevel] = useState<SchoolLevel | null>(null); // 불러온 뒤 자료가 있는 첫 학교급
 
   useEffect(() => {
     let alive = true;
@@ -30,18 +39,19 @@ export default function ManipulativePicker({
       .then(({ data, error }) => {
         if (!alive) return;
         if (error) setError("목록을 불러오지 못했습니다. (마이그레이션 0017 실행 여부 확인)");
-        else setItems((data as Manipulative[]) ?? []);
+        else {
+          const list = (data as Manipulative[]) ?? [];
+          setItems(list);
+          setLevel((cur) => cur ?? firstLevelWithItems(list));
+        }
       });
     return () => {
       alive = false;
     };
   }, []);
 
-  const groups = new Map<string, Manipulative[]>();
-  for (const m of items ?? []) {
-    const k = m.topic || "기타";
-    groups.set(k, [...(groups.get(k) ?? []), m]);
-  }
+  const current = level ?? "middle";
+  const shown = (items ?? []).filter((m) => m.school_level === current);
 
   return (
     <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-4">
@@ -65,7 +75,11 @@ export default function ManipulativePicker({
         <p className="text-sm text-zinc-500">아직 공개된 자료가 없습니다.</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {[...groups.entries()].map(([topic, list]) => (
+          <SchoolLevelTabs current={current} counts={countByLevel(items)} onSelect={setLevel} size="sm" />
+          {shown.length === 0 && (
+            <p className="text-sm text-zinc-500">{schoolLevelLabel(current)} 자료는 아직 없습니다.</p>
+          )}
+          {groupByTopic(shown).map(([topic, list]) => (
             <div key={topic}>
               <p className="mb-1 text-xs font-medium text-zinc-500">{topic}</p>
               <div className="grid gap-2 sm:grid-cols-2">

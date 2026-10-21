@@ -22,6 +22,7 @@ import {
   type Manipulative,
   type SchoolLevel,
 } from "@/lib/manipulatives";
+import Icon from "@/components/icon";
 
 export type TargetActivity = { id: string; title: string; unit: string; eligible: boolean };
 
@@ -173,7 +174,7 @@ export default function HandsOnManager({
             target="_blank"
             className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
           >
-            공개 화면 보기 ↗
+            공개 화면 보기 <Icon name="arrow" size={14} className="-rotate-45" />
           </Link>
           {isAdmin && !draft && (
             <button
@@ -271,7 +272,7 @@ export default function HandsOnManager({
                       target="_blank"
                       className="rounded-md border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:bg-zinc-50"
                     >
-                      열어 보기 ↗
+                      열어 보기 <Icon name="arrow" size={14} className="-rotate-45" />
                     </Link>
                     {m.is_published && <CopyLinkButton path={manipulativePath(m.slug)} />}
                     <button

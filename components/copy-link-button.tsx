@@ -1,15 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import Icon from "@/components/icon";
 
 // 이 사이트 안의 경로를 전체 주소로 바꿔 복사한다 (학생에게 링크만 나눠 줄 때)
 export default function CopyLinkButton({
   path,
-  label = "🔗 링크 복사",
+  label = (
+    <>
+      <Icon name="link" /> 링크 복사
+    </>
+  ),
   className = "rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50",
 }: {
   path: string;
-  label?: string;
+  label?: React.ReactNode;
   className?: string;
 }) {
   const [copied, setCopied] = useState(false);

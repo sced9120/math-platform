@@ -4,6 +4,7 @@ import { getEnabledModels } from "@/lib/ai/models";
 import { aiOwnerOf, getAiLimits } from "@/lib/ai/server";
 import { createClient } from "@/lib/supabase/server";
 import AuthoringStudio from "@/components/teacher/authoring-studio";
+import Icon from "@/components/icon";
 
 // 조작 활동 만들기 — 왼쪽에서 말로 설명하면 오른쪽에 코드와 미리보기가 나온다.
 export default async function AuthoringPage() {
@@ -47,7 +48,7 @@ export default async function AuthoringPage() {
   return (
     <div className="flex h-[calc(100vh-8rem)] min-h-[36rem] flex-col">
       <div className="mb-3">
-        <h2 className="text-lg font-semibold text-zinc-900">🛠 조작 활동 만들기</h2>
+        <h2 className="text-lg font-semibold text-zinc-900"><Icon name="wrench" size={18} /> 조작 활동 만들기</h2>
         <p className="text-sm text-zinc-500">
           만들고 싶은 화면을 말로 설명하세요. 오른쪽에서 바로 확인하고 고쳐 나갈 수 있습니다.
         </p>

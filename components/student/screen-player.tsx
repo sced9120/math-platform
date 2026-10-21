@@ -9,6 +9,7 @@ import ScreenResponse, {
   type SavedResponse,
 } from "@/components/student/screen-response";
 import type { Screen } from "@/lib/screens";
+import Icon from "@/components/icon";
 
 export type SavedByKey = Record<string, SavedResponse & { correct?: boolean | null }>;
 
@@ -68,7 +69,7 @@ export default function ScreenPlayer({
 
       {screen.sheet && (
         <span className="self-start rounded-full border border-amber-300 bg-amber-50 px-3 py-0.5 text-xs font-bold text-amber-800">
-          📄 {screen.sheet}
+          <Icon name="document" /> {screen.sheet}
         </span>
       )}
       {screen.title && (

@@ -4,6 +4,7 @@ import { getDemoActivity, getDemoScreens } from "@/lib/demo";
 import DemoBanner from "@/components/demo-banner";
 import DemoScreens from "@/components/demo-screens";
 import HtmlActivityFrame from "@/components/student/html-activity-frame";
+import Icon from "@/components/icon";
 
 // 체험판 활동 실행 — 학생 화면과 같게 보이되, 저장·AI 는 없다.
 export default async function DemoActivityPage({
@@ -62,7 +63,7 @@ export default async function DemoActivityPage({
             화면 구성이 있으면 활동마다 질문이 이미 보이므로 띄우지 않는다. */}
         {screens.length === 0 && (
         <div className="mt-4 rounded-xl border border-zinc-200 bg-white p-4">
-          <p className="text-sm font-medium text-zinc-800">✏️ 내 생각 적기</p>
+          <p className="text-sm font-medium text-zinc-800"><Icon name="edit" /> 내 생각 적기</p>
           <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-600">
             실제 수업에서는 <b>화면마다 그 화면에 맞는 질문</b>이 여기에 뜨고, 맨 끝에는
             오늘 수업에 대한 <b>자유 기록칸</b>(사진 첨부 가능)이 열립니다.

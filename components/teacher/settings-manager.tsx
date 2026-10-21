@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Icon from "@/components/icon";
 
 type ProviderInfo = {
   provider: "openai" | "gemini" | "anthropic";
@@ -265,7 +266,13 @@ function ApiKeyCard({
           onClick={onToggleHelp}
           className="ml-auto text-xs text-blue-600 hover:underline"
         >
-          {helpOpen ? "도움말 닫기" : "❓ 키 발급 방법"}
+          {helpOpen ? (
+            "도움말 닫기"
+          ) : (
+            <>
+              <Icon name="help" size={13} /> 키 발급 방법
+            </>
+          )}
         </button>
       </div>
 
@@ -279,7 +286,7 @@ function ApiKeyCard({
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >
-              🔑 키 발급 페이지 열기
+              <Icon name="key" /> 키 발급 페이지 열기
             </a>
             <a
               href={info.modelDocUrl}
@@ -287,7 +294,7 @@ function ApiKeyCard({
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >
-              📖 사용 가능한 모델 목록(공식 문서)
+              <Icon name="book" /> 사용 가능한 모델 목록(공식 문서)
             </a>
           </div>
         </div>
@@ -415,7 +422,7 @@ function ModelsEditor({
               rel="noopener noreferrer"
               className="text-xs font-normal text-blue-600 hover:underline"
             >
-              (공식 문서에서 확인 ↗)
+              (공식 문서에서 확인 <Icon name="arrow" size={14} className="-rotate-45" />)
             </a>
           </label>
           <input

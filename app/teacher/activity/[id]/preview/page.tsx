@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ActivityPreview from "@/components/teacher/activity-preview";
 import type { Activity, Unit } from "@/lib/types";
+import Icon from "@/components/icon";
 
 const TYPE_LABELS: Record<Activity["type"], string> = {
   geogebra: "GeoGebra",
@@ -62,7 +63,7 @@ export default async function TeacherActivityPreviewPage({
       </div>
 
       <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-800">
-        👀 <b>미리보기</b> — 학생에게 보이는 화면입니다. 저장·채점·AI는 동작하지
+        <Icon name="search" /> <b>미리보기</b> — 학생에게 보이는 화면입니다. 저장·채점·AI는 동작하지
         않습니다.
       </div>
 

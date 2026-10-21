@@ -8,6 +8,7 @@ import HtmlActivityFrame, {
 } from "@/components/student/html-activity-frame";
 import { FREE_KEY } from "@/components/student/screen-response";
 import type { Activity } from "@/lib/types";
+import Icon from "@/components/icon";
 
 // 교사용 활동 미리보기 — 학생이 실제로 보는 화면을 그대로 렌더한다(읽기 전용).
 // 저장·채점·AI 없이 "결과물이 어떻게 보이는지"만 확인하는 용도.
@@ -103,7 +104,7 @@ export default function ActivityPreview({ activity }: { activity: Activity }) {
           </div>
           {/* 교사에게만 보이는 정답 정보 (학생에게는 내려가지 않음) */}
           <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            🔑 정답: <b>{content.answer || "(미설정)"}</b>
+            <Icon name="key" /> 정답: <b>{content.answer || "(미설정)"}</b>
             {content.tolerance ? ` · 허용오차 ±${content.tolerance}` : ""}
             <span className="ml-1 text-amber-600">
               (교사에게만 보입니다 — 학생 화면에는 표시되지 않습니다)
@@ -161,7 +162,7 @@ function PreviewBox({
           {badge}
         </span>
       )}
-      <label className="text-sm font-medium text-zinc-900">✏️ {prompt}</label>
+      <label className="text-sm font-medium text-zinc-900"><Icon name="edit" /> {prompt}</label>
       <textarea
         readOnly
         rows={5}
@@ -170,7 +171,7 @@ function PreviewBox({
       />
       {photo && (
         <p className="text-xs text-zinc-500">
-          📷 이 화면은 학생이 사진(공책 촬영·PDF)으로도 낼 수 있습니다.
+          <Icon name="camera" /> 이 화면은 학생이 사진(공책 촬영·PDF)으로도 낼 수 있습니다.
         </p>
       )}
     </div>

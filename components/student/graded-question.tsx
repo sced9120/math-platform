@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Question } from "@/lib/screens";
+import Icon from "@/components/icon";
 
 // 단답형·선택형 — 채점은 DB 함수에서만 한다(정답은 학생에게 내려오지 않는다).
 export default function GradedQuestion({
@@ -50,7 +51,7 @@ export default function GradedQuestion({
       onSubmit={submit}
       className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-4"
     >
-      <p className="text-sm font-medium text-zinc-900">✏️ {question.prompt}</p>
+      <p className="text-sm font-medium text-zinc-900"><Icon name="edit" /> {question.prompt}</p>
 
       {question.type === "choice" ? (
         <div className="flex flex-col gap-2">

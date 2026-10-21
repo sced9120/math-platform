@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireProfile } from "@/lib/auth";
 import { adminStillTeaching } from "@/lib/admin-handover";
 import ArchivePublish from "@/components/teacher/archive-publish";
+import Icon from "@/components/icon";
 
 const card =
   "rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-blue-400";
@@ -78,7 +79,7 @@ export default async function TeacherPage() {
             </Link>
 
             <Link href="/teacher/authoring" className={card}>
-              <h3 className="mb-1 font-semibold text-zinc-900">🛠 조작 활동 만들기</h3>
+              <h3 className="mb-1 font-semibold text-zinc-900"><Icon name="wrench" /> 조작 활동 만들기</h3>
               <p className="text-sm text-zinc-500">
                 만들고 싶은 화면을 말로 설명하면 AI 가 HTML 을 만들어 줍니다 · 내 API 키 사용
               </p>

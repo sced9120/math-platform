@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { toStudentId, defaultPassword, type StudentRow } from "@/lib/types";
 import { classLoginPath } from "@/lib/class-code";
 import CopyLinkButton from "@/components/copy-link-button";
+import Icon from "@/components/icon";
 
 type CreateResult = {
   studentId: string;
@@ -350,7 +351,14 @@ export default function StudentsManager({
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
             <span className="text-zinc-600">코드가 미리 채워진 로그인 주소를 나눠 주면 편합니다:</span>
-            <CopyLinkButton path={classLoginPath(classCode)} label="🔗 학생 로그인 링크 복사" />
+            <CopyLinkButton
+              path={classLoginPath(classCode)}
+              label={
+                <>
+                  <Icon name="link" /> 학생 로그인 링크 복사
+                </>
+              }
+            />
           </div>
         </section>
       )}
@@ -452,7 +460,7 @@ export default function StudentsManager({
         <section className="rounded-xl border border-blue-200 bg-blue-50 p-6">
           <h2 className="mb-1 text-lg font-semibold text-zinc-900">생성 결과</h2>
           <p className="mb-4 text-sm text-red-600">
-            ⚠️ 초기비밀번호는 지금만 확인할 수 있습니다. 반드시 다운로드하거나 인쇄해
+            <Icon name="alert" /> 초기비밀번호는 지금만 확인할 수 있습니다. 반드시 다운로드하거나 인쇄해
             두세요.
           </p>
           <table className="w-full bg-white text-sm">

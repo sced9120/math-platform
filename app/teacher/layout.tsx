@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { isStaff, requireProfile } from "@/lib/auth";
 import { adminStillTeaching } from "@/lib/admin-handover";
 import LogoutButton from "@/components/logout-button";
+import Icon from "@/components/icon";
 
 // /teacher 전체 공통: 교사·관리자 권한 가드 + 헤더/내비게이션
 //  - 교사: 학생·교과·단원·진도·기록·만져보는 수학·AI 설정
@@ -26,37 +27,40 @@ export default async function TeacherLayout({
             수학 학습 플랫폼{" "}
             <span className="text-blue-600">{admin ? "관리자" : "교사"}</span>
           </Link>
-          <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-600">
+          <nav className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-600">
             {admin && (
-              <Link href="/teacher/teachers" className="font-medium text-blue-600 hover:text-blue-800">
-                교사 관리
+              <Link
+                href="/teacher/teachers"
+                className="flex items-center gap-1.5 font-medium text-blue-600 hover:text-blue-800"
+              >
+                <Icon name="users" size={15} /> 교사 관리
               </Link>
             )}
             {teaching && (
               <>
-                <Link href="/teacher/students" className="hover:text-zinc-900">
-                  학생 관리
+                <Link href="/teacher/students" className="flex items-center gap-1.5 hover:text-zinc-900">
+                  <Icon name="graduation" size={15} /> 학생 관리
                 </Link>
-                <Link href="/teacher/subjects" className="hover:text-zinc-900">
-                  교과 관리
+                <Link href="/teacher/subjects" className="flex items-center gap-1.5 hover:text-zinc-900">
+                  <Icon name="book" size={15} /> 교과 관리
                 </Link>
-                <Link href="/teacher/units" className="hover:text-zinc-900">
-                  단원·소단원 관리
+                <Link href="/teacher/units" className="flex items-center gap-1.5 hover:text-zinc-900">
+                  <Icon name="layers" size={15} /> 단원·소단원 관리
                 </Link>
-                <Link href="/teacher/progress" className="hover:text-zinc-900">
-                  진도 현황
+                <Link href="/teacher/progress" className="flex items-center gap-1.5 hover:text-zinc-900">
+                  <Icon name="chart" size={15} /> 진도 현황
                 </Link>
-                <Link href="/teacher/export" className="hover:text-zinc-900">
-                  기록 다운로드
+                <Link href="/teacher/export" className="flex items-center gap-1.5 hover:text-zinc-900">
+                  <Icon name="download" size={15} /> 기록 다운로드
                 </Link>
               </>
             )}
-            <Link href="/teacher/hands-on" className="hover:text-zinc-900">
-              🖐 만져보는 수학
+            <Link href="/teacher/hands-on" className="flex items-center gap-1.5 hover:text-zinc-900">
+              <Icon name="cursor" size={15} /> 만져보는 수학
             </Link>
             {teaching && (
-              <Link href="/teacher/ai-settings" className="hover:text-zinc-900">
-                AI 설정
+              <Link href="/teacher/ai-settings" className="flex items-center gap-1.5 hover:text-zinc-900">
+                <Icon name="sparkle" size={15} /> AI 설정
               </Link>
             )}
           </nav>

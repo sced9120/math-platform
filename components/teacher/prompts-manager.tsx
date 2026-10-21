@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Icon from "@/components/icon";
 
 type PromptItem = {
   key: string;
@@ -87,7 +88,7 @@ export default function PromptsManager() {
       </div>
 
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-        ⚠️ &quot;정답을 직접 알려주지 않는다&quot; 규칙은 되도록 유지하세요. 이 문장을
+        <Icon name="alert" /> &quot;정답을 직접 알려주지 않는다&quot; 규칙은 되도록 유지하세요. 이 문장을
         지우면 AI가 학생에게 답을 그대로 알려줄 수 있습니다.
       </div>
 

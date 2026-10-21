@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import Icon from "@/components/icon";
 
 // 학생 사이드메뉴 (햄버거로 열고 닫음)
 // 구성: 내 교과(교과 → 단원 → 활동 트리) + AI 자유 모드 두 개
@@ -76,7 +77,7 @@ export default function SideMenu({ grade }: { grade: number | null }) {
   // 교과에 속하지 않은 옛 단원
   const looseUnits = units.filter((u) => !u.subject_id && hasActivity(u.id));
 
-  const aiLink = (href: string, label: string, desc: string) => (
+  const aiLink = (href: string, label: React.ReactNode, desc: string) => (
     <Link
       href={href}
       onClick={close}
@@ -95,7 +96,7 @@ export default function SideMenu({ grade }: { grade: number | null }) {
         aria-label="메뉴 열기"
         className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-zinc-600 hover:bg-zinc-100"
       >
-        ☰
+        <Icon name="menu" size={18} />
       </button>
 
       {open && (
@@ -112,20 +113,32 @@ export default function SideMenu({ grade }: { grade: number | null }) {
                 aria-label="메뉴 닫기"
                 className="rounded-md px-2 py-1 text-zinc-500 hover:bg-zinc-100"
               >
-                ✕
+                <Icon name="close" size={18} />
               </button>
             </div>
 
             <div className="flex flex-col gap-1 border-b border-zinc-200 p-2">
               <p className="px-3 pt-1 text-xs font-medium text-zinc-400">AI 도우미</p>
-              {aiLink("/socratic", "💬 소크라테스식 문답", "무엇이든 수학 질문하기")}
-              {aiLink("/feedback", "✏️ 문제풀이 첨삭", "내 문제·풀이로 첨삭 받기")}
+              {aiLink(
+                "/socratic",
+                <>
+                  <Icon name="chat" /> 소크라테스식 문답
+                </>,
+                "무엇이든 수학 질문하기"
+              )}
+              {aiLink(
+                "/feedback",
+                <>
+                  <Icon name="edit" /> 문제풀이 첨삭
+                </>,
+                "내 문제·풀이로 첨삭 받기"
+              )}
             </div>
 
             {/* 내 교과 → 단원 → 활동 */}
             <div className="flex-1 overflow-y-auto p-3">
               <p className="mb-2 text-xs font-medium text-zinc-400">
-                📚 내 교과{grade ? ` · ${grade}학년` : ""}
+                <Icon name="book" /> 내 교과{grade ? ` · ${grade}학년` : ""}
               </p>
 
               {data === null ? (
@@ -147,9 +160,11 @@ export default function SideMenu({ grade }: { grade: number | null }) {
                             aria-expanded={isOpen}
                             className="rounded-md px-2 py-2 text-zinc-400 hover:bg-zinc-100"
                           >
-                            <span className="inline-block w-3 text-xs">
-                              {isOpen ? "▾" : "▸"}
-                            </span>
+                            <Icon
+                              name="chevron"
+                              size={14}
+                              className={isOpen ? "" : "-rotate-90"}
+                            />
                           </button>
                           <Link
                             href={`/subject/${s.id}`}

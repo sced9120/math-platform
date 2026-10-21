@@ -4,6 +4,7 @@ import { useState } from "react";
 import ScreenBody from "@/components/student/screen-body";
 import type { DemoScreen } from "@/lib/demo";
 import type { Screen } from "@/lib/screens";
+import Icon from "@/components/icon";
 
 // 체험판에서 화면 구성 활동을 넘겨 보는 뷰어.
 // 학생 화면과 같은 렌더러(ScreenBody)를 쓰되 저장·채점은 하지 않는다.
@@ -41,7 +42,7 @@ export default function DemoScreens({
 
       {s.sheet && (
         <span className="self-start rounded-full border border-amber-300 bg-amber-50 px-3 py-0.5 text-xs font-bold text-amber-800">
-          📄 {s.sheet}
+          <Icon name="document" /> {s.sheet}
         </span>
       )}
       {s.title && <h3 className="text-lg font-semibold text-zinc-900">{s.title}</h3>}
@@ -54,7 +55,7 @@ export default function DemoScreens({
       {/* 질문은 보여 주되 체험판에서는 쓰거나 제출할 수 없다 */}
       {s.questions.map((q) => (
         <div key={q.id} className="rounded-lg border border-zinc-200 bg-white p-4">
-          <p className="text-sm font-medium text-zinc-800">✏️ {q.prompt}</p>
+          <p className="text-sm font-medium text-zinc-800"><Icon name="edit" /> {q.prompt}</p>
           {q.type === "choice" && q.choices && (
             <ul className="mt-2 flex flex-col gap-1 text-sm text-zinc-600">
               {q.choices.map((c, i) => (

@@ -16,6 +16,7 @@ import ScreenResponse, {
 import ScreenPlayer, { type SavedByKey } from "@/components/student/screen-player";
 import type { Activity } from "@/lib/types";
 import type { Screen } from "@/lib/screens";
+import Icon from "@/components/icon";
 
 type ProgressState = {
   completed: boolean;
@@ -378,7 +379,7 @@ function ResponseSection({
       onSubmit={handleSave}
       className="flex flex-col gap-2 rounded-lg border border-blue-200 bg-blue-50 p-4"
     >
-      <label className="text-sm font-medium text-zinc-900">✏️ {prompt}</label>
+      <label className="text-sm font-medium text-zinc-900"><Icon name="edit" /> {prompt}</label>
       <textarea
         required
         rows={5}

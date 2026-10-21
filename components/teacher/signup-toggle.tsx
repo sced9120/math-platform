@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import CopyLinkButton from "@/components/copy-link-button";
+import Icon from "@/components/icon";
 
 // 관리자: 누구나 교사로 가입할 수 있게 열고 닫는다
 export default function SignupToggle({ initialOpen }: { initialOpen: boolean }) {
@@ -46,7 +47,14 @@ export default function SignupToggle({ initialOpen }: { initialOpen: boolean }) 
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {open && <CopyLinkButton path="/signup" label="🔗 가입 링크 복사" />}
+          {open && <CopyLinkButton
+          path="/signup"
+          label={
+            <>
+              <Icon name="link" /> 가입 링크 복사
+            </>
+          }
+        />}
           <button
             onClick={toggle}
             disabled={busy}

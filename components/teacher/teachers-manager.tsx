@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import Icon from "@/components/icon";
 
 export type TeacherRow = {
   id: string;
@@ -139,7 +140,7 @@ export default function TeachersManager({
               </tbody>
             </table>
             <p className="mt-2 text-xs text-red-600">
-              ⚠️ 초기비밀번호는 지금만 확인할 수 있습니다.
+              <Icon name="alert" /> 초기비밀번호는 지금만 확인할 수 있습니다.
             </p>
           </div>
         )}

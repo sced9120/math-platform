@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import FreeSocratic from "@/components/student/free-socratic";
 import { getEnabledModels } from "@/lib/ai/models";
 import { aiOwnerOf, getAiLimits } from "@/lib/ai/server";
+import Icon from "@/components/icon";
 
 // 소크라테스식 문답 — 자유 질문 모드 (특정 활동 없이 수학 학습 전반)
 export default async function FreeSocraticPage() {
@@ -27,7 +28,7 @@ export default async function FreeSocraticPage() {
   return (
     <div>
       <h2 className="mb-1 text-lg font-semibold text-zinc-900">
-        💬 소크라테스식 문답
+        <Icon name="chat" size={18} /> 소크라테스식 문답
       </h2>
       <p className="mb-4 text-sm text-zinc-500">
         활동과 상관없이, 수학 공부에 대해 무엇이든 질문하세요.

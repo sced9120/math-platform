@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import AiConsent from "@/components/student/ai-consent";
 import ModelPicker from "@/components/student/model-picker";
 import type { AiModelOption } from "@/components/student/activity-runner";
+import Icon from "@/components/icon";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -203,7 +204,7 @@ export default function SocraticChat({
               onClick={handleSaveConversation}
               className="rounded-md border border-zinc-300 px-3 py-1 text-xs text-zinc-600 hover:bg-zinc-100"
             >
-              💾 대화 저장
+              <Icon name="save" /> 대화 저장
             </button>
           )}
           <button

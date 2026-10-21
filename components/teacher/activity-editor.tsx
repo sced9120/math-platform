@@ -20,6 +20,7 @@ import {
   type Screen,
   type ScreenType,
 } from "@/lib/screens";
+import Icon from "@/components/icon";
 
 // 소단원 안의 활동을 만드는 화면.
 // 왼쪽에서 고치면 오른쪽에서 바로 보인다(데스모스처럼).
@@ -252,7 +253,7 @@ export default function ActivityEditor({
           disabled={busy}
           className="rounded-md border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
         >
-          📚 다른 활동에서 가져오기
+          <Icon name="book" /> 다른 활동에서 가져오기
         </button>
         <button
           onClick={() => setPickerOpen((v) => !v)}
@@ -362,7 +363,7 @@ export default function ActivityEditor({
               <p className="text-xs font-semibold text-zinc-500">미리보기 — 학생이 보는 그대로</p>
               {cur.sheet && (
                 <span className="self-start rounded-full border border-amber-300 bg-amber-50 px-3 py-0.5 text-xs font-bold text-amber-800">
-                  📄 {cur.sheet}
+                  <Icon name="document" /> {cur.sheet}
                 </span>
               )}
               {cur.title && (
@@ -374,7 +375,7 @@ export default function ActivityEditor({
                   key={q.id}
                   className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm"
                 >
-                  <p className="font-medium text-zinc-900">✏️ {q.prompt || "(질문 없음)"}</p>
+                  <p className="font-medium text-zinc-900"><Icon name="edit" /> {q.prompt || "(질문 없음)"}</p>
                   <p className="mt-1 text-xs text-zinc-500">
                     {QUESTION_TYPE_LABEL[q.type]}
                     {q.type === "text" && q.photo ? " · 사진 첨부 가능" : ""}
@@ -666,7 +667,7 @@ function QuestionsEditor({
                 checked={!!q.photo}
                 onChange={(e) => set(i, { photo: e.target.checked })}
               />
-              📷 사진으로도 낼 수 있게 하기
+              <Icon name="camera" /> 사진으로도 낼 수 있게 하기
             </label>
           )}
 

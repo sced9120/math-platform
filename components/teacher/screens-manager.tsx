@@ -10,6 +10,7 @@ import {
   type ParsedActivity,
   type ScreenBlock,
 } from "@/lib/activity-html";
+import Icon from "@/components/icon";
 
 // 활동 안의 화면을 순서 바꾸기·질문 고치기·글 고치기·지우기 로 관리한다.
 // 조작(SVG·슬라이더) 코드는 활동 스크립트에 그대로 남겨 두고 건드리지 않는다.
@@ -223,7 +224,7 @@ export default function ScreensManager({
                   checked={s.photo}
                   onChange={(e) => patch(i, { photo: e.target.checked })}
                 />
-                📷 사진(공책 촬영·PDF)으로도 낼 수 있게 하기
+                <Icon name="camera" /> 사진(공책 촬영·PDF)으로도 낼 수 있게 하기
               </label>
             </div>
 

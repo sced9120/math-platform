@@ -5,6 +5,7 @@ import AiConsent from "@/components/student/ai-consent";
 import ModelPicker from "@/components/student/model-picker";
 import { fileToImageDataUrls, MAX_PAGES } from "@/lib/client/file-to-images";
 import type { AiModelOption } from "@/components/student/activity-runner";
+import Icon from "@/components/icon";
 
 type FeedbackMode = "correction" | "socratic";
 
@@ -159,10 +160,10 @@ export default function FeedbackPanel({
       {/* 입력 방식 선택 */}
       <div className="flex gap-2">
         <button onClick={() => setInputType("text")} className={tabCls(inputType === "text")}>
-          ⌨️ 직접 입력
+          <Icon name="keyboard" /> 직접 입력
         </button>
         <button onClick={() => setInputType("image")} className={tabCls(inputType === "image")}>
-          📷 사진/PDF 올리기
+          <Icon name="camera" /> 사진/PDF 올리기
         </button>
       </div>
 
@@ -245,7 +246,7 @@ export default function FeedbackPanel({
                       onClick={() => removeImage(i)}
                       className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-700 text-xs text-white"
                     >
-                      ✕
+                      <Icon name="close" size={12} />
                     </button>
                   </div>
                 ))}
@@ -338,7 +339,7 @@ function SocraticView({ result }: { result: SocraticResult }) {
       </div>
       {result.questions.map((q, i) => (
         <div key={i} className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <p className="mb-1 text-xs font-medium text-blue-700">💭 {q.focus}</p>
+          <p className="mb-1 text-xs font-medium text-blue-700"><Icon name="bulb" /> {q.focus}</p>
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-800">
             {q.question}
           </p>

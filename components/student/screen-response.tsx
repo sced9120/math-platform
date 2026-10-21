@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { fileToImageDataUrls } from "@/lib/client/file-to-images";
 import { UPLOAD_BUCKET } from "@/lib/responses";
+import Icon from "@/components/icon";
 
 export const MAX_PHOTOS = 5;
 
@@ -170,7 +171,7 @@ export default function ScreenResponse({
       onSubmit={handleSave}
       className={`flex flex-col gap-2 rounded-lg border p-4 ${box}`}
     >
-      <label className="text-sm font-medium text-zinc-900">✏️ {prompt}</label>
+      <label className="text-sm font-medium text-zinc-900"><Icon name="edit" /> {prompt}</label>
       <textarea
         rows={5}
         maxLength={4000}
@@ -201,7 +202,7 @@ export default function ScreenResponse({
               disabled={preparing || images.length + pending.length >= MAX_PHOTOS}
               className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
             >
-              📷 사진 올리기
+              <Icon name="camera" /> 사진 올리기
             </button>
             <span className="text-xs text-zinc-500">
               {preparing

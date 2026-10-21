@@ -10,6 +10,7 @@ import {
   UPLOAD_BUCKET,
   type ScreenAnswer,
 } from "@/lib/responses";
+import Icon from "@/components/icon";
 
 export type SubmissionRow = {
   studentId: string;
@@ -192,7 +193,7 @@ export default function SubmissionsTable({
         <div className="flex flex-col gap-3">
           {responsePrompt && (
             <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
-              <b>✏️ 서술 문항</b>
+              <b><Icon name="edit" /> 서술 문항</b>
               <p className="mt-1 whitespace-pre-wrap">{responsePrompt}</p>
             </div>
           )}

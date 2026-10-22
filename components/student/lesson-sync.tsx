@@ -10,7 +10,6 @@ import {
   type StudentPresence,
   type TeacherPresence,
 } from "@/lib/lesson";
-import Icon from "@/components/icon";
 
 // 학생 쪽 수업 참여.
 //  - 내가 몇 번째 화면인지 선생님께 계속 알린다.
@@ -180,16 +179,17 @@ function Veil({ teacherName }: { teacherName: string }) {
       ref={ref}
       tabIndex={-1}
       role="alertdialog"
-      aria-label="선생님을 보세요"
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-4 bg-zinc-900 text-center outline-none"
+      aria-label="잠시 멈추고 앞을 보세요."
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-5 bg-zinc-900 px-6 text-center outline-none"
       onContextMenu={(e) => e.preventDefault()}
     >
-      <Icon name="users" size={56} className="text-zinc-500" />
-      <p className="text-3xl font-bold text-white">선생님을 보세요</p>
-      <p className="text-sm text-zinc-400">
+      <p className="break-keep text-3xl font-bold leading-relaxed text-white sm:text-4xl">
+        잠시 멈추고 앞을 보세요.
+      </p>
+      <p className="break-keep text-sm text-zinc-400">
         {teacherName} 선생님이 화면을 잠시 덮었습니다.
         <br />
-        끝나면 하던 곳에서 그대로 이어집니다.
+        하던 곳은 그대로 있으니 걱정하지 않아도 됩니다.
       </p>
     </div>
   );

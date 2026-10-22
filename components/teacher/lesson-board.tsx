@@ -177,7 +177,13 @@ export default function LessonBoard({
               하던 자리는 그대로 남아 있습니다.
             </>
           ) : (
-            "학생 화면을 덮고 입력을 막습니다. 설명할 때 쓰세요."
+            <>
+              학생 화면을 덮고 입력을 막습니다. 설명할 때 쓰세요.
+              <br />
+              <span className="text-xs text-zinc-500">
+                학생에게는 검은 화면에 <b>&ldquo;잠시 멈추고 앞을 보세요.&rdquo;</b> 라고 뜹니다.
+              </span>
+            </>
           )}
         </span>
       </div>

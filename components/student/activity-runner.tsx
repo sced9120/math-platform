@@ -315,6 +315,8 @@ export default function ActivityRunner({
           screenKey={screen!.key}
           prompt={screen!.prompt}
           allowPhoto={screen!.photo}
+          allowDraw={screen!.draw}
+          drawBackground={screen!.drawBg}
           saved={responses[screen!.key]}
           onSaved={handleSaved}
           tone={screen!.key === FREE_KEY ? "amber" : "blue"}

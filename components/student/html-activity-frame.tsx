@@ -9,6 +9,8 @@ export type ScreenInfo = {
   key: string;
   prompt: string;   // 빈 문자열이면 그 화면에는 기록칸을 두지 않는다
   photo: boolean;   // 사진 첨부 허용 화면인가
+  draw: boolean;    // 손으로 그리는 칸을 띄우는 화면인가
+  drawBg: "plain" | "grid" | "axes";
   title: string;
   hasPrompts: boolean; // 이 활동 HTML 이 화면별 질문을 갖고 있는가(옛 활동 구분용)
 };
@@ -73,6 +75,8 @@ const FRAME_BRIDGE = `
       key: key,
       prompt: cur.getAttribute("data-prompt") || "",
       photo: cur.getAttribute("data-photo") === "1",
+      draw: cur.getAttribute("data-draw") === "1",
+      drawBg: cur.getAttribute("data-draw-bg") || "plain",
       title: heading(cur),
       hasPrompts: !!document.querySelector(".screen[data-prompt]")
     };
@@ -152,6 +156,11 @@ export default function HtmlActivityFrame({
           key: String(screen.key).slice(0, 40),
           prompt: String(screen.prompt ?? "").slice(0, 1000),
           photo: !!screen.photo,
+          draw: !!screen.draw,
+          drawBg:
+            screen.drawBg === "grid" || screen.drawBg === "axes"
+              ? screen.drawBg
+              : "plain",
           title: String(screen.title ?? "").slice(0, 120),
           hasPrompts: !!screen.hasPrompts,
         });

@@ -53,7 +53,16 @@ export const DEFAULT_PLANE: PlaneConfig = {
 
 // 질문 — 화면당 여러 개. 정답(answer·tolerance)은 학생에게 내려가지 않는다.
 export type Question =
-  | { id: string; type: "text"; prompt: string; photo?: boolean }
+  | {
+      id: string;
+      type: "text";
+      prompt: string;
+      photo?: boolean;
+      /** 손으로 그리는 칸을 띄운다. 그린 그림은 사진과 같은 자리에 저장된다. */
+      draw?: boolean;
+      /** 그리는 칸 배경 — 빈 종이 / 모눈 / 좌표평면 */
+      drawBg?: "plain" | "grid" | "axes";
+    }
   | { id: string; type: "short"; prompt: string; answer?: string; tolerance?: number }
   | { id: string; type: "choice"; prompt: string; choices: string[]; answer?: string };
 
@@ -98,5 +107,5 @@ export function newQuestionId(existing: string[]): string {
 export function emptyQuestion(type: Question["type"], id: string): Question {
   if (type === "short") return { id, type, prompt: "", answer: "" };
   if (type === "choice") return { id, type, prompt: "", choices: ["", ""], answer: "0" };
-  return { id, type: "text", prompt: "", photo: false };
+  return { id, type: "text", prompt: "", photo: false, draw: false, drawBg: "plain" };
 }

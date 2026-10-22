@@ -89,6 +89,8 @@ export default function ScreenPlayer({
             questionKey={q.id}
             prompt={q.prompt}
             allowPhoto={!!q.photo}
+            allowDraw={!!q.draw}
+            drawBackground={q.drawBg ?? "plain"}
             saved={saved[rk(screen.screen_key, q.id)]}
             onSaved={(_, v) => remember(screen.screen_key, q.id, v)}
             tone={q.photo ? "amber" : "blue"}

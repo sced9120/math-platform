@@ -120,6 +120,8 @@ export default function ActivityPreview({ activity }: { activity: Activity }) {
           <PreviewBox
             prompt={screen!.prompt}
             photo={screen!.photo}
+            draw={screen!.draw}
+            drawBg={screen!.drawBg}
             badge={
               screen!.key === FREE_KEY
                 ? "자유 기록 화면"
@@ -145,10 +147,14 @@ export default function ActivityPreview({ activity }: { activity: Activity }) {
 function PreviewBox({
   prompt,
   photo,
+  draw,
+  drawBg,
   badge,
 }: {
   prompt: string;
   photo?: boolean;
+  draw?: boolean;
+  drawBg?: "plain" | "grid" | "axes";
   badge?: string;
 }) {
   return (
@@ -172,6 +178,12 @@ function PreviewBox({
       {photo && (
         <p className="text-xs text-zinc-500">
           <Icon name="camera" /> 이 화면은 학생이 사진(공책 촬영·PDF)으로도 낼 수 있습니다.
+        </p>
+      )}
+      {draw && (
+        <p className="text-xs text-zinc-500">
+          <Icon name="edit" /> 이 화면은 학생이 손으로 그려서 낼 수 있습니다 (배경:{" "}
+          {drawBg === "axes" ? "좌표평면" : drawBg === "grid" ? "모눈" : "빈 종이"}).
         </p>
       )}
     </div>

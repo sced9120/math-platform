@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { fileToImageDataUrls } from "@/lib/client/file-to-images";
 import { UPLOAD_BUCKET } from "@/lib/responses";
 import Icon from "@/components/icon";
+import DrawPad, { type DrawBackground } from "@/components/student/draw-pad";
 
 export const MAX_PHOTOS = 5;
 
@@ -16,7 +17,14 @@ export const FREE_PROMPT =
 
 export type SavedResponse = { text: string; images: string[] };
 
-// data URL(압축된 JPEG) → 업로드용 Blob
+// 올라갈 수 있는 형식 — 사진은 JPEG, 손그림은 WebP(안 되면 PNG)
+const EXT_BY_MIME: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+
+// data URL → 업로드용 Blob (형식은 data URL 에 적힌 것을 그대로 쓴다)
 function dataUrlToBlob(dataUrl: string): Blob {
   const [head, body] = dataUrl.split(",");
   const mime = /:(.*?);/.exec(head)?.[1] ?? "image/jpeg";
@@ -34,6 +42,8 @@ export default function ScreenResponse({
   questionKey = "",
   prompt,
   allowPhoto,
+  allowDraw = false,
+  drawBackground = "plain",
   saved,
   onSaved,
   tone = "blue",
@@ -43,6 +53,9 @@ export default function ScreenResponse({
   questionKey?: string; // 화면에 질문이 여러 개일 때 구분 (없으면 화면 하나에 질문 하나)
   prompt: string;
   allowPhoto: boolean;
+  /** 손으로 그리는 칸을 띄운다 (그린 그림은 사진과 같은 경로로 저장된다) */
+  allowDraw?: boolean;
+  drawBackground?: DrawBackground;
   saved: SavedResponse | undefined;
   onSaved: (screenKey: string, value: SavedResponse) => void;
   tone?: "blue" | "amber";
@@ -55,6 +68,7 @@ export default function ScreenResponse({
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [padOpen, setPadOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // 화면이 바뀌면 부모가 key={screenKey} 로 이 폼을 새로 만든다.
@@ -110,7 +124,8 @@ export default function ScreenResponse({
     setError(null);
     const supabase = createClient();
 
-    // 1) 새로 고른 사진부터 올린다 (경로: {학생}/{활동}/{화면}-{시각}.jpg)
+    // 1) 새로 고른 사진부터 올린다 (경로: {학생}/{활동}/{화면}-{시각}.{확장자})
+    //    사진은 JPEG 이지만 손그림은 WebP(또는 PNG) 다 — data URL 에서 형식을 읽어 쓴다.
     const paths = [...images];
     try {
       const {
@@ -118,11 +133,13 @@ export default function ScreenResponse({
       } = await supabase.auth.getUser();
       if (!user) throw new Error("no user");
       for (let i = 0; i < pending.length; i++) {
-        const path = `${user.id}/${activityId}/${screenKey}-${Date.now()}-${i}.jpg`;
+        const blob = dataUrlToBlob(pending[i]);
+        const ext = EXT_BY_MIME[blob.type] ?? "jpg";
+        const path = `${user.id}/${activityId}/${screenKey}-${Date.now()}-${i}.${ext}`;
         const { error: upErr } = await supabase.storage
           .from(UPLOAD_BUCKET)
-          .upload(path, dataUrlToBlob(pending[i]), {
-            contentType: "image/jpeg",
+          .upload(path, blob, {
+            contentType: blob.type || "image/jpeg",
             upsert: false,
           });
         if (upErr) throw upErr;
@@ -185,6 +202,40 @@ export default function ScreenResponse({
         className="rounded-md border border-zinc-300 bg-white p-3 text-sm leading-relaxed focus:border-blue-500 focus:outline-none"
       />
 
+      {allowDraw && (
+        <div className="flex flex-col gap-2">
+          {padOpen ? (
+            <DrawPad
+              background={drawBackground}
+              onCancel={() => setPadOpen(false)}
+              onSave={(dataUrl) => {
+                // 사진과 같은 줄에 선다 — 저장 경로를 그대로 쓴다
+                setPending((prev) => [...prev, dataUrl]);
+                setPadOpen(false);
+              }}
+            />
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPadOpen(true)}
+                disabled={images.length + pending.length >= MAX_PHOTOS}
+                className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+              >
+                <Icon name="edit" /> 손으로 그리기
+              </button>
+              <span className="text-xs text-zinc-500">
+                {drawBackground === "axes"
+                  ? "좌표평면에 직접 그려 보세요."
+                  : drawBackground === "grid"
+                    ? "모눈 위에 직접 그려 보세요."
+                    : "식·그림을 손으로 써서 낼 수 있습니다."}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
       {allowPhoto && (
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
@@ -211,48 +262,49 @@ export default function ScreenResponse({
             </span>
           </div>
 
-          {(images.length > 0 || pending.length > 0) && (
-            <div className="flex flex-wrap gap-2">
-              {images.map((p) => (
-                <figure key={p} className="relative">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={previews[p] ?? ""}
-                    alt="첨부한 사진"
-                    className="h-24 w-24 rounded-md border border-zinc-300 object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeSaved(p)}
-                    className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-zinc-800 text-xs text-white"
-                    aria-label="사진 빼기"
-                  >
-                    ×
-                  </button>
-                </figure>
-              ))}
-              {pending.map((src, i) => (
-                <figure key={`p${i}`} className="relative">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={src}
-                    alt="올릴 사진"
-                    className="h-24 w-24 rounded-md border-2 border-dashed border-blue-400 object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removePending(i)}
-                    className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-zinc-800 text-xs text-white"
-                    aria-label="사진 빼기"
-                  >
-                    ×
-                  </button>
-                </figure>
-              ))}
-            </div>
-          )}
         </div>
       )}
+
+        {(images.length > 0 || pending.length > 0) && (
+          <div className="flex flex-wrap gap-2">
+            {images.map((p) => (
+              <figure key={p} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={previews[p] ?? ""}
+                  alt="첨부한 사진"
+                  className="h-24 w-24 rounded-md border border-zinc-300 object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeSaved(p)}
+                  className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-zinc-800 text-xs text-white"
+                  aria-label="사진 빼기"
+                >
+                  ×
+                </button>
+              </figure>
+            ))}
+            {pending.map((src, i) => (
+              <figure key={`p${i}`} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt="올릴 사진"
+                  className="h-24 w-24 rounded-md border-2 border-dashed border-blue-400 object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removePending(i)}
+                  className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-zinc-800 text-xs text-white"
+                  aria-label="사진 빼기"
+                >
+                  ×
+                </button>
+              </figure>
+            ))}
+          </div>
+        )}
 
       <div className="flex items-center gap-3">
         <button

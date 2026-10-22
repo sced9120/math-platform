@@ -379,6 +379,15 @@ export default function ActivityEditor({
                   <p className="mt-1 text-xs text-zinc-500">
                     {QUESTION_TYPE_LABEL[q.type]}
                     {q.type === "text" && q.photo ? " · 사진 첨부 가능" : ""}
+                    {q.type === "text" && q.draw
+                      ? ` · 손그림 (${
+                          q.drawBg === "axes"
+                            ? "좌표평면"
+                            : q.drawBg === "grid"
+                              ? "모눈"
+                              : "빈 종이"
+                        })`
+                      : ""}
                   </p>
                 </div>
               ))}
@@ -661,14 +670,43 @@ function QuestionsEditor({
           />
 
           {q.type === "text" && (
-            <label className="flex items-center gap-2 text-sm text-zinc-700">
-              <input
-                type="checkbox"
-                checked={!!q.photo}
-                onChange={(e) => set(i, { photo: e.target.checked })}
-              />
-              <Icon name="camera" /> 사진으로도 낼 수 있게 하기
-            </label>
+            <>
+              <label className="flex items-center gap-2 text-sm text-zinc-700">
+                <input
+                  type="checkbox"
+                  checked={!!q.photo}
+                  onChange={(e) => set(i, { photo: e.target.checked })}
+                />
+                <Icon name="camera" /> 사진으로도 낼 수 있게 하기
+              </label>
+              <label className="flex items-center gap-2 text-sm text-zinc-700">
+                <input
+                  type="checkbox"
+                  checked={!!q.draw}
+                  onChange={(e) => set(i, { draw: e.target.checked })}
+                />
+                <Icon name="edit" /> 손으로 그릴 수 있게 하기
+              </label>
+              {q.draw && (
+                <label className="ml-6 flex items-center gap-2 text-sm text-zinc-700">
+                  그리는 칸 배경
+                  <select
+                    value={q.drawBg ?? "plain"}
+                    onChange={(e) =>
+                      set(i, { drawBg: e.target.value as "plain" | "grid" | "axes" })
+                    }
+                    className="rounded-md border border-zinc-300 px-2 py-1 text-sm"
+                  >
+                    <option value="plain">빈 종이</option>
+                    <option value="grid">모눈</option>
+                    <option value="axes">좌표평면</option>
+                  </select>
+                  <span className="text-xs text-zinc-500">
+                    그래프를 그리게 할 때는 좌표평면
+                  </span>
+                </label>
+              )}
+            </>
           )}
 
           {q.type === "short" && (

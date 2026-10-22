@@ -11,6 +11,8 @@ export type ScreenBlock = {
   key: string;
   prompt: string;
   photo: boolean;
+  draw: boolean;
+  drawBg: "plain" | "grid" | "axes";
   heading: string; // 화면 제목(h1) — 목록에 보여 주기 위한 읽기 전용 값
   lead: string; // 화면 앞에 붙어 있던 주석 (EXT:START 등)
   open: string; // <section …> 여는 태그
@@ -58,6 +60,11 @@ export function parseActivityHtml(html: string): ParsedActivity | null {
       key: attr(open, "data-key"),
       prompt: attr(open, "data-prompt"),
       photo: attr(open, "data-photo") === "1",
+      draw: attr(open, "data-draw") === "1",
+      drawBg: ((): "plain" | "grid" | "axes" => {
+        const v = attr(open, "data-draw-bg");
+        return v === "grid" || v === "axes" ? v : "plain";
+      })(),
       heading: body.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1].replace(/<[^>]*>/g, "").trim() ?? "",
       lead: lead ?? "",
       open,

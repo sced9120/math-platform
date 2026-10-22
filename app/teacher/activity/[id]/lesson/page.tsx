@@ -43,9 +43,12 @@ export default async function TeacherLessonPage({
   // 화면 제목 목록 — 교사가 번호를 눌러 부를 수 있게.
   // 교사가 화면을 짜 둔 활동이면 그것을, HTML 활동이면 안의 <section> 들을 센다.
   const authored = (screenRows as Pick<Screen, "screen_key" | "title">[] | null) ?? [];
+  const html =
+    activity.type === "html"
+      ? ((activity.content as { html?: string })?.html ?? "")
+      : "";
   let screenTitles: string[] = authored.map((s) => s.title || "");
-  if (screenTitles.length === 0 && activity.type === "html") {
-    const html = (activity.content as { html?: string })?.html ?? "";
+  if (screenTitles.length === 0 && html) {
     screenTitles = (parseActivityHtml(html)?.screens ?? []).map((s) => s.heading || "");
   }
 
@@ -76,6 +79,7 @@ export default async function TeacherLessonPage({
           activityId={id}
           activityTitle={activity.title}
           screenTitles={screenTitles}
+          html={html}
           me={{ id: profile.id, name: profile.name }}
         />
       </div>

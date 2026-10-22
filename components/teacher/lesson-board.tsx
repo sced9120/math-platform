@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import HtmlActivityFrame, {
+  type ScreenInfo,
+} from "@/components/student/html-activity-frame";
 import {
   byRoster,
   flatten,
@@ -15,19 +18,23 @@ import {
 import Icon from "@/components/icon";
 
 // 교사 쪽 수업 진행판.
-// 들어와 있는 학생이 각자 몇 번째 화면에 있는지 한눈에 보고,
-// 전원을 같은 화면으로 부르거나 화면을 덮는다.
+//  - 위쪽에 조작 줄(가로 한 줄), 아래쪽에 학생이 보는 화면 그대로.
+//    창을 두 개 띄우지 않아도 되도록 교사도 같은 활동을 직접 만져 가며 시연한다.
+//  - 조작 줄은 스크롤해도 따라붙는다(활동이 길어도 버튼을 찾으러 올라가지 않게).
 
 export default function LessonBoard({
   activityId,
   activityTitle,
   screenTitles,
+  html,
   me,
 }: {
   activityId: string;
   activityTitle: string;
   /** 화면 제목들 — 몇 번 화면인지 눌러 부를 수 있게 */
   screenTitles: string[];
+  /** 활동 HTML — 있으면 교사 화면 아래에 학생이 보는 그대로 띄운다 */
+  html?: string;
   me: { id: string; name: string };
 }) {
   const chanRef = useRef<RealtimeChannel | null>(null);
@@ -35,10 +42,12 @@ export default function LessonBoard({
   const [blank, setBlank] = useState(false);
   const [goto, setGoto] = useState<{ index: number; seq: number } | null>(null);
   const [open, setOpen] = useState(false); // 수업을 열었는가
+  const [rosterOpen, setRosterOpen] = useState(false);
+  // 교사가 지금 보고 있는 화면 (아래 미리보기에서 직접 넘긴 것)
+  const [mine, setMine] = useState<ScreenInfo | null>(null);
 
   const total = screenTitles.length;
 
-  // 내 상태(가리기·부르기)를 presence 에 실어 보낸다
   const push = useCallback(
     (next: Partial<TeacherPresence>) => {
       const payload: TeacherPresence = {
@@ -88,14 +97,16 @@ export default function LessonBoard({
     };
   }, [open, activityId, me.id, me.name]);
 
-  // 상태가 바뀌면 바로 알린다
   useEffect(() => {
     if (open) push({});
   }, [blank, goto, open, push]);
 
-  const hands = handQueue(students);
+  const call = useCallback(
+    (index: number) => setGoto((g) => ({ index, seq: (g?.seq ?? 0) + 1 })),
+    []
+  );
 
-  // 화면별로 몇 명이 있는지
+  const hands = handQueue(students);
   const perScreen = new Array(Math.max(total, 1)).fill(0) as number[];
   for (const s of students) {
     if (s.screenIndex >= 0 && s.screenIndex < perScreen.length) {
@@ -104,6 +115,7 @@ export default function LessonBoard({
   }
   const doneCount = students.filter((s) => s.doneAt != null).length;
 
+  // ── 수업 열기 전 ────────────────────────────────────
   if (!open) {
     return (
       <div className="rounded-lg border border-zinc-200 bg-white p-6">
@@ -115,8 +127,9 @@ export default function LessonBoard({
           화면에 있는지 보이고, 전원을 같은 화면으로 부르거나 화면을 덮을 수
           있습니다.
         </p>
-        <p className="mt-1 text-sm text-zinc-500">
-          학생은 따로 할 일이 없습니다. 활동을 열어 두기만 하면 됩니다.
+        <p className="mt-1 text-sm text-zinc-600">
+          아래에 <b>학생이 보는 화면</b>이 그대로 뜹니다. 직접 만져 가며 시연하고,
+          원할 때 <b>&lsquo;지금 화면으로 모으기&rsquo;</b>로 학생들을 부르면 됩니다.
         </p>
         <button
           onClick={() => setOpen(true)}
@@ -128,192 +141,200 @@ export default function LessonBoard({
     );
   }
 
+  const mineLabel = mine ? mine.index + 1 : null;
+
   return (
-    <div className="flex flex-col gap-4">
-      {/* 상태줄 */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
-        <span className="flex items-center gap-2 font-medium text-emerald-900">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
+    <div className="flex flex-col gap-2">
+      {/* ── 조작 줄 (스크롤해도 붙어 있다) ───────────────── */}
+      <div className="sticky top-0 z-30 flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white/95 p-2 shadow-sm backdrop-blur">
+        {/* 1행 — 상태 · 가리기 · 닫기 */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="flex items-center gap-1.5 whitespace-nowrap rounded-md bg-emerald-50 px-2.5 py-1.5 text-sm font-medium text-emerald-900">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
+            </span>
+            학생 <b>{students.length}</b>
+            {doneCount > 0 && (
+              <span className="text-emerald-700">· 완료 {doneCount}</span>
+            )}
           </span>
-          수업 중 · {activityTitle}
-        </span>
-        <span className="text-sm text-emerald-800">
-          들어온 학생 <b>{students.length}</b>명
-          {doneCount > 0 && <> · 완료 <b>{doneCount}</b>명</>}
-        </span>
-        <button
-          onClick={() => {
-            setBlank(false);
-            setOpen(false);
-          }}
-          className="ml-auto rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
-        >
-          수업 닫기
-        </button>
-      </div>
 
-      {/* 화면 가리기 */}
-      <div
-        className={`flex flex-wrap items-center gap-3 rounded-lg border p-4 ${
-          blank ? "border-zinc-800 bg-zinc-900" : "border-zinc-200 bg-white"
-        }`}
-      >
-        <button
-          onClick={() => setBlank((v) => !v)}
-          className={`rounded-md px-5 py-2.5 text-sm font-semibold ${
-            blank
-              ? "bg-white text-zinc-900 hover:bg-zinc-100"
-              : "bg-zinc-900 text-white hover:bg-zinc-800"
-          }`}
-        >
-          {blank ? "화면 돌려주기" : "화면 가리기"}
-        </button>
-        <span className={`text-sm ${blank ? "text-zinc-300" : "text-zinc-600"}`}>
-          {blank ? (
-            <>
-              학생 화면이 덮여 있습니다 — <b>보기도 만지기도 못 합니다.</b>{" "}
-              하던 자리는 그대로 남아 있습니다.
-            </>
-          ) : (
-            <>
-              학생 화면을 덮고 입력을 막습니다. 설명할 때 쓰세요.
-              <br />
-              <span className="text-xs text-zinc-500">
-                학생에게는 검은 화면에 <b>&ldquo;잠시 멈추고 앞을 보세요.&rdquo;</b> 라고 뜹니다.
-              </span>
-            </>
+          <button
+            onClick={() => setBlank((v) => !v)}
+            className={`whitespace-nowrap rounded-md px-3.5 py-1.5 text-sm font-semibold ${
+              blank
+                ? "bg-amber-500 text-white hover:bg-amber-600"
+                : "bg-zinc-900 text-white hover:bg-zinc-800"
+            }`}
+          >
+            {blank ? "화면 돌려주기" : "화면 가리기"}
+          </button>
+
+          {blank && (
+            <span className="text-xs text-amber-700">
+              학생 화면에 <b>&ldquo;잠시 멈추고 앞을 보세요.&rdquo;</b> — 입력도 막혀 있습니다
+            </span>
           )}
-        </span>
-      </div>
 
-      {/* 같이 넘기기 */}
-      <div className="rounded-lg border border-zinc-200 bg-white p-4">
-        <h3 className="text-sm font-semibold text-zinc-900">
-          <Icon name="arrow" /> 같이 넘기기
-        </h3>
-        <p className="mt-1 text-xs text-zinc-500">
-          번호를 누르면 학생 전원이 그 화면으로 갑니다. 그 뒤에는 각자 자유롭게
-          움직일 수 있습니다.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {screenTitles.map((t, i) => {
-            const here = perScreen[i] ?? 0;
-            const called = goto?.index === i;
-            return (
-              <button
-                key={i}
-                title={t || `${i + 1}번 화면`}
-                onClick={() =>
-                  setGoto({ index: i, seq: (goto?.seq ?? 0) + 1 })
-                }
-                className={`relative flex h-9 min-w-9 items-center justify-center rounded-md border px-2 text-sm transition ${
-                  called
-                    ? "border-blue-600 bg-blue-600 font-bold text-white"
-                    : here > 0
-                      ? "border-blue-300 bg-blue-50 text-blue-800"
-                      : "border-zinc-300 bg-white text-zinc-500 hover:bg-zinc-50"
-                }`}
-              >
-                {i + 1}
-                {here > 0 && (
-                  <span
-                    className={`absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold ${
-                      called ? "bg-white text-blue-700" : "bg-blue-600 text-white"
+          <button
+            onClick={() => setRosterOpen((v) => !v)}
+            aria-expanded={rosterOpen}
+            className="whitespace-nowrap rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
+          >
+            참여 현황
+            <Icon
+              name="chevron"
+              size={13}
+              className={`ml-1 ${rosterOpen ? "" : "-rotate-90"}`}
+            />
+          </button>
+
+          <button
+            onClick={() => {
+              setBlank(false);
+              setOpen(false);
+            }}
+            className="ml-auto whitespace-nowrap rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-sm text-zinc-600 hover:bg-zinc-50"
+          >
+            수업 닫기
+          </button>
+        </div>
+
+        {/* 2행 — 같이 넘기기 */}
+        {total > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              onClick={() => mine && call(mine.index)}
+              disabled={!mine}
+              className="whitespace-nowrap rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
+            >
+              <Icon name="arrow" size={14} /> 지금 화면
+              {mineLabel ? ` (${mineLabel}번)` : ""}으로 모으기
+            </button>
+
+            <span className="mx-1 h-5 w-px bg-zinc-200" />
+
+            <div className="flex flex-1 flex-wrap items-center gap-1">
+              {screenTitles.map((t, i) => {
+                const here = perScreen[i] ?? 0;
+                const called = goto?.index === i;
+                const atMine = mine?.index === i;
+                return (
+                  <button
+                    key={i}
+                    title={t || `${i + 1}번 화면`}
+                    onClick={() => call(i)}
+                    className={`relative flex h-7 min-w-7 items-center justify-center rounded border px-1.5 text-xs transition ${
+                      called
+                        ? "border-blue-600 bg-blue-600 font-bold text-white"
+                        : atMine
+                          ? "border-blue-400 bg-white font-semibold text-blue-700"
+                          : here > 0
+                            ? "border-blue-200 bg-blue-50 text-blue-800"
+                            : "border-zinc-200 bg-white text-zinc-400 hover:bg-zinc-50"
                     }`}
                   >
-                    {here}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-        {goto && (
-          <p className="mt-2 text-xs text-zinc-500">
-            {goto.index + 1}번 화면으로 불렀습니다
-            {screenTitles[goto.index] ? ` — ${screenTitles[goto.index]}` : ""}
-          </p>
+                    {i + 1}
+                    {here > 0 && (
+                      <span
+                        className={`absolute -right-1 -top-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-1 text-[9px] font-bold ${
+                          called ? "bg-white text-blue-700" : "bg-blue-600 text-white"
+                        }`}
+                      >
+                        {here}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         )}
-      </div>
 
-      {/* 손들기 */}
-      {hands.length > 0 && (
-        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4">
-          <h3 className="text-sm font-semibold text-amber-900">
-            ✋ 손든 학생 {hands.length}명 — 누른 순서
-          </h3>
-          <ol className="mt-2 flex flex-wrap gap-2">
+        {/* 3행 — 손든 학생 (있을 때만) */}
+        {hands.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 rounded-md bg-amber-50 px-2 py-1.5">
+            <span className="whitespace-nowrap text-xs font-semibold text-amber-900">
+              ✋ 손든 학생 {hands.length}
+            </span>
             {hands.map((s, i) => (
-              <li
+              <span
                 key={s.userId}
-                className="flex items-center gap-1.5 rounded-md border border-amber-300 bg-white px-2.5 py-1 text-sm"
+                className="flex items-center gap-1 rounded border border-amber-300 bg-white px-1.5 py-0.5 text-xs"
               >
-                <span className="font-bold text-amber-700">{i + 1}</span>
+                <b className="text-amber-700">{i + 1}</b>
                 <span className="font-medium text-zinc-900">{s.name}</span>
-                <span className="text-xs text-zinc-500">
-                  {s.screenIndex + 1}번 화면
-                </span>
-              </li>
+                <span className="text-zinc-400">{s.screenIndex + 1}번</span>
+              </span>
             ))}
-          </ol>
-        </div>
-      )}
+          </div>
+        )}
 
-      {/* 참여 현황 */}
-      <div className="rounded-lg border border-zinc-200 bg-white p-4">
-        <h3 className="text-sm font-semibold text-zinc-900">
-          <Icon name="graduation" /> 참여 현황
-        </h3>
-        {students.length === 0 ? (
-          <p className="mt-2 text-sm text-zinc-500">
-            아직 들어온 학생이 없습니다. 학생이 이 활동을 열면 여기에 나타납니다.
-          </p>
-        ) : (
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {students.map((s) => (
-              <li
-                key={s.userId}
-                className={`flex min-w-28 flex-col gap-0.5 rounded-md border px-2.5 py-1.5 ${
-                  s.doneAt != null
-                    ? "border-emerald-300 bg-emerald-50"
-                    : s.handAt != null
-                      ? "border-amber-300 bg-amber-50"
-                      : "border-zinc-200 bg-zinc-50"
-                }`}
-              >
-                <span className="flex items-center gap-1 text-sm font-medium text-zinc-900">
-                  {s.handAt != null && <span>✋</span>}
-                  {s.name}
-                  {s.doneAt != null && (
-                    <Icon name="check" size={13} className="text-emerald-600" />
-                  )}
-                </span>
-                <span className="text-xs text-zinc-500">
-                  {s.screenTotal > 0
-                    ? `${s.screenIndex + 1} / ${s.screenTotal}`
-                    : "보는 중"}
-                </span>
-                {/* 진행 막대 */}
-                <span className="mt-0.5 h-1 w-full overflow-hidden rounded-full bg-zinc-200">
-                  <span
-                    className={`block h-full rounded-full ${
-                      s.doneAt != null ? "bg-emerald-500" : "bg-blue-500"
+        {/* 참여 현황 — 접었다 폈다 */}
+        {rosterOpen && (
+          <div className="rounded-md border border-zinc-200 bg-zinc-50 p-2">
+            {students.length === 0 ? (
+              <p className="text-xs text-zinc-500">
+                아직 들어온 학생이 없습니다. 학생이 이 활동을 열면 여기에 나타납니다.
+              </p>
+            ) : (
+              <ul className="flex flex-wrap gap-1.5">
+                {students.map((s) => (
+                  <li
+                    key={s.userId}
+                    title={s.screenTitle}
+                    className={`flex items-center gap-1.5 rounded border px-1.5 py-1 text-xs ${
+                      s.doneAt != null
+                        ? "border-emerald-300 bg-emerald-50"
+                        : s.handAt != null
+                          ? "border-amber-300 bg-amber-50"
+                          : "border-zinc-200 bg-white"
                     }`}
-                    style={{
-                      width:
-                        s.screenTotal > 0
-                          ? `${((s.screenIndex + 1) / s.screenTotal) * 100}%`
-                          : "0%",
-                    }}
-                  />
-                </span>
-              </li>
-            ))}
-          </ul>
+                  >
+                    {s.handAt != null && <span>✋</span>}
+                    <span className="font-medium text-zinc-900">{s.name}</span>
+                    <span className="text-zinc-400">
+                      {s.screenTotal > 0 ? `${s.screenIndex + 1}/${s.screenTotal}` : "—"}
+                    </span>
+                    {s.doneAt != null && (
+                      <Icon name="check" size={11} className="text-emerald-600" />
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
       </div>
+
+      {/* ── 학생이 보는 화면 ────────────────────────────── */}
+      {html ? (
+        <div className="flex flex-col gap-1">
+          <p className="px-0.5 text-xs text-zinc-500">
+            학생이 보는 화면입니다. 여기서 직접 넘기며 시연하고,
+            <b> 지금 화면으로 모으기</b>를 누르면 학생들이 따라옵니다.
+            {blank && (
+              <b className="text-amber-700">
+                {" "}· 지금 학생 화면은 덮여 있습니다(이 화면은 그대로 보입니다).
+              </b>
+            )}
+          </p>
+          <HtmlActivityFrame
+            html={html}
+            title={`${activityTitle} — 학생 화면`}
+            onScreen={setMine}
+            goto={goto}
+            /* 교사 화면은 덮지 않는다 — 덮으면 시연을 못 한다 */
+            blank={false}
+          />
+        </div>
+      ) : (
+        <p className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500">
+          이 활동은 HTML 활동이 아니어서 여기에 띄울 수 없습니다. 참여 현황과
+          화면 가리기는 그대로 쓸 수 있습니다.
+        </p>
+      )}
     </div>
   );
 }

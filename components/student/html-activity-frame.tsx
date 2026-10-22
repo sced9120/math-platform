@@ -111,11 +111,14 @@ export default function HtmlActivityFrame({
   title,
   initialHeight,
   onScreen,
+  onDone,
 }: {
   html: string;
   title: string;
   initialHeight?: number;
   onScreen?: (info: ScreenInfo) => void;
+  /** 활동 마지막 화면에서 학생이 '완료'를 눌렀을 때 */
+  onDone?: () => void;
 }) {
   const ref = useRef<HTMLIFrameElement>(null);
   // 스크립트가 높이를 알려 주기 전까지 쓰는 임시 높이
@@ -125,9 +128,16 @@ export default function HtmlActivityFrame({
       const frame = ref.current;
       if (!frame || event.source !== frame.contentWindow) return; // 우리 iframe 이 보낸 것만
       const data = event.data as
-        | { __activityHeight?: unknown; __activityScreen?: unknown }
+        | {
+            __activityHeight?: unknown;
+            __activityScreen?: unknown;
+            __activityDone?: unknown;
+          }
         | null;
       if (!data || typeof data !== "object") return;
+
+      // 마지막 화면의 '완료' 버튼
+      if (data.__activityDone === true) onDone?.();
 
       const value = data.__activityHeight;
       if (typeof value === "number" && Number.isFinite(value) && value > 0) {
@@ -150,7 +160,7 @@ export default function HtmlActivityFrame({
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
     // onScreen 은 부모에서 안정된 함수(setState)를 넘긴다 — 매번 다시 달리지 않는다
-  }, [onScreen]);
+  }, [onScreen, onDone]);
 
   return (
     <iframe

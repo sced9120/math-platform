@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import GeoGebraEmbed from "@/components/student/geogebra-embed";
 import HtmlActivityFrame, {
@@ -74,7 +74,12 @@ export default function ActivityRunner({
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return;
+    // 로그인이 풀린 경우 — busy 를 풀지 않으면 버튼이 '저장 중...' 으로 굳는다
+    if (!user) {
+      setError("로그인이 풀렸습니다. 새로고침한 뒤 다시 시도하세요.");
+      setBusy(false);
+      return;
+    }
 
     const { error } = await supabase.from("progress").upsert(
       { student_id: user.id, activity_id: activity.id, completed: true },
@@ -98,6 +103,18 @@ export default function ActivityRunner({
     html?: string;
     response_prompt?: string;
   };
+
+  // 활동 HTML 마지막 화면의 '완료' 버튼 → 학습 완료로 기록.
+  // iframe 안에서 postMessage 로 알려 온다(HtmlActivityFrame 의 onDone).
+  // 이미 완료라면 다시 쓰지 않는다.
+  const completedRef = useRef(!!progress?.completed);
+  completedRef.current = !!progress?.completed;
+  const handleDone = useCallback(() => {
+    if (completedRef.current) return;
+    void markComplete();
+    // markComplete 는 activity.id 만 쓰므로 식별자가 바뀔 일이 없다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activity.id]);
 
   // 화면별 기록을 저장하면 그 활동은 완료로 기록된다(problem 은 채점 결과가 우선)
   const handleSaved = useCallback(
@@ -268,6 +285,7 @@ export default function ActivityRunner({
             title={activity.title}
             initialHeight={content.height}
             onScreen={setScreen}
+            onDone={handleDone}
           />
           {showCompleteButton && !screenDriven && (
             <CompleteButton

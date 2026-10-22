@@ -107,6 +107,52 @@ const FRAME_BRIDGE = `
   }
   setTimeout(send, 100);
   setTimeout(send, 400);
+
+  // ── ③ 부모의 지시 받기 (실시간 수업) ────────────────────────
+  // 여기만 바깥 → 안쪽 방향이다. 선생님이 화면을 넘기거나 가릴 때 쓴다.
+  var veil = null;
+  function makeVeil() {
+    if (veil) return veil;
+    veil = document.createElement("div");
+    veil.setAttribute("aria-hidden", "true");
+    veil.style.cssText =
+      "position:fixed;inset:0;z-index:2147483647;background:#18181b;" +
+      "display:flex;align-items:center;justify-content:center;";
+    document.body.appendChild(veil);
+    return veil;
+  }
+  function setBlank(on) {
+    if (on) {
+      makeVeil().style.display = "flex";
+      // 덮개만으로는 키보드가 막히지 않는다. 문서 전체의 입력을 끊고 포커스를 뺀다.
+      document.documentElement.style.pointerEvents = "none";
+      if (document.activeElement && document.activeElement.blur) {
+        try { document.activeElement.blur(); } catch (e) {}
+      }
+    } else if (veil) {
+      veil.style.display = "none";
+      document.documentElement.style.pointerEvents = "";
+    }
+  }
+  // 선생님이 부른 화면으로 — 스테퍼의 단계 점을 누르는 것과 같다.
+  function gotoScreen(i) {
+    var dots = document.querySelectorAll("#steps .dot");
+    if (dots.length && i >= 0 && i < dots.length) { dots[i].click(); return; }
+    // 단계 점이 없는 옛 활동은 .screen 의 on 을 직접 옮긴다
+    var all = document.querySelectorAll(".screen");
+    if (i >= 0 && i < all.length) {
+      for (var k = 0; k < all.length; k++) all[k].classList.toggle("on", k === i);
+      send();
+    }
+  }
+  window.addEventListener("message", function (e) {
+    // 부모 창이 보낸 것만 받는다
+    if (e.source !== window.parent) return;
+    var d = e.data;
+    if (!d || typeof d !== "object") return;
+    if (typeof d.__lessonBlank === "boolean") setBlank(d.__lessonBlank);
+    if (typeof d.__lessonGoto === "number") gotoScreen(d.__lessonGoto);
+  });
 })();
 <\/script>`;
 
@@ -116,6 +162,8 @@ export default function HtmlActivityFrame({
   initialHeight,
   onScreen,
   onDone,
+  blank = false,
+  goto = null,
 }: {
   html: string;
   title: string;
@@ -123,6 +171,10 @@ export default function HtmlActivityFrame({
   onScreen?: (info: ScreenInfo) => void;
   /** 활동 마지막 화면에서 학생이 '완료'를 눌렀을 때 */
   onDone?: () => void;
+  /** 실시간 수업 — 선생님이 화면을 가렸는가 */
+  blank?: boolean;
+  /** 실시간 수업 — 선생님이 부른 화면. {index, seq} 가 바뀔 때만 따라간다 */
+  goto?: { index: number; seq: number } | null;
 }) {
   const ref = useRef<HTMLIFrameElement>(null);
   // 스크립트가 높이를 알려 주기 전까지 쓰는 임시 높이
@@ -170,6 +222,19 @@ export default function HtmlActivityFrame({
     return () => window.removeEventListener("message", onMessage);
     // onScreen 은 부모에서 안정된 함수(setState)를 넘긴다 — 매번 다시 달리지 않는다
   }, [onScreen, onDone]);
+
+  // 화면 가리기 — iframe 안쪽까지 전해야 키보드까지 막힌다
+  useEffect(() => {
+    ref.current?.contentWindow?.postMessage({ __lessonBlank: blank }, "*");
+  }, [blank]);
+
+  // 같이 넘기기 — seq 가 늘어난 경우에만 한 번 따라간다
+  const lastSeq = useRef(-1);
+  useEffect(() => {
+    if (!goto || goto.seq <= lastSeq.current) return;
+    lastSeq.current = goto.seq;
+    ref.current?.contentWindow?.postMessage({ __lessonGoto: goto.index }, "*");
+  }, [goto]);
 
   return (
     <iframe

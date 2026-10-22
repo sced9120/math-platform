@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Activity, ActivityType, Unit } from "@/lib/types";
+import Icon from "@/components/icon";
 
 const TYPE_LABELS: Record<ActivityType, string> = {
   geogebra: "GeoGebra",
@@ -612,6 +613,12 @@ export default function ActivitiesManager({
                   </td>
                   <td className="py-2 text-right">
                     <div className="flex justify-end gap-3">
+                      <Link
+                        href={`/teacher/activity/${a.id}/lesson`}
+                        className="flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:underline"
+                      >
+                        <Icon name="users" size={13} /> 함께 수업
+                      </Link>
                       <Link
                         href={`/teacher/activity/${a.id}/preview`}
                         className="text-xs font-medium text-blue-600 hover:underline"

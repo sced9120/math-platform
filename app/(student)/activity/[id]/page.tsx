@@ -71,9 +71,9 @@ export default async function StudentActivityPage({
       supabase.rpc("student_screens", { p_activity_id: id }),
       supabase
         .from("profiles")
-        .select("ai_consent_at")
+        .select("ai_consent_at, name")
         .eq("id", user!.id)
-        .single<{ ai_consent_at: string | null }>(),
+        .single<{ ai_consent_at: string | null; name: string }>(),
       getEnabledModels(aiOwner),
       getAiLimits(aiOwner),
     ]);
@@ -115,6 +115,10 @@ export default async function StudentActivityPage({
         initialTab={tab}
         models={models}
         limits={limits}
+        lesson={{
+          teacherId: aiOwner,
+          me: { id: user!.id, name: me?.name ?? "학생" },
+        }}
       />
     </div>
   );

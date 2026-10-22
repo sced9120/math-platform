@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import GeoGebraEmbed from "@/components/student/geogebra-embed";
+import LessonSync, { type LessonControl } from "@/components/student/lesson-sync";
 import HtmlActivityFrame, {
   type ScreenInfo,
 } from "@/components/student/html-activity-frame";
@@ -38,6 +39,7 @@ export default function ActivityRunner({
   initialTab,
   models,
   limits,
+  lesson,
 }: {
   activity: Activity;
   initialProgress: ProgressState | null;
@@ -47,6 +49,8 @@ export default function ActivityRunner({
   initialTab?: string;
   models: AiModelOption[];
   limits: AiLimits;
+  /** 실시간 수업 참여 정보 — 없으면 수업 기능을 띄우지 않는다 */
+  lesson?: { teacherId: string; me: { id: string; name: string } };
 }) {
   // 사이드메뉴에서 ?tab=socratic / ?tab=feedback 으로 진입 시 해당 탭을 바로 연다
   const startTab: Tab =
@@ -104,6 +108,12 @@ export default function ActivityRunner({
     response_prompt?: string;
   };
 
+  // 선생님이 내린 지시 (화면 가리기 · 같이 넘기기)
+  const [control, setControl] = useState<LessonControl>({
+    blank: false,
+    goto: null,
+  });
+
   // 활동 HTML 마지막 화면의 '완료' 버튼 → 학습 완료로 기록.
   // iframe 안에서 postMessage 로 알려 온다(HtmlActivityFrame 의 onDone).
   // 이미 완료라면 다시 쓰지 않는다.
@@ -159,6 +169,21 @@ export default function ActivityRunner({
 
   return (
     <div className="flex flex-col gap-4">
+      {/* 실시간 수업 — 선생님이 수업을 열었을 때만 띠가 뜬다.
+          화면 가리기 덮개도 여기서 나온다. */}
+      {lesson && (
+        <LessonSync
+          activityId={activity.id}
+          teacherId={lesson.teacherId}
+          me={lesson.me}
+          screenIndex={screen?.index ?? 0}
+          screenTotal={screen?.total ?? 0}
+          screenTitle={screen?.title ?? activity.title}
+          completed={!!progress?.completed}
+          onControl={setControl}
+        />
+      )}
+
       <div className="flex gap-1 border-b border-zinc-200">
         {tabs.map((t) => (
           <button
@@ -286,6 +311,8 @@ export default function ActivityRunner({
             initialHeight={content.height}
             onScreen={setScreen}
             onDone={handleDone}
+            blank={control.blank}
+            goto={control.goto}
           />
           {showCompleteButton && !screenDriven && (
             <CompleteButton

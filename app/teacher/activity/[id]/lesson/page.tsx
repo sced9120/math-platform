@@ -35,14 +35,14 @@ export default async function TeacherLessonPage({
       .single<Pick<Unit, "id" | "title">>(),
     supabase
       .from("activity_screens")
-      .select("screen_key, order_index, title")
+      .select("*")
       .eq("activity_id", id)
       .order("order_index"),
   ]);
 
   // 화면 제목 목록 — 교사가 번호를 눌러 부를 수 있게.
   // 교사가 화면을 짜 둔 활동이면 그것을, HTML 활동이면 안의 <section> 들을 센다.
-  const authored = (screenRows as Pick<Screen, "screen_key" | "title">[] | null) ?? [];
+  const authored = (screenRows as Screen[] | null) ?? [];
   const html =
     activity.type === "html"
       ? ((activity.content as { html?: string })?.html ?? "")
@@ -69,8 +69,8 @@ export default async function TeacherLessonPage({
 
       {screenTitles.length === 0 ? (
         <p className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-          <Icon name="alert" /> 이 활동에는 넘길 화면이 없습니다. 참여 현황과
-          화면 가리기는 쓸 수 있지만 &lsquo;같이 넘기기&rsquo;는 동작하지 않습니다.
+          <Icon name="alert" /> 이 활동은 화면이 하나뿐이라 &lsquo;같이 넘기기&rsquo;가
+          없습니다. 참여 현황·화면 가리기와 아래 시연 화면은 그대로 쓸 수 있습니다.
         </p>
       ) : null}
 
@@ -79,7 +79,8 @@ export default async function TeacherLessonPage({
           activityId={id}
           activityTitle={activity.title}
           screenTitles={screenTitles}
-          html={html}
+          activity={activity}
+          screens={authored}
           me={{ id: profile.id, name: profile.name }}
         />
       </div>

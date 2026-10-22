@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
-import HtmlActivityFrame, {
-  type ScreenInfo,
-} from "@/components/student/html-activity-frame";
+import type { ScreenInfo } from "@/components/student/html-activity-frame";
+import LessonPreview from "@/components/teacher/lesson-preview";
+import type { Activity } from "@/lib/types";
+import type { Screen } from "@/lib/screens";
 import {
   byRoster,
   flatten,
@@ -26,15 +27,17 @@ export default function LessonBoard({
   activityId,
   activityTitle,
   screenTitles,
-  html,
+  activity,
+  screens,
   me,
 }: {
   activityId: string;
   activityTitle: string;
   /** 화면 제목들 — 몇 번 화면인지 눌러 부를 수 있게 */
   screenTitles: string[];
-  /** 활동 HTML — 있으면 교사 화면 아래에 학생이 보는 그대로 띄운다 */
-  html?: string;
+  /** 아래에 띄울 '학생이 보는 화면' — 유형에 상관없이 그린다 */
+  activity: Activity;
+  screens: Screen[];
   me: { id: string; name: string };
 }) {
   const chanRef = useRef<RealtimeChannel | null>(null);
@@ -309,8 +312,7 @@ export default function LessonBoard({
       </div>
 
       {/* ── 학생이 보는 화면 ────────────────────────────── */}
-      {html ? (
-        <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1">
           <p className="px-0.5 text-xs text-zinc-500">
             학생이 보는 화면입니다. 여기서 직접 넘기며 시연하고,
             <b> 지금 화면으로 모으기</b>를 누르면 학생들이 따라옵니다.
@@ -320,21 +322,13 @@ export default function LessonBoard({
               </b>
             )}
           </p>
-          <HtmlActivityFrame
-            html={html}
-            title={`${activityTitle} — 학생 화면`}
-            onScreen={setMine}
-            goto={goto}
-            /* 교사 화면은 덮지 않는다 — 덮으면 시연을 못 한다 */
-            blank={false}
-          />
-        </div>
-      ) : (
-        <p className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500">
-          이 활동은 HTML 활동이 아니어서 여기에 띄울 수 없습니다. 참여 현황과
-          화면 가리기는 그대로 쓸 수 있습니다.
-        </p>
-      )}
+        <LessonPreview
+          activity={activity}
+          screens={screens}
+          goto={goto}
+          onScreen={setMine}
+        />
+      </div>
     </div>
   );
 }

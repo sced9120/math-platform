@@ -253,29 +253,59 @@
     </div>
   </section>
 
-  <section class="screen" data-key="s6" data-prompt="네 대응 중 함수인 것을 모두 고르고, 함수가 아닌 것은 왜 아닌지 적어 보세요. 또 B 와 C 는 어떻게 다른가요?">
+  <section class="screen" data-key="s6" data-prompt="두 자료를 줄로 이어 보고, 방향을 바꿔 보세요. 네 경우(동물→대륙, 대륙→동물, 도시→국가, 국가→도시) 중 함수인 것을 모두 고르고, 함수가 아닌 것은 왜 아닌지 적어 보세요.">
     <div class="kicker">여러 가지 대응</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 [입력→출력 관계] A~D · 교과서 109쪽</span></div>
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 잇는 화면</span><span class="t-ask">💬 뒤집기 전에 먼저 예상시키기</span><span class="t-sheet">📄 학습지 6 · 1-01 [입력→출력 관계] A~D · 교과서 109쪽</span></div>
     <!--TEACH:END-->
-    <h1>이 대응들은 어떻게 다를까?</h1>
-    <p>네 가지 대응입니다. 상자를 눌러 관계를 살펴보세요.</p>
-    <div class="maps" id="m6"></div>
-    <div class="readout" id="r6" style="margin-top:12px"></div>
-    <div class="card">
-      <b>B 와 C 는 어떻게 다른가?</b>
-      <button class="reveal" id="rv6" style="margin-left:8px">모두 눌러 본 뒤 열기</button>
-      <div class="ans" id="an6">
-        <p style="margin:8px 0 0"><b>B (화가 → 작품)</b> — 짝이 <b>하나씩 딱</b> 맞아떨어집니다.
-          겹치는 것도 남는 것도 없어요. <b>거꾸로 돌려도 함수</b> 입니다.</p>
-        <p style="margin:8px 0 0"><b>C (도시 → 국가)</b> — <b>서울과 거제가 둘 다 한국</b> 으로 갑니다.
-          여럿이 하나로 몰려도 <b>함수는 함수</b> 입니다. 또 <b>호주</b> 는 짝이 되는 도시가 없어요.</p>
-        <p style="margin:8px 0 0">그래서 <b>C 를 거꾸로 돌린 D 는 함수가 되지 못합니다.</b>
-          B 는 되는데 C 는 안 되는 까닭이 바로 이 차이예요.</p>
-        <p style="margin:8px 0 0" class="hint">‘출발 쪽에서 하나씩 나가면’ 함수입니다.
-          도착 쪽이 겹치거나 남는 것은 상관없습니다. 이 차이가 뒤에 <b>일대일대응</b> 과 <b>역함수</b> 로 이어집니다.</p>
+    <h1>줄로 이어 보고, 뒤집어 보자</h1>
+    <p>왼쪽에서 하나, 오른쪽에서 하나를 눌러 <b>줄로 이으세요.</b>
+      다 이었으면 <b>방향 바꾸기</b>로 뒤집어 보세요. <b>줄은 그대로인데</b> 함수인지 아닌지가 달라집니다.</p>
+
+    <div class="btns" id="b6set"></div>
+
+    <div class="lab">
+      <svg id="g6" viewBox="0 0 400 250" aria-label="두 집합을 줄로 잇기"></svg>
+      <div class="controls">
+        <div class="readout" id="r6"></div>
+        <div class="btns">
+          <button class="rb" id="b6flip">⇄ 방향 바꾸기</button>
+          <button class="rb" id="b6ans">정답으로 잇기</button>
+          <button class="rb" id="b6clear">지우기</button>
+        </div>
+        <div class="btns" id="b6judge"></div>
+        <div class="readout" id="j6" style="display:none"></div>
       </div>
     </div>
+
+    <div class="card">
+      <b>네 경우를 표로 정리해 보자</b>
+      <button class="reveal" id="rv6" style="margin-left:8px">네 가지 모두 해 본 뒤 열기</button>
+      <div class="ans" id="an6">
+        <table>
+          <tr><th></th><th>대응</th><th>함수?</th><th class="l">까닭</th></tr>
+          <tr><td><b>A</b></td><td>동물 → 대륙</td><td><b style="color:#059669">⭕</b></td>
+              <td class="l">동물마다 대륙이 <b>하나씩</b>. 유럽은 짝이 없지만 <b>도착 쪽</b>이라 괜찮다</td></tr>
+          <tr><td><b>D</b></td><td>대륙 → 동물</td><td><b style="color:#e11d48">❌</b></td>
+              <td class="l"><b>유럽</b>에 대응하는 동물이 <b>없다</b></td></tr>
+          <tr><td><b>B</b></td><td>도시 → 국가</td><td><b style="color:#059669">⭕</b></td>
+              <td class="l">도시마다 국가가 <b>하나씩</b>. 서울·김해가 둘 다 한국이어도 괜찮다</td></tr>
+          <tr><td><b>C</b></td><td>국가 → 도시</td><td><b style="color:#e11d48">❌</b></td>
+              <td class="l"><b>한국</b>에 도시가 <b>둘</b>(서울·김해). 호주는 짝이 <b>없다</b></td></tr>
+        </table>
+        <div class="formula">출발 쪽에서 <b>하나씩 나가면</b> 함수</div>
+        <p style="margin:8px 0 0">함수가 깨지는 길은 <b>두 가지뿐</b>입니다.</p>
+        <ul class="tight">
+          <li><b>없다</b> — 출발 쪽 어떤 원소에 짝이 하나도 없을 때 (D 의 유럽)</li>
+          <li><b>둘이다</b> — 출발 쪽 어떤 원소에 짝이 둘 이상일 때 (C 의 한국)</li>
+        </ul>
+        <p style="margin:8px 0 0" class="hint">도착 쪽이 <b>겹치거나 남는 것</b>은 함수와 아무 상관이 없습니다.
+          그건 나중에 <b>일대일대응</b>에서 따질 일이에요. 지금은 <b>출발 쪽만</b> 보세요.</p>
+      </div>
+    </div>
+
+    <div class="turn"><i>🙋</i><div><b>뒤집기 전에 먼저 예상해 보세요.</b>
+      &ldquo;이 줄을 그대로 두고 방향만 바꾸면 함수일까?&rdquo; 예상한 뒤에 눌러 확인하면 훨씬 오래 남습니다.</div></div>
   </section>
 
   <section class="screen" data-key="s7">
@@ -315,8 +345,9 @@
     <p>앞의 네 대응 중 <b>함수인 것</b>에 대하여 정의역·공역·치역을 적어 봅시다.</p>
     <div class="btns" id="b8"></div>
     <div class="readout" id="r8" style="margin-top:12px"></div>
-    <div class="callout"><b>C 를 눈여겨보세요.</b> 공역에는 <b>호주</b>가 있지만 치역에는 없습니다.
-      <b>치역 ≠ 공역</b> 인 경우죠. 이 차이가 <b>일대일대응</b> 을 가르는 기준이 됩니다.</div>
+    <div class="callout"><b>B 를 눈여겨보세요.</b> 공역에는 <b>호주</b>가 있지만 치역에는 없습니다.
+      <b>치역 ≠ 공역</b> 인 경우죠. <b>A</b> 도 공역의 <b>유럽</b> 이 치역에 없습니다.
+      이 차이가 <b>일대일대응</b> 을 가르는 기준이 됩니다.</div>
   </section>
 
   <section class="screen" data-key="s9" data-prompt="다섯 대응이 각각 함수인지 판단하고, 함수가 아닌 것은 그 까닭을 적어 보세요.">
@@ -789,46 +820,221 @@ w2.reset();
   });
 })();
 
-/* ── 대응 자료 (화면6·8 공용) ────────────────────────── */
+/* ── 대응 자료 (화면6·8 공용) — 교과서 109쪽 ─────────── */
 var MAPS=[
-  {id:"A",title:"A. 작품 → 화가",
-   pairs:[["수련","모네"],["별이 빛나는 밤","반 고흐"],["게르니카","피카소"],["두 자매","르누아르"]],
-   Y:["모네","반 고흐","피카소","르누아르"],
-   fn:true, one:true,
-   note:"각 작품에 화가가 <b>하나씩</b> — 함수입니다.<br><br>겹치는 것도 남는 것도 없어요. <b>일대일대응</b> 입니다."},
-  {id:"B",title:"B. 화가 → 작품",
-   pairs:[["모네","수련"],["반 고흐","별이 빛나는 밤"],["피카소","게르니카"],["르누아르","두 자매"]],
-   Y:["수련","별이 빛나는 밤","게르니카","두 자매"],
-   fn:true, one:true,
-   note:"A 의 화살표를 <b>거꾸로 돌린 것</b> 입니다.<br><br>이것도 <b>일대일대응</b> 이에요.<br><br><span class='hint'>거꾸로 돌려도 함수가 되는 이 성질이 뒤에 <b>역함수</b> 로 이어집니다.</span>"},
-  {id:"C",title:"C. 도시 → 국가",
-   pairs:[["서울","한국"],["워싱턴","미국"],["삿포로","일본"],["거제","한국"]],
-   Y:["한국","미국","일본","호주"],
+  {id:"A",title:"A. 동물 → 대륙",
+   pairs:[["파푸아화식조","오세아니아"],["시베리아호랑이","아시아"],
+          ["갈라파고스땅거북","아메리카"],["나일악어","아프리카"]],
+   Y:["아시아","아프리카","오세아니아","아메리카","유럽"],
    fn:true, one:false,
-   note:"각 도시에 나라가 하나씩 — <b>함수입니다.</b><br><br>단 <b>서울·거제가 둘 다 한국</b> 으로 가고, <b>호주</b> 는 짝이 없습니다.<br><br>겹쳐도 남아도 <b>함수는 함수</b> 예요."},
-  {id:"D",title:"D. 국가 → 도시",
-   pairs:[["한국","서울"],["한국","거제"],["미국","워싱턴"],["일본","삿포로"]],
-   Y:["서울","워싱턴","삿포로","거제"],
+   note:"동물마다 대륙이 <b>하나씩</b> — 함수입니다.<br><br><b>유럽</b> 은 짝이 되는 동물이 없지만, 유럽은 <b>도착 쪽</b> 이라 괜찮습니다.<br><br><span class='hint'>함수는 <b>출발 쪽</b> 만 봅니다."},
+  {id:"D",title:"D. 대륙 → 동물",
+   pairs:[["오세아니아","파푸아화식조"],["아시아","시베리아호랑이"],
+          ["아메리카","갈라파고스땅거북"],["아프리카","나일악어"]],
+   Y:["파푸아화식조","시베리아호랑이","갈라파고스땅거북","나일악어"],
    fn:false,
-   note:"<b>함수가 아닙니다.</b><br><br>① <b>한국</b> 에 도시가 <b>둘</b> 대응합니다.<br>② <b>호주</b> 에는 대응하는 도시가 <b>없습니다.</b><br><br><span class='hint'>C 를 거꾸로 돌리면 함수가 깨집니다 — C 가 일대일대응이 아니었기 때문이죠.</span>"}
+   note:"<b>함수가 아닙니다.</b><br><br><b>유럽</b> 에 대응하는 동물이 <b>없습니다.</b><br><br><span class='hint'>A 를 거꾸로 돌렸을 뿐인데 함수가 깨졌습니다. 출발 쪽에 유럽이 들어왔기 때문이죠."},
+  {id:"B",title:"B. 도시 → 국가",
+   pairs:[["서울","한국"],["워싱턴","미국"],["삿포로","일본"],["김해","한국"]],
+   Y:["미국","일본","한국","호주"],
+   fn:true, one:false,
+   note:"도시마다 국가가 하나씩 — <b>함수입니다.</b><br><br><b>서울·김해</b> 가 둘 다 한국으로 가고 <b>호주</b> 는 짝이 없지만, 둘 다 도착 쪽 이야기라 괜찮습니다."},
+  {id:"C",title:"C. 국가 → 도시",
+   pairs:[["미국","워싱턴"],["일본","삿포로"],["한국","서울"],["한국","김해"]],
+   Y:["서울","워싱턴","삿포로","김해"],
+   fn:false,
+   note:"<b>함수가 아닙니다.</b><br><br>① <b>한국</b> 에 도시가 <b>둘</b> (서울·김해) 대응합니다.<br>② <b>호주</b> 에는 대응하는 도시가 <b>없습니다.</b><br><br><span class='hint'>함수가 깨지는 길은 '없다' 와 '둘이다' 두 가지뿐입니다."}
 ];
 
-/* ── 화면6 : 네 대응 ─────────────────────────────────── */
+/* ── 화면6 : 줄로 잇고 방향 바꾸기 ───────────────────── */
 (function(){
-  var box=document.getElementById("m6"),ro=document.getElementById("r6"),els=[];
-  MAPS.forEach(function(m){
-    var d=document.createElement("div");d.className="mapbox";
-    var rows=m.pairs.map(function(p){return '<tr><td>'+p[0]+'</td><td>→</td><td>'+p[1]+'</td></tr>';}).join("");
-    d.innerHTML='<h3>'+m.title+'</h3><table>'+rows+'</table>';
-    d.onclick=function(){
-      els.forEach(function(x){x.className="mapbox";});d.className="mapbox on";
-      ro.innerHTML="<b>"+m.title+"</b><br><br>"+
-        (m.fn?"<b style='color:#059669'>함수입니다</b>":"<b style='color:#e11d48'>함수가 아닙니다</b>")+
-        "<br><br>"+m.note;
+  var svg=document.getElementById("g6"), ro=document.getElementById("r6"),
+      jv=document.getElementById("j6"), setBox=document.getElementById("b6set"),
+      judgeBox=document.getElementById("b6judge");
+  if(!svg) return;
+
+  /* 받침이 있으면 은/이/을, 없으면 는/가/를 */
+  function jong(w){
+    if(!w) return false;
+    var c=w.charCodeAt(w.length-1);
+    if(c<0xAC00||c>0xD7A3) return false;        // 한글이 아니면 받침 없음으로 본다
+    return (c-0xAC00)%28!==0;
+  }
+  function eun(w){return w+(jong(w)?"은":"는");}
+  function iga(w){return w+(jong(w)?"이":"가");}
+
+  // 교과서 109쪽의 두 자료. pairs 는 늘 (왼쪽 자료, 오른쪽 자료) 차례로 적는다.
+  var SETS=[
+    {t:"동물과 대륙", xn:"동물", yn:"대륙", book:"교과서 109쪽",
+     X:["파푸아화식조","시베리아호랑이","갈라파고스땅거북","나일악어"],
+     Y:["아시아","아프리카","오세아니아","아메리카","유럽"],
+     pairs:[["파푸아화식조","오세아니아"],["시베리아호랑이","아시아"],
+            ["갈라파고스땅거북","아메리카"],["나일악어","아프리카"]]},
+    {t:"도시와 국가", xn:"도시", yn:"국가", book:"",
+     X:["서울","워싱턴","삿포로","김해"],
+     Y:["미국","일본","한국","호주"],
+     pairs:[["서울","한국"],["워싱턴","미국"],["삿포로","일본"],["김해","한국"]]}
+  ];
+
+  var cur=SETS[0], flip=false, links=[], sel=null, judged=null;
+
+  /* links 는 늘 [X원소, Y원소] 로 적어 둔다.
+     방향을 바꿔도 줄은 그대로다 — 바뀌는 것은 '어느 쪽에서 출발하나' 뿐. */
+  function has(x,y){return links.some(function(l){return l[0]===x&&l[1]===y;});}
+  function toggle(x,y){
+    if(has(x,y)) links=links.filter(function(l){return !(l[0]===x&&l[1]===y);});
+    else links.push([x,y]);
+  }
+
+  function leftItems(){return flip?cur.Y:cur.X;}
+  function rightItems(){return flip?cur.X:cur.Y;}
+  function leftName(){return flip?cur.yn:cur.xn;}
+  function rightName(){return flip?cur.xn:cur.yn;}
+  /* 화면에 보이는 줄 (왼쪽것, 오른쪽것) */
+  function shown(){return links.map(function(l){return flip?[l[1],l[0]]:[l[0],l[1]];});}
+
+  var W=400, BW=150, BH=28, GAP=7, LX=6, RX=W-BW-6;
+  function colTop(n){
+    var maxN=Math.max(cur.X.length, cur.Y.length);
+    return 44 + (maxN-n)*(BH+GAP)/2;
+  }
+  function yOf(side,i){
+    var n=(side==="L"?leftItems():rightItems()).length;
+    return colTop(n)+i*(BH+GAP);
+  }
+
+  function draw(){
+    clear(svg);
+    var L=leftItems(), R=rightItems();
+    var maxN=Math.max(cur.X.length, cur.Y.length);
+    var H=44+maxN*(BH+GAP)+10;
+    svg.setAttribute("viewBox","0 0 "+W+" "+H);
+
+    // 기둥 이름
+    txt(svg,LX+BW/2,24,leftName(),{size:13.5,fill:"#2563eb"});
+    txt(svg,RX+BW/2,24,rightName(),{size:13.5,fill:"#e11d48"});
+    txt(svg,W/2,24,"→",{size:15,fill:"#a1a1aa"});
+
+    // 줄 먼저 (상자 밑에 깔리게)
+    shown().forEach(function(p){
+      var li=L.indexOf(p[0]), ri=R.indexOf(p[1]);
+      if(li<0||ri<0) return;
+      svg.appendChild(el("line",{
+        x1:LX+BW, y1:yOf("L",li)+BH/2, x2:RX, y2:yOf("R",ri)+BH/2,
+        stroke:"#7c3aed","stroke-width":2.2,"stroke-linecap":"round"}));
+      svg.appendChild(el("circle",{cx:RX-3,cy:yOf("R",ri)+BH/2,r:3,fill:"#7c3aed"}));
+    });
+
+    function box(side,i,label){
+      var x=(side==="L"?LX:RX), y=yOf(side,i);
+      var picked=(side==="L"&&sel===label);
+      var tied=shown().some(function(p){return side==="L"?p[0]===label:p[1]===label;});
+      var g=el("g",{style:"cursor:pointer"});
+      g.appendChild(el("rect",{x:x,y:y,width:BW,height:BH,rx:7,
+        fill:picked?"#dbeafe":(tied?"#faf5ff":"#fff"),
+        stroke:picked?"#2563eb":(tied?"#c4b5fd":"#d4d4d8"),
+        "stroke-width":picked?2.4:1.4}));
+      var t=el("text",{x:x+BW/2,y:y+BH/2+4,"font-size":label.length>7?11:12.5,
+        "text-anchor":"middle",fill:"#27272a","font-weight":600});
+      t.textContent=label;
+      g.appendChild(t);
+      g.addEventListener("click",function(){
+        if(side==="L"){ sel=(sel===label?null:label); }
+        else{
+          if(!sel){ ro.innerHTML="<span class='hint'>먼저 <b>왼쪽</b>에서 하나를 누르세요.</span>"; draw(); return; }
+          var x0=flip?label:sel, y0=flip?sel:label;
+          toggle(x0,y0); sel=null; judged=null; hideJudge();
+        }
+        draw();
+      });
+      svg.appendChild(g);
+    }
+    L.forEach(function(v,i){box("L",i,v);});
+    R.forEach(function(v,i){box("R",i,v);});
+
+    report();
+  }
+
+  function report(){
+    var n=links.length;
+    ro.innerHTML="<b>"+leftName()+" → "+rightName()+"</b>"+
+      (cur.book?" <span class='hint'>("+cur.book+")</span>":"")+
+      "<br><br>이은 줄 <b>"+n+"</b>개"+
+      (sel?"<br><br>✏️ <b>"+sel+"</b> 선택됨 — 오른쪽에서 짝을 고르세요."
+         :"<br><br><span class='hint'>왼쪽 하나 → 오른쪽 하나 순서로 누르면 이어집니다. 같은 짝을 다시 누르면 지워집니다.</span>");
+  }
+
+  function hideJudge(){ jv.style.display="none"; }
+
+  /* 지금 그린 대로 함수인지 — 출발 쪽(왼쪽) 원소마다 나가는 줄이 몇 개인가 */
+  function verdict(){
+    var L=leftItems(), s=shown(), none=[], many=[];
+    L.forEach(function(v){
+      var c=s.filter(function(p){return p[0]===v;}).length;
+      if(c===0) none.push(v);
+      else if(c>1) many.push(v);
+    });
+    return {ok:none.length===0&&many.length===0, none:none, many:many};
+  }
+
+  function showVerdict(guess){
+    var v=verdict();
+    judged=guess;
+    var right=(guess===v.ok);
+    var h=(right?"<b style='color:#059669'>맞았습니다.</b>":"<b style='color:#e11d48'>다시 보세요.</b>")+" ";
+    h+="지금 그린 <b>"+leftName()+" → "+rightName()+"</b>"+(jong(rightName())?"은":"는")+" ";
+    h+=v.ok?"<b style='color:#059669'>함수입니다.</b>":"<b style='color:#e11d48'>함수가 아닙니다.</b>";
+    if(v.ok){
+      h+="<br><br>"+leftName()+" 하나하나에 "+iga(rightName())+" <b>딱 하나씩</b> 짝지어졌습니다.";
+      var dup=[], seen={};
+      shown().forEach(function(p){ if(seen[p[1]])dup.push(p[1]); seen[p[1]]=1; });
+      if(dup.length) h+="<br><br><span class='hint'>도착 쪽 <b>"+dup[0]+"</b> 에 여럿이 몰렸지만 괜찮습니다. 함수는 <b>출발 쪽만</b> 봅니다.</span>";
+      var spare=rightItems().filter(function(v2){return !shown().some(function(p){return p[1]===v2;});});
+      if(spare.length) h+="<br><br><span class='hint'>도착 쪽 <b>"+spare.join(", ")+"</b>"+(jong(spare[spare.length-1])?"은":"는")+" 짝이 없지만 이것도 괜찮습니다.</span>";
+    }else{
+      if(v.none.length) h+="<br><br>① <b>"+v.none.join(", ")+"</b> 에 짝이 <b>없습니다.</b>";
+      if(v.many.length) h+="<br>"+(v.none.length?"②":"①")+" <b>"+v.many.join(", ")+"</b> 에 짝이 <b>둘 이상</b>입니다.";
+      h+="<br><br><span class='hint'>출발 쪽에서 하나씩 나가야 함수입니다.</span>";
+    }
+    jv.innerHTML=h; jv.style.display="block";
+  }
+
+  /* 자료 고르기 */
+  SETS.forEach(function(s,i){
+    var b=document.createElement("button");
+    b.className="rb"+(i===0?" on":"");
+    b.textContent=s.t;
+    b.onclick=function(){
+      cur=s; flip=false; links=[]; sel=null; hideJudge();
+      [].slice.call(setBox.children).forEach(function(x){x.className="rb";});
+      b.className="rb on"; draw();
     };
-    box.appendChild(d);els.push(d);
+    setBox.appendChild(b);
   });
-  ro.innerHTML="네 상자를 하나씩 눌러 보세요.";
+
+  /* 판정 버튼 */
+  [["함수다",true],["함수가 아니다",false]].forEach(function(p){
+    var b=document.createElement("button");
+    b.className="rb"; b.textContent=p[0];
+    b.onclick=function(){
+      if(links.length===0){ jv.innerHTML="<span class='hint'>먼저 줄을 이어 보세요.</span>"; jv.style.display="block"; return; }
+      showVerdict(p[1]);
+    };
+    judgeBox.appendChild(b);
+  });
+
+  document.getElementById("b6flip").onclick=function(){
+    flip=!flip; sel=null; hideJudge(); draw();
+  };
+  document.getElementById("b6ans").onclick=function(){
+    links=cur.pairs.map(function(p){return [p[0],p[1]];});
+    sel=null; hideJudge(); draw();
+  };
+  document.getElementById("b6clear").onclick=function(){
+    links=[]; sel=null; hideJudge(); draw();
+  };
+
+  draw();
 })();
 
 /* ── 대응 그림 그리기 (화면7·9 공용) ─────────────────── */

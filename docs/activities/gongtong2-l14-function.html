@@ -208,7 +208,7 @@
     <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-01 Q4 turn_5() 의 결과</span></div>
     <!--TEACH:END-->
     <h1>turn_left() 를 여러 번 하면?</h1>
-    <p>예거는 실수로 <span class="mono">turn_left()</span> 를 <b>5번</b> 하는 새 명령
+    <p>실수로 <span class="mono">turn_left()</span> 를 <b>5번</b> 하는 새 명령
        <span class="mono">turn_5()</span> 를 만들었습니다. 행동의 결과는 어떻게 될까요?</p>
     <div class="lab">
       <svg id="w3" viewBox="0 0 400 400"></svg>
@@ -1241,7 +1241,11 @@ function Plane(svg,lo,hi,H){
     {t:"y = x² − 1",k:0,why:"−1 과 1 이 모두 0 으로. 일대일함수가 <b>아닙니다.</b>",none:true},
     {t:"y = −x + 1",k:1,why:"기울기가 0 이 아닌 일차함수 → <b>일대일대응</b>"},
     {t:"X : 거제상문고 학생 → Y : 학번",k:1,why:"학생마다 학번이 하나씩, 학번도 겹치지 않습니다 → <b>일대일대응</b>"},
-    {t:"y = 3 (상수)",k:2,why:"모든 x 가 3 하나로 몰립니다 → <b>상수함수</b>"}
+    {t:"y = 3 (상수)",k:2,why:"모든 x 가 3 하나로 몰립니다 → <b>상수함수</b>"},
+    {t:"y = x+1 (x &lt; 0), &nbsp;y = 2x (x ≥ 0)",k:0,
+     why:"두 조각의 치역이 <b>겹칩니다.</b> y = 0 을 보면 왼쪽 조각에서 x = −1, 오른쪽 조각에서 x = 0 — 서로 다른 x 가 같은 곳으로 갑니다. 일대일함수가 <b>아닙니다.</b>",none:true},
+    {t:"y = 1/x &nbsp;<span class='hint'>(0 이 아닌 실수 → 0 이 아닌 실수)</span>",k:1,
+     why:"1/x₁ = 1/x₂ 이면 x₁ = x₂ 이니 겹치지 않고, 0 이 아닌 y 마다 x = 1/y 가 있으니 남지도 않습니다 → <b>일대일대응</b><br><br><span class='hint'>단, 공역을 <b>실수 전체</b>로 두면 0 이 남아 일대일대응이 아닙니다. 공역을 어떻게 잡느냐가 갈라 놓죠.</span>"}
   ];
   var LAB=["어느 것도 아님","일대일대응","상수함수"];
   var tb=document.getElementById("t12"),done=0;
@@ -1258,7 +1262,7 @@ function Plane(svg,lo,hi,H){
         tr.children[2].innerHTML=right?r.why:"서로 다른 것이 서로 다른 곳으로 가나요? 남는 것은 없나요?";
         if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
           if(done===rows.length){var W=document.getElementById("w12");W.className="win on";
-            W.innerHTML="🎉 여섯 개를 모두 분류했습니다. 기준은 <b>겹치는가</b> 와 <b>남는가</b> 두 가지뿐입니다.";}}
+            W.innerHTML="🎉 여덟 개를 모두 분류했습니다. 기준은 <b>겹치는가</b> 와 <b>남는가</b> 두 가지뿐입니다.";}}
       };
       cell.appendChild(b);
     });

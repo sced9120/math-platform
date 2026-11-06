@@ -173,10 +173,10 @@
       기호는 g 가 앞에 있는데 계산은 f 가 먼저예요. <span class="hint">g(f(x)) 의 괄호 안쪽부터 푼다고 생각하세요.</span></div>
   </section>
 
-  <section class="screen" data-key="s3" data-prompt="(g ∘ f)(1), (g ∘ f)(2), (g ∘ f)(3) 을 각각 구하는 과정을 적어 보세요.">
+  <section class="screen" data-key="s3" data-prompt="(g ∘ f)(1), (g ∘ f)(2), (g ∘ f)(3) 을 각각 구하는 과정을 적고, 추가 문제 (g∘f)(1) · (f∘g)(−3) 도 풀어 보세요.">
     <div class="kicker">함숫값 구하기</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-02 ① 함숫값 구하기 · ☞스스로 확인하기</span></div>
+    <div class="teach"><span class="t-show">🖥 보여주며 조작</span><span class="t-sheet">📄 학습지 6 · 1-02 ① 함숫값 구하기 · ☞스스로 확인하기 · ◑ 추가 문제</span></div>
     <!--TEACH:END-->
     <h1>안쪽부터 차례로</h1>
     <p>두 함수 <b>f(x) = x − 1</b>, <b>g(x) = x² + 1</b> 에 대하여 합성함숫값을 구해 봅시다.</p>
@@ -210,6 +210,19 @@
     </table>
     <div class="callout">맨 아래 줄을 보세요. <b>(g∘f)(2) = 2</b> 인데 <b>(f∘g)(2) = 4</b> — <b>다릅니다!</b>
       다음 화면에서 이 이야기를 이어갑니다.</div>
+
+    <div class="card" style="margin-top:14px">
+      <b>◑ 추가 문제</b> — 두 함수 <b>f(x) = 3x − 5</b>, <b>g(x) = x² + 1</b> 에 대하여 다음을 구하시오.
+      <table style="margin-top:10px">
+        <tr><th style="width:120px">구하는 것</th><th class="l">과정</th><th style="width:70px">값</th></tr>
+        <tr><td><b>(1) (g∘f)(1)</b></td><td class="l">g( f(1) ) = g(3·1 − 5) = g(−2) = (−2)² + 1</td>
+            <td><button class="reveal" data-a="5">?</button></td></tr>
+        <tr><td><b>(2) (f∘g)(−3)</b></td><td class="l">f( g(−3) ) = f((−3)² + 1) = f(10) = 3·10 − 5</td>
+            <td><button class="reveal" data-a="25">?</button></td></tr>
+      </table>
+      <p style="margin:10px 0 0" class="hint"><b>안쪽 괄호부터</b> 풀면 실수할 일이 없습니다.
+        (2) 에서 <b>f(−3) 을 먼저 구하지 않도록</b> 조심하세요 — 바깥에 있는 f 는 <b>나중</b>입니다.</p>
+    </div>
   </section>
 
   <section class="screen" data-key="s4" data-prompt="(g ∘ f)(x) 와 (f ∘ g)(x) 를 각각 구해 비교하고, 왜 다른지 설명해 보세요.">
@@ -280,14 +293,16 @@
     </div>
   </section>
 
-  <section class="screen" data-key="s6" data-prompt="f ∘ (g ∘ h) 와 (f ∘ g) ∘ h 를 각각 구해 비교해 보세요. 결합법칙이 성립하는 것이 왜 편리한지도 적어 보세요.">
+  <section class="screen" data-key="s6" data-prompt="두 묶음 모두에서 f ∘ (g ∘ h) 와 (f ∘ g) ∘ h 를 각각 구해 비교해 보세요. 결합법칙이 성립하는 것이 왜 편리한지도 적어 보세요.">
     <div class="kicker">결합법칙</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 교과서 115쪽 [함께 완성하기] 결합법칙</span></div>
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 교과서 115쪽 [함께 완성하기] · 학습지 6 · 1-02 ① ◑ 추가 문제</span></div>
     <!--TEACH:END-->
     <h1>괄호를 옮겨도 될까?</h1>
-    <p>세 함수 <b>f(x) = 3x</b>, <b>g(x) = x²</b>, <b>h(x) = x − 1</b> 에 대하여
-       <b>f ∘ (g ∘ h)</b> 와 <b>(f ∘ g) ∘ h</b> 가 같은지 확인해 봅시다.</p>
+    <p>세 함수에 대하여 <b>f ∘ (g ∘ h)</b> 와 <b>(f ∘ g) ∘ h</b> 가 같은지 확인해 봅시다.
+      <span class="hint">아래에서 함수 묶음을 골라 보세요.</span></p>
+    <div class="btns" id="b6set"></div>
+    <div class="formula" id="f6set" style="margin:10px 0"></div>
     <div class="btns" id="b6"></div>
     <div class="readout" id="r6" style="margin-top:12px"></div>
     <div class="formula"><b>f ∘ (g ∘ h) = (f ∘ g) ∘ h</b><br>
@@ -687,20 +702,51 @@ function Plane(svg,lo,hi,H,W){
 
 /* ── 화면6 : 결합법칙 ───────────────────────────────── */
 (function(){
-  var ro=document.getElementById("r6");
-  btnset(document.getElementById("b6"),[
-    {t:"① g ∘ h 부터",
-     s:"(g ∘ h)(x) = g( h(x) ) = g( x − 1 ) = <b>(x − 1)²</b>"},
-    {t:"② f ∘ (g ∘ h)",
-     s:"f( (g∘h)(x) ) = f( (x−1)² ) = <b>3(x − 1)²</b>"},
-    {t:"③ f ∘ g 부터",
-     s:"(f ∘ g)(x) = f( g(x) ) = f( x² ) = <b>3x²</b>"},
-    {t:"④ (f ∘ g) ∘ h",
-     s:"(f∘g)( h(x) ) = (f∘g)( x−1 ) = <b>3(x − 1)²</b>"},
-    {t:"⑤ 비교",
-     s:"② <b>3(x − 1)²</b><br>④ <b>3(x − 1)²</b><br><br>✅ <b>같습니다!</b><br><br>괄호를 어디에 넣든 결과가 같습니다."}
-  ],function(it){ro.innerHTML=it.s;},true);
-  ro.innerHTML="①~⑤ 를 차례로 눌러 보세요.<br><span class='hint'>f(x) = 3x, g(x) = x², h(x) = x − 1</span>";
+  var ro=document.getElementById("r6"), box=document.getElementById("b6"),
+      head=document.getElementById("f6set");
+  var SETS=[
+    {name:"교과서 115쪽", fs:"f(x) = 3x", gs:"g(x) = x²", hs:"h(x) = x − 1",
+     steps:[
+       "(g ∘ h)(x) = g( h(x) ) = g( x − 1 ) = <b>(x − 1)²</b>",
+       "f( (g∘h)(x) ) = f( (x−1)² ) = <b>3(x − 1)²</b>",
+       "(f ∘ g)(x) = f( g(x) ) = f( x² ) = <b>3x²</b>",
+       "(f∘g)( h(x) ) = (f∘g)( x−1 ) = <b>3(x − 1)²</b>"],
+     both:"3(x − 1)²"},
+    {name:"학습지 ◑ 추가 문제", fs:"f(x) = x − 1", gs:"g(x) = −x² + 1", hs:"h(x) = 3x",
+     steps:[
+       "(g ∘ h)(x) = g( h(x) ) = g( 3x ) = −(3x)² + 1 = <b>−9x² + 1</b>",
+       "f( (g∘h)(x) ) = f( −9x² + 1 ) = (−9x² + 1) − 1 = <b>−9x²</b>",
+       "(f ∘ g)(x) = f( g(x) ) = f( −x² + 1 ) = (−x² + 1) − 1 = <b>−x²</b>",
+       "(f∘g)( h(x) ) = (f∘g)( 3x ) = −(3x)² = <b>−9x²</b>"],
+     both:"−9x²"}
+  ];
+  var cur=SETS[0];
+  function steps(S){
+    return [
+      {t:"① g ∘ h 부터", s:S.steps[0]},
+      {t:"② f ∘ (g ∘ h)", s:S.steps[1]},
+      {t:"③ f ∘ g 부터", s:S.steps[2]},
+      {t:"④ (f ∘ g) ∘ h", s:S.steps[3]},
+      {t:"⑤ 비교", s:"② <b>"+S.both+"</b><br>④ <b>"+S.both+"</b><br><br>✅ <b>같습니다!</b><br><br>괄호를 어디에 넣든 결과가 같습니다."}
+    ];
+  }
+  function load(S){
+    cur=S;
+    head.innerHTML="<b>"+S.fs+"</b>, &nbsp;<b>"+S.gs+"</b>, &nbsp;<b>"+S.hs+"</b>"+
+      "<br><span style='font-size:13px;font-weight:600;color:#71717a'>"+S.name+"</span>";
+    while(box.firstChild)box.removeChild(box.firstChild);
+    btnset(box, steps(S), function(it){ro.innerHTML=it.s;}, true);
+    ro.innerHTML="①~⑤ 를 차례로 눌러 보세요.<br><span class='hint'>"+S.fs+", "+S.gs+", "+S.hs+"</span>";
+  }
+  var sb=[];
+  SETS.forEach(function(S){
+    var b=document.createElement("button");
+    b.className="rb"; b.textContent=S.name;
+    b.onclick=function(){ sb.forEach(function(x){x.className="rb";}); b.className="rb on"; load(S); };
+    document.getElementById("b6set").appendChild(b); sb.push(b);
+  });
+  sb[0].className="rb on";
+  load(SETS[0]);
 })();
 
 /* ── 화면8 : 거듭 합성 ──────────────────────────────── */

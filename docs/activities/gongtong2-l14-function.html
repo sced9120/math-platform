@@ -49,6 +49,11 @@
     padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
   .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
   .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  /* 화면12 — 학습지 그림 문항을 옮겨 놓은 작은 그림 */
+  .mini{width:68px!important;height:68px!important;flex:none;display:inline-block;
+    vertical-align:middle;border:1px solid var(--line);border-radius:7px;background:#fff;margin-right:8px}
+  .qn{display:inline-block;min-width:34px;font-weight:800;color:#71717a;font-size:12.5px;vertical-align:middle}
+  .qt{vertical-align:middle}
 /* 로봇 월드 전용 */
   .cmds{display:flex;flex-direction:column;gap:6px}
   .cmd{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;
@@ -416,19 +421,23 @@
       두 점에서 만나면 x 하나에 y 가 둘이라는 뜻이니까요.</div>
   </section>
 
-  <section class="screen" data-key="s12" data-prompt="열두 가지를 A · B · C 로 분류하고, 각 유형의 특징을 적어 보세요.">
+  <section class="screen" data-key="s12" data-prompt="학습지 (1)~(12) 를 A · B · C 로 분류하고, 각 유형의 특징을 적어 보세요.">
     <div class="kicker">대응 관계의 분류</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 대응 관계에 따른 분류 Q1·Q2</span></div>
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 푸는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 대응 관계에 따른 분류 Q1·Q2 (1)~(12)</span></div>
     <!--TEACH:END-->
     <h1>특별한 관계에 이름 붙이기</h1>
     <p>함수를 <b>대응하는 모양</b>에 따라 세 갈래로 나눠 봅시다.</p>
     <table>
-      <tr><th style="width:56px">A</th><td class="l">서로 다른 것은 <b>서로 다른 곳</b>으로 간다 (겹치지 않는다)</td></tr>
-      <tr><th>B</th><td class="l">A 이면서 <b>남는 것도 없다</b> (공역 = 치역)</td></tr>
-      <tr><th>C</th><td class="l"><b>모두 한 곳</b>으로 몰린다</td></tr>
+      <tr><th style="width:56px">A</th><td class="l"><b>일대일함수</b> — 서로 다른 것은 <b>서로 다른 곳</b>으로 간다 (겹치지 않는다)</td></tr>
+      <tr><th>B</th><td class="l"><b>일대일대응</b> — A 이면서 <b>남는 것도 없다</b> (공역 = 치역)</td></tr>
+      <tr><th>C</th><td class="l"><b>상수함수</b> — <b>모두 한 곳</b>으로 몰린다</td></tr>
     </table>
-    <p>아래를 눌러 A · B · C 중 어디에 드는지 확인해 보세요.</p>
+    <div class="callout"><b>A 와 B 는 겹칩니다.</b> B 인 것은 모두 A 이기도 하죠.
+      그래서 <b>남는 것까지 없으면 B</b> 로, 겹치지는 않지만 <b>남는 것이 있으면 A</b> 로 고르세요.
+      <span class="hint">둘 다 어긋나면 ‘해당 없음’ 입니다.</span></div>
+    <p>학습지 <b>(1)~(12)</b> 입니다. 아래를 눌러 어디에 드는지 확인해 보세요.
+      <span class="hint">(1)~(5) 는 학습지의 그림 문항입니다.</span></p>
     <table id="t12"><tr><th class="l" style="width:46%">함수</th><th style="width:170px">분류</th><th class="l">까닭</th></tr></table>
     <div class="win" id="w12"></div>
   </section>
@@ -459,7 +468,7 @@
   <section class="screen" data-key="s14" data-prompt="항등함수와 상수함수의 정의를 적고, 항등함수가 일대일대응이라고 할 수 있는지 그 까닭과 함께 설명해 보세요.">
     <div class="kicker">항등함수 · 상수함수</div>
     <!--TEACH:START-->
-    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 항등함수·상수함수 Q1 · 교과서 112쪽</span></div>
+    <div class="teach"><span class="t-book">📖 교과서를 펴는 화면</span><span class="t-sheet">📄 학습지 6 · 1-01 항등함수·상수함수 Q1·Q2 · 교과서 112쪽</span></div>
     <!--TEACH:END-->
     <h1>그대로 내보내기, 한 곳으로 몰기</h1>
     <table>
@@ -492,6 +501,14 @@
           <span class="mono">turn_left()</span> 를 4번 한 것이 바로 <b>항등함수</b> 였습니다.
           아무것도 바꾸지 않고 그대로 두니까요.</p>
       </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <b>Q2 (역량 키우기)</b> — 두 학생이 찾은 함수입니다.
+      <span class="hint">각각 어떤 함수일까요?</span>
+      <table id="t14b" style="margin-top:10px">
+        <tr><th class="l" style="width:52%">학생이 찾은 함수</th><th style="width:210px">어떤 함수?</th><th class="l">까닭</th></tr>
+      </table>
     </div>
   </section>
 
@@ -1235,23 +1252,63 @@ function Plane(svg,lo,hi,H){
 
 /* ── 화면12 : 대응 관계 분류 ─────────────────────────── */
 (function(){
+  /* 학습지 그림 문항 (1)~(5) 를 작은 그림으로 옮겨 둔다. */
+  function box(inner,axis){
+    return '<svg viewBox="0 0 64 64" width="58" height="58" class="mini">'+
+      (axis?'<line x1="4" y1="32" x2="60" y2="32" stroke="#d4d4d8" stroke-width="1"/>'+
+            '<line x1="32" y1="4" x2="32" y2="60" stroke="#d4d4d8" stroke-width="1"/>':'')+
+      inner+'</svg>';
+  }
+  var BLUE='stroke="#2563eb" stroke-width="2.4" fill="none" stroke-linecap="round"';
+  var G1=box('<line x1="6" y1="8" x2="58" y2="52" '+BLUE+'/>',1);                      // 감소하는 직선
+  var G2=box('<path d="M 10 32 A 22 22 0 0 1 54 32" '+BLUE+'/>',1);                     // 위쪽 반원
+  var G3=box('<path d="M 10 58 C 30 52 34 12 54 6" '+BLUE+'/>',1);                      // 세제곱꼴 곡선
+  var G4=box('<path d="M 11 11 Q 32 63 53 11" '+BLUE+'/>',1);                           // 아래로 볼록 포물선
+  var G5=(function(){                                                                   // 대응도
+    var L=[14,25,36,50], R=[14,25,36,50], s='';
+    s+='<ellipse cx="17" cy="32" rx="11" ry="27" fill="none" stroke="#71717a" stroke-width="1.2"/>';
+    s+='<ellipse cx="47" cy="32" rx="11" ry="27" fill="none" stroke="#71717a" stroke-width="1.2"/>';
+    [[0,1],[1,0],[2,1],[3,3]].forEach(function(p){
+      s+='<line x1="19" y1="'+L[p[0]]+'" x2="43" y2="'+R[p[1]]+'" stroke="#2563eb" stroke-width="1.5"/>'+
+         '<circle cx="43" cy="'+R[p[1]]+'" r="1.8" fill="#2563eb"/>';
+    });
+    L.forEach(function(y){s+='<circle cx="19" cy="'+y+'" r="1.8" fill="#52525b"/>';});
+    R.forEach(function(y){s+='<circle cx="45" cy="'+y+'" r="1.8" fill="#52525b"/>';});
+    return box(s,0);
+  })();
+
+  /* k : 0 일대일함수(대응은 아님) · 1 일대일대응 · 2 상수함수 · 3 어느 것도 아님 */
   var rows=[
-    {t:"y = x",k:1,why:"서로 다른 x 는 서로 다른 y 로. 공역(실수)과 치역이 같음 → <b>일대일대응</b>"},
-    {t:"y = | x |",k:0,why:"−1 과 1 이 모두 1 로 갑니다. 일대일함수가 <b>아닙니다.</b>",none:true},
-    {t:"y = x² − 1",k:0,why:"−1 과 1 이 모두 0 으로. 일대일함수가 <b>아닙니다.</b>",none:true},
-    {t:"y = −x + 1",k:1,why:"기울기가 0 이 아닌 일차함수 → <b>일대일대응</b>"},
-    {t:"X : 거제상문고 학생 → Y : 학번",k:1,why:"학생마다 학번이 하나씩, 학번도 겹치지 않습니다 → <b>일대일대응</b>"},
-    {t:"y = 3 (상수)",k:2,why:"모든 x 가 3 하나로 몰립니다 → <b>상수함수</b>"},
-    {t:"y = x+1 (x &lt; 0), &nbsp;y = 2x (x ≥ 0)",k:0,
-     why:"두 조각의 치역이 <b>겹칩니다.</b> y = 0 을 보면 왼쪽 조각에서 x = −1, 오른쪽 조각에서 x = 0 — 서로 다른 x 가 같은 곳으로 갑니다. 일대일함수가 <b>아닙니다.</b>",none:true},
-    {t:"y = 1/x &nbsp;<span class='hint'>(0 이 아닌 실수 → 0 이 아닌 실수)</span>",k:1,
-     why:"1/x₁ = 1/x₂ 이면 x₁ = x₂ 이니 겹치지 않고, 0 이 아닌 y 마다 x = 1/y 가 있으니 남지도 않습니다 → <b>일대일대응</b><br><br><span class='hint'>단, 공역을 <b>실수 전체</b>로 두면 0 이 남아 일대일대응이 아닙니다. 공역을 어떻게 잡느냐가 갈라 놓죠.</span>"}
+    {n:"(1)",g:G1,t:"오른쪽으로 갈수록 내려가는 직선",k:1,
+     why:"기울기가 0 이 아닌 직선입니다. 가로선을 아무 데나 그어도 <b>한 번만</b> 만나고, 실수는 모두 한 번씩 나옵니다 → <b>일대일대응</b>"},
+    {n:"(2)",g:G2,t:"위쪽 반원",k:3,
+     why:"가로선을 그으면 <b>두 점</b>에서 만납니다. 좌우 대칭이라 같은 높이가 두 번 나오죠 → 일대일함수가 <b>아닙니다.</b>"},
+    {n:"(3)",g:G3,t:"계속 올라가는 곡선 (y = x³ 꼴)",k:1,
+     why:"끊기지 않고 <b>계속 올라갑니다.</b> 가로선과 한 번만 만나고 남는 값도 없습니다 → <b>일대일대응</b>"},
+    {n:"(4)",g:G4,t:"아래로 볼록한 포물선",k:3,
+     why:"축을 사이에 두고 <b>좌우 대칭</b>입니다. 꼭짓점 위쪽 높이는 모두 두 번씩 나옵니다 → 일대일함수가 <b>아닙니다.</b>"},
+    {n:"(5)",g:G5,t:"X = {−1, 0, 1, 2} → Y = {0, 1, 2, 3}<br><span class='mono' style='font-size:12.5px'>−1 → 1,&nbsp; 0 → 0,&nbsp; 1 → 1,&nbsp; 2 → 3</span>",k:3,
+     why:"함수이긴 합니다(하나씩 나갑니다). 그런데 <b>−1 과 1 이 모두 1 로</b> 가서 겹치고, 도착 쪽 <b>2 는 남습니다</b> → 둘 다 어긋납니다."},
+    {n:"(6)",t:"X : 거제상문고 학생 → Y : 학번",k:1,
+     why:"학생마다 학번이 하나씩, 학번도 겹치지 않습니다 → <b>일대일대응</b>"},
+    {n:"(7)",t:"y = x",k:1,why:"서로 다른 x 는 서로 다른 y 로. 공역(실수)과 치역이 같음 → <b>일대일대응</b>"},
+    {n:"(8)",t:"y = | x |",k:3,why:"−1 과 1 이 모두 1 로 갑니다. 일대일함수가 <b>아닙니다.</b>"},
+    {n:"(9)",t:"y = x² − 1",k:3,why:"−1 과 1 이 모두 0 으로. 일대일함수가 <b>아닙니다.</b>"},
+    {n:"(10)",t:"y = −x + 1",k:1,why:"기울기가 0 이 아닌 일차함수 → <b>일대일대응</b>"},
+    {n:"(11)",t:"y = x+1 (x &lt; 0), &nbsp;y = 2x (x ≥ 0)",k:3,
+     why:"두 조각의 치역이 <b>겹칩니다.</b> y = 0 을 보면 왼쪽 조각에서 x = −1, 오른쪽 조각에서 x = 0 — 서로 다른 x 가 같은 곳으로 갑니다. 일대일함수가 <b>아닙니다.</b>"},
+    {n:"(12)",t:"y = 1/x &nbsp;<span class='hint'>(0 이 아닌 실수 → 0 이 아닌 실수)</span>",k:1,
+     why:"1/x₁ = 1/x₂ 이면 x₁ = x₂ 이니 겹치지 않고, 0 이 아닌 y 마다 x = 1/y 가 있으니 남지도 않습니다 → <b>일대일대응</b><br><br><span class='hint'>단, 공역을 <b>실수 전체</b>로 두면 0 이 남아 일대일대응이 아닙니다. 공역을 어떻게 잡느냐가 갈라 놓죠.</span>"},
+    {n:"보충",t:"y = 3 (상수)",k:2,why:"모든 x 가 3 하나로 몰립니다 → <b>상수함수</b>"},
+    {n:"보충",t:"y = x² &nbsp;<span class='hint'>(정의역 x ≥ 0, 공역 실수 전체)</span>",k:0,
+     why:"x ≥ 0 만 받으면 <b>겹치지는 않습니다.</b> 하지만 치역은 y ≥ 0 뿐이라 음수가 <b>남습니다</b> → <b>일대일함수이지만 일대일대응은 아닙니다.</b><br><br><span class='hint'>A 와 B 를 가르는 자리가 바로 여기입니다. 1-02② 에서 이 함수의 역함수를 다시 만납니다.</span>"}
   ];
-  var LAB=["어느 것도 아님","일대일대응","상수함수"];
+  var LAB=["A 일대일함수","B 일대일대응","C 상수함수","해당 없음"];
   var tb=document.getElementById("t12"),done=0;
   rows.forEach(function(r){
     var tr=document.createElement("tr");
-    tr.innerHTML='<td class="l">'+r.t+'</td><td></td><td class="l hint"></td>';
+    tr.innerHTML='<td class="l"><span class="qn">'+r.n+'</span>'+(r.g||"")+
+      '<span class="qt">'+r.t+'</span></td><td></td><td class="l hint"></td>';
     var cell=tr.children[1];
     LAB.forEach(function(lab,k){
       var b=document.createElement("button");b.className="judge";b.textContent=lab;
@@ -1262,7 +1319,8 @@ function Plane(svg,lo,hi,H){
         tr.children[2].innerHTML=right?r.why:"서로 다른 것이 서로 다른 곳으로 가나요? 남는 것은 없나요?";
         if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
           if(done===rows.length){var W=document.getElementById("w12");W.className="win on";
-            W.innerHTML="🎉 여덟 개를 모두 분류했습니다. 기준은 <b>겹치는가</b> 와 <b>남는가</b> 두 가지뿐입니다.";}}
+            W.innerHTML="🎉 열네 개를 모두 분류했습니다. 기준은 <b>겹치는가</b> 와 <b>남는가</b> 두 가지뿐입니다."+
+              "<br><span class='hint'>겹치지 않으면 A, 거기에 남지도 않으면 B, 한 곳으로 몰리면 C 입니다.</span>";}}
       };
       cell.appendChild(b);
     });
@@ -1322,11 +1380,47 @@ function Plane(svg,lo,hi,H){
     var P=Plane(svg,-5,5,300);P.grid();
     P.plot(function(x){return x;},"#e4e4e7");   // y = x 참고선
     P.plot(cur.f,"#2563eb");
-    ro.innerHTML="<b>"+cur.t+"</b><br><br>분류 : <b>"+cur.k+"함수</b><br><br>"+cur.why+
+    ro.innerHTML="<b>"+cur.t+"</b><br><br>분류 : <b>"+(cur.k==="둘 다 아님"?"둘 다 아님":cur.k+"함수")+"</b><br><br>"+cur.why+
       "<br><br><span class='hint'>회색은 참고선 y = x 입니다.</span>";
   }
   btnset(document.getElementById("b14"),G.map(function(g){return {t:g.t,g:g};}),function(it){cur=it.g;draw();});
   draw();
+})();
+
+/* ── 화면14 Q2 : 수지와 지호가 찾은 함수 (역량 키우기) ── */
+(function(){
+  var tb=document.getElementById("t14b"); if(!tb) return;
+  var LAB=["항등함수","상수함수","둘 다 아님"];
+  var rows=[
+    {who:"수지",
+     say:"세 학생이 서점에서 <b>모두 같은 책</b>을 한 권씩 구매했을 때, 각 학생에서 구매한 책 제목으로의 대응",
+     k:1,
+     why:"학생마다 책 제목이 <b>하나씩</b> 정해지니 함수입니다. 그런데 셋 다 <b>같은 책</b>이므로 모두 한 제목으로 몰립니다. 치역의 원소가 1개 → <b>상수함수</b>"},
+    {who:"지호",
+     say:"삼각형의 각 꼭짓점에 있는 수에서, 그 꼭짓점으로부터 <b>시계방향으로 3번째</b> 꼭짓점에 있는 수로의 대응",
+     k:0,
+     why:"삼각형이라 꼭짓점이 <b>3개</b>뿐입니다. 시계방향으로 세 번 돌면 <b>제자리</b>로 돌아오죠. 1→1, 2→2, 3→3 이므로 f(x) = x → <b>항등함수</b><br><br><span class='hint'>로봇의 <span class='mono'>turn_left()</span> 를 4번 한 것과 똑같은 이야기입니다.</span>"}
+  ];
+  var done=0;
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td class="l"><b>'+r.who+'</b> — '+r.say+'</td><td></td><td class="l hint"></td>';
+    var cell=tr.children[1];
+    LAB.forEach(function(lab,k){
+      var b=document.createElement("button");b.className="judge";b.textContent=lab;
+      b.onclick=function(){
+        var right=(k===r.k);
+        [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+        b.className="judge "+(right?"ok":"no");
+        tr.children[2].innerHTML=right?r.why:"꼭짓점이 몇 개인지, 책이 몇 종류인지부터 세어 보세요.";
+        if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
+          if(done===rows.length) tr.children[2].innerHTML+=
+            "<br><br><b>둘 다 함수입니다.</b> 다만 하나는 <b>한 곳으로 몰고</b>, 하나는 <b>그대로 둡니다.</b>";}
+      };
+      cell.appendChild(b);
+    });
+    tb.appendChild(tr);
+  });
 })();
 
 /* ── 화면15 : 교과서 113쪽 3번 ───────────────────────── */

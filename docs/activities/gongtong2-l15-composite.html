@@ -54,6 +54,10 @@
   .gb{margin-top:6px}
   .gm{margin-top:6px;font-size:12.5px;line-height:1.55}
   .gno{color:#b91c1c;font-weight:600}
+  /* 개형 고르기용 작은 그림 */
+  .mini{width:102px!important;height:76px!important;flex:none;display:inline-block;
+    vertical-align:middle;border:1px solid var(--line);border-radius:7px;background:#fff;margin-right:6px}
+  .gb .judge{display:inline-flex;align-items:center;gap:2px}
   .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
   .slider input{width:100%}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
@@ -424,6 +428,42 @@
     </div>
     <div class="callout"><b>순서를 뒤집어 보세요.</b> 회색 빈 원으로 <b>이전 순서의 자취</b>가 남습니다.
       입력이 똑같은데 자취가 달라진다면, 그것이 <b>f∘g ≠ g∘f</b> 의 그림 증거입니다.</div>
+  </section>
+
+  <section class="screen" data-key="s9b" data-prompt="바깥 함수가 꺾이는 높이 k 를 찾고, 안쪽 함수가 그 높이에 닿는 x 를 구해 정의역을 몇 구간으로 나누었는지 적어 보세요. 구간마다 합성한 식과 양 끝점도 함께 적고, 그래프를 그려 보세요.">
+    <div class="kicker">그래프만 보고 합성하기</div>
+    <!--TEACH:START-->
+    <div class="teach"><span class="t-write">✍️ 학생이 직접 그리는 화면</span><span class="t-ask">💬 개형을 먼저 예상시키기</span><span class="t-sheet">📄 마플 개념익힘 08 · 변형문제 0731</span></div>
+    <!--TEACH:END-->
+    <h1>📐 꺾이는 곳에서 자른다 — n축 방식</h1>
+    <p><b>식이 없고 그래프만</b> 주어져도 합성함수를 그릴 수 있습니다. 비결은 한 가지입니다 —
+      <b>바깥 함수가 꺾이는 높이</b>를 안쪽 함수 위에 그어 보고, 그 높이에 <b>닿는 x</b> 를 경계로
+      정의역을 잘라 <b>구간마다 따로</b> 합성하는 것입니다.</p>
+    <div class="btns" id="b9bset"></div>
+    <div class="formula" id="f9bq" style="text-align:left;font-size:15px;line-height:1.6"></div>
+    <div class="lab">
+      <svg id="v9b" viewBox="0 0 400 350"></svg>
+      <div class="controls">
+        <div class="btns" id="b9b"></div>
+        <div class="readout" id="r9b"></div>
+      </div>
+    </div>
+    <table id="t9b"></table>
+    <div class="card">
+      <b>n축 방식 네 단계</b>
+      <ul class="tight">
+        <li><b>①</b> <b>바깥</b> 함수가 <b>꺾이는 가로좌표 u = k</b> 를 찾는다</li>
+        <li><b>②</b> <b>안쪽</b> 함수 그래프에 <b>y = k</b> 를 그어 만나는 <b>x 를 모두</b> 찾는다</li>
+        <li><b>③</b> 그 x 들과 <b>안쪽이 꺾이는 x</b> 로 정의역을 <b>n 개 구간</b>으로 자른다</li>
+        <li><b>④</b> 구간마다 안쪽 식을 <b>바깥 식의 자리에 넣어</b> 합성식을 쓰고, 양 끝점을 찍어 잇는다</li>
+      </ul>
+      <p style="margin:8px 0 0" class="hint"><b>왜 자르나요?</b> 한 구간 안에서는 안쪽 값이
+        바깥 함수의 <b>같은 조각</b> 위에만 머무릅니다. 그래야 식 하나로 쓸 수 있어요.
+        구간이 바뀌는 순간 <b>쓰는 식이 바뀌므로</b> 그래프가 꺾입니다.</p>
+    </div>
+    <div class="callout"><b>경계는 두 종류입니다.</b> ⓐ 안쪽이 <b>k 에 닿는 x</b> (바깥의 조각이 바뀜)
+      ⓑ 안쪽이 <b>스스로 꺾이는 x</b> (안쪽의 조각이 바뀜). 둘을 모두 모아야 구간이 빠지지 않습니다.
+      <br><span class="hint">직선 조각끼리 합성하면 결과도 <b>직선 조각</b>입니다. 그래서 양 끝점만 찍어 이으면 끝납니다.</span></div>
   </section>
 
   <section class="screen" data-key="s10" data-photo="1" data-prompt="t 시간 후의 연비를 합성함수로 나타내고, 연비가 21.5 km/L 가 되는 시각을 구해 보세요. (손으로 푼 것을 사진으로 올려도 됩니다.)">
@@ -982,6 +1022,294 @@ function Plane(svg,lo,hi,H,W){
     },130);
   };
   stamp();draw();
+})();
+
+/* ── 화면9b : n축 방식으로 합성함수 그래프 그리기 ────────── */
+(function(){
+  var svg=document.getElementById("v9b"); if(!svg) return;
+  var ro=document.getElementById("r9b"), tb=document.getElementById("t9b"),
+      head=document.getElementById("f9bq"), box=document.getElementById("b9b"),
+      setBox=document.getElementById("b9bset");
+
+  var EX=[
+    {name:"마플 개념익힘 08",
+     q:"<b>0 ≤ x ≤ 3</b> 에서 정의된 두 함수 y = f(x), y = g(x) 의 그래프가 아래와 같을 때, "+
+       "합성함수 <b>y = (g∘f)(x)</b> 의 그래프를 그리시오.",
+     X:3,Y:3,U:3,inN:"f",outN:"g",compN:"(g∘f)(x)",
+     inPts:[[0,0],[1.5,3],[3,0]], outPts:[[0,0],[1,2],[3,3]],
+     inTick:[[1.5,"3/2"],[3,"3"]], outTick:[[1,"1"],[3,"3"]],
+     k:1,kS:"1",
+     kWhy:"바깥 함수 <b>g</b> 는 <b>u = 1</b> 에서 기울기가 <b>2 → 1/2</b> 로 꺾입니다. 여기가 기준 높이입니다.",
+     hits:[{x:0.5,xs:"1/2",why:"올라가는 조각 <b>f = 2x</b> 에서 &nbsp;2x = 1"},
+           {x:2.5,xs:"5/2",why:"내려오는 조각 <b>f = −2x + 6</b> 에서 &nbsp;−2x + 6 = 1"}],
+     bend:[{x:1.5,xs:"3/2",why:"f 가 스스로 꺾이는 곳"}],
+     nodes:[0,0.5,1.5,2.5,3], nodeLab:["0","1/2","3/2","5/2","3"],
+     rows:[
+      {seg:"0 ≤ x ≤ 1/2",inS:"f = 2x",rng:"0 ≤ f ≤ 1",outS:"g(u) = 2u",
+       comp:"2·(2x) = <b>4x</b>",ends:"(0, 0) → (1/2, 2)"},
+      {seg:"1/2 ≤ x ≤ 3/2",inS:"f = 2x",rng:"1 ≤ f ≤ 3",outS:"g(u) = (u + 3)/2",
+       comp:"(2x + 3)/2 = <b>x + 3/2</b>",ends:"(1/2, 2) → (3/2, 3)"},
+      {seg:"3/2 ≤ x ≤ 5/2",inS:"f = −2x + 6",rng:"1 ≤ f ≤ 3",outS:"g(u) = (u + 3)/2",
+       comp:"(−2x + 6 + 3)/2 = <b>(9 − 2x)/2</b>",ends:"(3/2, 3) → (5/2, 2)"},
+      {seg:"5/2 ≤ x ≤ 3",inS:"f = −2x + 6",rng:"0 ≤ f ≤ 1",outS:"g(u) = 2u",
+       comp:"2(−2x + 6) = <b>−4x + 12</b>",ends:"(5/2, 2) → (3, 0)"}],
+     comp:[[0,0],[0.5,2],[1.5,3],[2.5,2],[3,0]],
+     opts:[[[0,0],[1.5,3],[3,0]],
+           [[0,0],[0.75,3],[1.5,0],[2.25,3],[3,0]],
+           [[0,0],[0.5,3],[2.5,3],[3,0]]],
+     no:"꺾이는 곳이 <b>네 군데</b>(x = 1/2, 3/2, 5/2)로 늘어납니다. 구간마다 끝점 값을 다시 계산해 보세요.",
+     done:"가운데가 <b>납작해졌습니다.</b> f 의 값이 1 을 넘는 동안 g 의 완만한 조각(기울기 1/2)을 타기 때문입니다.<br><br>"+
+       "<span class='hint'>f 는 뾰족한 삼각형이었지만 (g∘f) 는 <b>어깨가 생긴 산</b> 모양이 됩니다.</span>"}
+    ,
+    {name:"변형문제 0731",
+     q:"<b>0 ≤ x ≤ 2</b> 에서 정의된 두 함수 y = f(x), y = g(x) 의 그래프가 아래와 같을 때, "+
+       "합성함수 <b>y = (f∘g)(x)</b> 의 개형으로 바른 것은?",
+     X:2,Y:2,U:2,inN:"g",outN:"f",compN:"(f∘g)(x)",
+     inPts:[[0,0],[1,2],[2,0]], outPts:[[0,2],[1,0],[2,2]],
+     inTick:[[1,"1"],[2,"2"]], outTick:[[1,"1"],[2,"2"]],
+     k:1,kS:"1",
+     kWhy:"이번엔 바깥이 <b>f</b> 입니다. f 는 <b>u = 1</b> 에서 내려오다 올라가는 쪽으로 꺾입니다.",
+     hits:[{x:0.5,xs:"1/2",why:"올라가는 조각 <b>g = 2x</b> 에서 &nbsp;2x = 1"},
+           {x:1.5,xs:"3/2",why:"내려오는 조각 <b>g = −2x + 4</b> 에서 &nbsp;−2x + 4 = 1"}],
+     bend:[{x:1,xs:"1",why:"g 가 스스로 꺾이는 곳"}],
+     nodes:[0,0.5,1,1.5,2], nodeLab:["0","1/2","1","3/2","2"],
+     rows:[
+      {seg:"0 ≤ x ≤ 1/2",inS:"g = 2x",rng:"0 ≤ g ≤ 1",outS:"f(u) = −2u + 2",
+       comp:"−2(2x) + 2 = <b>−4x + 2</b>",ends:"(0, 2) → (1/2, 0)"},
+      {seg:"1/2 ≤ x ≤ 1",inS:"g = 2x",rng:"1 ≤ g ≤ 2",outS:"f(u) = 2u − 2",
+       comp:"2(2x) − 2 = <b>4x − 2</b>",ends:"(1/2, 0) → (1, 2)"},
+      {seg:"1 ≤ x ≤ 3/2",inS:"g = −2x + 4",rng:"1 ≤ g ≤ 2",outS:"f(u) = 2u − 2",
+       comp:"2(−2x + 4) − 2 = <b>−4x + 6</b>",ends:"(1, 2) → (3/2, 0)"},
+      {seg:"3/2 ≤ x ≤ 2",inS:"g = −2x + 4",rng:"0 ≤ g ≤ 1",outS:"f(u) = −2u + 2",
+       comp:"−2(−2x + 4) + 2 = <b>4x − 6</b>",ends:"(3/2, 0) → (2, 2)"}],
+     comp:[[0,2],[0.5,0],[1,2],[1.5,0],[2,2]],
+     opts:[[[0,2],[1,0],[2,2]],
+           [[0,0],[0.5,2],[1,0],[1.5,2],[2,0]],
+           [[0,0],[1,2],[2,0]]],
+     no:"구간이 <b>네 개</b>입니다. 0 → 1/2 에서 2 가 0 으로 내려간 뒤 x = 1 까지 다시 2 로 올라갑니다.",
+     done:"<b>W 모양</b>입니다. g 가 올라갔다 내려오는 동안 f 의 V 를 <b>두 번</b> 지나가기 때문입니다.<br><br>"+
+       "<span class='hint'>안쪽이 한 번 왕복하면 바깥 모양이 <b>두 번</b> 나타납니다.</span>"}
+  ];
+
+  /* 꺾은선 함수 */
+  function pl(pts){return function(t){
+    for(var i=0;i<pts.length-1;i++){var a=pts[i],b=pts[i+1];
+      if(t>=a[0]-1e-9&&t<=b[0]+1e-9) return a[1]+(b[1]-a[1])*(t-a[0])/(b[0]-a[0]);}
+    return NaN;};}
+
+  /* 작은 개형 그림 (보기용) */
+  function miniSvg(pts,X,Y){
+    var W=102,H=76,pl0=13,pr=6,pt=9,pb=16;
+    function px(x){return pl0+(x/X)*(W-pl0-pr);}
+    function py(y){return (H-pb)-(y/Y)*(H-pt-pb);}
+    var d=pts.map(function(p){return px(p[0]).toFixed(1)+","+py(p[1]).toFixed(1);}).join(" ");
+    return '<svg viewBox="0 0 '+W+' '+H+'" class="mini">'+
+      '<line x1="'+pl0+'" y1="'+(H-pb)+'" x2="'+(W-3)+'" y2="'+(H-pb)+'" stroke="#d4d4d8" stroke-width="1"/>'+
+      '<line x1="'+pl0+'" y1="4" x2="'+pl0+'" y2="'+(H-pb)+'" stroke="#d4d4d8" stroke-width="1"/>'+
+      '<polyline points="'+d+'" fill="none" stroke="#7c3aed" stroke-width="2.3" '+
+      'stroke-linejoin="round" stroke-linecap="round"/></svg>';
+  }
+
+  var cur=EX[0], stage=0;
+
+  /* 패널 하나 그리기 */
+  function panel(ox,oy,w,h,x1,y1,title,color){
+    var host=el("g",{transform:"translate("+ox+","+oy+")"});
+    svg.appendChild(host);
+    host.appendChild(el("rect",{x:1,y:1,width:w-2,height:h-2,rx:9,fill:"#fff",stroke:"#e4e4e7"}));
+    var L=30,R=10,T=26,B=22;
+    var sx=(w-L-R)/(x1+0.35), sy=(h-T-B)/(y1+0.45);
+    function px(x){return L+x*sx;} function py(y){return h-B-y*sy;}
+    for(var g=1;g<=Math.ceil(x1);g++)
+      host.appendChild(el("line",{x1:px(g),y1:py(0),x2:px(g),y2:py(y1+0.35),stroke:"#f4f4f5"}));
+    for(var g2=1;g2<=Math.ceil(y1);g2++)
+      host.appendChild(el("line",{x1:px(0),y1:py(g2),x2:px(x1+0.3),y2:py(g2),stroke:"#f4f4f5"}));
+    host.appendChild(el("line",{x1:px(0),y1:py(0),x2:px(x1+0.3),y2:py(0),stroke:"#a1a1aa","stroke-width":1.3}));
+    host.appendChild(el("line",{x1:px(0),y1:py(0),x2:px(0),y2:py(y1+0.35),stroke:"#a1a1aa","stroke-width":1.3}));
+    var t=el("text",{x:w/2,y:16,"font-size":10.5,"text-anchor":"middle","font-weight":800,fill:color});
+    t.textContent=title;host.appendChild(t);
+    txt(host,px(0)-7,py(0)+11,"O",{size:9,fill:"#71717a",weight:400});
+    return {g:host,px:px,py:py};
+  }
+  function line(P,x1,y1,x2,y2,color,dash,w){
+    P.g.appendChild(el("line",{x1:P.px(x1),y1:P.py(y1),x2:P.px(x2),y2:P.py(y2),
+      stroke:color,"stroke-width":w||1.3,"stroke-dasharray":dash||"none"}));
+  }
+  function poly(P,pts,color,w){
+    P.g.appendChild(el("polyline",{points:pts.map(function(p){return P.px(p[0])+","+P.py(p[1]);}).join(" "),
+      fill:"none",stroke:color,"stroke-width":w||2.5,"stroke-linejoin":"round","stroke-linecap":"round"}));
+  }
+  function dot(P,x,y,color,r){
+    P.g.appendChild(el("circle",{cx:P.px(x),cy:P.py(y),r:r||4,fill:color}));
+  }
+  function tick(P,x,lab,color,below){
+    P.g.appendChild(el("line",{x1:P.px(x),y1:P.py(0)-3,x2:P.px(x),y2:P.py(0)+3,stroke:color||"#a1a1aa"}));
+    txt(P.g,P.px(x),P.py(0)+(below?21:12),lab,{size:9.5,fill:color||"#71717a",weight:600});
+  }
+  function ytick(P,y,lab,color){
+    P.g.appendChild(el("line",{x1:P.px(0)-3,y1:P.py(y),x2:P.px(0)+3,y2:P.py(y),stroke:color||"#a1a1aa"}));
+    txt(P.g,P.px(0)-9,P.py(y)+3.5,lab,{size:9.5,anchor:"end",fill:color||"#71717a",weight:600});
+  }
+
+  var BLUE="#2563eb",RED="#e11d48",ORA="#d97706",VIO="#7c3aed",GRAY="#94a3b8";
+
+  function draw(){
+    clear(svg);
+    var E=cur, open=!!(E.st&&E.st.open);
+
+    /* ① 안쪽 함수 — 왼쪽 위 */
+    var A=panel(0,0,196,165,E.X,E.Y,"① 안쪽 "+E.inN+" : y = "+E.inN+"(x)",BLUE);
+    for(var i=0;i<E.inTick.length;i++) tick(A,E.inTick[i][0],E.inTick[i][1]);
+    ytick(A,E.Y,String(E.Y));
+    poly(A,E.inPts,BLUE);
+    if(stage>=1){
+      line(A,0,E.k,E.X+0.25,E.k,ORA,"5 4",1.5);
+      txt(A.g,A.px(E.X+0.25),A.py(E.k)-5,"y = "+E.kS,{size:9.5,anchor:"end",fill:ORA});
+      ytick(A,E.k,E.kS,ORA);
+    }
+    if(stage>=2) E.hits.forEach(function(h){
+      line(A,h.x,0,h.x,E.k,ORA,"4 3",1.2);
+      dot(A,h.x,E.k,ORA,4.2);
+      tick(A,h.x,h.xs,ORA);
+    });
+    if(stage>=3) E.bend.forEach(function(b){
+      line(A,b.x,0,b.x,pl(E.inPts)(b.x),GRAY,"4 3",1.2);
+      tick(A,b.x,b.xs,GRAY,1);
+    });
+
+    /* ② 바깥 함수 — 오른쪽 위 */
+    var B=panel(204,0,196,165,E.U,E.Y,"② 바깥 "+E.outN+" : y = "+E.outN+"(u)",RED);
+    for(var j=0;j<E.outTick.length;j++) tick(B,E.outTick[j][0],E.outTick[j][1]);
+    ytick(B,E.Y,String(E.Y));
+    poly(B,E.outPts,RED);
+    if(stage>=1){
+      line(B,E.k,0,E.k,E.Y+0.3,ORA,"5 4",1.5);
+      dot(B,E.k,pl(E.outPts)(E.k),ORA,4.6);
+      txt(B.g,B.px(E.k)+5,B.py(E.Y+0.3)+9,"u = "+E.kS+" 에서 꺾임",{size:9.5,anchor:"start",fill:ORA});
+    }
+
+    /* ③ 합성 — 왼쪽 아래 (① 과 x 축이 같다) */
+    var C=panel(0,175,196,165,E.X,E.Y,"③ 합성 : y = "+E.compN,VIO);
+    ytick(C,E.Y,String(E.Y));
+    if(stage>=3) E.nodes.forEach(function(n,i){
+      if(i===0||i===E.nodes.length-1) return;
+      line(C,n,0,n,E.Y+0.3,"#e4e4e7","4 3",1.2);
+      line(A,n,0,n,E.Y+0.3,"#f1f5f9","4 3",1);
+      tick(C,n,E.nodeLab[i],GRAY,i%2===0?1:0);
+    });
+    tick(C,E.X,String(E.X));
+    if(open){
+      poly(C,E.comp,VIO,2.8);
+      E.comp.forEach(function(p,i){
+        dot(C,p[0],p[1],VIO,4);
+        var last=(i===E.comp.length-1);
+        txt(C.g,C.px(p[0])+(i===0?3:(last?-3:0)),C.py(p[1])-9,"("+E.nodeLab[i]+", "+p[1]+")",
+          {size:8.5,fill:VIO,anchor:(i===0?"start":(last?"end":"middle"))});
+      });
+    }
+
+    /* 오른쪽 아래 — 구간 띠 */
+    var S=el("g",{transform:"translate(204,175)"});svg.appendChild(S);
+    txt(S,98,16,"구간 나누기",{size:10.5,fill:"#52525b"});
+    if(stage>=3){
+      var COL=["#dbeafe","#bfdbfe","#fecdd3","#fda4af"];
+      var NUM=["①","②","③","④"];
+      for(var q=0;q<E.nodes.length-1;q++){
+        var y0=28+q*31;
+        S.appendChild(el("rect",{x:8,y:y0,width:180,height:25,rx:6,
+          fill:COL[q%4],stroke:"#e4e4e7"}));
+        txt(S,22,y0+17,NUM[q],{size:12,fill:"#3f3f46"});
+        txt(S,104,y0+17,E.nodeLab[q]+" ≤ x ≤ "+E.nodeLab[q+1],{size:11,fill:"#27272a"});
+      }
+      txt(S,98,28+(E.nodes.length-1)*31+14,
+        "① 과 ③ 은 <x 축이 같다>".replace(/[<>]/g,""),{size:9.5,fill:"#a1a1aa",weight:400});
+    }else{
+      txt(S,98,80,"③ 까지 누르면 구간이 나옵니다",{size:10,fill:"#a1a1aa",weight:400});
+    }
+
+    report(); tableOut();
+  }
+
+  function report(){
+    var E=cur;
+    if(stage===0){
+      ro.innerHTML="<b>두 그래프를 먼저 봅니다.</b><br><br>안쪽은 <b>"+E.inN+"</b>, 바깥은 <b>"+E.outN+
+        "</b> 입니다.<br><br><span class='hint'>합성 "+E.compN+" 에서 <b>괄호 안쪽</b>이 먼저 작동합니다.</span>";
+      return;
+    }
+    if(stage===1){
+      ro.innerHTML="<b>① 바깥이 꺾이는 높이</b><br><br>"+E.kWhy+
+        "<br><br>그래서 안쪽 그래프에 <b style='color:#d97706'>y = "+E.kS+"</b> 를 그어 둡니다.";
+      return;
+    }
+    if(stage===2){
+      ro.innerHTML="<b>② 그 높이에 닿는 x</b><br><br>"+
+        E.hits.map(function(h){return "<b style='color:#d97706'>x = "+h.xs+"</b><br>"+h.why;}).join("<br><br>")+
+        "<br><br><span class='hint'>안쪽이 올라갈 때 한 번, 내려올 때 한 번 — <b>두 번</b> 닿습니다.</span>";
+      return;
+    }
+    if(stage===3){
+      ro.innerHTML="<b>③ 구간 자르기</b><br><br>경계 = <b style='color:#d97706'>"+
+        E.hits.map(function(h){return "x = "+h.xs;}).join(", ")+"</b> 와 "+
+        "<b style='color:#94a3b8'>"+E.bend.map(function(b){return "x = "+b.xs;}).join(", ")+"</b>"+
+        "<br><br>→ 모두 <b>"+(E.nodes.length-1)+"개 구간</b>"+
+        "<br><br><span class='hint'>"+E.bend[0].why+" 이라 바깥 조각이 그대로여도 경계가 됩니다.</span>";
+      return;
+    }
+    /* stage 4 — 개형 고르기 */
+    E.st=E.st||{};
+    var opts=E.opts.map(function(p){return miniSvg(p,E.X,E.Y);});
+    gate(ro,{state:E.st,
+      head:"<b>④ 구간마다 합성하기</b><br><br>아래 표의 <b>합성식</b>과 <b>양 끝점</b>을 먼저 구해 보세요.<br><br>",
+      q:"그 끝점들을 이으면 어떤 개형일까요? 먼저 고르세요.",
+      choices:mix(miniSvg(E.comp,E.X,E.Y),opts,E.seed,E.no),
+      answer:E.done,
+      onOpen:draw});
+  }
+
+  function tableOut(){
+    var E=cur, open=!!(E.st&&E.st.open);
+    if(stage<3){
+      tb.innerHTML="<tr><td class='l hint' style='padding:12px'>①②③ 을 차례로 누르면 구간표가 만들어집니다.</td></tr>";
+      return;
+    }
+    var h="<tr><th style='width:128px'>구간</th><th class='l'>안쪽 "+E.inN+" 의 식</th>"+
+      "<th class='l'>안쪽 값의 범위</th><th class='l'>쓰는 "+E.outN+" 의 조각</th>"+
+      "<th class='l'>"+E.compN+"</th><th class='l'>양 끝점</th></tr>";
+    var NUM=["①","②","③","④"];
+    E.rows.forEach(function(r,i){
+      h+="<tr><td class='mono' style='white-space:nowrap'>"+NUM[i]+" "+r.seg+"</td><td class='l mono'>"+r.inS+"</td>"+
+        "<td class='l mono'>"+r.rng+"</td><td class='l mono'>"+r.outS+"</td>"+
+        "<td class='l mono'>"+(stage>=4&&open?r.comp:"<span class='hint'>?</span>")+"</td>"+
+        "<td class='l mono'>"+(stage>=4&&open?r.ends:"<span class='hint'>?</span>")+"</td></tr>";
+    });
+    tb.innerHTML=h;
+  }
+
+  /* 단계 버튼 */
+  var STEPS=["① 두 그래프","② 꺾이는 높이","③ 닿는 x 찾기","④ 구간 나누기","⑤ 합성해서 그리기"];
+  function buildSteps(){
+    while(box.firstChild)box.removeChild(box.firstChild);
+    btnset(box,STEPS.map(function(t,i){return {t:t,i:i};}),function(it){stage=it.i;draw();},true);
+  }
+
+  /* 예제 고르기 */
+  var sb=[];
+  EX.forEach(function(E,i){
+    E.st={}; E.seed=i+1;
+    var b=document.createElement("button");
+    b.className="rb"+(i===0?" on":"");
+    b.textContent=E.name;
+    b.onclick=function(){
+      cur=E; stage=0;
+      sb.forEach(function(x){x.className="rb";}); b.className="rb on";
+      head.innerHTML=E.q; buildSteps(); draw();
+    };
+    setBox.appendChild(b); sb.push(b);
+  });
+  head.innerHTML=EX[0].q;
+  buildSteps();
+  draw();
 })();
 
 /* ── 화면10 : 자동차 연비 ───────────────────────────── */

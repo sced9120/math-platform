@@ -49,6 +49,11 @@
     padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
   .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
   .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  /* 답을 바로 보여 주지 않는 장치 — 한 번 더 골라야 열린다 */
+  .gq{margin:10px 0 0;font-weight:800;font-size:13px;color:#3f3f46;line-height:1.5}
+  .gb{margin-top:6px}
+  .gm{margin-top:6px;font-size:12.5px;line-height:1.55}
+  .gno{color:#b91c1c;font-weight:600}
   .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
   .slider input{width:100%}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
@@ -425,6 +430,45 @@ function btnset(box,items,onPick,wide){
   });
   return bs;
 }
+
+/* 보기 순서 섞기 — 정답이 늘 첫 칸에 오지 않게 한다.
+   mix(정답, [오답들], 자리번호, 틀렸을 때 한마디) */
+function mix(right,wrongs,seed,no){
+  var a=[{t:right,ok:true}];
+  wrongs.forEach(function(w){a.push({t:w,ok:false,no:no});});
+  var k=(((seed||0)%a.length)+a.length)%a.length;
+  return a.slice(a.length-k).concat(a.slice(0,a.length-k));
+}
+
+/* ── 생각할 시간을 주는 장치 ───────────────────────────
+   학생이 보기를 한 번 더 고르기 전에는 답을 열지 않는다.
+   gate(target,{head, q, choices:[{t,ok,no}], answer, state, onOpen, no})
+   state 객체를 넘기면 한 번 열어 본 문항은 계속 열린 채로 남는다. */
+function gate(target,cfg){
+  var st=cfg.state||{};
+  function open(){
+    var first=!st.open;                 /* onOpen 안에서 다시 gate 를 불러도 되게 — 무한 재귀 막기 */
+    st.open=1;
+    target.innerHTML=(cfg.head||"")+cfg.answer;
+    if(cfg.onOpen&&first)cfg.onOpen();
+  }
+  if(st.open){open();return;}
+  target.innerHTML=(cfg.head||"")+
+    '<div class="gq">'+(cfg.q||"먼저 스스로 판단해 보세요.")+'</div>'+
+    '<div class="gb"></div><div class="gm"></div>';
+  var box=target.querySelector(".gb"),msg=target.querySelector(".gm");
+  cfg.choices.forEach(function(c){
+    var b=document.createElement("button");
+    b.className="judge";b.innerHTML=c.t;
+    b.onclick=function(){
+      if(c.ok){open();return;}
+      [].slice.call(box.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+      b.className="judge no";
+      msg.innerHTML="<span class='gno'>"+(c.no||cfg.no||"아직 아닙니다. 다시 한 번 살펴보세요.")+"</span>";
+    };
+    box.appendChild(b);
+  });
+}
 function num(v,d){d=(d===undefined?2:d);return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toString();}
 function Plane(svg,lo,hi,H,W){
   H=H||340;W=W||400;
@@ -571,50 +615,66 @@ function Plane(svg,lo,hi,H,W){
       "분모가 x+2 와 x → 공통분모는 x(x+2)",
       "= 2x/(x(x+2)) + (x+2)/(x(x+2))",
       "= (2x + x + 2)/(x(x+2))"],a:"(3x + 2) / (x(x+2))",
+      ca:"(3x + 2) / (x(x+2))",alt:["3 / (2x + 2)","(3x + 2) / (x + 2)"],
+      no:"분자끼리·분모끼리 그냥 더하면 안 됩니다. <b>통분</b>이 먼저입니다.",
       tip:"학습지에 풀이가 있는 문항. 통분의 기본형입니다."},
     {n:"(2)",cond:"x ≠ 1, −2, −1/3",q:"(3x+1)/(x²+x−2) × (x+2)/(6x+2)",steps:[
       "인수분해: x²+x−2 = (x+2)(x−1),  6x+2 = 2(3x+1)",
       "= (3x+1)/((x+2)(x−1)) × (x+2)/(2(3x+1))",
       "3x+1 끼리, x+2 끼리 약분"],a:"1 / (2(x−1))",
+      ca:"1 / (2(x−1))",alt:["1 / (x−1)","2 / (x−1)"],
+      no:"6x+2 = <b>2</b>(3x+1) — 앞의 <b>2</b> 가 분모에 남습니다.",
       tip:"곱셈은 <b>인수분해 먼저</b>, 그러면 약분할 짝이 보입니다."},
     {n:"(3)",cond:"x ≠ 2, −2",q:"1/(x−2) − 1/(x+2)",steps:[
       "공통분모 (x−2)(x+2)",
       "= ((x+2) − (x−2)) / ((x−2)(x+2))",
       "= 4 / ((x−2)(x+2))"],a:"4 / (x² − 4)",
+      ca:"4 / (x² − 4)",alt:["0","−4 / (x² − 4)"],
+      no:"분자에서 <b>괄호</b>를 빼먹지 마세요. (x+2) − (x−2) = 4 입니다.",
       tip:"분자에서 <b>괄호를 꼭</b> 쓰세요. 빼기라서 부호가 뒤집힙니다."},
     {n:"(4)",cond:"x ≠ 1, −1",q:"(x−1)/(x³+1) ÷ (x²−1)/(x²−x+1)",steps:[
       "x³+1 = (x+1)(x²−x+1),  x²−1 = (x+1)(x−1)",
       "나눗셈 → 역수를 곱하기",
       "= (x−1)/((x+1)(x²−x+1)) × (x²−x+1)/((x+1)(x−1))",
       "x−1 끼리, x²−x+1 끼리 약분"],a:"1 / (x+1)²",
+      ca:"1 / (x+1)²",alt:["1 / (x+1)","1 / (x² − 1)"],
+      no:"x+1 이 <b>두 번</b> 남습니다 — x³+1 에서 하나, x²−1 에서 하나.",
       tip:"세제곱의 합 <b>a³+b³ = (a+b)(a²−ab+b²)</b> 이 열쇠입니다."},
     {n:"(5)",cond:"x ≠ 3, −1",q:"x/(x−3) − (x+3)/(x+1)",steps:[
       "공통분모 (x−3)(x+1)",
       "분자 = x(x+1) − (x+3)(x−3) = (x² + x) − (x² − 9)",
       "= x + 9"],a:"(x + 9) / ((x−3)(x+1))  =  (x + 9) / (x² − 2x − 3)",
+      ca:"(x + 9) / ((x−3)(x+1))",
+      alt:["(x − 9) / ((x−3)(x+1))","(x + 9) / (x² + 2x − 3)"],
+      no:"− (x² − 9) 에서 부호가 두 번 바뀝니다. 분모 전개도 다시 확인해 보세요.",
       tip:"(x+3)(x−3) = x² − 9 — 곱셈공식으로 한 번에."},
     {n:"(6)",cond:"x ≠ −3, 1, 2",q:"(x−2)/(x+3) ÷ (x−2)/(x²+2x−3)",steps:[
       "x²+2x−3 = (x+3)(x−1)",
       "= (x−2)/(x+3) × (x+3)(x−1)/(x−2)",
       "x−2 끼리, x+3 끼리 모두 약분"],a:"x − 1",
+      ca:"x − 1",alt:["1 / (x − 1)","x + 3"],
+      no:"나눗셈은 <b>역수를 곱하기</b>. 뒤의 분수를 뒤집은 다음 약분하세요.",
       tip:"답이 <b>다항식</b>이 되었습니다. 다항식도 유리식이니 이상할 게 없죠."}
   ];
   var bs=[];
   P.forEach(function(p,i){
+    p.st={};p.seed=i;
     var b=document.createElement("button");b.className="rb";b.textContent=p.n;
     b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
     box.appendChild(b);bs.push(b);
   });
   function show(p){
-    var h="<div class='formula'><span class='mono'>"+p.n+" &nbsp;"+p.q+"</span></div>"+
-      "<div class='steps3'>";
+    var head="<div class='formula'><span class='mono'>"+p.n+" &nbsp;"+p.q+"</span></div>";
+    var h="<div class='steps3'>";
     p.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
     h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'>= <b class='mono'>"+p.a+"</b>"+
       "<div style='font-size:13.5px;margin-top:6px;color:#92400e'>단, <b class='mono'>"+p.cond+"</b></div></div>"+
       "<p class='hint' style='margin:6px 0 0'>💡 "+p.tip+"</p>";
-    card.innerHTML=h;
+    gate(card,{state:p.st,head:head,
+      q:"학습지에 구한 답을 고르세요. 고른 뒤에 풀이가 열립니다.",
+      choices:mix(p.ca,p.alt,p.seed,p.no),answer:h});
   }
-  card.innerHTML="<p class='hint' style='margin:0'>번호를 눌러 풀이를 확인하세요.</p>";
+  card.innerHTML="<p class='hint' style='margin:0'>학습지에 먼저 풀고, 번호를 누르세요.</p>";
 })();
 
 /* ── 화면5 : 무리식의 계산 ───────────────────────────────── */
@@ -624,45 +684,61 @@ function Plane(svg,lo,hi,H,W){
     {n:"(7)",cond:"x ≥ 1",q:"(√(x+2) − √(x−1))(√(x+2) + √(x−1))",steps:[
       "꼴이 (√A − √B)(√A + √B), A = x+2, B = x−1",
       "= A − B = (x+2) − (x−1)"],a:"3",
+      ca:"3",alt:["2x + 1","1"],
+      no:"(x+2) − (x−1) 을 <b>괄호째로</b> 계산하세요. 빼기입니다.",
       tip:"문자가 <b>완전히 사라졌습니다.</b> 값이 x 에 관계없이 3."},
     {n:"(8)",cond:"x ≥ 0, x ≠ 1",q:"1/(1+√x) + 1/(1−√x)",steps:[
       "공통분모 (1+√x)(1−√x) = 1 − x",
       "분자 = (1−√x) + (1+√x) = 2"],a:"2 / (1 − x)",
+      ca:"2 / (1 − x)",alt:["2 / (1 + x)","0"],
+      no:"분모는 (1+√x)(1−√x) = <b>1 − x</b> 입니다. 분자는 <b>더하기</b>라서 2 가 남습니다.",
       tip:"분모끼리 곱하는 순간 근호가 사라집니다. (x ≥ 0, x ≠ 1)"},
     {n:"(9)",cond:"x ≥ −2",q:"(√(x+2) + 1)(√(x+2) − 1)",steps:[
       "A = x+2, B = 1 로 보면 (√A + √B)(√A − √B)",
       "= (x+2) − 1"],a:"x + 1",
+      ca:"x + 1",alt:["x + 3","x + 2"],
+      no:"1 = √1 로 보면 A − B = (x+2) − 1 입니다.",
       tip:"1 = √1 로 보면 됩니다. 같은 공식."},
     {n:"(10)",cond:"x ≥ 0, x ≠ 1",q:"(√x+1)/(√x−1) + (√x−1)/(√x+1)",steps:[
       "공통분모 (√x−1)(√x+1) = x − 1",
       "분자 = (√x+1)² + (√x−1)²",
       "= (x + 2√x + 1) + (x − 2√x + 1) = 2x + 2"],a:"(2x + 2) / (x − 1)",
+      ca:"(2x + 2) / (x − 1)",alt:["2 / (x − 1)","(2x + 2) / (x + 1)"],
+      no:"분자를 <b>둘 다 전개</b>해 보세요. 2√x 는 지워지지만 x 와 1 은 두 번씩 남습니다.",
       tip:"가운데 <b>2√x 가 서로 지워집니다.</b> 그래서 근호가 남지 않죠."},
     {n:"(11)",cond:"x ≥ 0",q:"(√x + √(x+4))(√x − √(x+4))",steps:[
       "A = x, B = x+4",
       "= x − (x+4)"],a:"−4",
+      ca:"−4",alt:["4","2x + 4"],
+      no:"앞이 √A + √B, 뒤가 √A − √B 이므로 <b>A − B</b> 입니다. 부호를 보세요.",
       tip:"순서가 (√A + √B)(√A − √B) 이므로 <b>A − B</b>. 부호 조심."},
     {n:"(12)",cond:"x ≥ 0, x ≠ 9",q:"(√x−3)/(√x+3) + (√x+3)/(√x−3)",steps:[
       "공통분모 (√x+3)(√x−3) = x − 9",
       "분자 = (√x−3)² + (√x+3)²",
       "= (x − 6√x + 9) + (x + 6√x + 9) = 2x + 18"],a:"(2x + 18) / (x − 9)",
+      ca:"(2x + 18) / (x − 9)",alt:["(2x + 18) / (x + 9)","18 / (x − 9)"],
+      no:"(10) 과 같은 구조입니다. 분모는 x − 9, 분자는 2x + 18.",
       tip:"(10) 과 완전히 같은 구조입니다. 숫자만 1 → 3 으로."}
   ];
   var bs=[];
-  P.forEach(function(p){
+  P.forEach(function(p,i){
+    p.st={};p.seed=i;
     var b=document.createElement("button");b.className="rb";b.textContent=p.n;
     b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
     box.appendChild(b);bs.push(b);
   });
   function show(p){
-    var h="<div class='formula'><span class='mono'>"+p.n+" &nbsp;"+p.q+"</span></div><div class='steps3'>";
+    var head="<div class='formula'><span class='mono'>"+p.n+" &nbsp;"+p.q+"</span></div>";
+    var h="<div class='steps3'>";
     p.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
     h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'>= <b class='mono'>"+p.a+"</b>"+
       "<div style='font-size:13.5px;margin-top:6px;color:#92400e'>단, <b class='mono'>"+p.cond+"</b></div></div>"+
       "<p class='hint' style='margin:6px 0 0'>💡 "+p.tip+"</p>";
-    card.innerHTML=h;
+    gate(card,{state:p.st,head:head,
+      q:"학습지에 구한 답을 고르세요. 고른 뒤에 풀이가 열립니다.",
+      choices:mix(p.ca,p.alt,p.seed,p.no),answer:h});
   }
-  card.innerHTML="<p class='hint' style='margin:0'>번호를 눌러 풀이를 확인하세요.</p>";
+  card.innerHTML="<p class='hint' style='margin:0'>학습지에 먼저 풀고, 번호를 누르세요.</p>";
 })();
 
 /* ── 화면6 : 함수 판정 ──────────────────────────────────── */
@@ -707,19 +783,30 @@ function Plane(svg,lo,hi,H,W){
   function px(x){return pad+(x-LO)/(HI-LO)*(W-2*pad);}
   var AY=62;
   var P=[
-    {n:"(1)",cond:"x ≠ 0, −2",q:"y = 3/(x−1)",kind:"hole",hole:[[1,"1"]],
-      a:"{ x | x ≠ 1 }",why:"분모 x−1 ≠ 0 → x ≠ 1."},
-    {n:"(2)",cond:"x ≠ 1, −2, −1/3",q:"y = 3x/(3x+1)",kind:"hole",hole:[[-1/3,"−1/3"]],
-      a:"{ x | x ≠ −1/3 }",why:"분모 3x+1 ≠ 0 → x ≠ −1/3. <b>분자의 3x 는 아무 상관 없습니다.</b>"},
-    {n:"(3)",cond:"x ≠ 2, −2",q:"y = 2x + 1 − (x+1)/(x²−1)",kind:"hole",hole:[[-1,"−1"],[1,"1"]],
-      a:"{ x | x ≠ −1 이고 x ≠ 1 }",
+    {n:"(1)",q:"y = 3/(x−1)",kind:"hole",hole:[[1,"1"]],
+      a:"{ x | x ≠ 1 }",alt:["{ x | x ≠ −1 }","{ x | x ≠ 0 }"],
+      no:"분모를 <b>0 으로 만드는 값</b>을 구하세요. x − 1 = 0 입니다.",
+      why:"분모 x−1 ≠ 0 → x ≠ 1."},
+    {n:"(2)",q:"y = 3x/(3x+1)",kind:"hole",hole:[[-1/3,"−1/3"]],
+      a:"{ x | x ≠ −1/3 }",alt:["{ x | x ≠ 1/3 }","{ x | x ≠ 0, x ≠ −1/3 }"],
+      no:"3x + 1 = 0 을 풀어 보세요. <b>분자</b>는 정의역과 상관없습니다.",
+      why:"분모 3x+1 ≠ 0 → x ≠ −1/3. <b>분자의 3x 는 아무 상관 없습니다.</b>"},
+    {n:"(3)",q:"y = 2x + 1 − (x+1)/(x²−1)",kind:"hole",hole:[[-1,"−1"],[1,"1"]],
+      a:"{ x | x ≠ −1 이고 x ≠ 1 }",alt:["{ x | x ≠ 1 }","{ x | x ≠ −1 }"],
+      no:"약분하기 <b>전</b>의 분모가 x² − 1 입니다. 0 이 되는 값이 <b>둘</b>입니다.",
       why:"⚠️ 약분하면 1/(x−1) 이 되지만, <b>약분하기 전</b> 분모가 x²−1 = (x+1)(x−1) 이었습니다. <b>둘 다</b> 빼야 합니다."},
-    {n:"(4)",cond:"x ≠ 1, −1",q:"y = √x",kind:"ray",at:0,dir:1,closed:true,
-      a:"{ x | x ≥ 0 }",why:"근호 안 x ≥ 0. 등호가 <b>있습니다</b> (√0 = 0 은 실수)."},
-    {n:"(5)",cond:"x ≠ 3, −1",q:"y = √(2−x)",kind:"ray",at:2,dir:-1,closed:true,
-      a:"{ x | x ≤ 2 }",why:"2−x ≥ 0 → x ≤ 2. <b>부등호 방향이 뒤집힙니다.</b>"},
-    {n:"(6)",cond:"x ≠ −3, 1, 2",q:"y = 2/√(x−1)",kind:"ray",at:1,dir:1,closed:false,
-      a:"{ x | x > 1 }",why:"근호가 <b>분모</b>에 있습니다. x−1 ≥ 0 이면서 √(x−1) ≠ 0 → <b>x−1 > 0</b>. 등호가 사라집니다."}
+    {n:"(4)",q:"y = √x",kind:"ray",at:0,dir:1,closed:true,
+      a:"{ x | x ≥ 0 }",alt:["{ x | x > 0 }","실수 전체의 집합"],
+      no:"√0 = 0 은 실수입니다. 그러면 등호는 들어갈까요, 빠질까요?",
+      why:"근호 안 x ≥ 0. 등호가 <b>있습니다</b> (√0 = 0 은 실수)."},
+    {n:"(5)",q:"y = √(2−x)",kind:"ray",at:2,dir:-1,closed:true,
+      a:"{ x | x ≤ 2 }",alt:["{ x | x ≥ 2 }","{ x | x ≤ −2 }"],
+      no:"2 − x ≥ 0 의 양변을 정리할 때 <b>부등호 방향</b>을 조심하세요.",
+      why:"2−x ≥ 0 → x ≤ 2. <b>부등호 방향이 뒤집힙니다.</b>"},
+    {n:"(6)",q:"y = 2/√(x−1)",kind:"ray",at:1,dir:1,closed:false,
+      a:"{ x | x > 1 }",alt:["{ x | x ≥ 1 }","{ x | x ≠ 1 }"],
+      no:"근호가 <b>분모</b>에 있습니다. √(x−1) 이 0 이어도 괜찮을까요?",
+      why:"근호가 <b>분모</b>에 있습니다. x−1 ≥ 0 이면서 √(x−1) ≠ 0 → <b>x−1 > 0</b>. 등호가 사라집니다."}
   ];
   function axis(){
     clear(svg);
@@ -730,7 +817,7 @@ function Plane(svg,lo,hi,H,W){
     }
     txt(svg,px(HI),AY-14,"x",{size:11,fill:"#52525b"});
   }
-  function show(p){
+  function line(p){
     axis();
     if(p.kind==="hole"){
       svg.appendChild(el("line",{x1:px(LO)+2,y1:AY,x2:px(HI)-2,y2:AY,
@@ -750,12 +837,20 @@ function Plane(svg,lo,hi,H,W){
       txt(svg,px(0),18,p.closed?"● 채운 점 — 등호 포함":"○ 빈 점 — 등호 없음",
         {size:11.5,fill:p.closed?"#2563eb":"#e11d48"});
     }
-    card.innerHTML="<div class='formula' style='margin:0 0 8px'><span class='mono'>"+p.n+" &nbsp;"+p.q+"</span></div>"+
-      "<div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe;margin:0'>정의역 = <b class='mono'>"+p.a+"</b></div>"+
-      "<p class='hint' style='margin:8px 0 0'>"+p.why+"</p>";
+  }
+  function show(p){
+    if(!p.st.open) axis();
+    gate(card,{state:p.st,
+      head:"<div class='formula' style='margin:0 0 8px'><span class='mono'>"+p.n+" &nbsp;"+p.q+"</span></div>",
+      q:"학습지에 구한 정의역을 고르세요. 고른 뒤에 수직선이 열립니다.",
+      choices:mix(p.a,p.alt,p.seed,p.no),
+      answer:"<div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe;margin:0'>정의역 = <b class='mono'>"+p.a+"</b></div>"+
+        "<p class='hint' style='margin:8px 0 0'>"+p.why+"</p>",
+      onOpen:function(){line(p);}});
   }
   var bs=[];
-  P.forEach(function(p){
+  P.forEach(function(p,i){
+    p.st={};p.seed=i;
     var b=document.createElement("button");b.className="rb";b.textContent=p.n;
     b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
     box.appendChild(b);bs.push(b);

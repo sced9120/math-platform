@@ -49,6 +49,11 @@
     padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
   .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
   .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  /* 답을 바로 보여 주지 않는 장치 — 한 번 더 골라야 열린다 */
+  .gq{margin:10px 0 0;font-weight:800;font-size:13px;color:#3f3f46;line-height:1.5}
+  .gb{margin-top:6px}
+  .gm{margin-top:6px;font-size:12.5px;line-height:1.55}
+  .gno{color:#b91c1c;font-weight:600}
   .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
   .slider input{width:100%}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
@@ -546,6 +551,45 @@ function btnset(box,items,onPick,wide){
   });
   return bs;
 }
+
+/* 보기 순서 섞기 — 정답이 늘 첫 칸에 오지 않게 한다.
+   mix(정답, [오답들], 자리번호, 틀렸을 때 한마디) */
+function mix(right,wrongs,seed,no){
+  var a=[{t:right,ok:true}];
+  wrongs.forEach(function(w){a.push({t:w,ok:false,no:no});});
+  var k=(((seed||0)%a.length)+a.length)%a.length;
+  return a.slice(a.length-k).concat(a.slice(0,a.length-k));
+}
+
+/* ── 생각할 시간을 주는 장치 ───────────────────────────
+   학생이 보기를 한 번 더 고르기 전에는 답을 열지 않는다.
+   gate(target,{head, q, choices:[{t,ok,no}], answer, state, onOpen, no})
+   state 객체를 넘기면 한 번 열어 본 문항은 계속 열린 채로 남는다. */
+function gate(target,cfg){
+  var st=cfg.state||{};
+  function open(){
+    var first=!st.open;                 /* onOpen 안에서 다시 gate 를 불러도 되게 — 무한 재귀 막기 */
+    st.open=1;
+    target.innerHTML=(cfg.head||"")+cfg.answer;
+    if(cfg.onOpen&&first)cfg.onOpen();
+  }
+  if(st.open){open();return;}
+  target.innerHTML=(cfg.head||"")+
+    '<div class="gq">'+(cfg.q||"먼저 스스로 판단해 보세요.")+'</div>'+
+    '<div class="gb"></div><div class="gm"></div>';
+  var box=target.querySelector(".gb"),msg=target.querySelector(".gm");
+  cfg.choices.forEach(function(c){
+    var b=document.createElement("button");
+    b.className="judge";b.innerHTML=c.t;
+    b.onclick=function(){
+      if(c.ok){open();return;}
+      [].slice.call(box.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+      b.className="judge no";
+      msg.innerHTML="<span class='gno'>"+(c.no||cfg.no||"아직 아닙니다. 다시 한 번 살펴보세요.")+"</span>";
+    };
+    box.appendChild(b);
+  });
+}
 function num(v,d){var s=(Math.round(v*Math.pow(10,d||2))/Math.pow(10,d||2)).toString();return s;}
 function Plane(svg,lo,hi,H,W){
   H=H||300;W=W||400;
@@ -637,16 +681,22 @@ function Plane(svg,lo,hi,H,W){
 
 /* ── 화면3 : 함숫값 ─────────────────────────────────── */
 (function(){
-  var ro=document.getElementById("r3");
+  var ro=document.getElementById("r3"),ST={};
   function f(x){return x-1;} function g(x){return x*x+1;}
   btnset(document.getElementById("b3"),[1,2,3].map(function(x){return {t:"x = "+x,x:x};}),
     function(it){
-      var y=f(it.x),z=g(y);
-      document.getElementById("p3x").textContent=it.x;
+      var x=it.x, y=f(x), z=g(y);
+      ST[x]=ST[x]||{};
+      document.getElementById("p3x").textContent=x;
       document.getElementById("p3y").textContent=y;
-      document.getElementById("p3z").textContent=z;
-      ro.innerHTML="(g ∘ f)("+it.x+")<br><br>= g( f("+it.x+") )<br>= g( <b>"+y+"</b> )<br>= "+y+"² + 1<br>= <b>"+z+"</b>"+
-        "<br><br><span class='hint'>안쪽 f 부터 계산합니다.</span>";
+      if(!ST[x].open) document.getElementById("p3z").textContent="?";
+      gate(ro,{state:ST[x],
+        head:"(g ∘ f)("+x+")<br><br>= g( f("+x+") )<br>= g( <b>"+y+"</b> )<br><br>",
+        q:"여기까지 왔습니다. <b>g("+y+")</b> 는 얼마일까요?",
+        choices:mix(String(z),[String(y),String(g(x))],x,
+          "g(x) = x² + 1 의 x 자리에 <b>"+y+"</b> 를 넣습니다. f 의 값에서 멈추면 안 됩니다."),
+        answer:"= "+y+"² + 1<br>= <b>"+z+"</b><br><br><span class='hint'>안쪽 f 부터 계산합니다.</span>",
+        onOpen:function(){document.getElementById("p3z").textContent=z;}});
     });
   ro.innerHTML="x 를 눌러 흐름을 따라가 보세요.";
 })();
@@ -711,6 +761,8 @@ function Plane(svg,lo,hi,H,W){
        "f( (g∘h)(x) ) = f( (x−1)² ) = <b>3(x − 1)²</b>",
        "(f ∘ g)(x) = f( g(x) ) = f( x² ) = <b>3x²</b>",
        "(f∘g)( h(x) ) = (f∘g)( x−1 ) = <b>3(x − 1)²</b>"],
+     c2:"3(x − 1)²", w2:["(3x − 3)²","3x² − 1"],
+     c4:"3(x − 1)²", w4:["3x² − 1","(3x − 1)²"],
      both:"3(x − 1)²"},
     {name:"학습지 ◑ 추가 문제", fs:"f(x) = x − 1", gs:"g(x) = −x² + 1", hs:"h(x) = 3x",
      steps:[
@@ -718,24 +770,33 @@ function Plane(svg,lo,hi,H,W){
        "f( (g∘h)(x) ) = f( −9x² + 1 ) = (−9x² + 1) − 1 = <b>−9x²</b>",
        "(f ∘ g)(x) = f( g(x) ) = f( −x² + 1 ) = (−x² + 1) − 1 = <b>−x²</b>",
        "(f∘g)( h(x) ) = (f∘g)( 3x ) = −(3x)² = <b>−9x²</b>"],
+     c2:"−9x²", w2:["−9x² + 1","−3x²"],
+     c4:"−9x²", w4:["−3x²","−9x² − 1"],
      both:"−9x²"}
   ];
   var cur=SETS[0];
-  function steps(S){
-    return [
-      {t:"① g ∘ h 부터", s:S.steps[0]},
-      {t:"② f ∘ (g ∘ h)", s:S.steps[1]},
-      {t:"③ f ∘ g 부터", s:S.steps[2]},
-      {t:"④ (f ∘ g) ∘ h", s:S.steps[3]},
-      {t:"⑤ 비교", s:"② <b>"+S.both+"</b><br>④ <b>"+S.both+"</b><br><br>✅ <b>같습니다!</b><br><br>괄호를 어디에 넣든 결과가 같습니다."}
-    ];
-  }
   function load(S){
     cur=S;
     head.innerHTML="<b>"+S.fs+"</b>, &nbsp;<b>"+S.gs+"</b>, &nbsp;<b>"+S.hs+"</b>"+
       "<br><span style='font-size:13px;font-weight:600;color:#71717a'>"+S.name+"</span>";
     while(box.firstChild)box.removeChild(box.firstChild);
-    btnset(box, steps(S), function(it){ro.innerHTML=it.s;}, true);
+    var ST=[{},{},{},{},{}];
+    var items=[
+      {t:"① g ∘ h 부터", s:S.steps[0], i:0},
+      {t:"② f ∘ (g ∘ h)", s:S.steps[1], i:1,
+       q:"① 의 결과에 f 를 적용하면 어떤 식이 될까요?", right:S.c2, wrong:S.w2},
+      {t:"③ f ∘ g 부터", s:S.steps[2], i:2},
+      {t:"④ (f ∘ g) ∘ h", s:S.steps[3], i:3,
+       q:"이번엔 h 를 <b>나중</b>에 넣습니다. 어떤 식이 될까요?", right:S.c4, wrong:S.w4},
+      {t:"⑤ 비교", s:"② <b>"+S.both+"</b><br>④ <b>"+S.both+"</b><br><br>✅ <b>같습니다!</b><br><br>괄호를 어디에 넣든 결과가 같습니다.", i:4}
+    ];
+    btnset(box, items, function(it){
+      if(!it.right){ ro.innerHTML=it.s; return; }
+      gate(ro,{state:ST[it.i],q:it.q,
+        choices:mix(it.right,it.wrong,it.i,
+          "안쪽 식을 <b>괄호째로</b> 바깥 함수의 x 자리에 넣어 보세요."),
+        answer:it.s});
+    }, true);
     ro.innerHTML="①~⑤ 를 차례로 눌러 보세요.<br><span class='hint'>"+S.fs+", "+S.gs+", "+S.hs+"</span>";
   }
   var sb=[];

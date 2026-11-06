@@ -49,6 +49,11 @@
     padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
   .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
   .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  /* 답을 바로 보여 주지 않는 장치 — 한 번 더 골라야 열린다 */
+  .gq{margin:10px 0 0;font-weight:800;font-size:13px;color:#3f3f46;line-height:1.5}
+  .gb{margin-top:6px}
+  .gm{margin-top:6px;font-size:12.5px;line-height:1.55}
+  .gno{color:#b91c1c;font-weight:600}
   .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
   .slider input{width:100%}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
@@ -528,6 +533,45 @@ function btnset(box,items,onPick,wide){
   });
   return bs;
 }
+
+/* 보기 순서 섞기 — 정답이 늘 첫 칸에 오지 않게 한다.
+   mix(정답, [오답들], 자리번호, 틀렸을 때 한마디) */
+function mix(right,wrongs,seed,no){
+  var a=[{t:right,ok:true}];
+  wrongs.forEach(function(w){a.push({t:w,ok:false,no:no});});
+  var k=(((seed||0)%a.length)+a.length)%a.length;
+  return a.slice(a.length-k).concat(a.slice(0,a.length-k));
+}
+
+/* ── 생각할 시간을 주는 장치 ───────────────────────────
+   학생이 보기를 한 번 더 고르기 전에는 답을 열지 않는다.
+   gate(target,{head, q, choices:[{t,ok,no}], answer, state, onOpen, no})
+   state 객체를 넘기면 한 번 열어 본 문항은 계속 열린 채로 남는다. */
+function gate(target,cfg){
+  var st=cfg.state||{};
+  function open(){
+    var first=!st.open;                 /* onOpen 안에서 다시 gate 를 불러도 되게 — 무한 재귀 막기 */
+    st.open=1;
+    target.innerHTML=(cfg.head||"")+cfg.answer;
+    if(cfg.onOpen&&first)cfg.onOpen();
+  }
+  if(st.open){open();return;}
+  target.innerHTML=(cfg.head||"")+
+    '<div class="gq">'+(cfg.q||"먼저 스스로 판단해 보세요.")+'</div>'+
+    '<div class="gb"></div><div class="gm"></div>';
+  var box=target.querySelector(".gb"),msg=target.querySelector(".gm");
+  cfg.choices.forEach(function(c){
+    var b=document.createElement("button");
+    b.className="judge";b.innerHTML=c.t;
+    b.onclick=function(){
+      if(c.ok){open();return;}
+      [].slice.call(box.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+      b.className="judge no";
+      msg.innerHTML="<span class='gno'>"+(c.no||cfg.no||"아직 아닙니다. 다시 한 번 살펴보세요.")+"</span>";
+    };
+    box.appendChild(b);
+  });
+}
 function num(v,d){d=(d===undefined?2:d);return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toString();}
 function Plane(svg,lo,hi,H,W){
   H=H||340;W=W||400;
@@ -674,7 +718,7 @@ function drawMap(svg,X,Y,arrows,opt){
 
 /* ── 화면4 : 역함수 탐구 ────────────────────────────── */
 (function(){
-  var svg=document.getElementById("v4"),ro=document.getElementById("r4");
+  var svg=document.getElementById("v4"),ro=document.getElementById("r4"),ST={};
   var X=["a","b","c","d"],Y=["1","2","3","4"];
   var F={a:"4",b:"2",c:"3",d:"1"};
   var AR=X.map(function(v){return [v,F[v]];});
@@ -682,6 +726,9 @@ function drawMap(svg,X,Y,arrows,opt){
     drawMap(svg,X,Y,AR.map(function(a){
       var on=(a[0]===hi);
       return [a[0],a[1],on?(color||"#2563eb"):"#e4e4e7",on?!!back:false];}),{});
+  }
+  function blank(){
+    drawMap(svg,X,Y,AR.map(function(a){return [a[0],a[1],"#cbd5e1",false];}),{});
   }
   btnset(document.getElementById("b4"),
     X.map(function(v){return {t:"f("+v+")",v:v,back:false};})
@@ -691,14 +738,21 @@ function drawMap(svg,X,Y,arrows,opt){
         base(it.v,false,"#2563eb");
         ro.innerHTML="<b>f("+it.v+") = "+F[it.v]+"</b><br><br>"+
           "X 에서 Y 로 가는 화살표입니다.<br><br><span class='hint'>거꾸로 읽으면 f⁻¹("+F[it.v]+") = "+it.v+"</span>";
-      } else {
-        var src=X.filter(function(v){return F[v]===it.y;})[0];
-        base(src,true,"#059669");
-        ro.innerHTML="<b>f⁻¹("+it.y+") = "+src+"</b><br><br>"+
-          "Y 에서 X 로 <b>거꾸로</b> 갑니다.<br><br><span class='hint'>f("+src+") = "+it.y+" 였으니까요.</span>";
+        return;
       }
+      var src=X.filter(function(v){return F[v]===it.y;})[0];
+      var key="i"+it.y;
+      ST[key]=ST[key]||{};
+      if(!ST[key].open) blank();
+      gate(ro,{state:ST[key],head:"<b>f⁻¹("+it.y+")</b><br><br>",
+        q:"X 의 어느 원소에서 출발했을까요? 먼저 골라 보세요.",
+        choices:X.map(function(v){return {t:v,ok:(v===src),
+          no:"f("+v+") = "+F[v]+" 입니다. <b>"+it.y+"</b> 로 가는 화살표를 찾으세요."};}),
+        answer:"= <b>"+src+"</b><br><br>Y 에서 X 로 <b>거꾸로</b> 갑니다.<br><br>"+
+          "<span class='hint'>f("+src+") = "+it.y+" 였으니까요.</span>",
+        onOpen:function(){base(src,true,"#059669");}});
     });
-  drawMap(svg,X,Y,AR.map(function(a){return [a[0],a[1],"#cbd5e1",false];}),{});
+  blank();
   ro.innerHTML="버튼을 눌러 화살표를 따라가 보세요.";
 })();
 
@@ -707,34 +761,53 @@ function drawMap(svg,X,Y,arrows,opt){
   var ro=document.getElementById("r5");
   var FN=[
     {t:"y = 3x + 2",s2:"x = (y − 2) / 3",s3:"y = (x − 2) / 3",
-     n:"= ⅓x − ⅔ &nbsp;<span class='hint'>학습지의 예시와 같습니다.</span>"},
-    {t:"y = 2x − 3",s2:"x = (y + 3) / 2",s3:"y = (x + 3) / 2",n:"= ½x + 3/2"},
+     alt:["y = (x + 2) / 3","y = 3x − 2"],
+     n:"= ⅓x − ⅔ &nbsp;<span class='hint'>학습지의 예시와 같습니다.</span>",st:{}},
+    {t:"y = 2x − 3",s2:"x = (y + 3) / 2",s3:"y = (x + 3) / 2",
+     alt:["y = (x − 3) / 2","y = 2x + 3"],n:"= ½x + 3/2",st:{}},
     {t:"y = −x",s2:"x = −y",s3:"y = −x",
-     n:"<b>자기 자신이 역함수</b> 입니다! 그래프가 y = x 에 대해 자기 자신과 대칭이에요."},
-    {t:"y = ⅓x − 1",s2:"x = 3(y + 1)",s3:"y = 3x + 3",n:"= 3(x + 1)"}
+     alt:["y = x","y = −1/x"],
+     n:"<b>자기 자신이 역함수</b> 입니다! 그래프가 y = x 에 대해 자기 자신과 대칭이에요.",st:{}},
+    {t:"y = ⅓x − 1",s2:"x = 3(y + 1)",s3:"y = 3x + 3",
+     alt:["y = 3x − 3","y = (x + 1) / 3"],n:"= 3(x + 1)",st:{}}
   ];
-  btnset(document.getElementById("b5"),FN.map(function(f){return {t:f.t,f:f};}),function(it){
+  btnset(document.getElementById("b5"),FN.map(function(f,i){f.seed=i;return {t:f.t,f:f};}),function(it){
     var f=it.f;
-    ro.innerHTML="<b>1단계</b> &nbsp;"+f.t+"<br><br>"+
-      "<b>2단계</b> x 에 대하여 풀면<br>&nbsp;&nbsp;"+f.s2+"<br><br>"+
-      "<b>3단계</b> x 와 y 를 바꾸면<br>&nbsp;&nbsp;<b>"+f.s3+"</b><br><br>"+f.n;
+    gate(ro,{state:f.st,head:"<b>1단계</b> &nbsp;"+f.t+"<br><br>",
+      q:"학습지에 구한 역함수를 고르세요.",
+      choices:mix(f.s3,f.alt,f.seed,
+        "<b>x 에 대하여 풀고</b> 나서 <b>x 와 y 를 바꿉니다.</b> 두 단계를 모두 거쳤는지 보세요."),
+      answer:"<b>2단계</b> x 에 대하여 풀면<br>&nbsp;&nbsp;"+f.s2+"<br><br>"+
+        "<b>3단계</b> x 와 y 를 바꾸면<br>&nbsp;&nbsp;<b>"+f.s3+"</b><br><br>"+f.n});
   });
   ro.innerHTML="함수를 눌러 3단계를 따라가 보세요.";
 })();
 
 /* ── 화면6 : 합성함수의 역함수 ──────────────────────── */
 (function(){
-  var ro=document.getElementById("r6");
+  var ro=document.getElementById("r6"),ST=[{},{},{},{}];
   btnset(document.getElementById("b6"),[
-    {t:"① 순서대로 입기",
+    {t:"① 순서대로 입기",i:0,
      s:"양말 f → 신발 g<br><br>합쳐서 <b>g ∘ f</b> 입니다.<br><br><span class='hint'>f 를 먼저 한다는 것에 주의!</span>"},
-    {t:"② 되돌리려면?",
+    {t:"② 되돌리려면?",i:1,
+     q:"벗는 순서를 먼저 골라 보세요. 되돌리는 함수는 무엇일까요?",
+     right:"f⁻¹ ∘ g⁻¹",
+     wrong:["g⁻¹ ∘ f⁻¹","f ∘ g"],
+     no:"<b>신발부터</b> 벗습니다. 합성 표기에서 <b>먼저 하는 것은 오른쪽</b>에 씁니다.",
      s:"먼저 <b>신발을 벗고</b>(g⁻¹) 그다음 <b>양말을 벗습니다</b>(f⁻¹).<br><br>즉 <b>f⁻¹ ∘ g⁻¹</b>"},
-    {t:"③ 신발부터 신으면?",
+    {t:"③ 신발부터 신으면?",i:2,
      s:"양말을 신발 위에 신게 됩니다.<br><br>순서를 지키지 않으면 <b>되돌려지지 않아요.</b>"},
-    {t:"④ 교과서 확인",
+    {t:"④ 교과서 확인",i:3,
+     q:"f(x) = −x + 2, g(x) = 2x − 1 로 직접 계산하면 <b>(g∘f)⁻¹</b> 와 <b>f⁻¹∘g⁻¹</b> 는 어떨까요?",
+     right:"같다",wrong:["다르다"],
+     no:"두 식을 끝까지 계산해 보세요. 정말 다른가요?",
      s:"f(x) = −x + 2, g(x) = 2x − 1 로<br><br>(g∘f)(x) = 2(−x+2) − 1 = <b>−2x + 3</b><br>→ (g∘f)⁻¹(x) = <b>(3 − x)/2</b><br><br>f⁻¹(x) = −x + 2, g⁻¹(x) = (x+1)/2<br>→ (f⁻¹∘g⁻¹)(x) = −(x+1)/2 + 2 = <b>(3 − x)/2</b><br><br>✅ <b>같습니다</b>"}
-  ],function(it){ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s;},true);
+  ],function(it){
+    if(!it.right){ ro.innerHTML="<b>"+it.t+"</b><br><br>"+it.s; return; }
+    gate(ro,{state:ST[it.i],head:"<b>"+it.t+"</b><br><br>",q:it.q,
+      choices:mix(it.right,it.wrong,it.i,it.no),
+      answer:it.s});
+  },true);
   ro.innerHTML="①~④ 를 차례로 눌러 보세요.";
 })();
 
@@ -770,28 +843,35 @@ function drawMap(svg,X,Y,arrows,opt){
   var CASES=[
     {t:"증가 · y = 2x − 1",f:function(x){return 2*x-1;},g:function(x){return 0.5*x+0.5;},
      pts:[[1,1]],inc:true,
-     s:"교점은 <b>(1, 1)</b> 하나 — <b>y = x 위</b>입니다.<br><br>증가함수에서는 언제나 그렇습니다."},
+     s:"교점은 <b>(1, 1)</b> 하나 — <b>y = x 위</b>입니다.<br><br>증가함수에서는 언제나 그렇습니다.",st:{}},
     {t:"증가 · y = ½x + 1",f:function(x){return 0.5*x+1;},g:function(x){return 2*x-2;},
      pts:[[2,2]],inc:true,
-     s:"교점 <b>(2, 2)</b> — 역시 <b>y = x 위</b>."},
+     s:"교점 <b>(2, 2)</b> — 역시 <b>y = x 위</b>.",st:{}},
     {t:"감소 · y = −x³",f:function(x){return -x*x*x;},g:function(x){return -Math.cbrt(x);},
      pts:[[0,0],[1,-1],[-1,1]],inc:false,
-     s:"교점이 <b>세 개</b> 입니다!<br><br>(0, 0) 은 y = x 위지만<br><b>(1, −1)</b> 과 <b>(−1, 1)</b> 은 <b>y = x 밖</b> 입니다.<br><br>⚠ 감소함수에서는 이런 일이 생깁니다."},
+     s:"교점이 <b>세 개</b> 입니다!<br><br>(0, 0) 은 y = x 위지만<br><b>(1, −1)</b> 과 <b>(−1, 1)</b> 은 <b>y = x 밖</b> 입니다.<br><br>⚠ 감소함수에서는 이런 일이 생깁니다.",st:{}},
     {t:"감소 · y = −2x + 3",f:function(x){return -2*x+3;},g:function(x){return (3-x)/2;},
      pts:[[1,1]],inc:false,
-     s:"이 경우는 교점이 (1, 1) 하나뿐입니다.<br><br>감소함수라고 <b>항상</b> 밖에서 만나는 건 아니에요.<br><br>하지만 <b>그럴 수 있다</b> 는 것이 중요합니다."}
+     s:"이 경우는 교점이 (1, 1) 하나뿐입니다.<br><br>감소함수라고 <b>항상</b> 밖에서 만나는 건 아니에요.<br><br>하지만 <b>그럴 수 있다</b> 는 것이 중요합니다.",st:{}}
   ];
   var cur=CASES[0];
   function draw(){
     clear(svg);
     var P=Plane(svg,-3,3,340);P.grid();P.yx();
     P.plot(cur.f,"#2563eb");P.plot(cur.g,"#e11d48");
-    cur.pts.forEach(function(p){
+    if(cur.st.open) cur.pts.forEach(function(p){
       var on=Math.abs(p[0]-p[1])<1e-9;
       P.dot(p[0],p[1],on?"#059669":"#d97706","("+p[0]+", "+p[1]+")");
     });
-    ro.innerHTML="<b>"+cur.t+"</b><br><br>"+cur.s+
-      "<br><br><span class='hint'>초록 = y = x 위,&nbsp; 주황 = y = x 밖</span>";
+    var allOn=cur.pts.every(function(p){return Math.abs(p[0]-p[1])<1e-9;});
+    gate(ro,{state:cur.st,head:"<b>"+cur.t+"</b><br><br>",
+      q:"먼저 골라 보세요 — 두 그래프의 교점은 어디에 있을까요?",
+      choices:[{t:"모두 y = x 위에 있다",ok:allOn,
+                no:"두 곡선을 눈으로 따라가 보세요. <b>y = x 에서 벗어난</b> 교점도 보이지 않나요?"},
+               {t:"y = x 밖에도 있다",ok:!allOn,
+                no:"이 경우에는 벗어난 교점이 없습니다. 교점을 다시 세어 보세요."}],
+      answer:cur.s+"<br><br><span class='hint'>초록 = y = x 위,&nbsp; 주황 = y = x 밖</span>",
+      onOpen:draw});
   }
   btnset(document.getElementById("b8"),CASES.map(function(c){return {t:c.t,c:c};}),
     function(it){cur=it.c;draw();});
@@ -803,11 +883,11 @@ function drawMap(svg,X,Y,arrows,opt){
   var svg=document.getElementById("v9"),ro=document.getElementById("r9");
   var CASES=[
     {t:"실수 전체",dom:[-3,3],inv:null,
-     s:"<b>일대일대응이 아닙니다.</b><br><br>−1 과 1 이 모두 1 로 갑니다.<br>가로선 y = 1 이 <b>두 점</b>에서 만나요.<br><br>→ <b>역함수가 없습니다.</b>"},
+     s:"<b>일대일대응이 아닙니다.</b><br><br>−1 과 1 이 모두 1 로 갑니다.<br>가로선 y = 1 이 <b>두 점</b>에서 만나요.<br><br>→ <b>역함수가 없습니다.</b>",st:{}},
     {t:"x ≥ 0 (오른쪽 반)",dom:[0,3],inv:function(x){return Math.sqrt(x);},invs:"y = √x",
-     s:"오른쪽 반만 쓰면 <b>일대일대응</b> 입니다.<br><br>치역은 y ≥ 0.<br><br>역함수는 <b>y = √x</b><br><br><span class='hint'>y = x 에 대칭시킨 모양이죠.</span>"},
+     s:"오른쪽 반만 쓰면 <b>일대일대응</b> 입니다.<br><br>치역은 y ≥ 0.<br><br>역함수는 <b>y = √x</b><br><br><span class='hint'>y = x 에 대칭시킨 모양이죠.</span>",st:{}},
     {t:"x ≤ 0 (왼쪽 반)",dom:[-3,0],inv:function(x){return -Math.sqrt(x);},invs:"y = −√x",
-     s:"왼쪽 반도 <b>일대일대응</b> 입니다.<br><br>치역은 역시 y ≥ 0.<br><br>역함수는 <b>y = −√x</b><br><br><span class='hint'>아래로 눕은 모양입니다.</span>"}
+     s:"왼쪽 반도 <b>일대일대응</b> 입니다.<br><br>치역은 역시 y ≥ 0.<br><br>역함수는 <b>y = −√x</b><br><br><span class='hint'>아래로 눕은 모양입니다.</span>",st:{}}
   ];
   var cur=CASES[0];
   function draw(){
@@ -815,13 +895,21 @@ function drawMap(svg,X,Y,arrows,opt){
     var P=Plane(svg,-3,4,340);P.grid();P.yx();
     P.plot(function(x){return x*x;},"#e4e4e7",[-3,3],2);       // 원래 전체
     P.plot(function(x){return x*x;},"#2563eb",cur.dom);
-    if(cur.inv)P.plot(cur.inv,"#e11d48",[0,4]);
-    if(!cur.inv){
-      svg.appendChild(el("line",{x1:P.px(-3),y1:P.py(1),x2:P.px(4),y2:P.py(1),
-        stroke:"#d97706","stroke-width":1.8,"stroke-dasharray":"5 4"}));
-      P.dot(-1,1,"#d97706");P.dot(1,1,"#d97706");
+    if(cur.st.open){
+      if(cur.inv)P.plot(cur.inv,"#e11d48",[0,4]);
+      else{
+        svg.appendChild(el("line",{x1:P.px(-3),y1:P.py(1),x2:P.px(4),y2:P.py(1),
+          stroke:"#d97706","stroke-width":1.8,"stroke-dasharray":"5 4"}));
+        P.dot(-1,1,"#d97706");P.dot(1,1,"#d97706");
+      }
     }
-    ro.innerHTML="<b>정의역 : "+cur.t+"</b><br><br>"+cur.s;
+    gate(ro,{state:cur.st,head:"<b>정의역 : "+cur.t+"</b><br><br>",
+      q:"먼저 골라 보세요 — 이 정의역에서는 <b>일대일대응</b>일까요?",
+      choices:[{t:"일대일대응이다 (역함수가 있다)",ok:!!cur.inv,
+                no:"가로선을 하나 그어 보세요. <b>두 점</b>에서 만나는 곳이 있지 않나요?"},
+               {t:"아니다 (역함수가 없다)",ok:!cur.inv,
+                no:"이 범위에서는 가로선이 한 점에서만 만납니다. 다시 보세요."}],
+      answer:cur.s,onOpen:draw});
   }
   btnset(document.getElementById("b9"),CASES.map(function(c){return {t:c.t,c:c};}),
     function(it){cur=it.c;draw();});

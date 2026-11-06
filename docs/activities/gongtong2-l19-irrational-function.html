@@ -49,6 +49,11 @@
     padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
   .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
   .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  /* 답을 바로 보여 주지 않는 장치 — 한 번 더 골라야 열린다 */
+  .gq{margin:10px 0 0;font-weight:800;font-size:13px;color:#3f3f46;line-height:1.5}
+  .gb{margin-top:6px}
+  .gm{margin-top:6px;font-size:12.5px;line-height:1.55}
+  .gno{color:#b91c1c;font-weight:600}
   .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
   .slider input{width:100%}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
@@ -581,6 +586,45 @@ function btnset(box,items,onPick,wide){
   });
   return bs;
 }
+
+/* 보기 순서 섞기 — 정답이 늘 첫 칸에 오지 않게 한다.
+   mix(정답, [오답들], 자리번호, 틀렸을 때 한마디) */
+function mix(right,wrongs,seed,no){
+  var a=[{t:right,ok:true}];
+  wrongs.forEach(function(w){a.push({t:w,ok:false,no:no});});
+  var k=(((seed||0)%a.length)+a.length)%a.length;
+  return a.slice(a.length-k).concat(a.slice(0,a.length-k));
+}
+
+/* ── 생각할 시간을 주는 장치 ───────────────────────────
+   학생이 보기를 한 번 더 고르기 전에는 답을 열지 않는다.
+   gate(target,{head, q, choices:[{t,ok,no}], answer, state, onOpen, no})
+   state 객체를 넘기면 한 번 열어 본 문항은 계속 열린 채로 남는다. */
+function gate(target,cfg){
+  var st=cfg.state||{};
+  function open(){
+    var first=!st.open;                 /* onOpen 안에서 다시 gate 를 불러도 되게 — 무한 재귀 막기 */
+    st.open=1;
+    target.innerHTML=(cfg.head||"")+cfg.answer;
+    if(cfg.onOpen&&first)cfg.onOpen();
+  }
+  if(st.open){open();return;}
+  target.innerHTML=(cfg.head||"")+
+    '<div class="gq">'+(cfg.q||"먼저 스스로 판단해 보세요.")+'</div>'+
+    '<div class="gb"></div><div class="gm"></div>';
+  var box=target.querySelector(".gb"),msg=target.querySelector(".gm");
+  cfg.choices.forEach(function(c){
+    var b=document.createElement("button");
+    b.className="judge";b.innerHTML=c.t;
+    b.onclick=function(){
+      if(c.ok){open();return;}
+      [].slice.call(box.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+      b.className="judge no";
+      msg.innerHTML="<span class='gno'>"+(c.no||cfg.no||"아직 아닙니다. 다시 한 번 살펴보세요.")+"</span>";
+    };
+    box.appendChild(b);
+  });
+}
 function num(v,d){d=(d===undefined?2:d);return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toString();}
 function Plane(svg,lo,hi,H,W){
   H=H||340;W=W||400;
@@ -904,18 +948,36 @@ function irr(F,s,a,p,q,color,w,dash){
   var box=document.getElementById("b7"),svg=document.getElementById("g7"),
       ro=document.getElementById("r7"),card=document.getElementById("c7");
   var P=[
-    {n:"(1)",t:"y = √(x+1) − 2",s:1,a:1,p:-1,q:-2,steps:["x + 1 = 1·(x − (−1))","y = √(1(x + 1)) − 2"]},
-    {n:"(2)",t:"y = −√(2−x) + 1",s:-1,a:-1,p:2,q:1,steps:["2 − x = −(x − 2)","y = −√(−(x − 2)) + 1"]},
-    {n:"(3)",t:"y = √(−3x+9) + 1",s:1,a:-3,p:3,q:1,steps:["−3x + 9 = −3(x − 3)","y = √(−3(x − 3)) + 1"]},
-    {n:"(4)",t:"y = −√(2x−2) + 3",s:-1,a:2,p:1,q:3,steps:["2x − 2 = 2(x − 1)","y = −√(2(x − 1)) + 3"]},
-    {n:"(5)",t:"y = √(x/2+1) + 1",s:1,a:0.5,p:-2,q:1,steps:["x/2 + 1 = (1/2)(x + 2)","y = √((1/2)(x + 2)) + 1"]},
-    {n:"(6)",t:"y = √(2x/3+2) + 2",s:1,a:2/3,p:-3,q:2,steps:["2x/3 + 2 = (2/3)(x + 3)","y = √((2/3)(x + 3)) + 2"]}
+    {n:"(1)",t:"y = √(x+1) − 2",s:1,a:1,p:-1,q:-2,steps:["x + 1 = 1·(x − (−1))","y = √(1(x + 1)) − 2"],
+     alt:["x ≥ 1, y ≥ −2","x ≤ −1, y ≥ −2"],
+     no:"근호 안 x + 1 ≥ 0 을 풀어 보세요. x 의 계수가 <b>양수</b>면 오른쪽으로 뻗습니다."},
+    {n:"(2)",t:"y = −√(2−x) + 1",s:-1,a:-1,p:2,q:1,steps:["2 − x = −(x − 2)","y = −√(−(x − 2)) + 1"],
+     alt:["x ≥ 2, y ≤ 1","x ≤ 2, y ≥ 1"],
+     no:"x 의 계수가 <b>음수</b>면 왼쪽으로 뻗습니다. 근호 앞의 − 는 아래로 향하게 합니다."},
+    {n:"(3)",t:"y = √(−3x+9) + 1",s:1,a:-3,p:3,q:1,steps:["−3x + 9 = −3(x − 3)","y = √(−3(x − 3)) + 1"],
+     alt:["x ≥ 3, y ≥ 1","x ≤ −3, y ≥ 1"],
+     no:"−3(x − 3) ≥ 0 → x ≤ 3 입니다. 시작점의 x 는 3 이에요."},
+    {n:"(4)",t:"y = −√(2x−2) + 3",s:-1,a:2,p:1,q:3,steps:["2x − 2 = 2(x − 1)","y = −√(2(x − 1)) + 3"],
+     alt:["x ≥ 1, y ≥ 3","x ≥ 2, y ≤ 3"],
+     no:"2(x − 1) ≥ 0 → x ≥ 1. 근호 앞의 − 때문에 y 는 3 <b>이하</b>입니다."},
+    {n:"(5)",t:"y = √(x/2+1) + 1",s:1,a:0.5,p:-2,q:1,steps:["x/2 + 1 = (1/2)(x + 2)","y = √((1/2)(x + 2)) + 1"],
+     alt:["x ≥ −1, y ≥ 1","x ≤ −2, y ≥ 1"],
+     no:"x/2 + 1 = 0 → x = −2 입니다. 계수 1/2 로 묶어 보세요."},
+    {n:"(6)",t:"y = √(2x/3+2) + 2",s:1,a:2/3,p:-3,q:2,steps:["2x/3 + 2 = (2/3)(x + 3)","y = √((2/3)(x + 3)) + 2"],
+     alt:["x ≥ −2, y ≥ 2","x ≤ −3, y ≥ 2"],
+     no:"2x/3 + 2 = 0 → x = −3 입니다. 계수 2/3 으로 묶어 보세요."}
   ];
+  function label(p){
+    return "x "+(p.a>0?"≥":"≤")+" "+fmt(p.p)+", y "+(p.s>0?"≥":"≤")+" "+fmt(p.q);
+  }
   var cur=null;
   function draw(){
     clear(svg);
-    if(!cur){Frame(svg,-6,6,-6,6,400,340,30).grid(1,1).ticks(2,2);
-      ro.innerHTML="<span class='hint'>번호를 고르세요.</span>";return;}
+    if(!cur||!cur.st.open){
+      Frame(svg,-6,6,-6,6,400,340,30).grid(1,1).ticks(2,2);
+      ro.innerHTML="<span class='hint'>"+(cur?"정의역·치역을 먼저 고르면 그래프가 열립니다.":"번호를 고르세요.")+"</span>";
+      return;
+    }
     var p=cur,F=Frame(svg,p.p-6,p.p+6,p.q-5,p.q+5,400,340,30).grid(1,1).ticks(2,2);
     F.seg(p.p,F.y0,p.p,F.y1,"#fecdd3","5 4");F.seg(F.x0,p.q,F.x1,p.q,"#fecdd3","5 4");
     irr(F,p.s,p.a,p.p,p.q,"#2563eb");
@@ -927,15 +989,21 @@ function irr(F,s,a,p,q,color,w,dash){
   }
   function show(p){
     cur=p;
-    var h="<div class='formula' style='margin:0 0 8px'><span class='mono'>"+p.n+" &nbsp;"+p.t+"</span></div><div class='steps3'>";
-    p.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
-    h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'>"+
+    var body="<div class='steps3'>";
+    p.steps.forEach(function(s,i){body+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
+    body+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'>"+
       "정의역 <b class='mono'>x "+(p.a>0?"≥":"≤")+" "+fmt(p.p)+"</b> &nbsp;·&nbsp; 치역 <b class='mono'>y "+
       (p.s>0?"≥":"≤")+" "+fmt(p.q)+"</b></div>";
-    card.innerHTML=h;draw();
+    gate(card,{state:p.st,
+      head:"<div class='formula' style='margin:0 0 8px'><span class='mono'>"+p.n+" &nbsp;"+p.t+"</span></div>",
+      q:"학습지에 구한 <b>정의역과 치역</b>을 고르세요. 고른 뒤에 그래프가 열립니다.",
+      choices:mix(label(p),p.alt,p.seed,p.no),
+      answer:body,onOpen:draw});
+    draw();
   }
   var bs=[];
-  P.forEach(function(p){
+  P.forEach(function(p,i){
+    p.st={};p.seed=i;
     var b=document.createElement("button");b.className="rb";b.textContent=p.n;
     b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
     box.appendChild(b);bs.push(b);});
@@ -953,33 +1021,45 @@ function irr(F,s,a,p,q,color,w,dash){
      steps:["시작점은 (−3, 1) — a 와 무관합니다.",
             "(−1, 7) 을 대입 : 7 = √(a·2) + 1",
             "√(2a) = 6 → 2a = 36"],
-     ans:"a = 18"},
+     ans:"a = 18",ca:"a = 18",alt:["a = 9","a = 36"],
+     no:"√(2a) = 6 의 <b>양변을 제곱</b>하면 2a = 36 입니다. 2 로 나누는 것을 잊지 마세요."},
     {n:"무리함수 사진전",
      cond:"곡선이 x = 2 에서 시작하고 점 (4, 5) 를 지난다. y = √(ax + b) 의 a, b 는?",
      s:1,a:12.5,p:2,q:0,pt:[4,5],win:[0,8,-1,7],
      steps:["시작점 → 근호 안이 0 : 2a + b = 0",
             "(4, 5) → √(4a + b) = 5 : 4a + b = 25",
             "두 식을 빼면 2a = 25"],
-     ans:"a = 25/2, b = −25 &nbsp;(y = √((25/2)x − 25))"}
+     ans:"a = 25/2, b = −25 &nbsp;(y = √((25/2)x − 25))",
+     ca:"a = 25/2, b = −25",alt:["a = 25/2, b = 25","a = 25, b = −50"],
+     no:"2a + b = 0 이므로 b = −2a 입니다. a 를 구한 뒤 부호를 확인하세요."}
   ];
   var bs=[];
-  P.forEach(function(p){
+  P.forEach(function(p,i){
+    p.st={};p.seed=i;
     var b=document.createElement("button");b.className="rb";b.textContent=p.n;
     b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
     box.appendChild(b);bs.push(b);});
-  function show(p){
+  function blank(){ clear(svg);Frame(svg,-1,8,-1,8,400,320,30).grid(1,1).ticks(2,2); }
+  function curve(p){
     clear(svg);
     var F=Frame(svg,p.win[0],p.win[1],p.win[2],p.win[3],400,320,30).grid(1,1).ticks(2,2);
     F.seg(p.p,F.y0,p.p,F.y1,"#fecdd3","5 4");
     irr(F,p.s,p.a,p.p,p.q,"#2563eb");
     F.dot(p.p,p.q,"#e11d48","시작점",4.5);
     F.dot(p.pt[0],p.pt[1],"#059669","("+fmt(p.pt[0])+", "+fmt(p.pt[1])+")",5.5);
-    var h="<p style='margin:0 0 8px'><b>"+p.n+"</b> — "+p.cond+"</p><div class='steps3'>";
-    p.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
-    h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe;margin-bottom:0'><b class='mono'>"+p.ans+"</b></div>";
-    card.innerHTML=h;
   }
-  clear(svg);Frame(svg,-1,8,-1,8,400,320,30).grid(1,1).ticks(2,2);
+  function show(p){
+    if(!p.st.open) blank();
+    var body="<div class='steps3'>";
+    p.steps.forEach(function(s,i){body+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
+    body+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe;margin-bottom:0'><b class='mono'>"+p.ans+"</b></div>";
+    gate(card,{state:p.st,
+      head:"<p style='margin:0 0 8px'><b>"+p.n+"</b> — "+p.cond+"</p>",
+      q:"학습지에 구한 값을 고르세요. 고른 뒤에 그래프와 풀이가 열립니다.",
+      choices:mix(p.ca,p.alt,p.seed,p.no),
+      answer:body,onOpen:function(){curve(p);}});
+  }
+  blank();
   card.innerHTML="<p class='hint' style='margin:0'>학습지에 먼저 풀고, 버튼을 눌러 확인하세요.</p>";
 })();
 
@@ -1034,18 +1114,27 @@ function irr(F,s,a,p,q,color,w,dash){
       {x:4,L:"√9 = 3",R:"4 − 1 = 3",ok:true}],ans:"x = 4"}
   ];
   var bs=[];
-  P.forEach(function(p){
+  P.forEach(function(p,i){
+    p.st={};p.seed=i;
     var b=document.createElement("button");b.className="rb";b.innerHTML=p.t;
-    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";
-      var h="<div class='formula'><span class='mono'>"+p.t+"</span></div>"+
-        "<p class='mono' style='margin:0 0 8px'>제곱하면 &nbsp;"+p.sq+"</p><table><tr><th>후보</th><th>왼쪽</th><th>오른쪽</th><th>판정</th></tr>";
-      p.roots.forEach(function(r){
-        h+="<tr><td class='mono'>x = "+r.x+"</td><td class='mono'>"+r.L+"</td><td class='mono'>"+r.R+"</td><td>"+
-          (r.ok?"<b style='color:#059669'>✅ 진짜</b>":"<b style='color:#e11d48'>❌ 가짜(무연근)</b>")+"</td></tr>";});
-      h+="</table><div class='formula' style='background:#dcfce7;border-color:#86efac;border-style:solid'>답 <b class='mono'>"+p.ans+"</b></div>"+
-        "<p class='hint' style='margin:6px 0 0'>가짜 해는 모두 <b>오른쪽이 음수</b>였습니다. 왼쪽 √(…) 는 절대 음수가 될 수 없으니까요.</p>";
-      card.innerHTML=h;};
+    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
     box.appendChild(b);bs.push(b);});
+  function show(p){
+    var bad=p.roots.filter(function(r){return !r.ok;})[0];
+    var body="<table><tr><th>후보</th><th>왼쪽</th><th>오른쪽</th><th>판정</th></tr>";
+    p.roots.forEach(function(r){
+      body+="<tr><td class='mono'>x = "+r.x+"</td><td class='mono'>"+r.L+"</td><td class='mono'>"+r.R+"</td><td>"+
+        (r.ok?"<b style='color:#059669'>✅ 진짜</b>":"<b style='color:#e11d48'>❌ 가짜(무연근)</b>")+"</td></tr>";});
+    body+="</table><div class='formula' style='background:#dcfce7;border-color:#86efac;border-style:solid'>답 <b class='mono'>"+p.ans+"</b></div>"+
+      "<p class='hint' style='margin:6px 0 0'>가짜 해는 모두 <b>오른쪽이 음수</b>였습니다. 왼쪽 √(…) 는 절대 음수가 될 수 없으니까요.</p>";
+    gate(card,{state:p.st,
+      head:"<div class='formula'><span class='mono'>"+p.t+"</span></div>"+
+        "<p class='mono' style='margin:0 0 8px'>제곱하면 &nbsp;"+p.sq+"</p>",
+      q:"두 후보 중 <b>진짜 해</b>는 어느 것일까요? 먼저 고르세요.",
+      choices:mix(p.ans,["x = "+bad.x,"둘 다 진짜 해"],p.seed,
+        "두 후보를 <b>원래 식</b>에 넣어 보세요. 왼쪽 √(…) 는 음수가 될 수 없습니다."),
+      answer:body});
+  }
   card.innerHTML="<p class='hint' style='margin:0'>식을 눌러 두 후보를 검산해 보세요.</p>";
 })();
 

@@ -49,6 +49,11 @@
     padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
   .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
   .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  /* 답을 바로 보여 주지 않는 장치 — 한 번 더 골라야 열린다 */
+  .gq{margin:10px 0 0;font-weight:800;font-size:13px;color:#3f3f46;line-height:1.5}
+  .gb{margin-top:6px}
+  .gm{margin-top:6px;font-size:12.5px;line-height:1.55}
+  .gno{color:#b91c1c;font-weight:600}
   /* 화면12 — 학습지 그림 문항을 옮겨 놓은 작은 그림 */
   .mini{width:68px!important;height:68px!important;flex:none;display:inline-block;
     vertical-align:middle;border:1px solid var(--line);border-radius:7px;background:#fff;margin-right:8px}
@@ -622,6 +627,45 @@ function btnset(box,items,onPick,wide){
   return bs;
 }
 
+/* 보기 순서 섞기 — 정답이 늘 첫 칸에 오지 않게 한다.
+   mix(정답, [오답들], 자리번호, 틀렸을 때 한마디) */
+function mix(right,wrongs,seed,no){
+  var a=[{t:right,ok:true}];
+  wrongs.forEach(function(w){a.push({t:w,ok:false,no:no});});
+  var k=(((seed||0)%a.length)+a.length)%a.length;
+  return a.slice(a.length-k).concat(a.slice(0,a.length-k));
+}
+
+/* ── 생각할 시간을 주는 장치 ───────────────────────────
+   학생이 보기를 한 번 더 고르기 전에는 답을 열지 않는다.
+   gate(target,{head, q, choices:[{t,ok,no}], answer, state, onOpen, no})
+   state 객체를 넘기면 한 번 열어 본 문항은 계속 열린 채로 남는다. */
+function gate(target,cfg){
+  var st=cfg.state||{};
+  function open(){
+    var first=!st.open;                 /* onOpen 안에서 다시 gate 를 불러도 되게 — 무한 재귀 막기 */
+    st.open=1;
+    target.innerHTML=(cfg.head||"")+cfg.answer;
+    if(cfg.onOpen&&first)cfg.onOpen();
+  }
+  if(st.open){open();return;}
+  target.innerHTML=(cfg.head||"")+
+    '<div class="gq">'+(cfg.q||"먼저 스스로 판단해 보세요.")+'</div>'+
+    '<div class="gb"></div><div class="gm"></div>';
+  var box=target.querySelector(".gb"),msg=target.querySelector(".gm");
+  cfg.choices.forEach(function(c){
+    var b=document.createElement("button");
+    b.className="judge";b.innerHTML=c.t;
+    b.onclick=function(){
+      if(c.ok){open();return;}
+      [].slice.call(box.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+      b.className="judge no";
+      msg.innerHTML="<span class='gno'>"+(c.no||cfg.no||"아직 아닙니다. 다시 한 번 살펴보세요.")+"</span>";
+    };
+    box.appendChild(b);
+  });
+}
+
 /* ── 로봇 엔진 (기존 로봇 월드 활동에서 그대로 가져옴) ── */
 var N=6, S=400, PAD=24, CELL=(S-2*PAD)/N;
   // 방향: 0 동(+x) 1 북(+y) 2 서(−x) 3 남(−y)
@@ -1102,18 +1146,30 @@ function drawMap(svg,X,Y,arrows,opt){
 
 /* ── 화면8 : A~D 의 세 집합 ─────────────────────────── */
 (function(){
-  var ro=document.getElementById("r8");
+  var ro=document.getElementById("r8"),ST={};
   btnset(document.getElementById("b8"),MAPS.map(function(m){return {t:m.id,m:m};}),function(it){
-    var m=it.m;
-    if(!m.fn){ ro.innerHTML="<b>"+m.title+"</b><br><br><b style='color:#e11d48'>함수가 아니므로</b> 정의역·공역·치역을 말할 수 없습니다.<br><br>"+m.note; return; }
+    var m=it.m, head="<b>"+m.title+"</b><br><br>";
+    ST[m.id]=ST[m.id]||{};
+    if(!m.fn){
+      gate(ro,{state:ST[m.id],head:head,
+        q:"먼저 판단해 보세요 — 이 대응은 <b>함수</b>일까요?",
+        choices:[{t:"함수다",ok:false,no:"출발 쪽 원소마다 짝이 <b>하나씩</b> 있는지 다시 세어 보세요."},
+                 {t:"함수가 아니다",ok:true}],
+        answer:"<b style='color:#e11d48'>함수가 아니므로</b> 정의역·공역·치역을 말할 수 없습니다.<br><br>"+m.note});
+      return;
+    }
     var X=m.pairs.map(function(p){return p[0];});
     var ran=[];m.pairs.forEach(function(p){if(ran.indexOf(p[1])<0)ran.push(p[1]);});
-    ro.innerHTML="<b>"+m.title+"</b><br><br>"+
-      "정의역 <b>{ "+X.join(", ")+" }</b><br><br>"+
-      "공역 <b>{ "+m.Y.join(", ")+" }</b><br><br>"+
-      "치역 <b>{ "+ran.join(", ")+" }</b><br><br>"+
-      (ran.length===m.Y.length?"<span class='hint'>치역 = 공역 입니다.</span>"
-        :"<span class='hint'>치역 ≠ 공역 — 아무도 가지 않은 원소가 있습니다.</span>");
+    var same=(ran.length===m.Y.length);
+    gate(ro,{state:ST[m.id],head:head,
+      q:"함수입니다. 그러면 <b>치역과 공역</b>이 같을까요? 먼저 골라 보세요.",
+      choices:[{t:"치역 = 공역",ok:same,no:"도착 쪽에 <b>아무도 가지 않은 원소</b>가 있는지 보세요."},
+               {t:"치역 ≠ 공역",ok:!same,no:"도착 쪽 원소가 모두 쓰였는지 다시 세어 보세요."}],
+      answer:"정의역 <b>{ "+X.join(", ")+" }</b><br><br>"+
+        "공역 <b>{ "+m.Y.join(", ")+" }</b><br><br>"+
+        "치역 <b>{ "+ran.join(", ")+" }</b><br><br>"+
+        (same?"<span class='hint'>치역 = 공역 입니다.</span>"
+          :"<span class='hint'>치역 ≠ 공역 — 아무도 가지 않은 원소가 있습니다.</span>")});
   });
   ro.innerHTML="A~D 를 눌러 확인해 보세요.";
 })();
@@ -1123,18 +1179,24 @@ function drawMap(svg,X,Y,arrows,opt){
   var svg=document.getElementById("v9"),ro=document.getElementById("r9");
   var X=["1","2","3"],Y=["a","b","c"];
   var CASES=[
-    {t:"①",ar:[["1","a"],["2","b"]],ok:false,why:"3 에 대응하는 것이 <b>없습니다.</b>"},
-    {t:"②",ar:[["1","a"],["2","a"],["2","c"],["3","b"]],ok:false,why:"2 에 <b>a 와 c 둘</b> 이 대응합니다."},
-    {t:"③",ar:[["1","a"],["2","b"],["3","b"]],ok:true,why:"각 원소에 하나씩 — <b>함수</b>. 치역은 { a, b }."},
-    {t:"④",ar:[["1","c"],["2","a"],["3","b"]],ok:true,why:"각 원소에 하나씩 — <b>함수</b>이고 <b>일대일대응</b>."},
-    {t:"⑤",ar:[["1","b"],["2","b"],["3","b"]],ok:true,why:"모두 b 로 — <b>함수</b>. <b>상수함수</b> 입니다."}
+    {t:"①",ar:[["1","a"],["2","b"]],ok:false,why:"3 에 대응하는 것이 <b>없습니다.</b>",st:{}},
+    {t:"②",ar:[["1","a"],["2","a"],["2","c"],["3","b"]],ok:false,why:"2 에 <b>a 와 c 둘</b> 이 대응합니다.",st:{}},
+    {t:"③",ar:[["1","a"],["2","b"],["3","b"]],ok:true,why:"각 원소에 하나씩 — <b>함수</b>. 치역은 { a, b }.",st:{}},
+    {t:"④",ar:[["1","c"],["2","a"],["3","b"]],ok:true,why:"각 원소에 하나씩 — <b>함수</b>이고 <b>일대일대응</b>.",st:{}},
+    {t:"⑤",ar:[["1","b"],["2","b"],["3","b"]],ok:true,why:"모두 b 로 — <b>함수</b>. <b>상수함수</b> 입니다.",st:{}}
   ];
-  btnset(document.getElementById("b9"),CASES.map(function(c){return {t:c.t,c:c};}),function(it){
-    drawMap(svg,X,Y,it.c.ar);
-    ro.innerHTML="<b>"+it.c.t+"</b><br><br>"+
-      (it.c.ok?"<b style='color:#059669'>함수입니다</b>":"<b style='color:#e11d48'>함수가 아닙니다</b>")+
-      "<br><br>"+it.c.why;
-  });
+  var cur=null;
+  function show(c){
+    cur=c;
+    drawMap(svg,X,Y,c.ar);
+    gate(ro,{state:c.st,head:"<b>"+c.t+"</b><br><br>",
+      q:"먼저 판단해 보세요 — <b>함수</b>일까요?",
+      choices:[{t:"함수다",ok:c.ok,no:"출발 쪽 1, 2, 3 에서 화살표가 <b>하나씩</b> 나가는지 세어 보세요."},
+               {t:"함수가 아니다",ok:!c.ok,no:"‘짝이 없다’ 거나 ‘둘 이상이다’ 인 곳이 정말 있나요?"}],
+      answer:(c.ok?"<b style='color:#059669'>함수입니다</b>":"<b style='color:#e11d48'>함수가 아닙니다</b>")+
+        "<br><br>"+c.why});
+  }
+  btnset(document.getElementById("b9"),CASES.map(function(c){return {t:c.t,c:c};}),function(it){show(it.c);});
   drawMap(svg,X,Y,CASES[0].ar);
   ro.innerHTML="①~⑤ 를 눌러 보세요.";
 
@@ -1150,6 +1212,7 @@ function drawMap(svg,X,Y,arrows,opt){
         [].slice.call(cell.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
         b.className="judge "+(right?"ok":"no");
         tr.children[2].innerHTML=right?c.why:"‘하나에 하나씩’ 인지 다시 보세요.";
+        if(right){ c.st.open=1; if(cur===c) show(c); }
         if(right&&!tr.dataset.ok){tr.dataset.ok="1";done++;
           if(done===CASES.length){var W=document.getElementById("w9");W.className="win on";
             W.innerHTML="🎉 다섯 개를 모두 판단했습니다. 함수가 아닌 것은 <b>없거나</b> <b>둘 이상</b> 이었습니다.";}}
@@ -1164,25 +1227,34 @@ function drawMap(svg,X,Y,arrows,opt){
 (function(){
   var ro=document.getElementById("r10");
   var FN=[
-    {t:"A",e:"y = 2x − 5",dom:"{ 1, 2, 3, 4 }",vals:[1,2,3,4].map(function(x){return 2*x-5;}),
-     ran:"{ −3, −1, 1, 3 }"},
-    {t:"B",e:"y = x² + 3",dom:"{ x | x ≥ 1 }",ran:"{ y | y ≥ 4 }",
-     note:"x ≥ 1 이면 x² ≥ 1 이므로 x² + 3 ≥ 4. <b>가장 작은 값은 x = 1 일 때 4</b> 입니다."},
-    {t:"C",e:"f(x) = | x | − 1",dom:"{ −1, 0, 1 }",ran:"{ −1, 0 }",
-     note:"−1 → 0,&nbsp; 0 → −1,&nbsp; 1 → 0"},
-    {t:"D",e:"g(x) = x² − 1",dom:"{ −1, 0, 1 }",ran:"{ −1, 0 }",
-     note:"−1 → 0,&nbsp; 0 → −1,&nbsp; 1 → 0 &nbsp;— <b>C 와 값이 똑같습니다!</b>"},
-    {t:"E",e:"f(x) = | x |",dom:"{ 0, 1 }",ran:"{ 0, 1 }",note:"0 → 0,&nbsp; 1 → 1"},
-    {t:"F",e:"g(x) = x²",dom:"{ 0, 1 }",ran:"{ 0, 1 }",
-     note:"0 → 0,&nbsp; 1 → 1 &nbsp;— <b>E 와 값이 똑같습니다!</b>"}
+    {t:"A",e:"y = 2x − 5",dom:"{ 1, 2, 3, 4 }",
+     ran:"{ −3, −1, 1, 3 }",alt:["{ 1, 2, 3, 4 }","{ y | y ≥ −3 }"],
+     no:"x 에 1, 2, 3, 4 를 <b>하나씩 넣어</b> 나온 값만 모으세요.",st:{}},
+    {t:"B",e:"y = x² + 3",dom:"{ x | x ≥ 1 }",ran:"{ y | y ≥ 4 }",alt:["{ y | y ≥ 3 }","{ y | y ≥ 1 }"],
+     no:"x 가 가장 작을 때(x = 1) 의 <b>함숫값</b>을 구해 보세요.",
+     note:"x ≥ 1 이면 x² ≥ 1 이므로 x² + 3 ≥ 4. <b>가장 작은 값은 x = 1 일 때 4</b> 입니다.",st:{}},
+    {t:"C",e:"f(x) = | x | − 1",dom:"{ −1, 0, 1 }",ran:"{ −1, 0 }",alt:["{ −1, 0, 1 }","{ 0, 1 }"],
+     no:"−1 과 1 의 함숫값이 <b>같습니다.</b> 같은 값은 한 번만 적습니다.",
+     note:"−1 → 0,&nbsp; 0 → −1,&nbsp; 1 → 0",st:{}},
+    {t:"D",e:"g(x) = x² − 1",dom:"{ −1, 0, 1 }",ran:"{ −1, 0 }",alt:["{ 0, 1 }","{ −1, 0, 1 }"],
+     no:"−1 과 1 을 넣으면 둘 다 같은 값이 나옵니다.",
+     note:"−1 → 0,&nbsp; 0 → −1,&nbsp; 1 → 0 &nbsp;— <b>C 와 값이 똑같습니다!</b>",st:{}},
+    {t:"E",e:"f(x) = | x |",dom:"{ 0, 1 }",ran:"{ 0, 1 }",alt:["{ y | y ≥ 0 }","{ 1 }"],
+     no:"정의역이 <b>0 과 1 두 개뿐</b>입니다. 그 두 값만 넣어 보세요.",
+     note:"0 → 0,&nbsp; 1 → 1",st:{}},
+    {t:"F",e:"g(x) = x²",dom:"{ 0, 1 }",ran:"{ 0, 1 }",alt:["{ 1 }","{ y | y ≥ 0 }"],
+     no:"정의역이 { 0, 1 } 이므로 나올 수 있는 값도 두 개뿐입니다.",
+     note:"0 → 0,&nbsp; 1 → 1 &nbsp;— <b>E 와 값이 똑같습니다!</b>",st:{}}
   ];
-  btnset(document.getElementById("b10"),FN.map(function(f){return {t:f.t,f:f};}),function(it){
+  btnset(document.getElementById("b10"),FN.map(function(f,i){f.seed=i;return {t:f.t,f:f};}),function(it){
     var f=it.f;
-    ro.innerHTML="<b>"+f.t+"</b> &nbsp;"+f.e+"<br><br>"+
-      "정의역 <b>"+f.dom+"</b><br><br>치역 <b>"+f.ran+"</b>"+
-      (f.note?"<br><br><span class='hint'>"+f.note+"</span>":"");
+    gate(ro,{state:f.st,
+      head:"<b>"+f.t+"</b> &nbsp;"+f.e+"<br><br>정의역 <b>"+f.dom+"</b><br><br>",
+      q:"치역은 어느 것일까요? 학습지에 구한 답을 고르세요.",
+      choices:mix(f.ran,f.alt,f.seed,f.no),
+      answer:"치역 <b>"+f.ran+"</b>"+(f.note?"<br><br><span class='hint'>"+f.note+"</span>":"")});
   });
-  ro.innerHTML="A~F 를 눌러 치역을 확인해 보세요.";
+  ro.innerHTML="A~F 를 눌러 치역을 구해 보세요.";
 })();
 
 /* ── 그래프 그리기 도우미 ────────────────────────────── */
@@ -1220,11 +1292,11 @@ function Plane(svg,lo,hi,H){
 (function(){
   var svg=document.getElementById("v11"),ro=document.getElementById("r11"),cb=document.getElementById("vl11");
   var G=[
-    {t:"① y = x + 1",f:function(x){return x+1;},ok:true,why:"세로선이 <b>언제나 한 점</b>에서만 만납니다."},
-    {t:"② y = x²",f:function(x){return x*x;},ok:true,why:"세로선이 한 점에서만 만납니다. <b>함수입니다.</b>"},
-    {t:"③ 원 x² + y² = 9",circle:true,ok:false,why:"x = 0 에서 세로선이 <b>두 점</b>(0, 3), (0, −3) 에서 만납니다."},
-    {t:"④ y = | x |",f:function(x){return Math.abs(x);},ok:true,why:"꺾여 있어도 세로선은 한 점에서만 만납니다."},
-    {t:"⑤ x = 2 (세로직선)",vert:true,ok:false,why:"x = 2 에서 <b>무수히 많은 점</b>과 만납니다. 함수가 아닙니다."}
+    {t:"① y = x + 1",f:function(x){return x+1;},ok:true,why:"세로선이 <b>언제나 한 점</b>에서만 만납니다.",st:{}},
+    {t:"② y = x²",f:function(x){return x*x;},ok:true,why:"세로선이 한 점에서만 만납니다. <b>함수입니다.</b>",st:{}},
+    {t:"③ 원 x² + y² = 9",circle:true,ok:false,why:"x = 0 에서 세로선이 <b>두 점</b>(0, 3), (0, −3) 에서 만납니다.",st:{}},
+    {t:"④ y = | x |",f:function(x){return Math.abs(x);},ok:true,why:"꺾여 있어도 세로선은 한 점에서만 만납니다.",st:{}},
+    {t:"⑤ x = 2 (세로직선)",vert:true,ok:false,why:"x = 2 에서 <b>무수히 많은 점</b>과 만납니다. 함수가 아닙니다.",st:{}}
   ];
   var cur=G[0];
   function draw(){
@@ -1240,9 +1312,14 @@ function Plane(svg,lo,hi,H){
       [-3,-1,1,3].forEach(function(x){P.vline(x);});
       if(cur.circle){ P.dot(0,3,"#e11d48"); P.dot(0,-3,"#e11d48"); P.vline(0,"#e11d48"); }
     }
-    ro.innerHTML="<b>"+cur.t+"</b><br><br>"+
-      (cur.ok?"<b style='color:#059669'>함수의 그래프입니다</b>":"<b style='color:#e11d48'>함수의 그래프가 아닙니다</b>")+
-      "<br><br>"+cur.why;
+    gate(ro,{state:cur.st,head:"<b>"+cur.t+"</b><br><br>",
+      q:"먼저 판단해 보세요 — 이것은 <b>함수의 그래프</b>일까요?",
+      choices:[{t:"함수의 그래프다",ok:cur.ok,
+                no:"‘세로선 보기’ 를 켜고, <b>두 점에서 만나는 곳</b>이 있는지 찾아보세요."},
+               {t:"함수의 그래프가 아니다",ok:!cur.ok,
+                no:"세로선을 어디에 그어도 <b>한 점</b>에서만 만나지 않나요?"}],
+      answer:(cur.ok?"<b style='color:#059669'>함수의 그래프입니다</b>":"<b style='color:#e11d48'>함수의 그래프가 아닙니다</b>")+
+        "<br><br>"+cur.why});
   }
   btnset(document.getElementById("b11"),G.map(function(g){return {t:g.t.slice(0,1),g:g};}),
     function(it){cur=it.g;draw();});
@@ -1333,13 +1410,13 @@ function Plane(svg,lo,hi,H){
   var svg=document.getElementById("v13"),ro=document.getElementById("r13"),cb=document.getElementById("hl13");
   var G=[
     {t:"y = 2x",f:function(x){return 2*x;},one:true,onto:true,
-     why:"가로선이 <b>한 점</b>에서만 만납니다 → 일대일함수.<br>공역(실수) = 치역(실수) → <b>일대일대응</b>"},
+     why:"가로선이 <b>한 점</b>에서만 만납니다 → 일대일함수.<br>공역(실수) = 치역(실수) → <b>일대일대응</b>",st:{}},
     {t:"y = x²",f:function(x){return x*x;},one:false,onto:false,
-     why:"가로선 y = 1 이 <b>두 점</b>(−1, 1), (1, 1) 에서 만납니다 → 일대일함수가 아닙니다."},
+     why:"가로선 y = 1 이 <b>두 점</b>(−1, 1), (1, 1) 에서 만납니다 → 일대일함수가 아닙니다.",st:{}},
     {t:"y = | x |",f:function(x){return Math.abs(x);},one:false,onto:false,
-     why:"y = 2 가 두 점에서 만납니다 → 일대일함수가 아닙니다."},
+     why:"y = 2 가 두 점에서 만납니다 → 일대일함수가 아닙니다.",st:{}},
     {t:"y = x³",f:function(x){return x*x*x;},one:true,onto:true,
-     why:"계속 증가하므로 가로선이 한 점에서만 만납니다 → <b>일대일대응</b>"}
+     why:"계속 증가하므로 가로선이 한 점에서만 만납니다 → <b>일대일대응</b>",st:{}}
   ];
   var cur=G[0];
   function draw(){
@@ -1352,9 +1429,14 @@ function Plane(svg,lo,hi,H){
         else {P.dot(-2,2,"#e11d48");P.dot(2,2,"#e11d48");}
       }
     }
-    ro.innerHTML="<b>"+cur.t+"</b><br><br>"+
-      "일대일함수 : <b style='color:"+(cur.one?"#059669":"#e11d48")+"'>"+(cur.one?"○":"×")+"</b><br>"+
-      "일대일대응 : <b style='color:"+(cur.onto?"#059669":"#e11d48")+"'>"+(cur.onto?"○":"×")+"</b><br><br>"+cur.why;
+    var k=(!cur.one?2:(cur.onto?0:1));
+    gate(ro,{state:cur.st,head:"<b>"+cur.t+"</b> &nbsp;<span class='hint'>(정의역·공역은 실수 전체)</span><br><br>",
+      q:"먼저 골라 보세요 — 이 함수는 어디에 들어갈까요?",
+      choices:[{t:"일대일대응이다",ok:k===0,no:"<b>겹치는가</b>(가로선) 와 <b>남는가</b>(치역) 를 차례로 보세요."},
+               {t:"일대일함수이지만 일대일대응은 아니다",ok:k===1,no:"겹치지 않는지, 남지 않는지 둘 다 확인해 보세요."},
+               {t:"일대일함수가 아니다",ok:k===2,no:"가로선을 켜고 <b>두 점에서 만나는 곳</b>이 정말 있는지 보세요."}],
+      answer:"일대일함수 : <b style='color:"+(cur.one?"#059669":"#e11d48")+"'>"+(cur.one?"○":"×")+"</b><br>"+
+        "일대일대응 : <b style='color:"+(cur.onto?"#059669":"#e11d48")+"'>"+(cur.onto?"○":"×")+"</b><br><br>"+cur.why});
   }
   btnset(document.getElementById("b13"),G.map(function(g){return {t:g.t,g:g};}),function(it){cur=it.g;draw();});
   cb.onchange=draw;
@@ -1366,13 +1448,13 @@ function Plane(svg,lo,hi,H){
   var svg=document.getElementById("v14"),ro=document.getElementById("r14");
   var G=[
     {t:"y = x",f:function(x){return x;},k:"항등",
-     why:"모든 x 가 <b>자기 자신</b>으로 갑니다.<br><br>정의역과 공역이 같고 f(x) = x → <b>항등함수</b>"},
+     why:"모든 x 가 <b>자기 자신</b>으로 갑니다.<br><br>정의역과 공역이 같고 f(x) = x → <b>항등함수</b>",st:{}},
     {t:"y = 2",f:function(){return 2;},k:"상수",
-     why:"모든 x 가 <b>2 하나</b>로 갑니다.<br><br>치역 = { 2 } — 원소가 <b>1개</b>인 집합 → <b>상수함수</b>"},
+     why:"모든 x 가 <b>2 하나</b>로 갑니다.<br><br>치역 = { 2 } — 원소가 <b>1개</b>인 집합 → <b>상수함수</b>",st:{}},
     {t:"y = −1",f:function(){return -1;},k:"상수",
-     why:"모든 x 가 −1 로. <b>상수함수</b> 입니다.<br><br>가로로 뻗은 직선이면 모두 상수함수예요."},
+     why:"모든 x 가 −1 로. <b>상수함수</b> 입니다.<br><br>가로로 뻗은 직선이면 모두 상수함수예요.",st:{}},
     {t:"y = x + 1",f:function(x){return x+1;},k:"둘 다 아님",
-     why:"기울기가 1 이지만 <b>f(x) ≠ x</b> 입니다 (f(0) = 1).<br><br>항등함수가 아니고 상수함수도 아닙니다."}
+     why:"기울기가 1 이지만 <b>f(x) ≠ x</b> 입니다 (f(0) = 1).<br><br>항등함수가 아니고 상수함수도 아닙니다.",st:{}}
   ];
   var cur=G[0];
   function draw(){
@@ -1380,8 +1462,13 @@ function Plane(svg,lo,hi,H){
     var P=Plane(svg,-5,5,300);P.grid();
     P.plot(function(x){return x;},"#e4e4e7");   // y = x 참고선
     P.plot(cur.f,"#2563eb");
-    ro.innerHTML="<b>"+cur.t+"</b><br><br>분류 : <b>"+(cur.k==="둘 다 아님"?"둘 다 아님":cur.k+"함수")+"</b><br><br>"+cur.why+
-      "<br><br><span class='hint'>회색은 참고선 y = x 입니다.</span>";
+    gate(ro,{state:cur.st,head:"<b>"+cur.t+"</b><br><br>",
+      q:"먼저 골라 보세요 — 이 함수는 무엇일까요?",
+      choices:[{t:"항등함수",ok:cur.k==="항등",no:"<b>f(x) = x</b> 인지, 즉 넣은 값이 <b>그대로</b> 나오는지 보세요."},
+               {t:"상수함수",ok:cur.k==="상수",no:"모든 x 가 <b>한 값</b>으로만 가는지 보세요."},
+               {t:"둘 다 아니다",ok:cur.k==="둘 다 아님",no:"회색 참고선 y = x 와 겹치나요? 아니면 가로로 뻗었나요?"}],
+      answer:"분류 : <b>"+(cur.k==="둘 다 아님"?"둘 다 아님":cur.k+"함수")+"</b><br><br>"+cur.why+
+        "<br><br><span class='hint'>회색은 참고선 y = x 입니다.</span>"});
   }
   btnset(document.getElementById("b14"),G.map(function(g){return {t:g.t,g:g};}),function(it){cur=it.g;draw();});
   draw();

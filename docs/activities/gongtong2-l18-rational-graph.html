@@ -49,6 +49,11 @@
     padding:5px 10px;border-radius:8px;cursor:pointer;margin:2px 4px 2px 0}
   .judge.ok{background:#dcfce7;border-color:#86efac;color:#065f46}
   .judge.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  /* 답을 바로 보여 주지 않는 장치 — 한 번 더 골라야 열린다 */
+  .gq{margin:10px 0 0;font-weight:800;font-size:13px;color:#3f3f46;line-height:1.5}
+  .gb{margin-top:6px}
+  .gm{margin-top:6px;font-size:12.5px;line-height:1.55}
+  .gno{color:#b91c1c;font-weight:600}
   .slider label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
   .slider input{width:100%}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
@@ -527,6 +532,45 @@ function btnset(box,items,onPick,wide){
   });
   return bs;
 }
+
+/* 보기 순서 섞기 — 정답이 늘 첫 칸에 오지 않게 한다.
+   mix(정답, [오답들], 자리번호, 틀렸을 때 한마디) */
+function mix(right,wrongs,seed,no){
+  var a=[{t:right,ok:true}];
+  wrongs.forEach(function(w){a.push({t:w,ok:false,no:no});});
+  var k=(((seed||0)%a.length)+a.length)%a.length;
+  return a.slice(a.length-k).concat(a.slice(0,a.length-k));
+}
+
+/* ── 생각할 시간을 주는 장치 ───────────────────────────
+   학생이 보기를 한 번 더 고르기 전에는 답을 열지 않는다.
+   gate(target,{head, q, choices:[{t,ok,no}], answer, state, onOpen, no})
+   state 객체를 넘기면 한 번 열어 본 문항은 계속 열린 채로 남는다. */
+function gate(target,cfg){
+  var st=cfg.state||{};
+  function open(){
+    var first=!st.open;                 /* onOpen 안에서 다시 gate 를 불러도 되게 — 무한 재귀 막기 */
+    st.open=1;
+    target.innerHTML=(cfg.head||"")+cfg.answer;
+    if(cfg.onOpen&&first)cfg.onOpen();
+  }
+  if(st.open){open();return;}
+  target.innerHTML=(cfg.head||"")+
+    '<div class="gq">'+(cfg.q||"먼저 스스로 판단해 보세요.")+'</div>'+
+    '<div class="gb"></div><div class="gm"></div>';
+  var box=target.querySelector(".gb"),msg=target.querySelector(".gm");
+  cfg.choices.forEach(function(c){
+    var b=document.createElement("button");
+    b.className="judge";b.innerHTML=c.t;
+    b.onclick=function(){
+      if(c.ok){open();return;}
+      [].slice.call(box.querySelectorAll(".judge")).forEach(function(x){x.className="judge";});
+      b.className="judge no";
+      msg.innerHTML="<span class='gno'>"+(c.no||cfg.no||"아직 아닙니다. 다시 한 번 살펴보세요.")+"</span>";
+    };
+    box.appendChild(b);
+  });
+}
 function num(v,d){d=(d===undefined?2:d);return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toString();}
 function Plane(svg,lo,hi,H,W){
   H=H||340;W=W||400;
@@ -881,18 +925,33 @@ function ratStr(k,p,q){return "y = "+fmt(k)+"/"+den(p)+tail(q);}
   var box=document.getElementById("b7"),svg=document.getElementById("g7"),
       ro=document.getElementById("r7"),card=document.getElementById("c7"),cb=document.getElementById("c7a");
   var P=[
-    {n:"(1)",t:"y = 1/(x+1) − 2",k:1,p:-1,q:-2,steps:["이미 k/(x−p)+q 꼴입니다.","x+1 = x−(−1) 이므로 p = −1"]},
-    {n:"(2)",t:"y = 2/(3−x) + 1",k:-2,p:3,q:1,steps:["분모의 x 앞 부호를 +로 만든다","2/(3−x) = −2/(x−3)","y = −2/(x−3) + 1"]},
-    {n:"(3)",t:"y = (2x+1)/x",k:1,p:0,q:2,steps:["2x+1 = 2·x + 1","y = 2 + 1/x"]},
-    {n:"(4)",t:"y = 2x/(x−1)",k:2,p:1,q:2,steps:["2x = 2(x−1) + 2","y = 2 + 2/(x−1)"]},
-    {n:"(5)",t:"y = (6x+1)/(2x+1)",k:-1,p:-0.5,q:3,steps:["6x+1 = 3(2x+1) − 2","y = 3 − 2/(2x+1)","= 3 − 1/(x + 1/2)"]},
-    {n:"(6)",t:"y = (5−2x)/(x−2)",k:1,p:2,q:-2,steps:["5−2x = −2(x−2) + 1","y = −2 + 1/(x−2)"]}
+    {n:"(1)",t:"y = 1/(x+1) − 2",k:1,p:-1,q:-2,steps:["이미 k/(x−p)+q 꼴입니다.","x+1 = x−(−1) 이므로 p = −1"],
+     alt:["x = 1, y = −2","x = −1, y = 2"],
+     no:"x + 1 = 0 이 되는 x 가 세로 점근선입니다. 부호를 조심하세요."},
+    {n:"(2)",t:"y = 2/(3−x) + 1",k:-2,p:3,q:1,steps:["분모의 x 앞 부호를 +로 만든다","2/(3−x) = −2/(x−3)","y = −2/(x−3) + 1"],
+     alt:["x = −3, y = 1","x = 3, y = −1"],
+     no:"3 − x = 0 → x = 3. 뒤에 더해진 수가 가로 점근선입니다."},
+    {n:"(3)",t:"y = (2x+1)/x",k:1,p:0,q:2,steps:["2x+1 = 2·x + 1","y = 2 + 1/x"],
+     alt:["x = 0, y = 1","x = 2, y = 0"],
+     no:"분자를 쪼개 <b>2 + 1/x</b> 로 만들어 보세요. 남은 상수가 가로 점근선입니다."},
+    {n:"(4)",t:"y = 2x/(x−1)",k:2,p:1,q:2,steps:["2x = 2(x−1) + 2","y = 2 + 2/(x−1)"],
+     alt:["x = 1, y = 0","x = −1, y = 2"],
+     no:"2x = 2(x−1) + 2 로 쪼개면 상수 <b>2</b> 가 남습니다."},
+    {n:"(5)",t:"y = (6x+1)/(2x+1)",k:-1,p:-0.5,q:3,steps:["6x+1 = 3(2x+1) − 2","y = 3 − 2/(2x+1)","= 3 − 1/(x + 1/2)"],
+     alt:["x = −1, y = 3","x = −1/2, y = 6"],
+     no:"2x + 1 = 0 → x = −1/2. 분자·분모의 x 계수 비는 6/2 = 3 입니다."},
+    {n:"(6)",t:"y = (5−2x)/(x−2)",k:1,p:2,q:-2,steps:["5−2x = −2(x−2) + 1","y = −2 + 1/(x−2)"],
+     alt:["x = 2, y = 2","x = 2, y = −5"],
+     no:"5 − 2x = −2(x−2) + 1 — 남는 상수는 <b>−2</b> 입니다."}
   ];
   var cur=null;
   function draw(){
     clear(svg);
-    if(!cur){Frame(svg,-5,5,-5,5,400,340,30).grid(1,1).ticks(1,1);
-      ro.innerHTML="<span class='hint'>번호를 고르세요.</span>";return;}
+    if(!cur||!cur.st.open){
+      Frame(svg,-5,5,-5,5,400,340,30).grid(1,1).ticks(1,1);
+      ro.innerHTML="<span class='hint'>"+(cur?"점근선을 먼저 고르면 그래프가 열립니다.":"번호를 고르세요.")+"</span>";
+      return;
+    }
     var p=cur,F=Frame(svg,p.p-5,p.p+5,p.q-5,p.q+5,400,340,30).grid(1,1).ticks(2,2);
     if(cb.checked){F.vline(p.p,"#e11d48","x = "+fmt(p.p));F.hline(p.q,"#e11d48","y = "+fmt(p.q));}
     rat(F,p.k,p.p,p.q,"#2563eb");
@@ -909,14 +968,20 @@ function ratStr(k,p,q){return "y = "+fmt(k)+"/"+den(p)+tail(q);}
   }
   function show(p){
     cur=p;
-    var h="<div class='formula' style='margin:0 0 8px'><span class='mono'>"+p.n+" &nbsp;"+p.t+"</span></div><div class='steps3'>";
-    p.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
-    h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'>"+
+    var body="<div class='steps3'>";
+    p.steps.forEach(function(s,i){body+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
+    body+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'>"+
       "<b class='mono'>"+ratStr(p.k,p.p,p.q)+"</b><br>점근선 <b class='mono'>x = "+fmt(p.p)+", y = "+fmt(p.q)+"</b></div>";
-    card.innerHTML=h;draw();
+    gate(card,{state:p.st,
+      head:"<div class='formula' style='margin:0 0 8px'><span class='mono'>"+p.n+" &nbsp;"+p.t+"</span></div>",
+      q:"학습지에 구한 <b>점근선</b>을 고르세요. 고른 뒤에 그래프와 풀이가 열립니다.",
+      choices:mix("x = "+fmt(p.p)+", y = "+fmt(p.q),p.alt,p.seed,p.no),
+      answer:body,onOpen:draw});
+    draw();
   }
   var bs=[];
-  P.forEach(function(p){
+  P.forEach(function(p,i){
+    p.st={};p.seed=i;
     var b=document.createElement("button");b.className="rb";b.textContent=p.n;
     b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
     box.appendChild(b);bs.push(b);
@@ -934,38 +999,53 @@ function ratStr(k,p,q){return "y = "+fmt(k)+"/"+den(p)+tail(q);}
      steps:["점근선이 x = 1, y = −2 → <b>y = k/(x−1) − 2</b> 로 놓는다",
             "원점 (0, 0) 을 대입 : 0 = k/(0−1) − 2",
             "−k − 2 = 0 → <b>k = −2</b>"],
-     a:"y = −2/(x−1) − 2 &nbsp;=&nbsp; −2x/(x−1)"},
+     a:"y = −2/(x−1) − 2 &nbsp;=&nbsp; −2x/(x−1)",
+     ca:"k = −2",alt:["k = 2","k = −1/2"],
+     no:"0 = k/(0−1) − 2 를 k 에 대하여 풀어 보세요. 0 − 1 = −1 입니다."},
     {n:"(8)",cond:"(2, −2) 에 대칭이고 (3, 3) 을 지남",k:5,p:2,q:-2,pt:[3,3],
      steps:["<b>대칭의 중심 = 점근선의 교점</b> → x = 2, y = −2",
             "<b>y = k/(x−2) − 2</b> 로 놓는다",
             "(3, 3) 을 대입 : 3 = k/1 − 2 → <b>k = 5</b>"],
-     a:"y = 5/(x−2) − 2 &nbsp;=&nbsp; (9 − 2x)/(x−2)"},
+     a:"y = 5/(x−2) − 2 &nbsp;=&nbsp; (9 − 2x)/(x−2)",
+     ca:"k = 5",alt:["k = 1","k = −5"],
+     no:"3 = k/(3−2) − 2 → 3 = k − 2 입니다. 양변에 2 를 더해 보세요."},
     {n:"➕",cond:"교과서 129쪽 3번 — 점근선 x = 1, y = 2 이고 (0, 1) 을 지나는 y = (ax+b)/(x+c)",
      k:1,p:1,q:2,pt:[0,1],
      steps:["점근선 x = 1 → x + c = 0 이 x = 1 → <b>c = −1</b>",
             "점근선 y = 2 → 분자·분모의 x 계수 비 → <b>a = 2</b>",
             "(0, 1) 대입 : (0 + b)/(0 − 1) = 1 → <b>b = −1</b>"],
-     a:"y = (2x − 1)/(x − 1) &nbsp;=&nbsp; 1/(x−1) + 2 &nbsp;&nbsp;(a=2, b=−1, c=−1)"}
+     a:"y = (2x − 1)/(x − 1) &nbsp;=&nbsp; 1/(x−1) + 2 &nbsp;&nbsp;(a=2, b=−1, c=−1)",
+     ca:"a = 2, b = −1, c = −1",alt:["a = 2, b = 1, c = −1","a = 1, b = −1, c = 1"],
+     no:"x + c = 0 이 x = 1 이려면 c 는 −1 입니다. 그다음 (0, 1) 을 대입해 b 를 구하세요."}
   ];
   var bs=[];
-  P.forEach(function(p){
+  P.forEach(function(p,i){
+    p.st={};p.seed=i;
     var b=document.createElement("button");b.className="rb";b.textContent=p.n;
     b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";show(p);};
     box.appendChild(b);bs.push(b);
   });
-  function show(p){
+  function blank(){ clear(svg);Frame(svg,-5,5,-5,5,400,340,30).grid(1,1).ticks(1,1); }
+  function curve(p){
     clear(svg);
     var F=Frame(svg,p.p-5,p.p+5,p.q-5,p.q+5,400,340,30).grid(1,1).ticks(2,2);
     F.vline(p.p,"#e11d48","x = "+fmt(p.p));F.hline(p.q,"#e11d48","y = "+fmt(p.q));
     rat(F,p.k,p.p,p.q,"#2563eb");
     F.dot(p.p,p.q,"#e11d48",null,4);
     F.dot(p.pt[0],p.pt[1],"#059669","("+fmt(p.pt[0])+", "+fmt(p.pt[1])+")",5.5);
-    var h="<p style='margin:0 0 8px'><b>"+p.n+"</b> "+p.cond+"</p><div class='steps3'>";
-    p.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div>"+s+"</div></div>";});
-    h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe;margin-bottom:0'><b class='mono'>"+p.a+"</b></div>";
-    card.innerHTML=h;
   }
-  clear(svg);Frame(svg,-5,5,-5,5,400,340,30).grid(1,1).ticks(1,1);
+  function show(p){
+    if(!p.st.open) blank();
+    var body="<div class='steps3'>";
+    p.steps.forEach(function(s,i){body+="<div class='st'><div class='n'>"+(i+1)+"</div><div>"+s+"</div></div>";});
+    body+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe;margin-bottom:0'><b class='mono'>"+p.a+"</b></div>";
+    gate(card,{state:p.st,
+      head:"<p style='margin:0 0 8px'><b>"+p.n+"</b> "+p.cond+"</p>",
+      q:"학습지에서 구한 값을 고르세요. 고른 뒤에 그래프와 풀이가 열립니다.",
+      choices:mix(p.ca,p.alt,p.seed,p.no),
+      answer:body,onOpen:function(){curve(p);}});
+  }
+  blank();
   card.innerHTML="<p class='hint' style='margin:0'>학습지에 먼저 풀고, 번호를 눌러 확인하세요.</p>";
 })();
 
@@ -973,6 +1053,7 @@ function ratStr(k,p,q){return "y = "+fmt(k)+"/"+den(p)+tail(q);}
 (function(){
   var box=document.getElementById("b9"),card=document.getElementById("c9"),
       svg=document.getElementById("g9"),ro=document.getElementById("r9");
+  var ST={};
   var M=[
     {t:"방법 ① x, y 를 바꾸기",steps:[
       "y = (2x+3)/(x+1) 에서 x 와 y 를 바꾼다 → x = (2y+3)/(y+1)",
@@ -1001,25 +1082,39 @@ function ratStr(k,p,q){return "y = "+fmt(k)+"/"+den(p)+tail(q);}
     var F=Frame(svg,-6,6,-6,6,400,340,30).grid(1,1).ticks(2,2);
     F.yx();
     F.vline(-1,"#bfdbfe",null);F.hline(2,"#bfdbfe",null);
-    F.vline(2,"#fecdd3",null);F.hline(-1,"#fecdd3",null);
     rat(F,1,-1,2,"#2563eb");
-    rat(F,1,2,-1,"#e11d48");
-    F.dot(-1,2,"#2563eb",null,4);F.dot(2,-1,"#e11d48",null,4);
+    F.dot(-1,2,"#2563eb",null,4);
     txt(svg,F.px(4.4),F.py(3.6),"f",{size:13,fill:"#2563eb"});
+    if(!ST.open){
+      ro.innerHTML="<b style='color:#2563eb'>f : y = (2x+3)/(x+1) = 1/(x+1) + 2</b><br>점근선 x = −1, y = 2<br><br>"+
+        "<span class='hint'>역함수를 먼저 구해 보세요. 답을 고르면 f⁻¹ 의 그래프가 함께 열립니다.</span>";
+      return;
+    }
+    F.vline(2,"#fecdd3",null);F.hline(-1,"#fecdd3",null);
+    rat(F,1,2,-1,"#e11d48");
+    F.dot(2,-1,"#e11d48",null,4);
     txt(svg,F.px(4.6),F.py(0.4),"f⁻¹",{size:13,fill:"#e11d48"});
     ro.innerHTML="<b style='color:#2563eb'>f : y = 1/(x+1) + 2</b><br>점근선 x = −1, y = 2<br><br>"+
       "<b style='color:#e11d48'>f⁻¹ : y = 1/(x−2) − 1</b><br>점근선 x = 2, y = −1<br><br>"+
       "<span class='hint'>점 <b>(−1, 2)</b> 가 <b>(2, −1)</b> 로 — 좌표가 그대로 뒤바뀌었습니다.</span>";
   }
   var bs=[];
-  M.forEach(function(m){
+  M.forEach(function(m,i){
     var b=document.createElement("button");b.className="rb";b.textContent=m.t;
-    b.onclick=function(){bs.forEach(function(x){x.className="rb";});b.className="rb on";
-      var h="<div class='steps3'>";
-      m.steps.forEach(function(s,i){h+="<div class='st'><div class='n'>"+(i+1)+"</div><div class='mono'>"+s+"</div></div>";});
-      h+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'><b class='mono'>"+m.a+"</b></div>"+
+    b.onclick=function(){
+      bs.forEach(function(x){x.className="rb";});b.className="rb on";
+      var body="<div class='steps3'>";
+      m.steps.forEach(function(s,j){body+="<div class='st'><div class='n'>"+(j+1)+"</div><div class='mono'>"+s+"</div></div>";});
+      body+="</div><div class='formula' style='background:#eff6ff;border-style:solid;border-color:#bfdbfe'><b class='mono'>"+m.a+"</b></div>"+
         "<p class='hint' style='margin:6px 0 0'>💡 "+m.note+"</p>";
-      card.innerHTML=h;};
+      gate(card,{state:ST,
+        head:"<p style='margin:0 0 8px'><b>"+m.t+"</b></p>",
+        q:"먼저 답을 고르세요 — <b>f(x) = (2x+3)/(x+1)</b> 의 역함수는?",
+        choices:mix("y = (3 − x)/(x − 2)",
+          ["y = (x + 1)/(2x + 3)","y = (2x + 3)/(x + 1)"],1,
+          "역함수는 <b>분수를 뒤집는 것</b>이 아닙니다. x 와 y 를 바꾸고 y 에 대하여 풀어 보세요."),
+        answer:body,onOpen:draw});
+    };
     box.appendChild(b);bs.push(b);
   });
   card.innerHTML="<p class='hint' style='margin:0'>학습지에 먼저 두 방법을 적어 보고, 버튼을 누르세요.</p>";

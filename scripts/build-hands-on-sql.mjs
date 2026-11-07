@@ -25,6 +25,39 @@ export const HANDS_ON = [
     order_index: 1,
     height: 660,
   },
+  {
+    slug: "calc2-sequence-band",
+    file: "content/hands-on/calc2-sequence-band.html",
+    title: "띠 안에 가두기 — 수열은 어디로 다가갈까",
+    summary:
+      "수열의 점들 위에 '가로 띠'를 직접 끌어 놓고 좁혀 보며, 어떤 값 L 둘레의 띠 안에 결국 모든 항이 들어오는지로 수렴과 발산을 판정해 본다.",
+    topic: "미적분Ⅱ · 수열의 극한",
+    school_level: "high",
+    order_index: 1,
+    height: 660,
+  },
+  {
+    slug: "calc2-limit-assembler",
+    file: "content/hands-on/calc2-limit-assembler.html",
+    title: "극한 조립기 — 수렴하는 수열을 더하고 곱하고 나누면",
+    summary:
+      "수열 카드 두 장을 연산 기계에 끼워 넣어 합·차·실수배·곱·몫의 극한이 각 극한의 합·차·실수배·곱·몫이 되는지 확인하고, ∞/∞ 꼴은 분모의 최고차항으로 나누어 '수렴하는 조각'으로 쪼갠 뒤 조립해 본다.",
+    topic: "미적분Ⅱ · 수열의 극한",
+    school_level: "high",
+    order_index: 2,
+    height: 660,
+  },
+  {
+    slug: "calc2-ratio-map",
+    file: "content/hands-on/calc2-ratio-map.html",
+    title: "공비 지도 칠하기 — rⁿ은 어디로 갈까",
+    summary:
+      "수직선 위의 공비 r을 손으로 끌어 막대가 r배씩 늘고 줄고 뒤집히는 모습을 보고, 시험한 r마다 수직선에 결과를 칠해 등비수열 rⁿ의 수렴·발산 지도를 직접 완성한다.",
+    topic: "미적분Ⅱ · 수열의 극한",
+    school_level: "high",
+    order_index: 3,
+    height: 660,
+  },
 ];
 
 const TAG = "$hands_on$";

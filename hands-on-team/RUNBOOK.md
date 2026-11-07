@@ -53,7 +53,16 @@
 ## 4. 밤 실행의 마무리 (메시지 보내지 않음)
 - 실패·중단도 조용히 넘기지 말고 `hands-on-team/log/runs.md` 끝에 한 줄 남겨 커밋한다:
   `- 2026-11-08T00:00+09:00 · <id> · <결과: awaiting_ok | needs_teacher | 실패: 이유>`
-- 아침 브리핑이 이 줄과 큐를 읽어 보고한다. `SendUserMessage`·`SendUserFile` 은 쓰지 않는다.
+- 아침 브리핑이 이 줄과 큐를 읽어 보고한다. 기본적으로 `SendUserMessage`·`SendUserFile` 은 쓰지 않는다.
+- **예외 — 아침 6시를 넘겨 끝난 실행**: 마지막 기록·push 까지 끝난 시각(서울)이 그날 06:00 이후이고,
+  `state.json` 의 `last_briefing_at` 이 이 실행 시작 이후(= 브리핑이 이 활동을 "진행 중"으로 이미 알림)라면
+  `SendUserMessage` 한 통만 보낸다(휴대폰 한 화면, 승인함 링크는 `inbox_artifact_url` 이 있으면 "승인함 카드"라고만):
+  ```
+  🛰 오르빗 · 새벽 실행 완료
+  <id> <제목> — [<성취기준 코드>] 부합 ●●●●○ · 오류 0 · 볼 것: …   (또는 ⚠ 확인 필요 — 이유 한 줄)
+  답장: "OK <id>" · "수정 <id>: 내용" · "건너뛰기 <id>"
+  ```
+  승인 대기면 승인함도 `MORNING.md` A절 4~5번처럼 다시 만들어 publish 한다. 브리핑 전에 끝난 실행은 이 예외에 해당하지 않는다.
 
 ## 5. 금지
 - 기존 활동(`compass-straightedge` 등)과 앱 코드(`app/`, `components/`, `lib/`, `supabase/migrations/`)는 건드리지 않는다.

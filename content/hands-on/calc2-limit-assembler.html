@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>극한 조립기 — 수렴하는 수열을 더하고 곱하고 나누면</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; color: #1f2937; }
+  #app { height: 660px; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+  button { font: inherit; font-size: 13px; border: 1px solid #d1d5db; background: #fff; color: #374151; border-radius: 8px; padding: 8px 10px; min-height: 40px; cursor: pointer; line-height: 1.1; }
+  button:hover { background: #f3f4f6; }
+  button.on { background: #2563eb; border-color: #2563eb; color: #fff; }
+  #tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; border-bottom: 1px solid #e5e7eb; background: #f9fafb; flex: none; }
+  .panel { display: none; padding: 8px; flex-direction: column; gap: 8px; }
+  .panel.show { display: flex; }
+  .sub { font-size: 12px; color: #6b7280; }
+  /* 카드 서랍 */
+  #drawer { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; border: 1px dashed #d1d5db; border-radius: 10px; background: #f9fafb; }
+  .card { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 74px; min-height: 44px; padding: 3px 6px; border: 1px solid #bfdbfe; background: #fff; border-radius: 8px; font-size: 13px; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+  .card.div { border-color: #fcd34d; background: #fffbeb; }
+  .card svg { display: block; }
+  .card.sel { outline: 2px solid #2563eb; }
+  /* 기계 */
+  #machine { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+  .slot { width: 96px; min-height: 52px; border: 2px dashed #9ca3af; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #9ca3af; background: #fff; touch-action: none; }
+  .slot.hot { border-color: #2563eb; background: #eff6ff; }
+  .slot .card { min-width: 0; width: 100%; border: 0; background: transparent; }
+  #opBtn { min-width: 52px; font-size: 20px; font-weight: 700; color: #7c3aed; border-color: #c4b5fd; }
+  #dial { display: none; align-items: center; gap: 4px; }
+  #dial span { min-width: 64px; text-align: center; font-weight: 700; color: #7c3aed; }
+  /* 예측 판 */
+  #pred { padding: 8px 10px; border-radius: 10px; font-size: 13px; line-height: 1.5; border: 1px solid #e5e7eb; background: #f9fafb; color: #4b5563; }
+  #pred.ok { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+  #pred.no { background: #f3f4f6; border-color: #d1d5db; color: #4b5563; }
+  #pred.zero { background: #fff7ed; border-color: #fdba74; color: #9a3412; }
+  .cvw { position: relative; height: 200px; min-height: 160px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fdfdfb; touch-action: none; }
+  .cvw canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #status { font-size: 12.5px; color: #4b5563; min-height: 18px; }
+  .hint { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 7px 10px; font-size: 12.5px; line-height: 1.5; color: #374151; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  details { border: 1px solid #e5e7eb; border-radius: 10px; padding: 6px 10px; font-size: 12.5px; }
+  summary { cursor: pointer; min-height: 28px; display: flex; align-items: center; font-weight: 600; }
+  details ol { margin: 4px 0 4px 16px; padding: 0; line-height: 1.6; }
+  .foot { font-size: 11.5px; color: #9ca3af; line-height: 1.5; }
+  /* 분해 작업대 */
+  #exprs { display: flex; flex-wrap: wrap; gap: 6px; }
+  #board { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; padding: 10px 6px; border: 1px solid #e5e7eb; border-radius: 10px; min-height: 96px; font-size: 20px; transition: opacity .25s; }
+  #board.fade { opacity: 0; }
+  .frac { display: inline-flex; flex-direction: column; align-items: center; }
+  .frac .bar { height: 2px; background: #374151; width: 100%; margin: 3px 0; }
+  .row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 3px; }
+  .chip { min-width: 40px; min-height: 40px; padding: 4px 8px; border: 1px solid #93c5fd; background: #eff6ff; color: #1e3a8a; border-radius: 999px; font-size: 15px; cursor: pointer; }
+  .chip.flip { background: #dcfce7; border-color: #4ade80; color: #166534; }
+  .op { font-size: 17px; color: #6b7280; }
+  #result { font-size: 14px; font-weight: 600; color: #065f46; min-height: 20px; line-height: 1.5; }
+  @media (max-width: 560px) { button { padding: 8px 8px; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="tabs">
+    <button id="t1" class="on">① 조립기</button>
+    <button id="t2">② 분해 작업대</button>
+    <button id="reset">처음으로</button>
+  </div>
+
+  <!-- ① 조립기 -->
+  <div id="p1" class="panel show">
+    <div class="sub">카드를 끌어 빈칸에 놓거나, 카드를 눌러 빈칸에 넣으세요. 빈칸의 카드를 누르면 빠집니다.</div>
+    <div id="drawer"></div>
+    <div id="machine">
+      <div class="slot" id="slotA" data-slot="A">aₙ</div>
+      <button id="opBtn" title="연산 바꾸기">+</button>
+      <div class="slot" id="slotB" data-slot="B">bₙ</div>
+      <div id="dial"><button id="kMinus">−</button><span id="kVal">k = 2</span><button id="kPlus">+</button></div>
+    </div>
+    <div id="pred">카드 두 장을 넣어 보세요.</div>
+    <div class="cvw" id="cw1"><canvas id="cv1"></canvas></div>
+    <div id="status"></div>
+  </div>
+
+  <!-- ② 분해 작업대 -->
+  <div id="p2" class="panel">
+    <div id="exprs"></div>
+    <div id="board"></div>
+    <button id="divBtn">분모의 최고차항으로 위아래 나누기</button>
+    <div id="result"></div>
+    <div class="cvw" id="cw2"><canvas id="cv2"></canvas></div>
+  </div>
+
+  <div class="panel show" id="common" style="padding-top:0">
+    <div class="hint" id="hint"></div>
+    <details>
+      <summary>질문 보기</summary>
+      <ol>
+        <li>2 + 1/n 과 3 − 2/n 을 넣고 +, −, ×, ÷ 를 차례로 눌러 보세요. 결과의 극한은 각 극한값 2, 3 으로 어떻게 계산되나요?</li>
+        <li>n 카드 두 장으로 n − n 과 n + n 을 만들어 보세요. 또 n × (1/n) 은요? '∞ − ∞', '∞ × 0' 의 값을 하나로 정할 수 없는 까닭을 말해 보세요.</li>
+        <li>② 에서 (2n+1)/(n+3) 을 바로 '∞/∞' 로 계산할 수 없는데, 분모의 최고차항 n 으로 나누면 왜 성질을 쓸 수 있게 되나요?</li>
+        <li>(n+4)/(n²+1) 과 (3n²−n)/(n²+5) 의 극한을 비교하세요. 분자와 분모의 차수가 극한값에 어떤 영향을 주나요?</li>
+      </ol>
+    </details>
+    <div class="foot">화면은 n=60까지의 유한한 항만 보여 줍니다. 극한값은 일반항과 극한의 성질로 정합니다.</div>
+  </div>
+</div>
+<script>
+(function () {
+  "use strict";
+  var NMAX = 60;
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ── 카드 정의: f=일반항, lim=극한값(숫자) 또는 'inf'/'osc' ──────────
+  var CARDS = [
+    { id: "c1", label: "1/n", f: function (n) { return 1 / n; }, lim: 0 },
+    { id: "c2", label: "2 + 1/n", f: function (n) { return 2 + 1 / n; }, lim: 2 },
+    { id: "c3", label: "(n+1)/n", f: function (n) { return (n + 1) / n; }, lim: 1 },
+    { id: "c4", label: "3 − 2/n", f: function (n) { return 3 - 2 / n; }, lim: 3 },
+    { id: "c5", label: "(−1)ⁿ/n", f: function (n) { return (n % 2 ? -1 : 1) / n; }, lim: 0 },
+    { id: "c6", label: "n", f: function (n) { return n; }, lim: "inf" },
+    { id: "c7", label: "(−1)ⁿ", f: function (n) { return n % 2 ? -1 : 1; }, lim: "osc" }
+  ];
+  function cardById(id) { for (var i = 0; i < CARDS.length; i++) if (CARDS[i].id === id) return CARDS[i]; return null; }
+  function conv(c) { return typeof c.lim === "number"; }
+
+  // ── 분수 계산(예측값을 정확한 유리수로) ───────────────────────────
+  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = a % b; a = b; b = t; } return a || 1; }
+  function frac(p, q) { if (q < 0) { p = -p; q = -q; } var g = gcd(p, q); return { p: p / g, q: q / g }; }
+  function fracVal(f) { return f.p / f.q; }
+  function fracStr(f) {
+    var s = (f.p < 0 ? "−" : "") + Math.abs(f.p) + (f.q === 1 ? "" : "/" + f.q);
+    if (f.q !== 1) s += " ≈ " + fmt(fracVal(f));
+    return s;
+  }
+  function fmt(x) {
+    if (!isFinite(x)) return "—";
+    var s = (Math.round(x * 1000) / 1000).toString();
+    return s.replace("-", "−");
+  }
+  function kStr(k) { return (k < 0 ? "(" + fmt(k) + ")" : fmt(k)); }
+
+  // ── 상태 ─────────────────────────────────────────────────────────
+  var slotA = null, slotB = null;      // 카드 id
+  var OPS = ["+", "−", "×", "÷", "k"];
+  var opIdx = 0, kVal = 2;
+  var shown = [];                      // 화면에 보이는 c 값(애니메이션 중간값)
+  var anim = null;
+  var tab = 1;
+
+  function opSym() { return OPS[opIdx]; }
+  function seqOf(card) { var r = []; for (var n = 1; n <= NMAX; n++) r.push(card.f(n)); return r; }
+  function calcC() {
+    var A = slotA && cardById(slotA), B = slotB && cardById(slotB), r = [], n, a, b, v;
+    if (!A) return null;
+    if (opSym() !== "k" && !B) return null;
+    for (n = 1; n <= NMAX; n++) {
+      a = A.f(n); b = B ? B.f(n) : 0; v = NaN;
+      switch (opSym()) {
+        case "+": v = a + b; break;
+        case "−": v = a - b; break;
+        case "×": v = a * b; break;
+        case "÷": v = Math.abs(b) < 1e-12 ? NaN : a / b; break;
+        case "k": v = kVal * a; break;
+      }
+      r.push(v);
+    }
+    return r;
+  }
+  // 예측: {kind:'ok'|'no'|'zero'|'none', text, value}
+  function predict() {
+    var A = slotA && cardById(slotA), B = slotB && cardById(slotB), op = opSym();
+    if (!A || (op !== "k" && !B)) return { kind: "none", text: "카드 두 장을 넣으면 극한의 성질로 예측해 줘요." };
+    var NO = { kind: "no", text: "성질을 쓸 수 없어요 — aₙ, bₙ 이 모두 수렴할 때만 쓰는 성질입니다." };
+    if (!conv(A) || (op !== "k" && !conv(B))) return NO;
+    var al = A.lim, be = B ? B.lim : 0, v, t;
+    if (op === "k") {
+      v = frac(Math.round(kVal * 2) * al, 2);
+      return { kind: "ok", value: fracVal(v), text: "lim aₙ = " + al + " 이므로 lim(k·aₙ) = k·α = " + kStr(kVal) + "·" + al + " = " + fracStr(v) };
+    }
+    if (op === "÷") {
+      if (be === 0) return { kind: "zero", text: "β = 0 이라 몫의 성질을 쓸 수 없어요." };
+      v = frac(al, be);
+      return { kind: "ok", value: fracVal(v), text: "lim aₙ = " + al + ", lim bₙ = " + be + " 이므로 lim(aₙ ÷ bₙ) = α ÷ β = " + al + " ÷ " + be + " = " + fracStr(v) };
+    }
+    var r = op === "+" ? al + be : op === "−" ? al - be : al * be;
+    return { kind: "ok", value: r, text: "lim aₙ = " + al + ", lim bₙ = " + be + " 이므로 lim(aₙ " + op + " bₙ) = α " + op + " β = " + al + " " + op + " " + (be < 0 ? "(" + be + ")" : be) + " = " + fmt(r) };
+  }
+
+  // ── 그리기 공통 ──────────────────────────────────────────────────
+  function setup(cv) {
+    var r = cv.parentNode.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+    var w = Math.max(100, Math.round(r.width)), h = Math.max(80, Math.round(r.height));
+    if (cv.width !== w * d || cv.height !== h * d) { cv.width = w * d; cv.height = h * d; }
+    var c = cv.getContext("2d"); c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, w, h);
+    return { c: c, w: w, h: h };
+  }
+  function niceTicks(lo, hi) {
+    var span = hi - lo, step = Math.pow(10, Math.floor(Math.log10(span / 4)));
+    var m = span / 4 / step; step *= m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10;
+    var t = [], v = Math.ceil(lo / step) * step;
+    for (; v <= hi + 1e-9; v += step) t.push(Math.round(v / step) * step);
+    return t;
+  }
+  // series: [{vals, color, r, alpha}], lines: [{y,color}], 반환 없음
+  function drawChart(cv, series, lines, lo, hi) {
+    var S = setup(cv), c = S.c, w = S.w, h = S.h;
+    var L = 34, R = 8, T = 8, B = 18, pw = w - L - R, ph = h - T - B;
+    function X(n) { return L + (n - 1) / (NMAX - 1) * pw; }
+    function Y(v) { return T + (hi - v) / (hi - lo) * ph; }
+    c.font = "10px sans-serif"; c.fillStyle = "#6b7280"; c.strokeStyle = "#eef0f3"; c.lineWidth = 1;
+    niceTicks(lo, hi).forEach(function (t) {
+      var y = Y(t); c.beginPath(); c.moveTo(L, y); c.lineTo(w - R, y);
+      c.strokeStyle = t === 0 ? "#9ca3af" : "#eef0f3"; c.stroke();
+      c.textAlign = "right"; c.textBaseline = "middle"; c.fillText(fmt(t), L - 4, y);
+    });
+    [1, 10, 20, 30, 40, 50, 60].forEach(function (n) { c.textAlign = "center"; c.textBaseline = "top"; c.fillText(n, X(n), h - B + 3); });
+    lines.forEach(function (ln) {
+      if (ln.y < lo || ln.y > hi) return;
+      c.save(); c.setLineDash([5, 4]); c.strokeStyle = ln.color; c.lineWidth = 1.6;
+      c.beginPath(); c.moveTo(L, Y(ln.y)); c.lineTo(w - R, Y(ln.y)); c.stroke(); c.restore();
+    });
+    series.forEach(function (s) {
+      c.globalAlpha = s.alpha || 1; c.fillStyle = s.color;
+      for (var i = 0; i < s.vals.length; i++) {
+        var v = s.vals[i]; if (!isFinite(v)) continue;
+        var x = X(i + 1);
+        if (v > hi || v < lo) { // 범위 밖은 가장자리 화살표
+          var up = v > hi, y0 = up ? T + 1 : T + ph - 1, dy = up ? 5 : -5;
+          c.beginPath(); c.moveTo(x, y0); c.lineTo(x - 3, y0 + dy); c.lineTo(x + 3, y0 + dy); c.closePath(); c.fill();
+        } else { c.beginPath(); c.arc(x, Y(v), s.r, 0, 6.2832); c.fill(); }
+      }
+    });
+    c.globalAlpha = 1;
+  }
+
+  function draw1() {
+    var A = slotA && cardById(slotA), B = slotB && cardById(slotB), op = opSym();
+    var series = [], lines = [], vals = [], P = predict();
+    if (A) { var sa = seqOf(A); series.push({ vals: sa, color: "#93c5fd", r: 2.2 }); vals = vals.concat(sa); }
+    if (B && op !== "k") { var sb = seqOf(B); series.push({ vals: sb, color: "#86efac", r: 2.2 }); vals = vals.concat(sb); }
+    if (shown.length) { series.push({ vals: shown, color: "#6d28d9", r: 3.4 }); vals = vals.concat(shown); }
+    if (P.kind === "ok") { lines.push({ y: P.value, color: "#7c3aed" }); vals.push(P.value); }
+    var lo = Infinity, hi = -Infinity;
+    vals.forEach(function (v) { if (isFinite(v)) { if (v < lo) lo = v; if (v > hi) hi = v; } });
+    if (!isFinite(lo)) { lo = -1; hi = 1; }
+    var pad = Math.max((hi - lo) * 0.1, 0.25); lo = Math.max(-20, lo - pad); hi = Math.min(20, hi + pad);
+    if (hi - lo < 1e-6) { lo -= 1; hi += 1; }
+    drawChart($("cv1"), series, lines, lo, hi);
+  }
+
+  // ── ① 화면 갱신 ─────────────────────────────────────────────────
+  function cardHTML(card) {
+    // 작은 점 미리보기(앞 24항)
+    var s = '<svg width="64" height="16" viewBox="0 0 64 16">', vals = [], i, lo = -3, hi = 5;
+    for (i = 1; i <= 24; i++) vals.push(card.f(i));
+    for (i = 0; i < vals.length; i++) {
+      var v = Math.max(lo, Math.min(hi, vals[i]));
+      s += '<circle cx="' + (2 + i * 2.6).toFixed(1) + '" cy="' + (14 - (v - lo) / (hi - lo) * 12).toFixed(1) + '" r="1.2" fill="' + (conv(card) ? "#2563eb" : "#d97706") + '"/>';
+    }
+    return '<span>' + card.label + '</span>' + s + '</svg>';
+  }
+  function buildDrawer() {
+    var d = $("drawer"); d.innerHTML = "";
+    CARDS.forEach(function (c) {
+      var e = document.createElement("div"); e.className = "card" + (conv(c) ? "" : " div"); e.dataset.card = c.id;
+      e.innerHTML = cardHTML(c); d.appendChild(e); bindDrag(e, c.id, false);
+    });
+  }
+  function renderSlots() {
+    [["A", slotA], ["B", slotB]].forEach(function (p) {
+      var el = $("slot" + p[0]); el.innerHTML = "";
+      if (p[1]) {
+        var c = cardById(p[1]), e = document.createElement("div"); e.className = "card" + (conv(c) ? "" : " div");
+        e.innerHTML = cardHTML(c); el.appendChild(e); bindDrag(e, p[1], p[0]);
+      } else el.textContent = p[0] === "A" ? "aₙ" : "bₙ";
+    });
+    var k = opSym() === "k";
+    $("slotB").style.display = k ? "none" : "flex";
+    $("dial").style.display = k ? "flex" : "none";
+    $("kVal").textContent = "k = " + fmt(kVal);
+    $("opBtn").textContent = k ? "k배" : opSym();
+  }
+  function update1(animate) {
+    renderSlots();
+    var to = calcC();
+    if (!to) { shown = []; anim = null; }
+    else if (animate && shown.length === to.length) { anim = { from: shown.slice(), to: to, t0: performance.now() }; }
+    else { shown = to; anim = null; }
+    if (anim) requestAnimationFrame(tick);
+    var P = predict(), pr = $("pred");
+    pr.className = P.kind === "none" ? "" : P.kind; pr.id = "pred"; pr.textContent = P.text;
+    status1(P); hint1(P); draw1();
+  }
+  function tick(now) {
+    if (!anim) return;
+    var u = Math.min(1, (now - anim.t0) / 300), e = u * u * (3 - 2 * u), i;
+    for (i = 0; i < anim.to.length; i++) {
+      var a = anim.from[i], b = anim.to[i];
+      shown[i] = (isFinite(a) && isFinite(b)) ? a + (b - a) * e : b;
+    }
+    draw1();
+    if (u < 1) requestAnimationFrame(tick); else { shown = anim.to; anim = null; draw1(); }
+  }
+  function status1(P) {
+    var c = anim ? anim.to : shown, v = c.length ? c[NMAX - 1] : NaN, s = "";
+    if (c.length) {
+      s = "c₆₀ = " + (isFinite(v) ? (Math.abs(v) >= 1000 ? fmt(v) : v.toFixed(4).replace("-", "−")) : "—");
+      s += P.kind === "ok" ? " / 예측 " + fmt(P.value) + " (차 " + (isFinite(v) ? Math.abs(v - P.value).toFixed(4) : "—") + ")" : " / 예측 없음";
+    }
+    $("status").textContent = s;
+  }
+  function hint1(P) {
+    var A = slotA && cardById(slotA), B = slotB && cardById(slotB), t;
+    if (tab !== 1) return;
+    if (!A || (opSym() !== "k" && !B)) t = "카드 두 장을 기계의 빈칸에 넣어 보세요. 가운데 단추로 더하기·빼기·곱하기·나누기·실수배를 바꿀 수 있어요.";
+    else if (P.kind === "zero") t = "분모가 0으로 가면 몫의 성질을 쓸 수 없어요.";
+    else if (P.kind === "no") t = "기계가 예측을 멈췄어요. 그래도 결과 점은 어디로 가는지 직접 보세요. n − n 과 n + n 을 비교해 보세요.";
+    else t = "보라색 점들이 점선(예측값)으로 다가가나요? 연산을 바꿔도 그런지 보세요.";
+    $("hint").textContent = t;
+  }
+
+  // ── 끌기/탭 ──────────────────────────────────────────────────────
+  // from: false=서랍 카드, 'A'/'B'=슬롯 카드
+  function bindDrag(el, id, from) {
+    var sx, sy, ghost = null, moved = false, pid = null;
+    el.addEventListener("pointerdown", function (e) {
+      sx = e.clientX; sy = e.clientY; moved = false; pid = e.pointerId;
+      try { el.setPointerCapture(pid); } catch (x) {}
+      e.preventDefault();
+    });
+    el.addEventListener("pointermove", function (e) {
+      if (pid === null) return;
+      if (!moved && Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) > 6) {
+        moved = true; ghost = el.cloneNode(true);
+        ghost.style.cssText = "position:fixed;z-index:99;pointer-events:none;opacity:.85;background:#fff;border:1px solid #2563eb;width:84px";
+        document.body.appendChild(ghost);
+      }
+      if (ghost) {
+        ghost.style.left = (e.clientX - 42) + "px"; ghost.style.top = (e.clientY - 24) + "px";
+        var s = slotAt(e.clientX, e.clientY);
+        $("slotA").classList.toggle("hot", s === "A"); $("slotB").classList.toggle("hot", s === "B");
+      }
+    });
+    function end(e) {
+      if (pid === null) return;
+      var wasMoved = moved, s = slotAt(e.clientX, e.clientY);
+      pid = null; if (ghost) { ghost.remove(); ghost = null; }
+      $("slotA").classList.remove("hot"); $("slotB").classList.remove("hot");
+      if (e.type === "pointercancel") return;
+      if (!wasMoved) { // 탭
+        if (from) place(from, null); else tapInsert(id);
+      } else if (s) {
+        if (from && from !== s) place(from, null);
+        place(s, id);
+      } else if (from) place(from, null); // 슬롯 밖으로 끌어내면 비움
+    }
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", end);
+  }
+  function slotAt(x, y) {
+    var els = document.elementsFromPoint(x, y);
+    for (var i = 0; i < els.length; i++) {
+      var sl = els[i].closest && els[i].closest(".slot");
+      if (sl && sl.style.display !== "none") return sl.dataset.slot;
+    }
+    return null;
+  }
+  function place(slot, id) { if (slot === "A") slotA = id; else slotB = id; update1(true); }
+  function tapInsert(id) {
+    if (!slotA) slotA = id;
+    else if (!slotB && opSym() !== "k") slotB = id;
+    else if (opSym() === "k") slotA = id;
+    else slotB = id;
+    update1(true);
+  }
+
+  $("opBtn").addEventListener("click", function () { opIdx = (opIdx + 1) % OPS.length; update1(true); });
+  $("kMinus").addEventListener("click", function () { kVal = Math.max(-3, kVal - 0.5); update1(true); });
+  $("kPlus").addEventListener("click", function () { kVal = Math.min(3, kVal + 0.5); update1(true); });
+
+  // ── ② 분해 작업대 ───────────────────────────────────────────────
+  // num/den: 나눈 뒤의 조각 [{s:부호, t:글자, lim:극한값}], f: 원래 식
+  var EXPRS = [
+    { label: "(2n+1)/(n+3)", top: "2n+1", bot: "n+3", f: function (n) { return (2 * n + 1) / (n + 3); }, nf: function (n) { return 2 * n + 1; }, df: function (n) { return n + 3; },
+      num: [{ s: "+", t: "2", lim: 2 }, { s: "+", t: "1/n", lim: 0 }], den: [{ s: "+", t: "1", lim: 1 }, { s: "+", t: "3/n", lim: 0 }], ans: 2 },
+    { label: "(3n²−n)/(n²+5)", top: "3n²−n", bot: "n²+5", f: function (n) { return (3 * n * n - n) / (n * n + 5); }, nf: function (n) { return 3 * n * n - n; }, df: function (n) { return n * n + 5; },
+      num: [{ s: "+", t: "3", lim: 3 }, { s: "−", t: "1/n", lim: 0 }], den: [{ s: "+", t: "1", lim: 1 }, { s: "+", t: "5/n²", lim: 0 }], ans: 3 },
+    { label: "(n+4)/(n²+1)", top: "n+4", bot: "n²+1", f: function (n) { return (n + 4) / (n * n + 1); }, nf: function (n) { return n + 4; }, df: function (n) { return n * n + 1; },
+      num: [{ s: "+", t: "1/n", lim: 0 }, { s: "+", t: "4/n²", lim: 0 }], den: [{ s: "+", t: "1", lim: 1 }, { s: "+", t: "1/n²", lim: 0 }], ans: 0 }
+  ];
+  var ei = 0, divided = false, flipped = {};
+
+  function buildExprBtns() {
+    var d = $("exprs"); d.innerHTML = "";
+    EXPRS.forEach(function (x, i) {
+      var b = document.createElement("button"); b.textContent = x.label; if (i === ei) b.className = "on";
+      b.addEventListener("click", function () { ei = i; divided = false; flipped = {}; render2(true); });
+      d.appendChild(b);
+    });
+  }
+  function allFlipped(x) {
+    for (var i = 0; i < x.num.length; i++) if (!flipped["n" + i]) return false;
+    for (i = 0; i < x.den.length; i++) if (!flipped["d" + i]) return false;
+    return true;
+  }
+  function side(parts, key) {
+    var row = document.createElement("div"); row.className = "row";
+    parts.forEach(function (p, i) {
+      if (i > 0 || p.s === "−") { var o = document.createElement("span"); o.className = "op"; o.textContent = p.s === "−" ? "−" : "+"; if (i === 0) o.textContent = "−"; row.appendChild(o); }
+      var ch = document.createElement("button"), k = key + i, f = !!flipped[k];
+      ch.className = "chip" + (f ? " flip" : "");
+      ch.textContent = f ? p.t + " → " + p.lim : p.t;
+      ch.addEventListener("click", function () { flipped[k] = !flipped[k]; render2(false); });
+      row.appendChild(ch);
+    });
+    return row;
+  }
+  function limSide(parts, key) {
+    var s = "";
+    parts.forEach(function (p, i) { s += (i ? " " + p.s + " " : (p.s === "−" ? "−" : "")) + p.lim; });
+    return "(" + s + ")";
+  }
+  function render2(fade) {
+    var x = EXPRS[ei], b = $("board"), swap = function () {
+      b.innerHTML = "";
+      var fr = document.createElement("div"); fr.className = "frac";
+      if (!divided) {
+        var t = document.createElement("div"); t.textContent = x.top; var bar = document.createElement("div"); bar.className = "bar";
+        var d = document.createElement("div"); d.textContent = x.bot; fr.appendChild(t); fr.appendChild(bar); fr.appendChild(d);
+        b.appendChild(fr);
+      } else {
+        fr.appendChild(side(x.num, "n")); var bar2 = document.createElement("div"); bar2.className = "bar"; fr.appendChild(bar2); fr.appendChild(side(x.den, "d"));
+        b.appendChild(fr);
+      }
+      b.classList.remove("fade");
+    };
+    if (fade) { b.classList.add("fade"); setTimeout(swap, 120); } else swap();
+    buildExprBtns();
+    $("divBtn").disabled = divided;
+    var r = $("result"), done = divided && allFlipped(x);
+    r.textContent = done ? "(" + limSide(x.num, "n").slice(1, -1) + ") ÷ (" + limSide(x.den, "d").slice(1, -1) + ") = " + x.ans + "  — 분모의 극한이 1 ≠ 0 이므로 몫의 성질을 쓸 수 있어요." : "";
+    r.textContent = done ? limSide(x.num) + " ÷ " + limSide(x.den) + " = " + x.ans + "  (분모의 극한이 1 ≠ 0 이라 몫의 성질을 쓸 수 있어요)" : "";
+    if (tab === 2) $("hint").textContent = !divided ? "분자·분모가 둘 다 한없이 커져서 바로 성질을 쓸 수 없어요. 분모의 최고차항으로 위아래를 나눠 보세요."
+      : done ? "모두 뒤집었어요. 조립한 값이 점선과 같은 곳인지 보세요." : "이제 조각마다 극한이 있어요. 칩을 눌러 극한값으로 바꿔 보세요.";
+    draw2();
+  }
+  function draw2() {
+    var x = EXPRS[ei], vals = [], nv = [], dv = [], n, lo = 0, hi = -Infinity, done = divided && allFlipped(x);
+    for (n = 1; n <= NMAX; n++) { var v = x.f(n); vals.push(v); nv.push(x.nf(n)); dv.push(x.df(n)); if (v > hi) hi = v; }
+    if (done && x.ans > hi) hi = x.ans;
+    hi = Math.max(hi * 1.15, 1); lo = -0.1 * hi;
+    var series = [];
+    if (!divided) { series.push({ vals: nv, color: "#93c5fd", r: 2, alpha: 0.7 }); series.push({ vals: dv, color: "#86efac", r: 2, alpha: 0.7 }); }
+    series.push({ vals: vals, color: "#6d28d9", r: 3 });
+    drawChart($("cv2"), series, done ? [{ y: x.ans, color: "#7c3aed" }] : [], lo, hi);
+  }
+  $("divBtn").addEventListener("click", function () { divided = true; flipped = {}; render2(true); });
+
+  // ── 탭 전환 ──────────────────────────────────────────────────────
+  function showTab(t) {
+    tab = t;
+    $("p1").classList.toggle("show", t === 1); $("p2").classList.toggle("show", t === 2);
+    $("t1").className = t === 1 ? "on" : ""; $("t2").className = t === 2 ? "on" : "";
+    if (t === 1) update1(false); else render2(false);
+  }
+  $("t1").addEventListener("click", function () { showTab(1); });
+  $("t2").addEventListener("click", function () { showTab(2); });
+  $("reset").addEventListener("click", function () {
+    slotA = slotB = null; opIdx = 0; kVal = 2; ei = 0; divided = false; flipped = {}; shown = []; anim = null; showTab(1);
+  });
+  window.addEventListener("resize", function () { if (tab === 1) draw1(); else draw2(); });
+
+  buildDrawer(); showTab(1);
+})();
+</script>
+</body>
+</html>

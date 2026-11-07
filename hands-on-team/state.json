@@ -1,4 +1,5 @@
 {
- "preview_artifact_url": null,
- "note": "오르빗 미리보기 artifact 주소. 예약 실행이 채운다."
+ "inbox_artifact_url": null,
+ "last_briefing_at": null,
+ "note": "오르빗 승인함 artifact 주소와 마지막 아침 브리핑 시각. 아침 브리핑이 채운다."
 }

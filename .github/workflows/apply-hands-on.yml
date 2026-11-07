@@ -1,0 +1,57 @@
+# 만져보는 수학 자동 게시
+#
+# supabase/hands-on.sql 이 main 에 바뀌어 올라오면 Supabase DB 에 그대로 실행한다.
+# 이 파일에는 선생님이 오르빗에게 OK 한 활동만 들어간다(hands-on-team/MORNING.md).
+# SQL 은 여러 번 실행해도 안전하다: 없는 자료는 새로 넣고, 있는 자료는 HTML 만 바꾼다.
+#
+# 필요한 비밀값(한 번만 설정): 저장소 Settings → Secrets and variables → Actions
+#   SUPABASE_DB_URL = Supabase 대시보드 → Connect → "Session pooler" 연결 문자열 (비밀번호 포함)
+#   (GitHub Actions 는 IPv6 직결이 안 되므로 Direct connection 이 아니라 Session pooler 를 쓴다)
+name: 만져보는 수학 게시
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/hands-on.sql"
+  workflow_dispatch:
+
+concurrency:
+  group: apply-hands-on
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 비밀값 확인
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL 비밀값이 없습니다. 저장소 Settings → Secrets and variables → Actions 에 추가하세요."
+            exit 1
+          fi
+
+      - name: psql 준비
+        run: |
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+          fi
+          psql --version
+
+      - name: hands-on.sql 적용
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 --single-transaction -q -f supabase/hands-on.sql
+
+      - name: 게시 확인
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          psql "$SUPABASE_DB_URL" -At -c \
+            "select slug || ' · ' || title || ' · ' || case when is_published then '공개' else '비공개' end
+               from public.manipulatives order by updated_at desc limit 10" \
+          | tee -a "$GITHUB_STEP_SUMMARY"

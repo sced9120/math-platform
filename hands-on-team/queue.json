@@ -1,5 +1,5 @@
 {
- "_설명": "만져보는 수학 제작 큐. 위에서부터 status가 todo인 첫 항목을 만든다. status: todo | in_progress | done | needs_teacher | skipped",
+ "_설명": "만져보는 수학 제작 큐. 밤 실행은 status가 todo인 첫 항목을 만든다. status: todo | in_progress | awaiting_ok(오르빗 통과, 선생님 OK 대기) | approved(OK 받음, 게시 중) | published(사이트 게시됨) | needs_teacher | skipped",
  "curriculum": "2022 개정 수학과 교육과정(교육부 고시 제2022-33호 [별책 8], 2025학년도부터 고1 적용)",
  "source_note": "성취기준 문장은 2차 자료(나무위키 미러)에서 옮김 — 공식 원문(NCIC)과 대조 전. 오르빗이 대조하면 verified를 true로 바꾼다.",
  "verified": false,

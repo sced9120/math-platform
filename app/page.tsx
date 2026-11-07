@@ -79,6 +79,18 @@ export default async function Home() {
           </Link>
         </div>
       </main>
+      <footer className="border-t border-zinc-200 px-4 py-4 text-center text-sm text-zinc-500">
+        함께 쓰는 도구:{" "}
+        <a
+          href="https://gichul.hsorbit.uk"
+          target="_blank"
+          rel="noopener"
+          className="text-blue-600 hover:underline"
+        >
+          기출 아틀라스
+        </a>{" "}
+        — 수능·모의평가·학력평가 기출을 단원별로 찾아 한글 시험지로 받기
+      </footer>
     </div>
   );
 }

@@ -96,6 +96,19 @@ export default async function TeacherPage() {
           </p>
         </Link>
 
+        <a
+          href="https://gichul.hsorbit.uk"
+          target="_blank"
+          rel="noopener"
+          className={card}
+        >
+          <h3 className="mb-1 font-semibold text-zinc-900">기출 아틀라스 ↗</h3>
+          <p className="text-sm text-zinc-500">
+            기출로 한글 시험지 만들기 · 수능·모의평가·학력평가를 2022 개정 과목·단원·배점으로 찾아
+            2단 한글(.hwpx)로 받기 (무료, 새 탭)
+          </p>
+        </a>
+
         {teaching && (
           <>
             <Link href="/teacher/export" className={card}>

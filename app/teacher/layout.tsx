@@ -58,6 +58,14 @@ export default async function TeacherLayout({
             <Link href="/teacher/hands-on" className="flex items-center gap-1.5 hover:text-zinc-900">
               <Icon name="cursor" size={15} /> 만져보는 수학
             </Link>
+            <a
+              href="https://gichul.hsorbit.uk"
+              target="_blank"
+              rel="noopener"
+              className="flex items-center gap-1.5 hover:text-zinc-900"
+            >
+              <Icon name="download" size={15} /> 기출 아틀라스 ↗
+            </a>
             {teaching && (
               <Link href="/teacher/ai-settings" className="flex items-center gap-1.5 hover:text-zinc-900">
                 <Icon name="sparkle" size={15} /> AI 설정

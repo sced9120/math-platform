@@ -4,6 +4,9 @@
 이 세션이 **하루에 한 번만** 선생님께 알림을 보내고, 선생님이 이 세션에 답장으로 OK 를 주면 그 활동을 사이트에 올린다.
 
 준비는 `RUNBOOK.md` 0절과 같다(`git pull`, 팀원 확인, playwright 확인).
+**오류 노트**: 시작할 때 `hands-on-team/LESSONS.md` 의 '미리 확인' 표를 먼저 점검하고, 오류가 나면 그 문서의 '오류가 났을 때 할 일'대로 가이드를 고친다.
+브리핑에는 `last_briefing_at` 이후 LESSONS '기록' 줄이 있으면 `🔧 가이드 바꿈: …` 한 줄을 넣는다.
+게시 경로 점검(Actions `apply-hands-on.yml` 최근 결과)이 막혀 있으면 브리핑 맨 위에 `⚠ 게시 경로 막힘 — <이유·고칠 곳>` 을 넣는다.
 
 ## A. 브리핑 만들기
 1. `hands-on-team/state.json` 의 `last_briefing_at` 이후의 `hands-on-team/log/runs.md` 줄을 읽는다(없으면 최근 24시간).

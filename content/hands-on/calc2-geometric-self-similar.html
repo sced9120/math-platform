@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>닮은 꼴 접어 넣기 — 등비급수의 합</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; color: #1f2937; font-size: 14px; }
+  #app { padding-bottom: 10px; }
+  button { font: inherit; font-size: 13px; border: 1px solid #d1d5db; background: #fff; color: #374151; border-radius: 8px; padding: 8px 10px; min-height: 44px; cursor: pointer; line-height: 1.1; }
+  button:hover { background: #f3f4f6; }
+  button.on { background: #2563eb; border-color: #2563eb; color: #fff; }
+  button:disabled { opacity: .4; cursor: default; }
+  button.warn { border-color: #fca5a5; color: #b91c1c; }
+  #top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px; border-bottom: 1px solid #e5e7eb; background: #f9fafb; }
+  #eq { flex: 1 1 220px; font-size: 13px; color: #374151; text-align: right; min-width: 0; overflow-wrap: anywhere; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 8px; border-bottom: 1px solid #f1f5f9; }
+  .row label { font-size: 13px; color: #4b5563; }
+  input[type=number] { width: 74px; min-height: 44px; font: inherit; font-size: 14px; padding: 4px 6px; border: 1px solid #d1d5db; border-radius: 8px; }
+  input[type=range] { width: 150px; min-height: 44px; accent-color: #2563eb; }
+  .ctl { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  #dial { width: 180px; height: 96px; touch-action: none; cursor: pointer; }
+  #stage { position: relative; height: 290px; touch-action: none; background: #fdfdfb; border-bottom: 1px solid #e5e7eb; }
+  #cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  #acts { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; }
+  #info { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 8px; }
+  .box { flex: 1 1 280px; min-width: 0; border: 1px solid #e5e7eb; border-radius: 10px; padding: 8px 10px; background: #fff; font-size: 13px; line-height: 1.5; }
+  #hint { background: #f8fafc; }
+  #stat div { display: flex; justify-content: space-between; gap: 8px; }
+  #stat b { font-variant-numeric: tabular-nums; text-align: right; overflow-wrap: anywhere; }
+  .ok { color: #15803d; }
+  #warn { color: #b91c1c; font-weight: 600; margin: 6px 8px 0; font-size: 13px; }
+  #fpanel { margin: 8px; border: 1px solid #c7d2fe; background: #eef2ff; border-radius: 10px; padding: 8px 10px; font-size: 14px; }
+  #fpanel .blank { display: inline-block; min-width: 40px; text-align: center; border-bottom: 2px solid #2563eb; padding: 0 4px; font-weight: 700; color: #1d4ed8; }
+  #fpanel p { margin: 6px 0; }
+  details { margin: 8px; border: 1px solid #e5e7eb; border-radius: 10px; padding: 6px 10px; }
+  summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; font-weight: 600; font-size: 13px; }
+  details ol { margin: 4px 0 6px; padding-left: 20px; font-size: 13px; line-height: 1.6; }
+  #note { margin: 4px 8px 0; font-size: 12px; color: #6b7280; line-height: 1.5; }
+  #exdesc { font-size: 13px; color: #374151; flex: 1 1 100%; }
+  [hidden] { display: none !important; }
+  .sm { display: none; }
+  /* 좁은 화면(휴대폰): 한 화면(높이 약 660)에 안내·버튼·결과가 보이게 압축 */
+  @media (max-width: 480px) {
+    button { font-size: 12px; }
+    #top { padding: 6px 8px; gap: 4px; }
+    #top button { flex: 1 1 0; padding: 4px 2px; white-space: nowrap; }
+    #eq { flex: 1 1 100%; text-align: left; font-size: 12px; line-height: 1.3; }
+    .row { padding: 4px 8px; gap: 0 8px; }
+    .lg { display: none; }
+    .sm { display: inline; }
+    #ctl .ctl { flex-wrap: nowrap; gap: 4px; }
+    #ctl .ctl.ra { width: 100%; }
+    #ctl .ctl.ra input[type=range] { flex: 1 1 auto; width: auto; min-width: 0; min-height: 32px; }
+    #ctl input[type=number] { width: 50px; min-height: 40px; padding: 2px 4px; }
+    #ctl .ctl.rb button { min-width: 44px; padding: 4px; }
+    #dial { width: 120px; height: 64px; }
+    #dial text.tk { font-size: 12px; }
+    #dial text.rl { font-size: 16px; }
+    #stage { height: 232px; }
+    #acts { flex-wrap: nowrap; gap: 4px; padding: 6px 8px; }
+    #acts button { flex: 1 1 0; min-width: 0; padding: 4px 1px; white-space: nowrap; }
+    #exbar { flex-wrap: wrap; gap: 4px; }
+    #exbar button { flex: 1 1 28%; min-width: 0; padding: 4px 1px; white-space: nowrap; }
+    #exdesc { font-size: 12px; line-height: 1.4; }
+    #info { padding: 0 8px; gap: 4px; }
+    .box { flex: 1 1 100%; font-size: 12px; line-height: 1.4; padding: 5px 8px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <button id="tBuild" class="on">합 공식 만들기</button>
+    <button id="tApply">활용하기</button>
+    <button id="bReset" class="warn">처음으로</button>
+    <div id="eq"></div>
+  </div>
+
+  <!-- 설정 줄: 첫 조각 a, 축소 비율 r -->
+  <div class="row" id="ctl">
+    <div class="ctl ra">
+      <label for="aRange"><span class="lg">첫 조각 </span>a</label>
+      <input id="aRange" type="range" min="0.5" max="2" step="0.1" value="1" />
+      <input id="aNum" type="number" min="0.5" max="2" step="0.1" value="1" aria-label="a 값" />
+    </div>
+    <div class="ctl rb">
+      <label class="lg">축소 비율 r (눈금판을 돌려요)</label>
+      <svg id="dial" viewBox="0 0 180 96" role="img" aria-label="r 눈금판"></svg>
+      <button id="rDown" aria-label="r 줄이기">−</button>
+      <input id="rNum" type="number" step="0.05" value="0.5" aria-label="r 값" />
+      <button id="rUp" aria-label="r 늘리기">+</button>
+    </div>
+    <label class="ctl"><input id="wide" type="checkbox" /> <span class="lg">범위 넓히기 (발산 관찰용 ±1.2)</span><span class="sm">넓히기</span></label>
+  </div>
+
+  <!-- 활용 탭: 예제 -->
+  <div class="row" id="exbar" hidden>
+    <button id="ex1">① 순환소수 0.2727…</button>
+    <button id="ex2">② 튀는 공</button>
+    <button id="ex3">③ 정사각형 안 정사각형</button>
+    <div id="exdesc"></div>
+  </div>
+
+  <div id="stage"><canvas id="cv"></canvas></div>
+
+  <div id="acts">
+    <button id="bIns" class="on">복사본 끼우기</button>
+    <button id="bTen">10번 끼우기</button>
+    <button id="bUndo">하나 되돌리기</button>
+    <button id="bLim">극한 위치 보기</button>
+    <button id="bForm">식 맞추기</button>
+  </div>
+  <div id="warn" hidden></div>
+
+  <div id="info">
+    <div class="box" id="hint"></div>
+    <div class="box" id="stat"></div>
+  </div>
+
+  <div id="fpanel" hidden></div>
+
+  <details>
+    <summary>질문 보기</summary>
+    <ol id="qs"></ol>
+  </details>
+  <div id="note">화면은 최대 30번까지 끼운 유한한 그림입니다. 무한 번 끼운 '전체'는 |r| &lt; 1 일 때만 길이가 정해지며, 그 길이가 Sₙ 의 극한 a/(1−r) 입니다.</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var cv = $("cv"), ctx = cv.getContext("2d"), stage = $("stage");
+  var W = 300, H = 290, DPR = 1, CP = false; // CP: 좁은 화면(그림판 낮음)
+  var NMAX = 30;
+
+  // ── 상태 ──────────────────────────────────────────────────
+  // tab: build | apply, mode: strip | dec | ball | sq
+  var st = { tab: "build", mode: "strip", a: 1, r: 0.5, n: 0, limit: false, wide: false,
+             p: 0, flash: 0, glow: "", glowT: 0, fa: false, fr: false, steps: 0, formOpen: false, hintKey: "start" };
+  var hist = [];
+  var anim = null, drag = null, tenTimer = null;
+
+  // ── 계산 ──────────────────────────────────────────────────
+  // 점화식 S(n+1) = a + r·S(n), S(0 번 끼움) = a
+  function Sn(n) { var s = st.a; for (var k = 0; k < n; k++) s = st.a + st.r * s; return s; }
+  // 공식값 a(1-r^(n+1))/(1-r), r=1 이면 (n+1)a
+  function Sform(n) {
+    if (Math.abs(st.r - 1) < 1e-9) return (n + 1) * st.a;
+    return st.a * (1 - Math.pow(st.r, n + 1)) / (1 - st.r);
+  }
+  function limitVal() { return Math.abs(st.r) < 1 ? st.a / (1 - st.r) : null; }
+  // 그림: 첫 조각 [0,a] + 이전 그림을 점 a 기준으로 r배(부호 있는 닮음)
+  function figure(n) {
+    var a = st.a, r = st.r, segs = [{ lo: 0, hi: a, d: 0 }];
+    for (var k = 0; k < n; k++) {
+      var nx = [{ lo: 0, hi: a, d: 0 }];
+      for (var i = 0; i < segs.length; i++) nx.push({ lo: a + r * segs[i].lo, hi: a + r * segs[i].hi, d: segs[i].d + 1 });
+      segs = nx;
+    }
+    return segs;
+  }
+  function copyOf(n) {
+    var a = st.a, r = st.r, f = figure(n), out = [];
+    for (var i = 0; i < f.length; i++) out.push({ lo: a + r * f[i].lo, hi: a + r * f[i].hi, d: f[i].d + 1 });
+    return out;
+  }
+  function fmt(x, d) {
+    if (x === null || x === undefined || !isFinite(x)) return "너무 커요";
+    if (Math.abs(x) > 1e9) return x.toExponential(2);
+    d = d === undefined ? 6 : d;
+    var s = parseFloat(x.toFixed(d)).toString();
+    return s === "-0" ? "0" : s;
+  }
+  // 자 눈금 범위 (30번 끼운 그림의 범위, 최대 [-10,10])
+  function range() {
+    var a = st.a, r = st.r, lo = 0, hi = a, ok = true;
+    for (var k = 0; k < NMAX; k++) {
+      var l2 = r >= 0 ? a + r * lo : a + r * hi, h2 = r >= 0 ? a + r * hi : a + r * lo;
+      lo = Math.min(0, l2); hi = Math.max(a, h2);
+      if (!isFinite(lo) || !isFinite(hi)) { ok = false; break; }
+    }
+    if (!ok) { lo = -10; hi = 10; }
+    lo = Math.max(lo, -10); hi = Math.min(hi, 10);
+    var m = 0.06 * (hi - lo) + 0.02 * a;
+    return [lo - m, hi + m];
+  }
+  function niceStep(raw) {
+    var e = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), f = raw / e;
+    return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * e;
+  }
+  function col(d) { return d === 0 ? "#2563eb" : "hsl(217,85%," + Math.min(42 + d * 4, 86) + "%)"; }
+  function rowDist() { return CP ? (st.mode === "sq" ? 96 : st.mode === "ball" ? 80 : 112) : (st.mode === "sq" ? 140 : 120); }
+  // 버튼 글자: 좁은 화면에서는 짧게
+  var LABELS = { bIns: ["복사본 끼우기", "끼우기"], bTen: ["10번 끼우기", "10번"], bUndo: ["하나 되돌리기", "되돌리기"], bLim: ["극한 위치 보기", "극한 보기"], bForm: ["식 맞추기", "식 맞추기"],
+                 ex1: ["① 순환소수 0.2727…", "① 순환소수"], ex2: ["② 튀는 공", "② 튀는 공"], ex3: ["③ 정사각형 안 정사각형", "③ 정사각형"], bReset: ["처음으로", "처음"] };
+  function setLabels() { for (var id in LABELS) { var t = LABELS[id][CP ? 1 : 0]; if ($(id).textContent !== t) $(id).textContent = t; } }
+
+  // ── 그리기 ────────────────────────────────────────────────
+  function resize() {
+    DPR = window.devicePixelRatio || 1;
+    W = Math.max(200, stage.clientWidth); H = stage.clientHeight || 290; CP = H < 260; setLabels();
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    draw();
+  }
+  function label(t, x, y, color, align, font) {
+    ctx.fillStyle = color || "#6b7280"; ctx.textAlign = align || "left"; ctx.font = font || "12px sans-serif";
+    ctx.fillText(t, x, y);
+  }
+  function draw() {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "#fdfdfb"; ctx.fillRect(0, 0, W, H);
+    ctx.lineWidth = 1;
+    if (st.mode === "ball") drawBall(); else if (st.mode === "sq") drawSq(); else drawStrip();
+  }
+  function now() { return performance.now(); }
+
+  function drawStrip() {
+    var rg = range(), lo = rg[0], hi = rg[1], pad = 14, sx = (W - 2 * pad) / (hi - lo);
+    function X(u) { return pad + (u - lo) * sx; }
+    var R1 = 62, R2 = R1 + rowDist(), BH = 30, a = st.a, r = st.r, p = st.p;
+    var axisY = R1 + BH / 2 + 10;
+    // 자(눈금)
+    ctx.strokeStyle = "#9ca3af"; ctx.beginPath(); ctx.moveTo(X(lo), axisY); ctx.lineTo(X(hi), axisY); ctx.stroke();
+    var step = niceStep((hi - lo) / 8);
+    for (var k = Math.ceil(lo / step); k <= Math.floor(hi / step + 1e-9); k++) {
+      var tx = X(k * step);
+      ctx.beginPath(); ctx.moveTo(tx, axisY); ctx.lineTo(tx, axisY + 5); ctx.stroke();
+      label(fmt(k * step, 3), tx, axisY + 17, "#6b7280", "center", "11px sans-serif");
+    }
+    label("현재 그림", 10, 15, "#374151", "left", "bold 12px sans-serif");
+    // 대기칸
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = "#d1d5db";
+    ctx.strokeRect(6, R2 - BH / 2 - 14, W - 12, BH + 44); ctx.setLineDash([]);
+    label("복사본 대기칸 (현재 그림 전체 × r)", 12, R2 + BH / 2 + 24, "#6b7280");
+    if (Math.abs(r) >= 1) label("복사본이 줄어들지 않아요", W - 12, R2 + BH / 2 + 24, "#b91c1c", "right");
+    // 꽂는 자리(초록 점선)
+    ctx.setLineDash([5, 4]); ctx.strokeStyle = "#16a34a"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(X(a), R1 - BH / 2 - 6); ctx.lineTo(X(a), 142); ctx.stroke();
+    ctx.setLineDash([]); ctx.lineWidth = 1;
+    label("▲ 꽂는 자리", Math.min(Math.max(X(a), 44), W - 44), 140, "#16a34a", "center");
+    // 현재 그림
+    var segs = figure(st.n), tiny = false;
+    function bars(list, y, fixed, alpha) {
+      for (var i = 0; i < list.length; i++) {
+        var s = list[i], l = Math.min(s.lo, s.hi), h = Math.max(s.lo, s.hi);
+        var x1 = X(l), x2 = X(h), yy = y + (r < 0 ? Math.min(s.d, 6) * 3 : 0);
+        if (x2 - x1 < 0.5) { if (!fixed) tiny = true; continue; }
+        x1 = Math.max(x1, -2); x2 = Math.min(x2, W + 2);
+        if (x2 <= x1) continue;
+        ctx.globalAlpha = alpha; ctx.fillStyle = fixed || col(s.d);
+        ctx.fillRect(x1, yy - BH / 2, x2 - x1, BH);
+        ctx.strokeStyle = "#fff"; ctx.strokeRect(x1, yy - BH / 2, x2 - x1, BH);
+        ctx.globalAlpha = 1;
+      }
+    }
+    bars(segs, R1, null, 1);
+    if (tiny) label("(너무 작아 보이지 않음)", W - 10, 15, "#6b7280", "right");
+    // 그림 끝 위치 Sn
+    var sEnd = Sn(st.n), ex = X(sEnd);
+    if (isFinite(sEnd) && ex >= 0 && ex <= W) {
+      ctx.strokeStyle = "#111827"; ctx.beginPath(); ctx.moveTo(ex, R1 - BH / 2 - 2); ctx.lineTo(ex, axisY + 4); ctx.stroke();
+      label("Sₙ = " + fmt(sEnd, 4), Math.min(Math.max(ex, 50), W - 50), axisY + 32, "#111827", "center", "bold 12px sans-serif");
+    } else {
+      var right = !(sEnd < lo);
+      label(right ? "Sₙ = " + fmt(sEnd, 2) + " ▶" : "◀ Sₙ = " + fmt(sEnd, 2), right ? W - 8 : 8, axisY + 32, "#b91c1c", right ? "right" : "left", "bold 12px sans-serif");
+    }
+    // 극한 위치
+    var L = limitVal();
+    if (st.limit) {
+      if (L !== null) {
+        ctx.strokeStyle = "#16a34a"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X(L), 22); ctx.lineTo(X(L), R2 + BH / 2 + 4); ctx.stroke(); ctx.lineWidth = 1;
+        label("a/(1−r) = " + fmt(L, 4), Math.min(Math.max(X(L), 60), W - 60), 26, "#15803d", "center", "bold 12px sans-serif");
+      } else label("|r| ≥ 1 : 한 값에 다가가지 않아요", W / 2, 26, "#b91c1c", "center");
+    }
+    // 복사본
+    var cps = copyOf(st.n), y2 = R2 + (R1 - R2) * p;
+    bars(cps, y2, "#9ca3af", 0.85);
+    var cLo = Infinity, cHi = -Infinity;
+    cps.forEach(function (s) { cLo = Math.min(cLo, s.lo, s.hi); cHi = Math.max(cHi, s.lo, s.hi); });
+    var hx = Math.min(Math.max(X((cLo + cHi) / 2), 34), W - 34);
+    if (!isFinite(hx)) hx = W / 2;
+    // 빛남(식 맞추기에서 탭)
+    var t = now();
+    ctx.lineWidth = 3;
+    if (st.glow === "first" && t < st.glowT) { ctx.strokeStyle = "#f59e0b"; ctx.strokeRect(X(0) - 2, R1 - BH / 2 - 3, X(a) - X(0) + 4, BH + 6); }
+    if (st.glow === "copy" && t < st.glowT) { ctx.strokeStyle = "#f59e0b"; ctx.strokeRect(Math.max(X(Math.min(cLo, cHi)) - 2, 0), y2 - BH / 2 - 3, Math.max(X(cHi) - X(cLo), 4) + 4, BH + 6); }
+    ctx.lineWidth = 1;
+    // 끼운 직후 괄호 표시
+    if (t < st.flash) {
+      var by = R1 - BH / 2 - 8, xa = X(a), xc1 = X(Math.min(cLo, cHi)), xc2 = X(Math.max(cLo, cHi));
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#2563eb"; ctx.beginPath(); ctx.moveTo(X(0), by); ctx.lineTo(xa, by); ctx.stroke();
+      ctx.strokeStyle = "#ea580c"; ctx.beginPath(); ctx.moveTo(Math.max(xc1, 0), by); ctx.lineTo(Math.min(xc2, W), by); ctx.stroke();
+      ctx.lineWidth = 1;
+      label("첫 조각 + (전체 × r)", W / 2, by - 6, "#374151", "center", "bold 12px sans-serif");
+    }
+    drawHandle(hx, y2);
+  }
+  function drawHandle(x, y) {
+    ctx.fillStyle = "#fff"; ctx.strokeStyle = "#2563eb"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, y, 22, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.lineWidth = 1;
+    label("⇕", x, y + 7, "#2563eb", "center", "bold 20px sans-serif");
+  }
+
+  // 튀는 공: 처음 낙하 3 m + 튀는 호(각 호의 이동거리 4·(2/3)^i)
+  function drawBall() {
+    var r = st.r, p = st.p, g1 = CP ? 128 : 150, g2 = g1 + rowDist() * (1 - p), ppm = CP ? 33 : 40, k = ppm / 40, x0 = 52;
+    var rail = g1 + rowDist(), boxTop = CP ? rail - 72 : 184, boxH = CP ? 92 : 100; // 대기칸 상자
+    var n = st.n, xs = [x0];
+    function h(i) { return 3 * Math.pow(r, i + 1); }
+    for (var i = 0; i <= n + 1; i++) xs.push(xs[i] + 26 * Math.sqrt(h(i)));
+    label("현재 그림 (높이 3 m 에서 낙하)", 10, 15, "#374151", "left", "bold 12px sans-serif");
+    ctx.strokeStyle = "#9ca3af";
+    ctx.beginPath(); ctx.moveTo(10, g1); ctx.lineTo(W - 10, g1); ctx.stroke();
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = "#d1d5db";
+    ctx.strokeRect(6, boxTop, W - 12, boxH); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(10, rail); ctx.lineTo(W - 10, rail); ctx.stroke();
+    label("복사본 대기칸 (튄 뒤 전체 경로 × 2/3)", 12, boxTop + 15, "#6b7280"); // 상자 윗변 안쪽(점선과 안 겹치게)
+    // 처음 낙하
+    ctx.strokeStyle = "#111827"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(x0, g1 - 3 * ppm); ctx.lineTo(x0, g1); ctx.stroke(); ctx.lineWidth = 1;
+    label("처음 낙하 3 m", x0 + 6, g1 - 3 * ppm + 4, "#111827", "left", "11px sans-serif"); // 왼쪽이 잘리지 않게 선 오른쪽에
+    // 꽂는 자리
+    ctx.setLineDash([5, 4]); ctx.strokeStyle = "#16a34a"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(xs[1], g1 - 90 * k); ctx.lineTo(xs[1], g1 + 6); ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth = 1;
+    label("꽂는 자리", xs[1], g1 - 94 * k, "#16a34a", "center", "11px sans-serif");
+    function arc(i, g, color) {
+      var w = xs[i + 1] - xs[i];
+      if (w < 0.5) return;
+      ctx.strokeStyle = color; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(xs[i], g); ctx.quadraticCurveTo(xs[i] + w / 2, g - 2 * ppm * h(i), xs[i + 1], g); ctx.stroke(); ctx.lineWidth = 1;
+    }
+    for (var j = 0; j <= n; j++) arc(j, g1, col(j));
+    for (var c = 1; c <= n + 1; c++) arc(c, g2, "#9ca3af");
+    var t = now();
+    // 강조(첫 조각): 첫 왕복 호만 감싼다(낙하선 제외)
+    if (st.glow === "first" && t < st.glowT) { ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 3; ctx.strokeRect(x0 + 4, g1 - ppm * h(0) - 4, xs[1] - x0, ppm * h(0) + 8); ctx.lineWidth = 1; }
+    if (st.glow === "copy" && t < st.glowT) { ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 3; ctx.strokeRect(xs[1] - 3, g2 - 60 * k, xs[n + 2] - xs[1] + 6, 64 * k); ctx.lineWidth = 1; }
+    if (t < st.flash) label("첫 조각 + (전체 × r)", W / 2, 34, "#374151", "center", "bold 12px sans-serif");
+    drawHandle(Math.min(xs[1] + (xs[n + 2] - xs[1]) / 2, W - 34), g2 - 24);
+  }
+
+  // 정사각형 안 정사각형: 단계 i 의 한 변 = 100/(√2)^i, 45°씩 회전
+  function drawSq() {
+    var p = st.p, cx = W / 2, cy1 = CP ? 76 : 92, cy2 = cy1 + rowDist() * (1 - p), n = st.n, sc = CP ? 0.8 : 1, base2 = cy1 + rowDist();
+    label("현재 그림 (한 변 2 인 정사각형, 넓이 4)", 10, 15, "#374151", "left", "bold 12px sans-serif");
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = "#d1d5db"; ctx.strokeRect(6, base2 - (CP ? 42 : 50), W - 12, CP ? 84 : 104); ctx.setLineDash([]);
+    // 대기칸 글자: 좁은 화면은 상자 아래, 넓은 화면은 상자 안 왼쪽 아래(점선과 안 겹치게)
+    label("복사본 대기칸 (안쪽 그림 × 1/2 넓이)", 12, CP ? base2 + 56 : base2 + 48, "#6b7280");
+    function sq(i, y, fill, alpha) {
+      var s = 100 * sc / Math.pow(Math.SQRT2, i);
+      if (s < 1) return;
+      ctx.save(); ctx.translate(cx, y); ctx.rotate(i * Math.PI / 4);
+      ctx.globalAlpha = alpha; ctx.fillStyle = fill; ctx.fillRect(-s / 2, -s / 2, s, s); ctx.globalAlpha = 1;
+      ctx.strokeStyle = "#fff"; ctx.strokeRect(-s / 2, -s / 2, s, s); ctx.restore();
+    }
+    for (var i = 0; i <= n; i++) sq(i, cy1, col(i), i === 0 ? 0.9 : 0.55);
+    for (var c = 1; c <= n + 1; c++) sq(c, cy2, "#9ca3af", 0.5);
+    ctx.setLineDash([5, 4]); ctx.strokeStyle = "#16a34a"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy1, 16, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth = 1;
+    label(CP ? "꽂는 자리" : "꽂는 자리 (중점 정사각형)", cx + (CP ? 48 : 62), cy1 + 4, "#16a34a", "left", "11px sans-serif");
+    var t = now();
+    if (st.glow === "first" && t < st.glowT) { ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 3; ctx.strokeRect(cx - 54 * sc, cy1 - 54 * sc, 108 * sc, 108 * sc); ctx.lineWidth = 1; }
+    if (st.glow === "copy" && t < st.glowT) { ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 3; ctx.strokeRect(cx - 40 * sc, cy2 - 40 * sc, 80 * sc, 80 * sc); ctx.lineWidth = 1; }
+    if (t < st.flash) label("첫 조각 + (전체 × r)", W - 10, 15, "#374151", "right", "bold 12px sans-serif");
+    drawHandle(cx + 70, cy2);
+  }
+
+  // ── 화면 갱신 ─────────────────────────────────────────────
+  var QS_BUILD = [
+    "복사본을 여러 번 끼운 뒤, 그림의 '첫 조각을 뺀 나머지'는 무엇과 닮았나요? 몇 배인가요?",
+    "끝없이 끼운 전체 길이를 S라 하면, 질문 1을 식으로 쓰면 S = a + □ 입니다. S 를 구해 보고 [극한 위치 보기]로 확인하세요.",
+    "r 을 0.9, 1, −0.5, −1 로 바꿔 보세요(1 이상은 [범위 넓히기]). 어떤 때 그림 길이가 한 값에 다가가나요? S = a + rS 라는 식을 쓸 수 없는 경우는 언제일까요?"
+  ];
+  var QS_APPLY = [
+    "0.272727… 을 '첫 조각 + 그 복사본'으로 보면 첫 조각과 r 은 무엇인가요? 튀는 공에서는 왜 첫 낙하만 따로 떼어야 할까요?",
+    "정사각형 안 정사각형에서 넓이의 비 r 이 왜 1/2 일까요? (한 변의 비는 1/√2)"
+  ];
+  var EXDESC = {
+    dec: "첫 조각 0.27, 복사본은 1/100배. 0.27 + 0.0027 + … → 27/99 = 3/11",
+    ball: "높이 3 m 에서 떨어져 매번 2/3 높이로 튑니다. 처음 낙하 3 m 는 따로 떼고, 튀어 오른 뒤 한 번의 왕복 2·3·(2/3) = 4 m 가 첫 조각입니다. 총 거리 3 + 4/(1−2/3) = 15 m",
+    sq: "한 변 2 인 정사각형의 각 변 중점을 이어 정사각형을 계속 만들 때 넓이의 합. 첫 조각 넓이 4, r = 1/2 → 합 8"
+  };
+  function hintText() {
+    if (st.mode === "ball") return st.hintKey === "start"
+      ? "처음 낙하 3 m 는 따로 떼어 둡니다. 파란 호가 첫 조각(왕복 4 m), 아래 회색은 '튄 뒤 전체 경로'를 2/3배 한 복사본이에요. 초록 점선 자리에 끼워 보세요."
+      : "새 경로 = 첫 왕복 + (방금 전 경로 × 2/3). 낙하 3 m 는 이 반복에 들어가지 않아요.";
+    if (st.mode === "sq") return st.hintKey === "start"
+      ? "가장 큰 정사각형(넓이 4)이 첫 조각이에요. 회색은 안쪽 그림 전체의 복사본(넓이 1/2배). 초록 점선 자리에 끼워 보세요."
+      : "새 그림 = 첫 정사각형 + (방금 전 그림 × 1/2 넓이). 안쪽 정사각형이 바깥과 닮았나요?";
+    return st.hintKey === "start"
+      ? "파란 조각이 첫째 항 a 예요. 아래 회색 복사본은 '지금 그림 전체'를 r배로 줄인 거예요. 초록 점선 자리에 끼워 보세요."
+      : "새 그림 = 첫 조각 + (방금 전 그림 × r). 끼운 복사본이 원래 그림과 똑같이 생겼나요?";
+  }
+  function row(k, v, cls) { return "<div><span>" + k + "</span><b" + (cls ? ' class="' + cls + '"' : "") + ">" + v + "</b></div>"; }
+  function update() {
+    var a = st.a, r = st.r, n = st.n, s = Sn(n), L = limitVal(), f = Sform(n), m = st.mode;
+    // 상단 식
+    var eq;
+    if (m === "dec") eq = "0.2727… = 0.27 + 0.27×0.01 + 0.27×0.01² + …";
+    else if (m === "ball") eq = "총 거리 = 3 + 4 + 4·(2/3) + 4·(2/3)² + …";
+    else if (m === "sq") eq = "넓이의 합 = 4 + 4·(1/2) + 4·(1/2)² + …";
+    else eq = "S = a + ar + ar² + …  (a = " + fmt(a, 2) + ", r = " + fmt(r, 2) + ")";
+    $("eq").textContent = eq;
+    // 상태 상자
+    var h = "";
+    h += row("끼운 횟수 n", n + " (조각 " + (n + 1) + "개)");
+    var unit = m === "ball" ? " m" : "";
+    if (Math.abs(r - 1) < 1e-9) {
+      h += row("그림 길이 Sₙ", "(n+1) × a = " + fmt(f, 4));
+      h += row("a/(1−r)", "정의되지 않음(0으로 나눔)", "");
+    } else {
+      h += row("그림 길이 Sₙ" + (m === "ball" ? " (튄 뒤 부분)" : ""), fmt(s, 6) + unit);
+      var diff = Math.abs(s - f);
+      h += row("공식 a(1−rⁿ⁺¹)/(1−r)", fmt(f, 6) + (diff < 1e-6 * Math.max(1, Math.abs(f)) ? " ✔ 같음" : " (확인 필요)"), "ok");
+      if (L !== null) { h += row("a/(1−r)", fmt(L, 6) + unit); h += row("차이", fmt(L - s, 6)); }
+      else h += row("a/(1−r)", "한 값에 다가가지 않음");
+    }
+    if (m === "ball") h += row("총 이동거리", fmt(3 + s, 4) + " m (극한 3 + 12 = 15 m)");
+    if (m === "dec") h += row("요약", "0.27 + 0.0027 + … → 27/99 = 3/11");
+    if (m === "sq") h += row("요약", "합 → 4/(1 − 1/2) = 8");
+    $("stat").innerHTML = h;
+    $("hint").textContent = hintText();
+    // 경고
+    var w = $("warn");
+    if (m === "strip" && Math.abs(r) >= 1) { w.hidden = false; w.textContent = "복사본이 줄어들지 않아요. 끼울수록 끝없이 커지거나 흔들립니다. (이때는 S = a + rS 에서 S 를 구할 수 없어요)"; }
+    else w.hidden = true;
+    // 컨트롤
+    $("aRange").value = a; if (document.activeElement !== $("aNum")) $("aNum").value = fmt(a, 2);
+    if (document.activeElement !== $("rNum")) $("rNum").value = fmt(r, 2);
+    var lim = rLimits();
+    $("rNum").min = lim[0]; $("rNum").max = lim[1];
+    $("rDown").disabled = r <= lim[0] + 1e-9; $("rUp").disabled = r >= lim[1] - 1e-9;
+    $("bIns").disabled = n >= NMAX; $("bTen").disabled = n >= NMAX; $("bUndo").disabled = hist.length === 0;
+    $("bLim").classList.toggle("on", st.limit);
+    $("bForm").classList.toggle("on", st.formOpen);
+    $("tBuild").classList.toggle("on", st.tab === "build"); $("tApply").classList.toggle("on", st.tab === "apply");
+    $("ctl").hidden = st.tab !== "build"; $("exbar").hidden = st.tab !== "apply";
+    ["ex1", "ex2", "ex3"].forEach(function (id, i) { $(id).classList.toggle("on", st.tab === "apply" && ["dec", "ball", "sq"][i] === m); });
+    $("exdesc").textContent = EXDESC[m] || "버튼을 눌러 예제를 고르세요.";
+    var qs = st.tab === "build" ? QS_BUILD : QS_APPLY;
+    $("qs").innerHTML = qs.map(function (q) { return "<li>" + q + "</li>"; }).join("");
+    renderDial(); renderForm();
+    kick();
+  }
+
+  // 식 맞추기 패널
+  function renderForm() {
+    var p = $("fpanel");
+    p.hidden = !st.formOpen;
+    if (!st.formOpen) return;
+    var a = st.a, r = st.r;
+    var h = '<p>S = <span class="blank">' + (st.fa ? "a" : "□") + '</span> + <span class="blank">' + (st.fr ? "r" : "□") + '</span> × S</p>';
+    h += '<p style="font-size:12px;color:#4b5563">그림에서 <b>첫 조각</b>(위쪽 파란 부분)과 <b>복사본</b>(아래 회색)을 각각 탭하세요. (S 는 끝없이 끼운 전체 길이)</p>';
+    h += '<p><button id="fa">첫 조각 탭</button> <button id="fr">복사본 탭</button></p>';
+    if (st.fa && st.fr) {
+      var lines = [
+        "S = a + rS" + "   (a = " + fmt(a, 2) + ", r = " + fmt(r, 2) + ")",
+        "S − rS = a",
+        "(1 − r)S = a",
+        "S = a/(1 − r) = " + (Math.abs(r) < 1 ? fmt(a, 2) + "/(1 − " + fmt(r, 2) + ") = " + fmt(a / (1 - r), 4) + (st.mode === "ball" ? "  (튄 뒤 부분, 총거리 = 3 + " + fmt(a / (1 - r), 4) + ")" : "") : "— |r| ≥ 1 이라 S 가 정해지지 않아 쓸 수 없어요")
+      ];
+      for (var i = 0; i < Math.min(st.steps + 1, lines.length); i++) h += "<p><b>" + lines[i] + "</b></p>";
+      if (st.steps + 1 < lines.length) h += '<p><button id="fnext">다음 줄 ▸</button></p>';
+      else h += '<p style="font-size:12px;color:#b45309">S 가 한 값으로 존재(|r| &lt; 1)할 때만 이렇게 풀 수 있어요.</p>';
+    }
+    p.innerHTML = h;
+    $("fa").onclick = function () { tapFirst(); }; $("fr").onclick = function () { tapCopy(); };
+    var nx = $("fnext"); if (nx) nx.onclick = function () { st.steps++; renderForm(); };
+  }
+
+  // r 눈금판(반원)
+  function rLimits() { return st.wide ? [-1.2, 1.2] : [-0.8, 0.9]; }
+  var DCX = 90, DCY = 84, DR = 66;
+  function renderDial() {
+    var lim = rLimits(), lo = lim[0], hi = lim[1], s = "";
+    s += '<path d="M' + (DCX - DR) + " " + DCY + " A" + DR + " " + DR + " 0 0 1 " + (DCX + DR) + " " + DCY + '" fill="#f9fafb" stroke="#9ca3af" stroke-width="2"/>';
+    function ang(v) { return Math.PI * (1 - (v - lo) / (hi - lo)); }
+    for (var v = Math.ceil(lo * 10 - 1e-9) / 10; v <= hi + 1e-9; v += 0.1) {
+      var t = ang(v), big = Math.abs(Math.round(v * 10) % 5) === 0;
+      var x1 = DCX + (DR - (big ? 10 : 5)) * Math.cos(t), y1 = DCY - (DR - (big ? 10 : 5)) * Math.sin(t);
+      var x2 = DCX + DR * Math.cos(t), y2 = DCY - DR * Math.sin(t);
+      s += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="#6b7280"/>';
+    }
+    [0].concat([lo, hi]).forEach(function (v) {
+      var t = ang(v), x = DCX + (DR - 20) * Math.cos(t), y = DCY - (DR - 20) * Math.sin(t) + 3;
+      s += '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" class="tk" font-size="9" text-anchor="middle" fill="#4b5563">' + v + "</text>";
+    });
+    var tt = ang(Math.min(Math.max(st.r, lo), hi));
+    s += '<line x1="' + DCX + '" y1="' + DCY + '" x2="' + (DCX + (DR - 4) * Math.cos(tt)).toFixed(1) + '" y2="' + (DCY - (DR - 4) * Math.sin(tt)).toFixed(1) + '" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>';
+    s += '<circle cx="' + DCX + '" cy="' + DCY + '" r="6" fill="#2563eb"/>';
+    s += '<text class="rl" x="' + DCX + '" y="' + (DCY - 22) + '" font-size="13" text-anchor="middle" font-weight="700" fill="#1f2937">r = ' + fmt(st.r, 2) + "</text>";
+    $("dial").innerHTML = s;
+  }
+  function dialPick(e) {
+    var bb = $("dial").getBoundingClientRect(), k = 180 / bb.width;
+    var x = (e.clientX - bb.left) * k, y = (e.clientY - bb.top) * k;
+    var t = Math.atan2(DCY - y, x - DCX);
+    if (t < -Math.PI / 2) t = Math.PI; else if (t < 0) t = 0;
+    var lim = rLimits();
+    setR(lim[0] + (1 - t / Math.PI) * (lim[1] - lim[0]));
+  }
+
+  // ── 조작 ──────────────────────────────────────────────────
+  function resetFigure() { st.n = 0; hist = []; st.p = 0; st.flash = 0; st.hintKey = "start"; anim = null; stopTen(); }
+  function setA(v) {
+    v = parseFloat(v); if (!isFinite(v)) return;
+    st.a = Math.min(2, Math.max(0.5, Math.round(v * 10) / 10));
+    update();
+  }
+  function setR(v) {
+    v = parseFloat(v); if (!isFinite(v)) return;
+    var lim = rLimits();
+    v = Math.min(lim[1], Math.max(lim[0], Math.round(v * 20) / 20));
+    if (v === st.r) { update(); return; }
+    st.r = v; resetFigure(); st.steps = 0; update();
+  }
+  function commit() {
+    if (st.n >= NMAX) return;
+    hist.push(st.n); st.n++; st.p = 0; st.flash = now() + 1000; st.hintKey = "after"; update();
+  }
+  function startAnim(to, doCommit, dur) {
+    if (anim) return;
+    anim = { from: st.p, to: to, t0: now(), dur: dur || 300, commit: doCommit };
+    kick();
+  }
+  function insertOne() {
+    if (anim || st.n >= NMAX) return;
+    stopTen(); startAnim(1, true, 300);
+  }
+  function stopTen() { if (tenTimer) { clearInterval(tenTimer); tenTimer = null; } }
+  function insertTen() {
+    if (anim || tenTimer) return;
+    var cnt = 0;
+    tenTimer = setInterval(function () {
+      if (cnt >= 10 || st.n >= NMAX) { stopTen(); return; }
+      cnt++; commit();
+    }, 80);
+  }
+  function undo() {
+    if (!hist.length) return;
+    stopTen(); anim = null; st.p = 0; st.n = hist.pop(); st.flash = 0; if (st.n === 0) st.hintKey = "start"; update();
+  }
+  function setExample(m) {
+    st.tab = "apply"; st.mode = m;
+    if (m === "dec") { st.a = 0.27; st.r = 0.01; }
+    else if (m === "ball") { st.a = 4; st.r = 2 / 3; }
+    else { st.a = 4; st.r = 0.5; }
+    resetFigure(); update();
+  }
+  function goBuild() {
+    st.tab = "build"; st.mode = "strip"; st.a = 1; st.r = 0.5; resetFigure(); update();
+  }
+  function tapFirst() {
+    st.glow = "first"; st.glowT = now() + 700;
+    if (st.formOpen) { st.fa = true; renderForm(); }
+    kick();
+  }
+  function tapCopy() {
+    st.glow = "copy"; st.glowT = now() + 700;
+    if (st.formOpen) { st.fr = true; renderForm(); }
+    kick();
+  }
+
+  // 캔버스 끌기: 아래쪽 복사본을 위로 끌어 올려 꽂는다. 거의 안 움직이면 '탭'.
+  function pos(e) { var b = cv.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; }
+  cv.addEventListener("pointerdown", function (e) {
+    if (anim) return;
+    var q = pos(e);
+    drag = { id: e.pointerId, sx: q.x, sy: q.y, lower: q.y > H * 0.5, moved: false };
+    try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+    e.preventDefault();
+  });
+  cv.addEventListener("pointermove", function (e) {
+    if (!drag || drag.id !== e.pointerId) return;
+    var q = pos(e);
+    if (Math.abs(q.x - drag.sx) + Math.abs(q.y - drag.sy) > 6) drag.moved = true;
+    if (drag.moved && drag.lower) {
+      st.p = Math.min(1, Math.max(0, (drag.sy - q.y) / rowDist()));
+      kick();
+    }
+  });
+  function endDrag(e) {
+    if (!drag || drag.id !== e.pointerId) return;
+    var d = drag; drag = null;
+    if (!d.moved) { if (d.lower) tapCopy(); else tapFirst(); return; }
+    if (d.lower) {
+      if (st.p > 0.55 && st.n < NMAX) startAnim(1, true, 300 * (1 - st.p) + 80);
+      else startAnim(0, false, 200);
+    }
+  }
+  cv.addEventListener("pointerup", endDrag);
+  cv.addEventListener("pointercancel", endDrag);
+
+  // 그리기 반복(애니메이션·빛남·괄호가 있을 때만)
+  var looping = false;
+  function kick() { if (!looping) { looping = true; requestAnimationFrame(loop); } }
+  function loop() {
+    var t = now();
+    if (anim) {
+      var u = Math.min(1, (t - anim.t0) / anim.dur);
+      st.p = anim.from + (anim.to - anim.from) * (u * (2 - u));
+      if (u >= 1) { var a2 = anim; anim = null; st.p = a2.to; if (a2.commit) commit(); }
+    }
+    draw();
+    if (anim || t < st.glowT || t < st.flash || (drag && drag.moved)) requestAnimationFrame(loop); else looping = false;
+  }
+
+  // ── 이벤트 연결 ───────────────────────────────────────────
+  $("tBuild").onclick = goBuild;
+  $("tApply").onclick = function () { setExample(st.mode === "strip" ? "dec" : st.mode); };
+  $("bReset").onclick = function () { st.formOpen = false; st.fa = st.fr = false; st.steps = 0; st.limit = false; st.wide = false; $("wide").checked = false; goBuild(); };
+  $("ex1").onclick = function () { setExample("dec"); };
+  $("ex2").onclick = function () { setExample("ball"); };
+  $("ex3").onclick = function () { setExample("sq"); };
+  $("aRange").addEventListener("input", function () { setA(this.value); });
+  $("aNum").addEventListener("change", function () { setA(this.value); });
+  $("rNum").addEventListener("change", function () { setR(this.value); });
+  $("rDown").onclick = function () { setR(st.r - 0.05); };
+  $("rUp").onclick = function () { setR(st.r + 0.05); };
+  $("wide").addEventListener("change", function () { st.wide = this.checked; setR(st.r); });
+  $("bIns").onclick = insertOne;
+  $("bTen").onclick = insertTen;
+  $("bUndo").onclick = undo;
+  $("bLim").onclick = function () { st.limit = !st.limit; update(); };
+  $("bForm").onclick = function () { st.formOpen = !st.formOpen; update(); };
+  var dialDrag = false;
+  $("dial").addEventListener("pointerdown", function (e) { dialDrag = true; try { this.setPointerCapture(e.pointerId); } catch (x) {} dialPick(e); e.preventDefault(); });
+  $("dial").addEventListener("pointermove", function (e) { if (dialDrag) dialPick(e); });
+  $("dial").addEventListener("pointerup", function () { dialDrag = false; });
+  $("dial").addEventListener("pointercancel", function () { dialDrag = false; });
+  window.addEventListener("resize", resize);
+
+  resize();
+  update();
+})();
+</script>
+</body>
+</html>

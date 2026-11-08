@@ -39,6 +39,7 @@
 2. **제작** — spec 을 주고 `content/hands-on/<slug>.html` 작성. 지시 첫 줄: `역할 파일: hands-on-team/roles/builder.md`.
 3. **자동 점검(오케스트레이터가 직접)** — `python3 hands-on-team/tools/check_activity.py content/hands-on/<slug>.html`. 실패면 제작 한 칸 올려 다시(2번).
 4. **오르빗 검수** — 지시 첫 줄: `역할 파일: hands-on-team/roles/orbit.md`. 이번까지의 수준 기록을 함께 준다.
+   - 오르빗에게 휴대폰 390·360px, 높이 660 첫 화면에서 안내·버튼·결과가 보이는지 직접 재게 한다(LESSONS.md '미리 확인').
    - `FIX` → 해당 역할 한 칸 올려 수정 → 3번부터 다시. **오르빗 검수는 활동당 최대 3회.** 3회째도 FIX 면 `needs_teacher`.
    - `NEEDS_TEACHER` → 결과물 보존, 큐 `needs_teacher`, 5번으로.
    - `PASS` → 기록으로. (정리·게시는 선생님 OK 뒤 아침 세션이 한다)

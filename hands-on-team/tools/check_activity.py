@@ -47,7 +47,7 @@ def static_checks(html: str):
     return probs
 
 
-WRAPPER = """<!doctype html><html><head><meta charset="utf-8">
+WRAPPER = """<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>html,body{margin:0}iframe{border:0;width:100%;height:%HEIGHT%px;display:block}</style>
 </head><body><iframe id="f" sandbox="allow-scripts"></iframe>
 <script>document.getElementById('f').srcdoc = %SRC%;</script></body></html>"""

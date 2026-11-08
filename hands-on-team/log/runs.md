@@ -7,3 +7,4 @@
 - 2026-11-08T20:00+09:00 · calc2-01-04 · awaiting_ok · 오르빗 2회차 PASS (제작 sonnet-low→sonnet-medium)
 - 2026-11-09T00:00+09:00 · calc2-01-05 · awaiting_ok · 오르빗 3회차 PASS (제작 sonnet-low→sonnet-medium, 오르빗 opus-low→opus-medium) · 점검 도구 모바일 980px 촬영 오류 고침
 - 2026-11-09T04:00+09:00 · calc2-02-01 · awaiting_ok · 오르빗 2회차 PASS (제작 sonnet-low→sonnet-medium)
+- 2026-11-09T06:30+09:00 · 게시 요청 · calc2-01-04, calc2-01-05, calc2-02-01

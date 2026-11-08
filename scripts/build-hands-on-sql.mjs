@@ -58,6 +58,39 @@ export const HANDS_ON = [
     order_index: 3,
     height: 660,
   },
+  {
+    slug: "calc2-series-stacking",
+    file: "content/hands-on/calc2-series-stacking.html",
+    title: "막대 이어 붙이기 — 무한히 더하면 어디까지 갈까",
+    summary:
+      "항 aₙ을 길이 막대로 하나씩 자 위에 이어 붙이며 부분합 Sₙ 깃발이 어디로 가는지 보고, 급수의 수렴·발산이 '항'이 아니라 '부분합 수열'로 정해진다는 것과 \"aₙ→0 이어도 발산할 수 있다\"를 직접 확인한다.",
+    topic: "미적분Ⅱ · 수열의 극한",
+    school_level: "high",
+    order_index: 4,
+    height: 660,
+  },
+  {
+    slug: "calc2-geometric-self-similar",
+    file: "content/hands-on/calc2-geometric-self-similar.html",
+    title: "닮은 꼴 접어 넣기 — 전체 안에 전체가 들어 있다",
+    summary:
+      "첫 조각 a 옆에 '전체 그림을 r배로 줄인 복사본'을 끌어다 끼워 넣으며, 등비급수의 합 S가 S = a + rS 를 만족한다는 것을 눈으로 확인하고 S = a/(1−r) 를 이끌어 낸 뒤 순환소수·튀는 공 문제에 활용한다.",
+    topic: "미적분Ⅱ · 수열의 극한",
+    school_level: "high",
+    order_index: 5,
+    height: 660,
+  },
+  {
+    slug: "calc2-find-e-slope",
+    file: "content/hands-on/calc2-find-e-slope.html",
+    title: "기울기가 높이와 같아지는 밑 — e 를 손으로 찾기",
+    summary:
+      "지수함수 위의 점을 끌어 보면 접선의 기울기가 언제나 높이의 일정한 배수예요. 밑을 바꿔 그 배수가 1이 되는 밑을 찾으면, 그것이 e 입니다.",
+    topic: "미적분Ⅱ · 지수함수와 로그함수의 미분",
+    school_level: "high",
+    order_index: 6,
+    height: 660,
+  },
 ];
 
 const TAG = "$hands_on$";

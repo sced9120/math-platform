@@ -67,6 +67,9 @@
    실패 → `approved` 로 둔 채 이유를 보낸다. `SUPABASE_DB_URL` 비밀값이 없다는 오류면:
    "GitHub 저장소 Settings → Secrets and variables → Actions 에 SUPABASE_DB_URL(Supabase → Connect → Session pooler 문자열)을 넣고 Actions 탭에서 다시 실행하면 올라가요. 급하면 Supabase SQL Editor 에서 supabase/hands-on.sql 을 실행해도 됩니다."
    다음 아침 브리핑은 `approved` 항목을 다시 확인해 게시됐으면 `published` 로 바꾼다.
+   **선생님 지시(11/8): 아침 이후 선생님이 이 세션에서 활동하면(답장·비밀값 추가·재실행 등) 다음 날 브리핑으로 미루지 않는다.**
+   그 자리에서 Actions 상태를 다시 보고, 진행 중이면 끝날 때까지 기다린 뒤 바로 `published`/실패를 기록하고 승인함을 다시 publish 해 결과를 알린다.
+   아직 재실행 전이면 무엇이 남았는지 한 줄로 알리고, 선생님이 "다시 해 봐" 등으로 부르면 그때 바로 확인한다.
 
 ### 수정 <id>: 내용
 1. 내용을 보고 고칠 역할을 정한다(활동 구성·질문·수학 해석 → 설계, 화면·동작 → 제작). 선생님의 수정 요청은 '개선이 필요한 순간'이므로

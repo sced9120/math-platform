@@ -4,3 +4,4 @@
 - 2026-11-08T04:00+09:00 · calc2-01-03 · awaiting_ok · 기출 분석 신호 실패
 - 2026-11-08T06:20+09:00 · 게시 요청 · calc2-01-01, calc2-01-02, calc2-01-03
 - 2026-11-08T06:35+09:00 · 게시 실패 · calc2-01-01, calc2-01-02, calc2-01-03 · SUPABASE_DB_URL 비밀값 없음 (approved 유지)
+- 2026-11-08T20:00+09:00 · calc2-01-04 · awaiting_ok · 오르빗 2회차 PASS (제작 sonnet-low→sonnet-medium)

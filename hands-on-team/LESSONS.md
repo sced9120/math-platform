@@ -19,9 +19,11 @@
 | 아침 C절 OK 게시 직전 | 위 확인을 한 번 더. `SUPABASE_DB_URL` 없음 오류가 남아 있으면 | 등록·push 는 하되 "비밀값 넣고 Actions 재실행하면 바로 올라가요"를 게시 요청 답장에 먼저 적는다 |
 | 모든 세션 준비 | `add_repo` 도구가 없을 수 있음 | `/home/claude/math-platform` 이 이미 있으면 그 clone 으로 `git checkout main && git pull --rebase origin main`. 분리된 HEAD 상태면 먼저 main 으로 |
 | 오르빗 검수 | 모바일 스크린샷이 실제 폭(390)으로 찍혔는지: `check_activity.py` 의 WRAPPER 에 `<meta name="viewport" ...>` 가 있는지, mobile-start.png 의 글자가 PC 배치와 다른지 | 없으면 넣고 다시 점검. 오르빗은 390·360×660 에서 안내·버튼·결과 bottom ≤ 660 을 직접 잰다 |
+| 아침 B절 기출 아틀라스 줄 | `sced9120/gichul-atlas` 접근(이 세션 허용 저장소 목록에 있는지) — `add_repo` 가 없으면 붙일 수 없음 | 브리핑에 `📚 기출 분석: 이 세션에서 저장소 접근 불가 — 예약 작업 저장소 목록에 gichul-atlas 추가 필요` 한 줄 |
 | 답장 처리 | 대상 없이 "Ok"만 옴 | 한 번만 되묻는다(선택지: 전부 / 번호별 / 아직 아님) |
 
 ## 기록
 - 2026-11-08 · 아침 C절 게시 · Actions `만져보는 수학 게시` 실패 · 저장소 비밀값 `SUPABASE_DB_URL` 미설정 · 아침 브리핑에서 Actions 최근 결과를 먼저 보고 OK 전에 알림
 - 2026-11-08 · 아침 준비 · `add_repo` 도구 없음, clone 이 분리된 HEAD · 세션 환경 차이 · 기존 clone 으로 main checkout 후 pull
 - 2026-11-09 · 밤 오르빗 검수(calc2-01-05) · 모바일 스크린샷이 980px 배치로 찍혀 휴대폰 첫 화면(660) 밖으로 버튼·안내가 밀린 것을 1회차가 놓침 · 점검 도구 감싸는 페이지에 viewport meta 누락 · 도구 고침, 오르빗 검수에서 390·360×660 실측
+- 2026-11-10 · 아침 B절 기출 줄 · gichul-atlas 읽기 거부(허용 저장소 math-platform 뿐, add_repo 없음) · 예약 작업에 저장소가 안 붙어 있음 · 시작할 때 접근 확인, 안 되면 브리핑에 고칠 곳 한 줄

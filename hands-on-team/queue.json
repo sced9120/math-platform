@@ -154,10 +154,10 @@
    "slug": "calc2-angle-addition-frame",
    "levels_used": {
     "설계": "opus-low",
-    "제작": "sonnet-low",
+    "제작": "sonnet-low→sonnet-medium→sonnet-high",
     "오르빗": "opus-low"
    },
-   "notes": "오르빗 1회차 PASS. 다듬기 제안 3개(막대 줄 위치, β 음수 하이픈, 360 안내 줄바꿈)는 선택 사항.",
+   "notes": "오르빗 1회차 PASS. 다듬기 제안 3개(막대 줄 위치, β 음수 하이픈, 360 안내 줄바꿈)는 선택 사항. · 11/10 선생님 다듬기 3건 수락 → 제작 sonnet-medium·sonnet-high 수정, 오르빗 수정검수 2회차 PASS.",
    "started_at": "2026-11-09T20:04+09:00",
    "title": "돌린 판 위에서 또 돌리기 — 덧셈정리를 눈으로 쪼개기",
    "height": 660,

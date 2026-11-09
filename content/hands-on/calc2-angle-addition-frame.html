@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>돌린 판 위에서 또 돌리기 — 덧셈정리</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; color: #1f2937; -webkit-user-select: none; user-select: none; }
+  #app { max-width: 960px; margin: 0 auto; padding: 0 8px 6px; }
+  #title { display: flex; align-items: center; justify-content: space-between; height: 36px; gap: 6px; }
+  #title h1 { font-size: 15px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #title .sub { display: none; font-size: 12px; color: #6b7280; margin-left: 8px; font-weight: 400; }
+  button { font: inherit; font-size: 13px; border: 1px solid #d1d5db; background: #fff; color: #374151; border-radius: 10px; padding: 0 4px; min-height: 44px; cursor: pointer; line-height: 1.1; white-space: nowrap; }
+  button:hover { background: #f3f4f6; }
+  button.on { background: #2563eb; border-color: #2563eb; color: #fff; }
+  #bReset { min-height: 32px; padding: 0 10px; }
+  #hint { height: 40px; display: flex; align-items: center; font-size: 14px; line-height: 1.35; color: #374151; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 3px 9px; overflow: hidden; }
+  #stageWrap { display: flex; justify-content: center; margin: 4px 0; }
+  #stage { width: 300px; height: 300px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fdfdfb; touch-action: none; }
+  #cv { display: block; width: 100%; height: 100%; touch-action: none; }
+  #ctrl { display: flex; gap: 4px; }
+  #ctrl button { flex: 1; min-width: 0; }
+  #res { margin-top: 4px; height: 100px; border: 1px solid #e5e7eb; border-radius: 10px; padding: 5px 8px; background: #fff; font-size: 13px; line-height: 1.45; overflow: hidden; }
+  #angles { font-size: 12px; color: #6b7280; }
+  #angles b { color: #7c3aed; transition: font-weight .1s; }
+  #angles b.flash { font-weight: 900; color: #4c1d95; text-decoration: underline; }
+  #f1 { font-size: 14px; font-weight: 600; margin-top: 2px; }
+  #f2 { font-size: 13px; margin-top: 2px; }
+  .g { color: #16a34a; font-weight: 700; } .o { color: #ea580c; font-weight: 700; } .p { color: #7c3aed; font-weight: 700; }
+  #qbtn { width: 100%; margin-top: 4px; text-align: left; padding: 0 10px; }
+  #qbox { display: none; margin-top: 4px; border: 1px solid #e5e7eb; border-radius: 10px; padding: 8px 10px; font-size: 14px; line-height: 1.5; background: #f9fafb; }
+  #qbox.open { display: block; }
+  #qnav { display: flex; gap: 6px; margin-top: 6px; }
+  #qnav button { min-width: 56px; }
+  #note { margin-top: 6px; font-size: 12px; color: #9ca3af; line-height: 1.5; }
+  @media (max-width: 380px) { #stage { width: 280px; height: 280px; } #ctrl button { font-size: 12.5px; } }
+  @media (min-width: 720px) {
+    #title .sub { display: inline; }
+    #app { display: grid; grid-template-columns: 440px 1fr; column-gap: 14px; align-items: start; }
+    #title, #hint { grid-column: 1 / 3; }
+    #stageWrap { grid-column: 1; grid-row: 3 / 7; margin: 4px 0; }
+    #stage { width: 430px; height: 430px; }
+    #ctrl, #res, #qbtn, #qbox, #note { grid-column: 2; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="title"><h1>돌린 판 위에서 또 돌리기<span class="sub">덧셈정리를 눈으로 쪼개기</span></h1><button id="bReset">처음으로</button></div>
+  <div id="hint"></div>
+  <div id="stageWrap"><div id="stage"><canvas id="cv"></canvas></div></div>
+  <div id="ctrl">
+    <button id="bX" class="on">x 쪼개기</button>
+    <button id="bY">y 쪼개기</button>
+    <button id="bPieces" class="on">조각 보기</button>
+    <button id="bFlip">β 뒤집기</button>
+  </div>
+  <div id="res">
+    <div id="angles"></div>
+    <div id="f1"></div>
+    <div id="f2"></div>
+  </div>
+  <button id="qbtn"></button>
+  <div id="qbox"><div id="qtext"></div><div id="qnav"><button id="qprev">◂ 이전</button><button id="qnext">다음 ▸</button></div></div>
+  <div id="note">각도는 화면에서 1° 단위 근삿값이고, 표시된 소수는 셋째 자리에서 반올림한 값입니다.</div>
+</div>
+<script>
+(function () {
+  "use strict";
+  var D2R = Math.PI / 180;
+  var cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+  var stageEl = document.getElementById("stage");
+  var S = 300, DPR = 1, RNG = 1.3;
+
+  // ── 상태 ──────────────────────────────────────────
+  var st = { a: 45, b: 30, mode: "x", pieces: true, flipped: false, q: 0, moved: false, last: "A", hintKey: "start" };
+  var drag = null; // "A" 또는 "P"
+  var flashT = null, flashOn = false;
+
+  var QS = [
+    "α=45°, β=30° 에서 초록 막대와 주황 막대의 길이를 각각 cos, sin 으로 나타내 보세요. 둘을 합친 것이 왜 cos 75° 인가요?",
+    "α를 고정하고 β만 바꾸면 초록 화살표는 x′ 축 위에서만 움직여요. 그래서 초록 막대에 항상 cos α 가 곱해지는 이유를 설명해 보세요.",
+    "[β 뒤집기]로 cos(α−β) 공식을 만들고, 그것으로 cos 15° 의 정확한 값을 구해 보세요. 화면의 근삿값과 비교해 보세요.",
+    "sin(α+β) 를 cos(α+β) 로 나누고 분자·분모를 cos α cos β 로 나누면 tan(α+β) 는 어떻게 되나요? cos α cos β = 0 인 각에서는 왜 이 방법을 쓸 수 없나요?"
+  ];
+  var HINTS = {
+    start: "파란 손잡이로 판을 α만큼, 보라 점으로 판 위에서 β만큼 돌려 보세요.",
+    pieces: "점 P는 초록 화살표(판의 x′ 방향 cos β) + 주황 화살표(판의 y′ 방향 sin β)로 갈 수 있어요.",
+    ymode: "이번엔 두 화살표의 높이를 더해 보세요.",
+    flip: "β 대신 −β 를 넣으면 cos(−β)=cos β, sin(−β)=−sin β 예요. 어떤 항의 부호가 바뀌나요?"
+  };
+
+  // ── 좌표 변환 (수학좌표 ↔ 화면) ──────────────────
+  function sc() { return S / (2 * RNG); }
+  function tx(x) { return S / 2 + x * sc(); }
+  function ty(y) { return S / 2 - y * sc(); }
+  function fx(px) { return (px - S / 2) / sc(); }
+  function fy(py) { return -(py - S / 2) / sc(); }
+
+  function resize() {
+    var r = stageEl.getBoundingClientRect();
+    S = Math.round(r.width) - 2; if (S < 100) S = 280;
+    DPR = window.devicePixelRatio || 1;
+    cv.width = S * DPR; cv.height = S * DPR;
+    cv.style.width = S + "px"; cv.style.height = S + "px";
+    draw();
+  }
+
+  // ── 수학 ──────────────────────────────────────────
+  function calc() {
+    var a = st.a * D2R, b = st.b * D2R;
+    var ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);
+    return {
+      ca: ca, sa: sa, cb: cb, sb: sb,
+      u: [ca, sa], v: [-sa, ca],
+      g: [ca * cb, sa * cb],               // 초록 화살표 끝
+      P: [ca * cb - sa * sb, sa * cb + ca * sb]
+    };
+  }
+  function fmt(v) {
+    var r = Math.round(v * 1000) / 1000;
+    if (r === 0 || !isFinite(r)) r = 0;
+    return r.toFixed(3);
+  }
+  function fa(v) { return fmt(v).replace("-", "−"); } // 음수 부호를 − 로
+
+  // ── 그리기 ────────────────────────────────────────
+  function arrow(x0, y0, x1, y1, col, w) {
+    var X0 = tx(x0), Y0 = ty(y0), X1 = tx(x1), Y1 = ty(y1);
+    var dx = X1 - X0, dy = Y1 - Y0, L = Math.hypot(dx, dy);
+    if (L < 1) return;
+    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = w;
+    ctx.beginPath(); ctx.moveTo(X0, Y0); ctx.lineTo(X1, Y1); ctx.stroke();
+    if (L > 8) {
+      var ux = dx / L, uy = dy / L, h = 8;
+      ctx.beginPath(); ctx.moveTo(X1, Y1);
+      ctx.lineTo(X1 - ux * h + uy * h * 0.5, Y1 - uy * h - ux * h * 0.5);
+      ctx.lineTo(X1 - ux * h - uy * h * 0.5, Y1 - uy * h + ux * h * 0.5);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+  function line(x0, y0, x1, y1, col, w, dash) {
+    ctx.strokeStyle = col; ctx.lineWidth = w; ctx.setLineDash(dash || []);
+    ctx.beginPath(); ctx.moveTo(tx(x0), ty(y0)); ctx.lineTo(tx(x1), ty(y1)); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  function arc(r, d0, d1, col, label) {
+    if (d0 === d1) return;
+    ctx.strokeStyle = col; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(tx(0), ty(0), r * sc(), -d0 * D2R, -d1 * D2R, d1 > d0);
+    ctx.stroke();
+    var m = (d0 + d1) / 2 * D2R, rr = (r + 0.12) * sc();
+    ctx.fillStyle = col; ctx.font = "bold 12px sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(label, tx(0) + Math.cos(m) * rr, ty(0) - Math.sin(m) * rr);
+  }
+  function dot(x, y, r, col) {
+    ctx.fillStyle = col; ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(tx(x), ty(y), r, 0, 7); ctx.fill(); ctx.stroke();
+  }
+
+  function draw() {
+    var c = calc(), a = st.a, b = st.b;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, S, S);
+    // 단위원, 원래 축
+    ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(tx(0), ty(0), sc(), 0, 7); ctx.stroke();
+    line(-RNG, 0, RNG, 0, "#6b7280", 1.2); line(0, -RNG, 0, RNG, "#6b7280", 1.2);
+    ctx.fillStyle = "#6b7280"; ctx.font = "11px sans-serif"; ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+    ctx.fillText("x", S - 12, ty(0) - 2); ctx.textBaseline = "top"; ctx.fillText("y", tx(0) + 4, 2);
+    // 투명 판
+    ctx.fillStyle = "rgba(37,99,235,0.08)"; ctx.strokeStyle = "rgba(37,99,235,0.45)"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(tx(0), ty(0), 1.15 * sc(), 0, 7); ctx.fill(); ctx.stroke();
+    // 돌아간 축 x′ (실선), y′ (점선)
+    line(-1.15 * c.u[0], -1.15 * c.u[1], 1.15 * c.u[0], 1.15 * c.u[1], "#2563eb", 2);
+    line(-1.15 * c.v[0], -1.15 * c.v[1], 1.15 * c.v[0], 1.15 * c.v[1], "#2563eb", 2, [5, 4]);
+    ctx.fillStyle = "#2563eb"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("x′", tx(1.27 * c.u[0] * 0.93), ty(1.27 * c.u[1] * 0.93) - 0);
+    // 호
+    arc(0.28, 0, a, "#2563eb", "α");
+    arc(0.45, a, a + b, "#7c3aed", "β");
+    // 조각 (화살표·막대)
+    if (st.pieces) {
+      arrow(0, 0, c.g[0], c.g[1], "#16a34a", 3);
+      arrow(c.g[0], c.g[1], c.P[0], c.P[1], "#ea580c", 3);
+      var i = st.mode === "x" ? 0 : 1;
+      var t1 = c.g[i], sum = c.P[i], pos = -1.15;
+      // 같은 줄에 초록 막대, 이어서 주황 막대 (음수면 반대 방향)
+      var th = 7;
+      function bar(v0, v1, col) {
+        ctx.fillStyle = col;
+        if (st.mode === "x") ctx.fillRect(tx(Math.min(v0, v1)), ty(pos) - th / 2, Math.abs(tx(v1) - tx(v0)), th);
+        else ctx.fillRect(tx(pos) - th / 2, ty(Math.max(v0, v1)), th, Math.abs(ty(v1) - ty(v0)));
+      }
+      bar(0, t1, "#16a34a");
+      bar(t1, sum, "#ea580c");
+      // 합 위치 보라 눈금
+      ctx.strokeStyle = "#7c3aed"; ctx.lineWidth = 3;
+      ctx.beginPath();
+      if (st.mode === "x") { ctx.moveTo(tx(sum), ty(pos) - 9); ctx.lineTo(tx(sum), ty(pos) + 9); }
+      else { ctx.moveTo(tx(pos) - 9, ty(sum)); ctx.lineTo(tx(pos) + 9, ty(sum)); }
+      ctx.stroke();
+      // 점선 연결
+      ctx.setLineDash([2, 3]); ctx.strokeStyle = "#a78bfa"; ctx.lineWidth = 1;
+      ctx.beginPath();
+      if (st.mode === "x") { ctx.moveTo(tx(sum), ty(c.P[1])); ctx.lineTo(tx(sum), ty(pos)); }
+      else { ctx.moveTo(tx(c.P[0]), ty(sum)); ctx.lineTo(tx(pos), ty(sum)); }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    // OP 선, 손잡이 A, 점 P
+    line(0, 0, c.P[0], c.P[1], "#7c3aed", 1.5);
+    var ax = 1.15 * c.u[0], ay = 1.15 * c.u[1];
+    var pOnTop = st.last === "P";
+    if (pOnTop) { dot(ax, ay, 9, "#2563eb"); dot(c.P[0], c.P[1], 9, "#7c3aed"); }
+    else { dot(c.P[0], c.P[1], 9, "#7c3aed"); dot(ax, ay, 9, "#2563eb"); }
+  }
+
+  // ── 결과 판 ───────────────────────────────────────
+  function sumText() {
+    var s = st.a + st.b;
+    return s >= 360 ? s + "° (=" + (s - 360) + "°)" : s + "°";
+  }
+  function updateText() {
+    var c = calc(), flip = st.b < 0, bb = Math.abs(st.b);
+    var bname = flip ? "β′" : "β";
+    var an = document.getElementById("angles");
+    an.innerHTML = "<b id='aA'>α = " + st.a + "°</b>, <b id='aB'>β = " + st.b + "°</b>" +
+      (flip ? " (β′ = " + bb + "°)" : "") + ", α" + (flip ? "−β′" : "+β") + " = " +
+      (flip ? (st.a - bb) + "°" : sumText());
+    if (flashOn) { var e = document.getElementById(flashOn === "A" ? "aA" : "aB"); if (e) e.className = "flash"; }
+    var cb = Math.cos(bb * D2R), sb = Math.sin(bb * D2R);
+    var sg = flip ? -1 : 1, T1, T2, f1, f2;
+    var op = flip ? "−" : "+";
+    if (st.mode === "x") {
+      T1 = c.ca * cb; T2 = -sg * c.sa * sb;
+      f1 = "cos(α" + op + bname + ") = <span class='g'>cos α cos " + bname + "</span> " + (flip ? "+" : "−") + " <span class='o'>sin α sin " + bname + "</span>";
+      f2 = fa(T1 + T2) + " = <span class='g'>(" + fa(c.ca) + ")(" + fa(cb) + ")</span> " + (flip ? "+" : "−") + " <span class='o'>(" + fa(c.sa) + ")(" + fa(sb) + ")</span>";
+    } else {
+      T1 = c.sa * cb; T2 = sg * c.ca * sb;
+      f1 = "sin(α" + op + bname + ") = <span class='g'>sin α cos " + bname + "</span> " + (flip ? "−" : "+") + " <span class='o'>cos α sin " + bname + "</span>";
+      f2 = fa(T1 + T2) + " = <span class='g'>(" + fa(c.sa) + ")(" + fa(cb) + ")</span> " + (flip ? "−" : "+") + " <span class='o'>(" + fa(c.ca) + ")(" + fa(sb) + ")</span>";
+    }
+    document.getElementById("f1").innerHTML = f1;
+    document.getElementById("f2").innerHTML = f2;
+  }
+  function updateHint() {
+    document.getElementById("hint").textContent = HINTS[st.hintKey];
+  }
+  function updateQ() {
+    var btn = document.getElementById("qbtn"), box = document.getElementById("qbox");
+    var open = box.classList.contains("open");
+    btn.textContent = "탐구 질문 " + (st.q + 1) + "/" + QS.length + (open ? " ▾" : " ▸");
+    document.getElementById("qtext").textContent = QS[st.q];
+  }
+  function refresh() { draw(); updateText(); updateHint(); updateQ(); }
+
+  // ── 각도 맞춤 (자석) ──────────────────────────────
+  var SNAPS = (function () {
+    var s = [], k;
+    for (k = -360; k <= 360; k += 30) s.push(k);
+    for (k = -360; k <= 360; k += 45) s.push(k);
+    return s;
+  })();
+  function snap(d) {
+    var r = Math.round(d), i, snapped = false;
+    for (i = 0; i < SNAPS.length; i++) if (Math.abs(r - SNAPS[i]) <= 3) { r = SNAPS[i]; snapped = true; break; }
+    return { v: r, snapped: snapped };
+  }
+  function flash(which) {
+    flashOn = which;
+    clearTimeout(flashT);
+    flashT = setTimeout(function () { flashOn = false; updateText(); }, 450);
+  }
+
+  // ── 끌기 (Pointer Events) ─────────────────────────
+  function ptr(e) {
+    var r = cv.getBoundingClientRect();
+    return [e.clientX - r.left, e.clientY - r.top];
+  }
+  function pickHandle(p) {
+    var c = calc();
+    var dA = Math.hypot(p[0] - tx(1.15 * c.u[0]), p[1] - ty(1.15 * c.u[1]));
+    var dP = Math.hypot(p[0] - tx(c.P[0]), p[1] - ty(c.P[1]));
+    var R = 22;
+    if (dA > R && dP > R) return null;
+    if (dA <= R && dP <= R) return st.last; // 겹치면 마지막으로 움직인 것을 우선
+    return dA <= R ? "A" : "P";
+  }
+  cv.addEventListener("pointerdown", function (e) {
+    var h = pickHandle(ptr(e));
+    if (!h) return;
+    drag = h; st.last = h;
+    try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+    e.preventDefault();
+    move(e);
+  });
+  function move(e) {
+    if (!drag) return;
+    var p = ptr(e), ang = Math.atan2(fy(p[1]), fx(p[0])) / D2R;
+    if (drag === "A") {
+      var r = snap(ang), v = ((r.v % 360) + 360) % 360;
+      if (v !== st.a && r.snapped) flash("A");
+      st.a = v;
+    } else {
+      var d = ang - st.a;
+      d = ((d % 360) + 540) % 360 - 180; // [-180,180)
+      var r2 = snap(d), vb = r2.v;
+      if (vb <= -180) vb = 180;
+      if (vb !== st.b && r2.snapped) flash("B");
+      st.b = vb;
+    }
+    if (!st.moved) { st.moved = true; if (st.pieces && st.hintKey === "start") st.hintKey = "pieces"; }
+    refresh();
+  }
+  cv.addEventListener("pointermove", move);
+  function up() { drag = null; }
+  cv.addEventListener("pointerup", up);
+  cv.addEventListener("pointercancel", up);
+
+  // ── 버튼 ──────────────────────────────────────────
+  var bX = document.getElementById("bX"), bY = document.getElementById("bY"),
+      bPieces = document.getElementById("bPieces"), bFlip = document.getElementById("bFlip");
+  function setMode(m) {
+    st.mode = m;
+    bX.className = m === "x" ? "on" : ""; bY.className = m === "y" ? "on" : "";
+    if (m === "y") st.hintKey = "ymode";
+    else if (st.hintKey === "ymode") st.hintKey = st.moved ? "pieces" : "start";
+    refresh();
+  }
+  bX.addEventListener("click", function () { setMode("x"); });
+  bY.addEventListener("click", function () { setMode("y"); });
+  bPieces.addEventListener("click", function () {
+    st.pieces = !st.pieces; bPieces.className = st.pieces ? "on" : ""; refresh();
+  });
+  bFlip.addEventListener("click", function () {
+    st.b = -st.b; if (st.b === -180) st.b = 180;
+    st.flipped = !st.flipped; bFlip.className = st.b < 0 ? "on" : "";
+    st.hintKey = st.b < 0 ? "flip" : (st.mode === "y" ? "ymode" : (st.moved ? "pieces" : "start"));
+    refresh();
+  });
+  document.getElementById("bReset").addEventListener("click", function () {
+    st.a = 45; st.b = 30; st.mode = "x"; st.pieces = true; st.flipped = false; st.q = 0; st.moved = false; st.hintKey = "start"; st.last = "A";
+    bX.className = "on"; bY.className = ""; bPieces.className = "on"; bFlip.className = "";
+    refresh();
+  });
+  document.getElementById("qbtn").addEventListener("click", function () {
+    document.getElementById("qbox").classList.toggle("open"); updateQ();
+  });
+  document.getElementById("qprev").addEventListener("click", function () { st.q = (st.q + QS.length - 1) % QS.length; updateQ(); });
+  document.getElementById("qnext").addEventListener("click", function () { st.q = (st.q + 1) % QS.length; updateQ(); });
+  // β 뒤집기 버튼 표시는 끌기로 β 부호가 바뀔 때도 맞춘다
+  var _refresh = refresh;
+  refresh = function () { bFlip.className = st.b < 0 ? "on" : ""; _refresh(); };
+
+  window.addEventListener("resize", resize);
+  resize(); refresh();
+})();
+</script>
+</body>
+</html>

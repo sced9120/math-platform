@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>활과 줄을 맞대 보기 — sin x / x 와 사인의 미분</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; color: #1f2937; -webkit-user-select: none; user-select: none; }
+  #app { max-width: 960px; margin: 0 auto; padding: 0 8px 6px; }
+  #title { display: flex; align-items: center; justify-content: space-between; height: 36px; gap: 6px; }
+  #title h1 { font-size: 15px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #title .sub { display: none; font-size: 12px; color: #6b7280; margin-left: 8px; font-weight: 400; }
+  button { font: inherit; font-size: 13px; border: 1px solid #d1d5db; background: #fff; color: #374151; border-radius: 10px; padding: 0 4px; min-height: 44px; cursor: pointer; line-height: 1.1; white-space: nowrap; }
+  button:hover { background: #f3f4f6; }
+  button.on { background: #2563eb; border-color: #2563eb; color: #fff; }
+  #bReset { min-height: 32px; padding: 0 10px; }
+  #hint { height: 40px; display: flex; align-items: center; font-size: 13.5px; line-height: 1.3; color: #374151; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 3px 9px; overflow: hidden; }
+  #tabs { display: flex; gap: 4px; margin-top: 4px; }
+  #tabs button { flex: 1; min-width: 0; }
+  #stageWrap { display: flex; justify-content: center; margin: 4px 0; }
+  #stage { width: 300px; height: 300px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fdfdfb; touch-action: none; }
+  #cv { display: block; width: 100%; height: 100%; touch-action: none; }
+  #res { height: 92px; border: 1px solid #e5e7eb; border-radius: 10px; padding: 5px 8px; background: #fff; font-size: 13px; line-height: 1.5; overflow: hidden; }
+  #res .r { color: #dc2626; font-weight: 700; } #res .b { color: #2563eb; font-weight: 700; } #res .g { color: #16a34a; font-weight: 700; } #res .o { color: #ea580c; font-weight: 700; }
+  #r3 { font-size: 12px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #ctrl { display: flex; gap: 4px; margin-top: 4px; }
+  #ctrl button { flex: 1; min-width: 0; }
+  #ctrl button.hide { display: none; }
+  details { margin-top: 4px; border: 1px solid #e5e7eb; border-radius: 10px; background: #f9fafb; }
+  summary { min-height: 28px; line-height: 28px; padding: 0 10px; font-size: 13px; cursor: pointer; }
+  #qbox { padding: 4px 10px 8px; font-size: 14px; line-height: 1.5; }
+  #qbox ol { margin: 0; padding-left: 18px; } #qbox li { margin-bottom: 4px; }
+  #note { margin-top: 4px; font-size: 12px; color: #9ca3af; line-height: 1.4; }
+  @media (max-width: 380px) { #stage { width: 280px; height: 280px; } #ctrl button { font-size: 12.5px; } }
+  @media (min-width: 720px) {
+    #title .sub { display: inline; }
+    #app { display: grid; grid-template-columns: 440px 1fr; column-gap: 14px; align-items: start; }
+    #title, #hint, #tabs { grid-column: 1 / 3; }
+    #stageWrap { grid-column: 1; grid-row: 4 / 8; margin: 4px 0; }
+    #stage { width: 430px; height: 430px; }
+    #ctrl, #res, details, #note { grid-column: 2; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="title"><h1>활과 줄을 맞대 보기<span class="sub">sin x / x → 1 에서 (sin x)′ = cos x 까지</span></h1><button id="bReset">다시</button></div>
+  <div id="hint"></div>
+  <div id="tabs"><button id="t1" class="on">① 각을 줄이기</button><button id="t2">② 기울기 모으기</button></div>
+  <div id="stageWrap"><div id="stage"><canvas id="cv"></canvas></div></div>
+  <div id="res"><div id="r1"></div><div id="r2"></div><div id="r3"></div></div>
+  <div id="ctrl">
+    <button id="bHalfX">x 를 절반으로</button>
+    <button id="bHalfH" class="hide">h 를 절반으로</button>
+    <button id="bDot" class="hide">점 찍기</button>
+  </div>
+  <details><summary>탐구 질문 (펼치기)</summary><div id="qbox"><ol>
+    <li>세 길이 sin x, x, tan x 의 크기 순서는 항상 같나요? 이 부등식에서 sin x / x 는 어떤 두 값 사이에 끼나요?</li>
+    <li>x 를 절반씩 줄일 때 sin x / x 는 어디로 다가가나요? (cos x &lt; sin x/x &lt; 1 을 떠올려 보세요)</li>
+    <li>sin(a+h) − sin a 를 덧셈정리로 펼치면 어떤 두 극한이 필요할까요? (sin h/h, (cos h − 1)/h)</li>
+    <li>찍은 점들이 놓인 곡선은 무엇인가요? 같은 방법으로 cos x 의 도함수를 짐작해 보세요.</li>
+  </ol></div></details>
+  <div id="note">화면은 x, h 를 유한 번 줄인 근삿값이에요. 극한은 '한없이' 줄일 때의 값입니다. 각은 라디안, 숫자는 계산기 근삿값.</div>
+</div>
+<script>
+(function () {
+  "use strict";
+  var PI = Math.PI;
+  var cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+  var stageEl = document.getElementById("stage");
+  var S = 300, DPR = 1;
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ── 상태 ──
+  var X_MIN = 0.001, X_MAX = 1.5;
+  var st = { step: 1, x: 1, hist: [], k: 1, a: PI / 4, h: 1, dots: [], hintKey: "s1", extra: "" };
+  var drag = false;
+
+  var HINTS = {
+    s1: "점 P 를 끌어 각 x 를 줄여 보세요. 빨강(sin x)·파랑 호(x)·초록(tan x) 길이를 비교해요.",
+    s2: "점 a 를 고르고 h 를 절반씩 줄인 뒤 [점 찍기]. 찍힌 점이 어느 곡선에 놓이나요?"
+  };
+
+  // ── 수학 ──
+  function clampX(x) { return Math.min(X_MAX, Math.max(X_MIN, x)); }
+  function secant(a, h) { return (Math.sin(a + h) - Math.sin(a)) / h; }
+  function f4(v) { if (!isFinite(v)) return "—"; var s = (Math.round(v * 10000) / 10000).toFixed(4); return s.replace("-", "−"); }
+  function zoomFor(x) { // 짧은 선분이 보이도록 2배씩 확대 (그림 창 폭 ≥ 1.5·tan x)
+    var need = Math.tan(x) * 1.5, k = 1;
+    while (1.25 / (k * 2) > need && k < 4096) k *= 2;
+    return k;
+  }
+
+  // ── 좌표 (단계별 변환) ──
+  // ① 수학좌표 → 화면: 창 폭 W = 1.25/k
+  function view1() {
+    var k = st.k, W = 1.25 / k, x0, y0;
+    if (k === 1) { x0 = -0.1; y0 = -0.1; } else { x0 = 1 - 0.7 * W; y0 = -0.12 * W; }
+    return { x0: x0, y0: y0, s: S / W };
+  }
+  function p1(x, y) { var v = view1(); return [(x - v.x0) * v.s, S - (y - v.y0) * v.s]; }
+  function q1(px, py) { var v = view1(); return [px / v.s + v.x0, (S - py) / v.s + v.y0]; }
+  // ② 위·아래 두 칸
+  var AX_MAX = 2 * PI + 1.0, ML = 22, MR = 8;
+  function px2(x) { return ML + x / AX_MAX * (S - ML - MR); }
+  function ix2(px) { return (px - ML) / (S - ML - MR) * AX_MAX; }
+  function panelTop(i) { var ph = (S - 16) / 2; return 6 + i * (ph + 4); }
+  function py2(i, y) { var ph = (S - 16) / 2, t = panelTop(i); return t + ph / 2 - y / 1.3 * (ph / 2 - 2); }
+
+  function resize() {
+    var r = stageEl.getBoundingClientRect();
+    S = Math.round(r.width) - 2; if (S < 100) S = 280;
+    DPR = window.devicePixelRatio || 1;
+    cv.width = S * DPR; cv.height = S * DPR;
+    cv.style.width = S + "px"; cv.style.height = S + "px";
+    draw();
+  }
+
+  // ── 그리기 도구 ──
+  function seg(a, b, col, w, dash) {
+    ctx.strokeStyle = col; ctx.lineWidth = w; ctx.setLineDash(dash || []);
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.setLineDash([]);
+  }
+  function dot(p, r, fill, stroke) {
+    ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 2 * PI);
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
+  }
+  function text(s, x, y, col, size, align) {
+    ctx.fillStyle = col || "#6b7280"; ctx.font = (size || 11) + "px sans-serif"; ctx.textAlign = align || "left"; ctx.fillText(s, x, y);
+  }
+
+  // ── ① 그리기 ──
+  function draw1() {
+    var x = st.x, c = Math.cos(x), s = Math.sin(x), t = Math.tan(x);
+    var O = p1(0, 0), A = p1(1, 0), H = p1(c, 0), P = p1(c, s), T = p1(1, t);
+    // 축과 접선(x=1)
+    seg(p1(-1, 0), p1(3, 0), "#d1d5db", 1);
+    seg(p1(0, -1), p1(0, 20), "#d1d5db", 1);
+    seg(p1(1, -1), p1(1, 20), "#e5e7eb", 1, [4, 3]);
+    // 단위원 (1사분면)
+    ctx.strokeStyle = "#9ca3af"; ctx.lineWidth = 1.2; ctx.beginPath();
+    var n = 400, lim = Math.min(PI / 2, x + 1.25 / st.k * 1.5);
+    for (var i = 0; i <= n; i++) { var th = lim * i / n, q = p1(Math.cos(th), Math.sin(th)); if (i === 0) ctx.moveTo(q[0], q[1]); else ctx.lineTo(q[0], q[1]); }
+    ctx.stroke();
+    // OT (점선), 초록 tan x, 파랑 호 x, 빨강 sin x 순서로 겹쳐 그림
+    seg(O, T, "#d1d5db", 1, [4, 3]);
+    seg(A, T, "#16a34a", 7);
+    ctx.strokeStyle = "#2563eb"; ctx.lineWidth = 4; ctx.beginPath();
+    for (var j = 0; j <= 60; j++) { var u = x * j / 60, w = p1(Math.cos(u), Math.sin(u)); if (j === 0) ctx.moveTo(w[0], w[1]); else ctx.lineTo(w[0], w[1]); }
+    ctx.stroke();
+    seg(H, P, "#dc2626", 2.2);
+    dot(P, 7, "#2563eb", "#fff");
+    text("A", A[0] + 4, A[1] + 14, "#374151", 12);
+    text("P", P[0] - 14, P[1] - 6, "#374151", 12);
+    if (st.k > 1) text("확대 ×" + st.k, 8, 16, "#ea580c", 12);
+    else text("O", O[0] + 4, O[1] - 4, "#374151", 12);
+  }
+
+  // ── ② 그리기 ──
+  function curve(i, fn, col, w, alpha) {
+    ctx.globalAlpha = alpha || 1; ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath();
+    for (var k = 0; k <= 200; k++) { var xx = AX_MAX * k / 200, p = [px2(xx), py2(i, fn(xx))]; if (k === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]); }
+    ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  function draw2() {
+    var a = st.a, h = st.h, i, ph = (S - 16) / 2;
+    for (i = 0; i < 2; i++) {
+      var t = panelTop(i);
+      ctx.strokeStyle = "#e5e7eb"; ctx.lineWidth = 1; ctx.strokeRect(ML, t, S - ML - MR, ph);
+      seg([ML, py2(i, 0)], [S - MR, py2(i, 0)], "#e5e7eb", 1);
+      text("π", px2(PI) - 3, py2(i, 0) + 11, "#9ca3af", 10);
+      text("2π", px2(2 * PI) - 6, py2(i, 0) + 11, "#9ca3af", 10);
+      text("1", 8, py2(i, 1) + 4, "#9ca3af", 10); text("−1", 4, py2(i, -1) + 4, "#9ca3af", 10);
+    }
+    curve(0, Math.sin, "#374151", 2); text("y = sin x", ML + 4, panelTop(0) + 12, "#374151", 11);
+    curve(1, Math.cos, "#2563eb", 2, 0.35); text("y = cos x (연한 파랑)", ML + 4, panelTop(1) + 12, "#2563eb", 11);
+    // 연결 점선
+    seg([px2(a), py2(0, Math.sin(a))], [px2(a), py2(1, 0)], "#e5e7eb", 1, [3, 3]);
+    // 접선(점선)과 할선(주황)
+    var m = secant(a, h), ta = Math.cos(a), L = 0.9;
+    seg([px2(a - L), py2(0, Math.sin(a) - ta * L)], [px2(a + L), py2(0, Math.sin(a) + ta * L)], "#9ca3af", 1, [4, 3]);
+    ctx.save(); ctx.beginPath(); ctx.rect(ML, panelTop(0), S - ML - MR, ph); ctx.clip();
+    seg([px2(a - 1.2), py2(0, Math.sin(a) - m * 1.2)], [px2(a + h + 1.2), py2(0, Math.sin(a + h) + m * 1.2)], "#ea580c", 2);
+    ctx.restore();
+    dot([px2(a + h), py2(0, Math.sin(a + h))], 4, "#ea580c");
+    dot([px2(a), py2(0, Math.sin(a))], 8, "#2563eb", "#fff");
+    // 찍은 점들 (현재 h 가 아니면 흐리게)
+    for (i = 0; i < st.dots.length; i++) {
+      var d = st.dots[i]; ctx.globalAlpha = (d.h === h) ? 1 : 0.3;
+      dot([px2(d.a), py2(1, d.m)], 3.5, "#ea580c"); ctx.globalAlpha = 1;
+    }
+    dot([px2(a), py2(1, m)], 5, null, "#ea580c");
+  }
+
+  function draw() {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, S, S);
+    if (st.step === 1) draw1(); else draw2();
+    refresh();
+  }
+
+  // ── 글자 갱신 ──
+  function refresh() {
+    var hint = st.extra || HINTS[st.step === 1 ? "s1" : "s2"];
+    $("hint").textContent = hint;
+    var r1 = $("r1"), r2 = $("r2"), r3 = $("r3");
+    if (st.step === 1) {
+      var x = st.x, s = Math.sin(x), t = Math.tan(x);
+      r1.innerHTML = '<span class="r">sin x = ' + f4(s) + '</span> · <span class="b">x = ' + f4(x) + '</span> · <span class="g">tan x = ' + f4(t) + '</span>';
+      r2.innerHTML = 'sin x / x = <b>' + f4(s / x) + '</b> · x / tan x = <b>' + f4(x / t) + '</b>';
+      var rows = st.hist.slice(-4).map(function (e) { return f4(e.x) + "→" + f4(e.r); });
+      r3.textContent = rows.length ? "절반씩: " + rows.join("  ") : "[x 를 절반으로] 를 누르면 sin x / x 가 기록돼요.";
+    } else {
+      var m = secant(st.a, st.h);
+      r1.innerHTML = 'a = <b>' + f4(st.a) + '</b> · h = <b>1/' + Math.round(1 / st.h) + '</b> (' + f4(st.h) + ')';
+      r2.innerHTML = '<span class="o">할선 기울기 = ' + f4(m) + '</span> · cos a = <b>' + f4(Math.cos(st.a)) + '</b>';
+      r3.textContent = "차이 " + f4(m - Math.cos(st.a)) + " · 찍은 점 " + st.dots.length + "개";
+    }
+  }
+
+  function setStep(n) {
+    st.step = n; st.extra = "";
+    $("t1").className = n === 1 ? "on" : ""; $("t2").className = n === 2 ? "on" : "";
+    $("bHalfX").className = n === 1 ? "" : "hide";
+    $("bHalfH").className = n === 2 ? "" : "hide"; $("bDot").className = n === 2 ? "" : "hide";
+    draw();
+  }
+  function resetStep() {
+    st.extra = "";
+    if (st.step === 1) { st.x = 1; st.hist = []; st.k = zoomFor(1); }
+    else { st.a = PI / 4; st.h = 1; st.dots = []; }
+    draw();
+  }
+
+  // ── 입력 (Pointer Events) ──
+  function pos(e) { var r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+  function dragTo(e) {
+    var p = pos(e);
+    if (st.step === 1) {
+      var q = q1(p[0], p[1]);
+      st.x = clampX(Math.atan2(q[1], q[0])); // atan2 로 각 계산 후 범위로 자름
+    } else {
+      st.a = Math.min(2 * PI, Math.max(0, ix2(p[0])));
+    }
+    st.extra = ""; draw();
+  }
+  cv.addEventListener("pointerdown", function (e) {
+    drag = true; try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+    dragTo(e); e.preventDefault();
+  });
+  cv.addEventListener("pointermove", function (e) { if (drag) dragTo(e); });
+  function up() { if (drag && st.step === 1) { st.k = zoomFor(st.x); draw(); } drag = false; } // 끄는 동안은 확대 배율 고정
+  cv.addEventListener("pointerup", up);
+  cv.addEventListener("pointercancel", up);
+
+  $("t1").addEventListener("click", function () { setStep(1); });
+  $("t2").addEventListener("click", function () { setStep(2); });
+  $("bReset").addEventListener("click", resetStep);
+  $("bHalfX").addEventListener("click", function () {
+    if (st.x / 2 < X_MIN) { st.extra = "화면에서는 여기까지예요 (x 는 0.001 보다 작게 그리지 않아요)."; refresh(); return; }
+    st.x = st.x / 2; st.k = zoomFor(st.x); st.extra = "";
+    st.hist.push({ x: st.x, r: Math.sin(st.x) / st.x }); draw();
+  });
+  $("bHalfH").addEventListener("click", function () {
+    if (st.h <= 1 / 1024) { st.extra = "h 는 1/1024 까지만 줄일 수 있어요."; refresh(); return; }
+    st.h = st.h / 2; st.extra = ""; draw();
+  });
+  $("bDot").addEventListener("click", function () {
+    st.dots.push({ a: st.a, h: st.h, m: secant(st.a, st.h) });
+    if (st.dots.length > 80) st.dots.shift();
+    st.extra = ""; draw();
+  });
+  window.addEventListener("resize", resize);
+
+  st.k = zoomFor(st.x);
+  resize();
+})();
+</script>
+</body>
+</html>

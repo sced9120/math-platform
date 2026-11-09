@@ -91,6 +91,28 @@ export const HANDS_ON = [
     order_index: 6,
     height: 660,
   },
+  {
+    slug: "calc2-angle-addition-frame",
+    file: "content/hands-on/calc2-angle-addition-frame.html",
+    title: "돌린 판 위에서 또 돌리기 — 덧셈정리를 눈으로 쪼개기",
+    summary:
+      "단위원 위에서 투명 판을 α만큼 돌리고, 그 판 위에서 점을 β만큼 더 돌려 보세요. 점의 x좌표가 cos α cos β 와 sin α sin β 두 조각의 차로 쪼개지는 것을 보며 cos(α+β), sin(α+β) 공식을 직접 확인합니다.",
+    topic: "미적분Ⅱ · 삼각함수의 덧셈정리",
+    school_level: "high",
+    order_index: 7,
+    height: 660,
+  },
+  {
+    slug: "calc2-arc-chord-sine",
+    file: "content/hands-on/calc2-arc-chord-sine.html",
+    title: "활과 줄을 맞대 보기 — sin x / x → 1 에서 (sin x)′ = cos x 까지",
+    summary:
+      "단위원 위의 점을 끌어 각을 줄여 보세요. 높이 sin x 와 호의 길이 x 가 거의 같아지는 것을 보고, 그 사실 하나로 사인 그래프의 접선 기울기가 cos x 가 되는 것까지 이어 봅니다.",
+    topic: "미적분Ⅱ · 삼각함수의 극한과 미분",
+    school_level: "high",
+    order_index: 8,
+    height: 660,
+  },
 ];
 
 const TAG = "$hands_on$";

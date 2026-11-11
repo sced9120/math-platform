@@ -113,6 +113,28 @@ export const HANDS_ON = [
     order_index: 8,
     height: 660,
   },
+  {
+    slug: "calc2-quotient-rectangle",
+    file: "content/hands-on/calc2-quotient-rectangle.html",
+    title: "넓이를 지키는 직사각형 — f = q·g 로 몫의 미분법 끌어내기",
+    summary:
+      "넓이가 f(x), 가로가 g(x)인 직사각형의 세로는 몫 f(x)/g(x)입니다. x 를 조금 움직이면 넓이와 가로가 바뀌고, 세로가 어떻게 따라 바뀌는지 조각 넓이로 따져 몫의 미분법을 만들어 봅니다.",
+    topic: "미적분Ⅱ · 함수의 몫의 미분",
+    school_level: "high",
+    order_index: 9,
+    height: 660,
+  },
+  {
+    slug: "calc2-chain-stretch",
+    file: "content/hands-on/calc2-chain-stretch.html",
+    title: "늘림 두 번 — 합성함수의 미분법",
+    summary:
+      "x 에서 짧은 구간을 잡아 u = g(x), y = f(u) 두 번 옮겨 봅니다. 구간이 두 번 늘거나 줄어드는 비율을 곱하면 전체 비율이 되고, 구간을 줄이면 (f∘g)′ = f′(g(x))·g′(x) 이 보입니다.",
+    topic: "미적분Ⅱ · 합성함수의 미분",
+    school_level: "high",
+    order_index: 10,
+    height: 660,
+  },
 ];
 
 const TAG = "$hands_on$";

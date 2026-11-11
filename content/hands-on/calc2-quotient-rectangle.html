@@ -31,6 +31,9 @@
   details[open] { position: absolute; left: 8px; right: 8px; bottom: 4px; background: #fff; border: 1px solid #d1d5db; border-radius: 10px; padding: 6px 10px; box-shadow: 0 2px 8px rgba(0,0,0,.15); z-index: 5; max-height: 330px; overflow: auto; }
   details ol { margin: 4px 0 0; padding-left: 18px; }
   details li { margin-bottom: 4px; }
+  /* 확인 문제의 답 펼치기: 바깥 details 안에 그대로 펼침 */
+  details details, details details[open] { position: static; box-shadow: none; border: 1px dashed #d1d5db; border-radius: 8px; padding: 2px 8px; margin-top: 4px; max-height: none; }
+  #quiz { margin-top: 6px; padding-top: 6px; border-top: 1px solid #e5e7eb; }
 </style>
 </head>
 <body>
@@ -54,6 +57,15 @@
       <li>q = f/g 를 넣어 정리하면 (f′g − fg′)/g² 이 되나요? 분자의 순서를 바꾸면 무엇이 달라지나요?</li>
       <li>② 에서 x=1 근처를 끌어 보세요. 세로가 가장 길어지는 곳에서 Δq/h 는 어떻게 되나요? f′g 와 fg′ 은 어떤 관계인가요?</li>
     </ol>
+    <!-- 확인 문제: 공식을 직접 써 보기 -->
+    <div id="quiz">
+      <b>확인 문제</b> ① q = (x²+1)/(x+1) 에서 몫의 미분법 (f/g)′ = (f′g − fg′)/g² 으로 x = 1 일 때 q′ 을 구해 보세요. 그다음 ① 을 누르고(처음 x = 1) 결과판의 (f′g−fg′)/g² 값과 맞춰 보세요.
+      <details>
+        <summary>답 보기</summary>
+        f = x²+1, f′ = 2x, g = x+1, g′ = 1 → x = 1 에서 f = 2, f′ = 2, g = 2, g′ = 1.<br>
+        q′(1) = (2·2 − 2·1)/2² = 2/4 = <b>1/2 = 0.5</b> (결과판 0.5000 과 같아요)
+      </details>
+    </div>
   </details>
 </div>
 <script>

@@ -3802,3 +3802,521 @@ $hands_on$::text),
 )
 on conflict (slug) do update
   set type = excluded.type, config = excluded.config, updated_at = now();
+
+-- 넓이를 지키는 직사각형 — f = q·g 로 몫의 미분법 끌어내기  (원본: content/hands-on/calc2-quotient-rectangle.html)
+insert into public.manipulatives
+  (slug, title, summary, topic, school_level, order_index, type, config, is_published, owner_id)
+values (
+  'calc2-quotient-rectangle',
+  '넓이를 지키는 직사각형 — f = q·g 로 몫의 미분법 끌어내기',
+  '넓이가 f(x), 가로가 g(x)인 직사각형의 세로는 몫 f(x)/g(x)입니다. x 를 조금 움직이면 넓이와 가로가 바뀌고, 세로가 어떻게 따라 바뀌는지 조각 넓이로 따져 몫의 미분법을 만들어 봅니다.',
+  '미적분Ⅱ · 함수의 몫의 미분', 'high', 9, 'html',
+  jsonb_build_object('height', 660, 'html', $hands_on$<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>넓이를 지키는 직사각형 — 몫의 미분법</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; color: #1f2937; }
+  #app { height: 660px; display: flex; flex-direction: column; padding: 4px 8px 4px; gap: 4px; user-select: none; -webkit-user-select: none; overflow: hidden; }
+  #top { display: flex; align-items: center; justify-content: space-between; height: 32px; }
+  #top b { font-size: 14px; }
+  button { font: inherit; font-size: 13px; border: 1px solid #d1d5db; background: #fff; color: #374151; border-radius: 8px; padding: 0 10px; min-height: 36px; cursor: pointer; line-height: 1; white-space: nowrap; }
+  button:hover { background: #f3f4f6; }
+  button.on { background: #2563eb; border-color: #2563eb; color: #fff; }
+  button:disabled { opacity: .4; cursor: default; }
+  #hint { height: 44px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 5px 9px; font-size: 12.5px; line-height: 1.4; color: #1e3a8a; overflow: hidden; }
+  #fns { display: flex; gap: 4px; }
+  #fns button { flex: 1; padding: 0 2px; font-size: 12px; }
+  #plot { display: block; width: 280px; height: 280px; margin: 0 auto; touch-action: none; background: #fdfdfb; border: 1px solid #e5e7eb; border-radius: 8px; }
+  #track { display: block; width: 280px; height: 36px; margin: 0 auto; touch-action: none; }
+  #res { border: 1px solid #e5e7eb; border-radius: 8px; padding: 3px 8px; font-size: 12px; line-height: 1.35; background: #f9fafb; height: 134px; overflow: hidden; }
+  #res .g { display: grid; grid-template-columns: 1fr 1fr; column-gap: 8px; }
+  #res .s { font-size: 10.5px; color: #6b7280; line-height: 1.25; }
+  .c1 { color: #2563eb; } .c2 { color: #ea580c; } .c3 { color: #dc2626; }
+  #ctl { display: flex; gap: 6px; }
+  #ctl button { flex: 1; }
+  details { font-size: 12px; color: #374151; }
+  summary { cursor: pointer; min-height: 24px; line-height: 24px; }
+  details[open] { position: absolute; left: 8px; right: 8px; bottom: 4px; background: #fff; border: 1px solid #d1d5db; border-radius: 10px; padding: 6px 10px; box-shadow: 0 2px 8px rgba(0,0,0,.15); z-index: 5; max-height: 330px; overflow: auto; }
+  details ol { margin: 4px 0 0; padding-left: 18px; }
+  details li { margin-bottom: 4px; }
+  /* 확인 문제의 답 펼치기: 바깥 details 안에 그대로 펼침 */
+  details details, details details[open] { position: static; box-shadow: none; border: 1px dashed #d1d5db; border-radius: 8px; padding: 2px 8px; margin-top: 4px; max-height: none; }
+  #quiz { margin-top: 6px; padding-top: 6px; border-top: 1px solid #e5e7eb; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top"><b>넓이를 지키는 직사각형 · 몫의 미분</b><button id="bReset">다시</button></div>
+  <div id="hint"></div>
+  <div id="fns">
+    <button data-f="0">① (x²+1)/(x+1)</button>
+    <button data-f="1">② x/(x²+1)</button>
+    <button data-f="2">③ sin x / x</button>
+  </div>
+  <svg id="plot" viewBox="0 0 280 280"></svg>
+  <svg id="track" viewBox="0 0 280 36"></svg>
+  <div id="res"></div>
+  <div id="ctl"><button id="bHalf">h 를 절반으로</button><button id="bH1">h 처음으로(1)</button></div>
+  <details>
+    <summary>탐구 질문 (눌러서 펼치기)</summary>
+    <ol>
+      <li>넓이가 Δf 만큼 늘 때, 그 늘어난 넓이는 어떤 세 조각으로 나뉘나요? 식으로 써 보세요.</li>
+      <li>양변을 h 로 나누고 h 를 줄이면 빨강 조각 Δq·Δg / h 는 어디로 가나요? 그 결과 q′ 을 f′, g′, q, g 로 나타내 보세요.</li>
+      <li>q = f/g 를 넣어 정리하면 (f′g − fg′)/g² 이 되나요? 분자의 순서를 바꾸면 무엇이 달라지나요?</li>
+      <li>② 에서 x=1 근처를 끌어 보세요. 세로가 가장 길어지는 곳에서 Δq/h 는 어떻게 되나요? f′g 와 fg′ 은 어떤 관계인가요?</li>
+    </ol>
+    <!-- 확인 문제: 공식을 직접 써 보기 -->
+    <div id="quiz">
+      <b>확인 문제</b> ① q = (x²+1)/(x+1) 에서 몫의 미분법 (f/g)′ = (f′g − fg′)/g² 으로 x = 1 일 때 q′ 을 구해 보세요. 그다음 ① 을 누르고(처음 x = 1) 결과판의 (f′g−fg′)/g² 값과 맞춰 보세요.
+      <details>
+        <summary>답 보기</summary>
+        f = x²+1, f′ = 2x, g = x+1, g′ = 1 → x = 1 에서 f = 2, f′ = 2, g = 2, g′ = 1.<br>
+        q′(1) = (2·2 − 2·1)/2² = 2/4 = <b>1/2 = 0.5</b> (결과판 0.5000 과 같아요)
+      </details>
+    </div>
+  </details>
+</div>
+<script>
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  // ── 함수 쌍: f, g, 공식 q′, 범위 [lo, hi] (g>0, f>0) ──
+  var FN = [
+    { f: function (x) { return x * x + 1; }, g: function (x) { return x + 1; },
+      dq: function (x) { return (x * x + 2 * x - 1) / ((x + 1) * (x + 1)); }, lo: 0.2, hi: 3 },
+    { f: function (x) { return x; }, g: function (x) { return x * x + 1; },
+      dq: function (x) { return (1 - x * x) / Math.pow(x * x + 1, 2); }, lo: 0.2, hi: 3 },
+    { f: function (x) { return Math.sin(x); }, g: function (x) { return x; },
+      dq: function (x) { return (x * Math.cos(x) - Math.sin(x)) / (x * x); }, lo: 0.3, hi: 3 }
+  ];
+  var HMIN_K = 10; // h = 1/2^k, 최대 k = 10 (1/1024)
+  var S = { fi: 0, x: 1, k: 0, hist: [] };
+  var SZ = 280, PAD = 18, OY = 250, sx = 1, sy = 1; // 그림 크기, 여백, 바닥선 y, 가로·세로 축척(px / 단위, 따로 잡음)
+
+  var plot = document.getElementById("plot");
+  var track = document.getElementById("track");
+  var hintEl = document.getElementById("hint");
+  var resEl = document.getElementById("res");
+
+  function cur() { return FN[S.fi]; }
+  function q(x) { return cur().f(x) / cur().g(x); }
+  function hval() { return 1 / Math.pow(2, S.k); }
+  // x 는 [lo, hi-1] 로 좁혀서 x+h (h≤1) 가 항상 범위 안에 있게 한다
+  function xmax() { return cur().hi - 1; }
+
+  function fmt(v) { return isFinite(v) ? (Math.abs(v) < 5e-5 ? "0.0000" : v.toFixed(4)) : "—"; }
+  function hText() { return S.k === 0 ? "1" : "1/" + Math.pow(2, S.k); }
+
+  function setScale() { // 실제로 쓰는 범위 [lo, hi] 의 g 최댓값·q 최댓값에 각각 맞춘 가로·세로 축척
+    var c = cur(), mg = 0, mq = 0, i, x;
+    for (i = 0; i <= 200; i++) { x = c.lo + (c.hi - c.lo) * i / 200; mg = Math.max(mg, c.g(x)); mq = Math.max(mq, q(x)); }
+    sx = (SZ - PAD - 12) / mg;
+    sy = (OY - 24) / mq;
+  }
+  function setHint(t) { hintEl.textContent = t; }
+
+  // 직사각형 한 조각 (x1..x2, y1..y2: 단위 좌표). 음수 조각은 빗금
+  function piece(x1, x2, y1, y2, fill, neg, ox, oy, hid) {
+    var a = ox + Math.min(x1, x2) * sx, b = oy - Math.max(y1, y2) * sy;
+    var w = Math.abs(x2 - x1) * sx, h = Math.abs(y2 - y1) * sy;
+    var s = '<rect x="' + a + '" y="' + b + '" width="' + w + '" height="' + h + '" fill="' + fill + '"/>';
+    if (neg) s += '<rect x="' + a + '" y="' + b + '" width="' + w + '" height="' + h + '" fill="url(#' + hid + ')"/>';
+    return s;
+  }
+  // 그림 본체 마크업 (확대 창에서도 재사용)
+  function scene(ox, oy, d, hid) {
+    var g = d.g, qq = d.q, g2 = d.g2, q2 = d.q2, dg = g2 - g, dq = q2 - qq, s = "";
+    s += '<rect x="' + ox + '" y="' + (oy - qq * sy) + '" width="' + g * sx + '" height="' + qq * sy + '" fill="#eef0f3"/>';
+    s += piece(g, g2, 0, qq, "rgba(37,99,235,.28)", dg < 0, ox, oy, hid);   // 오른쪽 띠 q·Δg
+    s += piece(0, g, qq, q2, "rgba(234,88,12,.30)", dq < 0, ox, oy, hid);    // 위쪽 띠 g·Δq
+    s += piece(g, g2, qq, q2, "rgba(220,38,38,.85)", dg * dq < 0, ox, oy, hid); // 모서리 Δq·Δg
+    s += '<rect x="' + ox + '" y="' + (oy - q2 * sy) + '" width="' + g2 * sx + '" height="' + q2 * sy + '" fill="none" stroke="#6b7280" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>';
+    s += '<line x1="' + ox + '" y1="' + oy + '" x2="' + (ox + g * sx) + '" y2="' + oy + '" stroke="#2563eb" stroke-width="3" vector-effect="non-scaling-stroke"/>';
+    s += '<line x1="' + ox + '" y1="' + oy + '" x2="' + ox + '" y2="' + (oy - qq * sy) + '" stroke="#ea580c" stroke-width="3" vector-effect="non-scaling-stroke"/>';
+    return s;
+  }
+
+  function calc() {
+    var c = cur(), x = S.x, h = hval();
+    var f1 = c.f(x), f2 = c.f(x + h), g1 = c.g(x), g2 = c.g(x + h);
+    var q1 = f1 / g1, q2 = f2 / g2;
+    return { x: x, h: h, f: f1, g: g1, q: q1, g2: g2, q2: q2, df: f2 - f1, dg: g2 - g1, dq: q2 - q1 };
+  }
+
+  function draw() {
+    var d = calc(), ox = PAD, oy = OY, s;
+    s = '<defs><pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#fff" opacity=".55"/><line x1="0" y1="0" x2="0" y2="5" stroke="#374151" stroke-width="1.5"/></pattern><clipPath id="zc"><rect x="0" y="0" width="100" height="100"/></clipPath>';
+    // 확대 창 전용 빗금: scale(m) 안에서도 화면 간격이 5px 로 보이도록 1/m 로 줄인 무늬
+    var cw = Math.abs(d.dg) * sx, ch = Math.abs(d.dq) * sy, zoom = Math.min(cw, ch) < 1 && S.k > 0, m = 1;
+    if (zoom) {
+      m = Math.max(2, Math.min(4000, 30 / Math.max(cw, ch, 1e-6)));
+      s += '<pattern id="hatchZ" width="' + 5 / m + '" height="' + 5 / m + '" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="' + 5 / m + '" height="' + 5 / m + '" fill="#fff" opacity=".55"/><line x1="0" y1="0" x2="0" y2="' + 5 / m + '" stroke="#374151" stroke-width="' + 1.5 / m + '"/></pattern>';
+    }
+    s += '</defs>';
+    s += '<line x1="' + ox + '" y1="' + oy + '" x2="' + (SZ - 4) + '" y2="' + oy + '" stroke="#9ca3af"/><line x1="' + ox + '" y1="' + oy + '" x2="' + ox + '" y2="4" stroke="#9ca3af"/>';
+    s += scene(ox, oy, d, "hatch");
+    // 글자는 모두 겹치지 않는 고정 자리: 세로(주황)는 직사각형 위, 가로(파랑)·넓이는 바닥선 아래 두 줄
+    // 확대 창이 왼쪽 위(x 22~122)로 가면 세로 글자는 창 오른쪽(x=126)으로 비켜 둔다
+    var zoomLeft = zoom && (ox + d.g * sx) > 150;
+    s += '<text x="' + (zoomLeft ? 126 : ox + 4) + '" y="' + (Math.max(14, oy - d.q * sy - 5)) + '" font-size="11" fill="#ea580c">세로 q=' + fmt(d.q) + '</text>';
+    s += '<text x="' + (ox + 2) + '" y="' + (oy + 13) + '" font-size="11" fill="#2563eb">가로 g=' + fmt(d.g) + '</text>';
+    s += '<text x="' + (ox + 2) + '" y="' + (oy + 26) + '" font-size="11" fill="#374151">넓이 f=가로×세로=' + fmt(d.f) + '</text>';
+    s += '<text x="' + (SZ - 4) + '" y="' + (oy + 13) + '" text-anchor="end" font-size="9" fill="#9ca3af">가로·세로 눈금은 따로예요</text>';
+    // 확대 창: 조각이 1px 미만으로 얇아졌을 때. 모서리가 오른쪽이면 창을 왼쪽 위로
+    if (zoom) {
+      var cx = ox + d.g * sx, cy = oy - d.q * sy, wx = cx > 150 ? 22 : 168;
+      s += '<g transform="translate(' + wx + ',6)"><rect width="100" height="100" fill="#fff" stroke="#2563eb"/>' +
+        '<g clip-path="url(#zc)"><g transform="translate(50,50) scale(' + m + ') translate(' + (-cx) + ',' + (-cy) + ')">' + scene(ox, oy, d, "hatchZ") + '</g></g>' +
+        '<text x="50" y="96" text-anchor="middle" font-size="11" fill="#2563eb">모서리 확대 ×' + Math.round(m) + '</text></g>';
+    }
+    plot.innerHTML = s;
+
+    // 눈금줄: x 손잡이와 x+h
+    var c = cur(), tx = function (v) { return 14 + (v - c.lo) / (c.hi - c.lo) * (SZ - 28); };
+    var t = '<line x1="14" y1="16" x2="266" y2="16" stroke="#d1d5db" stroke-width="3" stroke-linecap="round"/>';
+    t += '<line x1="' + tx(xmax()) + '" y1="16" x2="266" y2="16" stroke="#fca5a5" stroke-width="3"/>';
+    t += '<circle cx="' + tx(d.x + d.h) + '" cy="16" r="5" fill="none" stroke="#dc2626" stroke-width="2"/>';
+    t += '<circle cx="' + tx(d.x) + '" cy="16" r="11" fill="#2563eb" stroke="#fff" stroke-width="2"/>';
+    // x 글자는 손잡이 왼쪽으로, x+h 글자는 그 오른쪽으로 두어 h 가 작아도 겹치지 않게
+    var xe = Math.max(40, tx(d.x) + 6), hs = Math.min(242, Math.max(xe + 4, tx(d.x + d.h) - 8));
+    t += '<text x="' + xe + '" y="34" text-anchor="end" font-size="11" fill="#2563eb">x=' + d.x.toFixed(2) + '</text>';
+    t += '<text x="' + hs + '" y="34" font-size="10" fill="#dc2626" text-anchor="start">x+h</text>';
+    track.innerHTML = t;
+
+    // 결과판
+    var qpf = c.dq(d.x), ratio = d.dq / d.h, sum = d.g * 0;
+    var A = d.q * d.dg, B = d.g * d.dq, C = d.dq * d.dg;
+    var r = '<div class="s">가로×세로 = ' + fmt(d.g) + ' × ' + fmt(d.q) + ' = f(x) = ' + fmt(d.f) + ' · h = ' + hText() + '</div>';
+    r += '<div class="g"><span>Δf = ' + fmt(d.df) + '</span><span class="c1">q·Δg = ' + fmt(A) + '</span><span class="c2">g·Δq = ' + fmt(B) + '</span><span class="c3">Δq·Δg = ' + fmt(C) + '</span></div>';
+    r += '<div>Δq/h ≈ <b>' + fmt(ratio) + '</b> · (f′g−fg′)/g² = <b>' + fmt(qpf) + '</b></div>';
+    r += '<div class="s">기록: ' + (S.hist.length ? S.hist.map(function (e) { return "h=" + e.h + "→" + fmt(e.v); }).join(" · ") : "(h 를 줄이면 쌓여요)") + '</div>';
+    r += '<div class="s">숫자는 h 를 유한 번 줄인 근삿값이에요. 도함수는 h 를 한없이 0 에 가깝게 할 때의 값입니다.</div>';
+    resEl.innerHTML = r;
+    document.getElementById("bHalf").disabled = false;
+  }
+
+  // 손잡이 끌기 (Pointer Events)
+  var dragging = false;
+  function moveTo(e) {
+    var r = track.getBoundingClientRect(), c = cur();
+    var px = (e.clientX - r.left) / r.width * SZ;
+    var v = c.lo + (px - 14) / (SZ - 28) * (c.hi - c.lo);
+    S.x = Math.max(c.lo, Math.min(xmax(), v));
+    draw();
+  }
+  track.addEventListener("pointerdown", function (e) { dragging = true; track.setPointerCapture(e.pointerId); moveTo(e); });
+  track.addEventListener("pointermove", function (e) { if (dragging) moveTo(e); });
+  track.addEventListener("pointerup", function () { dragging = false; });
+  track.addEventListener("pointercancel", function () { dragging = false; });
+
+  function reset(keepFn) {
+    S.x = 1; S.k = 0; S.hist = [];
+    setScale(); setHint("x 를 끌어 보세요. 가로는 g(x), 넓이는 f(x)로 정해지고, 세로가 몫 f(x)/g(x)예요.");
+    draw();
+  }
+  document.getElementById("bHalf").addEventListener("click", function () {
+    if (S.k >= HMIN_K) { setHint("화면에서는 여기까지예요."); return; }
+    S.k++;
+    var d = calc();
+    S.hist.push({ h: hText(), v: d.dq / d.h });
+    if (S.hist.length > 4) S.hist.shift();
+    setHint("h 를 절반씩 줄여 보세요. 세 색 조각 중 어느 것이 가장 빨리 사라지나요?");
+    draw();
+  });
+  document.getElementById("bH1").addEventListener("click", function () {
+    S.k = 0; S.hist = [];
+    setHint("h 를 절반씩 줄여 보세요. 세 색 조각 중 어느 것이 가장 빨리 사라지나요?");
+    draw();
+  });
+  document.getElementById("bReset").addEventListener("click", function () { reset(); });
+  var fb = document.querySelectorAll("#fns button");
+  function mark() { for (var i = 0; i < fb.length; i++) fb[i].className = (+fb[i].getAttribute("data-f") === S.fi) ? "on" : ""; }
+  for (var i = 0; i < fb.length; i++) fb[i].addEventListener("click", function () {
+    S.fi = +this.getAttribute("data-f"); mark(); reset();
+  });
+  mark(); reset();
+})();
+</script>
+</body>
+</html>
+$hands_on$::text),
+  true, null
+)
+on conflict (slug) do update
+  set type = excluded.type, config = excluded.config, updated_at = now();
+
+-- 늘림 두 번 — 합성함수의 미분법  (원본: content/hands-on/calc2-chain-stretch.html)
+insert into public.manipulatives
+  (slug, title, summary, topic, school_level, order_index, type, config, is_published, owner_id)
+values (
+  'calc2-chain-stretch',
+  '늘림 두 번 — 합성함수의 미분법',
+  'x 에서 짧은 구간을 잡아 u = g(x), y = f(u) 두 번 옮겨 봅니다. 구간이 두 번 늘거나 줄어드는 비율을 곱하면 전체 비율이 되고, 구간을 줄이면 (f∘g)′ = f′(g(x))·g′(x) 이 보입니다.',
+  '미적분Ⅱ · 합성함수의 미분', 'high', 10, 'html',
+  jsonb_build_object('height', 660, 'html', $hands_on$<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>늘림 두 번 — 합성함수의 미분법</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; color: #1f2937; -webkit-user-select: none; user-select: none; }
+  #app { min-height: 660px; padding: 0 8px; }
+  #top { height: 36px; display: flex; align-items: center; justify-content: space-between; }
+  #top h1 { margin: 0; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  button { font: inherit; font-size: 13px; border: 1px solid #d1d5db; background: #fff; color: #374151; border-radius: 10px; padding: 6px 8px; cursor: pointer; line-height: 1.15; }
+  button:hover { background: #f3f4f6; }
+  button.on { background: #2563eb; border-color: #2563eb; color: #fff; }
+  button:disabled { opacity: .45; cursor: default; }
+  #hint { height: 44px; overflow: hidden; font-size: 14px; line-height: 1.5; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 3px 9px; color: #374151; }
+  #fnrow { height: 56px; padding-top: 4px; }
+  #fns { display: flex; gap: 6px; height: 36px; }
+  #fns button { flex: 1; min-height: 36px; padding: 4px 2px; }
+  #decomp { font-size: 12px; color: #4b5563; height: 16px; margin-top: 2px; white-space: nowrap; overflow: hidden; }
+  svg { display: block; width: 100%; touch-action: none; }
+  #lines { height: 210px; }
+  #zoom { height: 96px; border-top: 1px dashed #e5e7eb; }
+  #res { height: 89px; padding-top: 2px; font-size: 13px; }
+  .rw { display: flex; height: 20px; align-items: center; white-space: nowrap; }
+  .rw .l { width: 56%; } .rw .r { flex: 1; color: #2563eb; }
+  #note { font-size: 11px; color: #6b7280; line-height: 1.3; height: 29px; overflow: hidden; }
+  #ctl { height: 44px; display: flex; gap: 6px; padding-top: 2px; }
+  #ctl button { flex: 1; min-height: 40px; font-size: 12.5px; padding: 3px 2px; }
+  details { min-height: 28px; font-size: 13px; padding: 4px 0; }
+  summary { cursor: pointer; color: #374151; }
+  details ol { margin: 6px 0 4px; padding-left: 20px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top"><h1>늘림 두 번 — 합성함수의 미분법</h1><button id="bReset">다시</button></div>
+  <div id="hint"></div>
+  <div id="fnrow"><div id="fns"></div><div id="decomp"></div></div>
+  <svg id="lines" height="210"></svg>
+  <svg id="zoom" height="96"></svg>
+  <div id="res">
+    <div class="rw"><span class="l" id="r1l"></span><span class="r" id="r1r"></span></div>
+    <div class="rw"><span class="l" id="r2l"></span><span class="r" id="r2r"></span></div>
+    <div class="rw"><span class="l" id="r3l"></span><span class="r" id="r3r"></span></div>
+    <div id="note">숫자는 h 를 유한 번 줄인 근삿값이에요. 미분계수는 h → 0 일 때의 값입니다.</div>
+  </div>
+  <div id="ctl">
+    <button id="bHalf">h 를 절반으로</button>
+    <button id="bH0">h 처음으로</button>
+    <button id="bSwap">순서 바꾸기 g∘f</button>
+  </div>
+  <details>
+    <summary>탐구 질문 펼치기</summary>
+    <ol>
+      <li>전체 비율 Δy/Δx 는 두 번의 비율 Δu/Δx, Δy/Δu 와 어떤 관계인가요? h 를 바꿔도 그 관계가 유지되나요?</li>
+      <li>h 를 줄이면 Δy/Δu 는 f′(x) 와 f′(g(x)) 중 어느 쪽에 다가가나요? u 줄에서 구간이 어디에 있는지 보고 이유를 말해 보세요.</li>
+      <li>① 에서 y 막대가 0 이 되는 x 를 찾아 보세요. 그때 멈춘 것은 첫 번째 늘림인가요, 두 번째 늘림인가요? ③ 에서는 어떤가요?</li>
+      <li>[순서 바꾸기]를 눌러 g∘f 와 f∘g 의 미분계수를 비교해 보세요. 합성의 순서가 왜 중요할까요?</li>
+    </ol>
+  </details>
+</div>
+<script>
+(function () {
+  // ---- 함수 정의: g 안쪽, f 바깥 (순서 바꾸면 안쪽·바깥 맞바꿈) ----
+  var SETS = [
+    { btn: '① sin(x²)', lo: 0.2, hi: 1.7, x0: 1,
+      g: function (x) { return x * x; }, gd: function (x) { return 2 * x; }, gs: 'x²',
+      f: function (u) { return Math.sin(u); }, fd: function (u) { return Math.cos(u); }, fs: 'sin u' },
+    { btn: '② (2x+1)³', lo: -1, hi: 1, x0: 0,
+      g: function (x) { return 2 * x + 1; }, gd: function () { return 2; }, gs: '2x+1',
+      f: function (u) { return u * u * u; }, fd: function (u) { return 3 * u * u; }, fs: 'u³' },
+    { btn: '③ e^(sin x)', lo: 0, hi: 3, x0: 1,
+      g: function (x) { return Math.sin(x); }, gd: function (x) { return Math.cos(x); }, gs: 'sin x',
+      f: function (u) { return Math.exp(u); }, fd: function (u) { return Math.exp(u); }, fs: 'eᵘ' }
+  ];
+  var COL = ['#16a34a', '#2563eb', '#ea580c'];
+  var HINT_DEF = '초록 구간을 끌어 보세요. g 로 한 번, f 로 또 한 번 옮겨지며 늘거나 줄어요.';
+  // ① 은 첫 화면(h=0.5)에서 구간이 뒤집혀 Δy/Δx 부호가 공식값과 달라서 안내를 따로 둔다
+  var HINT_S0 = '초록 구간을 끌어 보세요. h 가 크면 부호까지 다를 수 있어요. h 를 줄여 보세요.';
+  function hintDef() { return (st.set === 0 && !st.swap) ? HINT_S0 : HINT_DEF; }
+  var st = { set: 0, swap: false, x: 1, k: 0, lo: 0, hi: 1, ranges: [] };
+  var $ = function (id) { return document.getElementById(id); };
+  var linesEl = $('lines'), zoomEl = $('zoom');
+  var W = 340;
+
+  function H() { return 0.5 / Math.pow(2, st.k); }
+  // 현재 안쪽/바깥 함수와 이름
+  function cur() {
+    var s = SETS[st.set];
+    if (!st.swap) return { in: s.g, ind: s.gd, ins: s.gs, out: s.f, outd: s.fd, outs: s.fs, ni: 'g', no: 'f' };
+    return { in: s.f, ind: s.fd, ins: s.fs, out: s.g, outd: s.gd, outs: s.gs, ni: 'f', no: 'g' };
+  }
+  function fmt(v, d) {
+    if (!isFinite(v)) return '—';
+    var s = v.toFixed(d === undefined ? 4 : d);
+    if (/^-0\.?0*$/.test(s)) s = s.slice(1);
+    return s.replace('-', '−');
+  }
+  function sub(s) { return s.replace(/^[a-z]/, function () { return 'u'; }); }
+
+  // 줄별 고정 축척 (함수·순서가 바뀔 때만 다시 계산)
+  function setRanges() {
+    var s = SETS[st.set], c = cur(), mn = [Infinity, Infinity], mx = [-Infinity, -Infinity];
+    st.lo = s.lo; st.hi = s.hi;
+    for (var i = 0; i < 400; i++) {
+      var x = s.lo + (s.hi - s.lo) * i / 399, u = c.in(x), y = c.out(u);
+      mn[0] = Math.min(mn[0], u); mx[0] = Math.max(mx[0], u);
+      mn[1] = Math.min(mn[1], y); mx[1] = Math.max(mx[1], y);
+    }
+    function pad(a, b) { var p = (b - a) * 0.05 || 1; return [a - p, b + p]; }
+    st.ranges = [[s.lo, s.hi], pad(mn[0], mx[0]), pad(mn[1], mx[1])];
+  }
+  function xmax() { return st.hi - H(); }
+
+  // 눈금 고르기 (최대 5개)
+  function ticks(a, b) {
+    var span = b - a, raw = span / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), step = p;
+    [1, 2, 2.5, 5, 10].some(function (m) { step = m * p; return span / step <= 5; });
+    var out = [];
+    for (var t = Math.ceil(a / step - 1e-9) * step; t <= b + 1e-9; t += step) out.push(Math.abs(t) < 1e-9 ? 0 : t);
+    return out.slice(0, 5);
+  }
+
+  function measure() {
+    var h = H(), x = st.x, c = cur();
+    var u0 = c.in(x), u1 = c.in(x + h), y0 = c.out(u0), y1 = c.out(u1);
+    return { h: h, x: x, u0: u0, u1: u1, y0: y0, y1: y1, du: u1 - u0, dy: y1 - y0 };
+  }
+
+  function drawLines(m) {
+    var PAD = 18, w = W - 2 * PAD, names = ['x 줄', 'u 줄', 'y 줄'], svg = '';
+    var c = cur();
+    names[1] = 'u 줄  u = ' + c.ni + '(x)'; names[2] = 'y 줄  y = ' + c.no + '(u)';
+    function px(i, v) { var r = st.ranges[i]; return PAD + w * (v - r[0]) / (r[1] - r[0]); }
+    var seg = [[m.x, m.x + m.h], [m.u0, m.u1], [m.y0, m.y1]];
+    svg += '<defs><pattern id="hat" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="#dc2626" stroke-width="2"/></pattern></defs>';
+    var L = [], R = [];
+    for (var i = 0; i < 3; i++) { L[i] = px(i, seg[i][0]); R[i] = px(i, seg[i][1]); }
+    // 연결선: 왼끝끼리, 오른끝끼리
+    for (i = 0; i < 2; i++) {
+      var ya = i * 70 + 50, yb = (i + 1) * 70 + 26;
+      svg += '<line x1="' + L[i] + '" y1="' + ya + '" x2="' + L[i + 1] + '" y2="' + yb + '" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3 3"/>';
+      svg += '<line x1="' + R[i] + '" y1="' + ya + '" x2="' + R[i + 1] + '" y2="' + yb + '" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3 3"/>';
+    }
+    for (i = 0; i < 3; i++) {
+      var top = i * 70, ay = top + 38, r = st.ranges[i];
+      svg += '<text x="' + PAD + '" y="' + (top + 13) + '" font-size="12" font-weight="700" fill="' + COL[i] + '">' + names[i] + '</text>';
+      svg += '<line x1="' + PAD + '" y1="' + ay + '" x2="' + (W - PAD) + '" y2="' + ay + '" stroke="#6b7280" stroke-width="1.5"/>';
+      ticks(r[0], r[1]).forEach(function (t) {
+        var tx = px(i, t);
+        svg += '<line x1="' + tx + '" y1="' + ay + '" x2="' + tx + '" y2="' + (ay + 6) + '" stroke="#6b7280"/>';
+        svg += '<text x="' + tx + '" y="' + (top + 62) + '" font-size="11" text-anchor="middle" fill="#6b7280">' + fmt(t, 2).replace(/\.?0+$/, '') + '</text>';
+      });
+      var a = Math.min(L[i], R[i]), wd = Math.max(Math.abs(R[i] - L[i]), 2), flip = seg[i][1] < seg[i][0] - 1e-12;
+      svg += '<rect x="' + a + '" y="' + (top + 26) + '" width="' + wd + '" height="24" fill="' + (flip ? 'url(#hat)' : COL[i]) + '" fill-opacity="' + (flip ? 1 : 0.3) + '" stroke="' + COL[i] + '"/>';
+      if (flip) svg += '<text x="' + (W - PAD) + '" y="' + (top + 13) + '" font-size="11" text-anchor="end" fill="#dc2626">뒤집힘</text>';
+    }
+    svg += '<circle cx="' + L[0] + '" cy="38" r="9" fill="' + COL[0] + '" stroke="#fff" stroke-width="2"/>';
+    linesEl.innerHTML = svg;
+  }
+
+  function drawZoom(m) {
+    var x0 = 150, lim = [6, W - 6], rat = [1, m.du / m.h, m.dy / m.h], svg = '';
+    var nm = ['Δx/Δx', 'Δu/Δx', 'Δy/Δx'];
+    svg += '<text x="8" y="13" font-size="12" fill="#4b5563">×(1/h) 확대 — 구간 왼끝을 같은 선에 맞춰요</text>';
+    for (var i = 0; i < 3; i++) {
+      var y = 22 + i * 24, len = 80 * rat[i], end = x0 + len, clip = false;
+      if (end > lim[1]) { end = lim[1]; clip = true; } else if (end < lim[0]) { end = lim[0]; clip = true; }
+      var a = Math.min(x0, end), wd = Math.max(Math.abs(end - x0), 1.5);
+      svg += '<rect x="' + a + '" y="' + y + '" width="' + wd + '" height="18" fill="' + COL[i] + '" fill-opacity="0.55" stroke="' + COL[i] + '"/>';
+      var right = rat[i] >= 0, tx = right ? x0 - 6 : x0 + 6;
+      var txt = i === 0 ? 'x : 1' : (['', 'u', 'y'][i] + ' : ' + fmt(rat[i], 3));
+      svg += '<text x="' + tx + '" y="' + (y + 13) + '" font-size="12" text-anchor="' + (right ? 'end' : 'start') + '" fill="' + COL[i] + '">' + txt + '</text>';
+      if (clip) svg += '<text x="' + (end + (end > x0 ? -2 : 2)) + '" y="' + (y + 13) + '" font-size="11" text-anchor="' + (end > x0 ? 'end' : 'start') + '" fill="#111">' + (end > x0 ? '▶' : '◀') + ' ×' + fmt(rat[i], 1) + '</text>';
+    }
+    svg += '<line x1="' + x0 + '" y1="18" x2="' + x0 + '" y2="96" stroke="#111" stroke-width="1"/>';
+    zoomEl.innerHTML = svg;
+  }
+
+  function drawRes(m) {
+    var c = cur(), ni = c.ni, no = c.no;
+    var a = m.du / m.h, tot = m.dy / m.h;
+    var gx = c.ind(m.x), fu = c.outd(c.in(m.x));
+    var zero = Math.abs(m.du) < 1e-12;
+    $('r1l').textContent = 'Δu/Δx = ' + fmt(a);
+    $('r1r').textContent = '→ ' + ni + '′(x) = ' + fmt(gx);
+    if (zero) { $('r2l').textContent = 'Δu = 0 이라 나눌 수 없어요'; }
+    else { $('r2l').textContent = 'Δy/Δu = ' + fmt(m.dy / m.du); }
+    $('r2r').textContent = '→ ' + no + '′(' + ni + '(x)) = ' + fmt(fu);
+    $('r3l').textContent = (zero ? '' : '곱 = ') + 'Δy/Δx = ' + fmt(tot);
+    $('r3r').textContent = '→ (' + no + '∘' + ni + ')′ = ' + fmt(fu * gx);
+  }
+
+  function setHint(t) { $('hint').textContent = t; }
+  function updateUI() {
+    var s = SETS[st.set], c = cur();
+    $('decomp').textContent = 'u = ' + c.ni + '(x) = ' + c.ins + ',  y = ' + c.no + '(u) = ' + c.outs;
+    $('bSwap').textContent = st.swap ? '순서 되돌리기 f∘g' : '순서 바꾸기 g∘f';
+    $('bHalf').disabled = false;
+    [].forEach.call(document.querySelectorAll('#fns button'), function (b, i) { b.className = i === st.set ? 'on' : ''; });
+  }
+  function render() { var m = measure(); drawLines(m); drawZoom(m); drawRes(m); }
+
+  function resetPos() { st.x = SETS[st.set].x0; st.k = 0; if (st.x > xmax()) st.x = xmax(); }
+  function chooseSet(i) { st.set = i; st.swap = false; setRanges(); resetPos(); updateUI(); setHint(hintDef()); render(); }
+
+  // ---- 버튼 ----
+  var fns = $('fns');
+  SETS.forEach(function (s, i) {
+    var b = document.createElement('button'); b.textContent = s.btn;
+    b.addEventListener('click', function () { chooseSet(i); });
+    fns.appendChild(b);
+  });
+  $('bHalf').addEventListener('click', function () {
+    if (st.k >= 10) { setHint('화면에서는 여기까지예요. 실제 미분계수는 h → 0 일 때의 값이에요.'); return; }
+    st.k++; setHint('h 를 절반씩 줄여 보세요. 돋보기 막대 길이는 어떤 값에 다가가나요?'); render();
+  });
+  $('bH0').addEventListener('click', function () { st.k = 0; if (st.x > xmax()) st.x = xmax(); setHint(hintDef()); render(); });
+  $('bSwap').addEventListener('click', function () {
+    st.swap = !st.swap; setRanges(); st.k = 0; if (st.x > xmax()) st.x = xmax();
+    updateUI(); setHint('같은 두 함수를 반대 순서로 합성했어요. 늘림 비율도 같을까요?'); render();
+  });
+  $('bReset').addEventListener('click', function () { resetPos(); setHint(hintDef()); render(); });
+
+  // ---- 끌기: x 줄 위에서 Pointer Events ----
+  var dragging = false;
+  function moveTo(e) {
+    var r = linesEl.getBoundingClientRect(), sx = W / r.width, px = (e.clientX - r.left) * sx;
+    var rg = st.ranges[0], v = rg[0] + (px - 18) / (W - 36) * (rg[1] - rg[0]);
+    st.x = Math.max(rg[0], Math.min(xmax(), v)); render();
+  }
+  linesEl.addEventListener('pointerdown', function (e) {
+    var r = linesEl.getBoundingClientRect();
+    if (e.clientY - r.top > 72) return; // x 줄 근처만
+    dragging = true; linesEl.setPointerCapture(e.pointerId); moveTo(e);
+  });
+  linesEl.addEventListener('pointermove', function (e) { if (dragging) moveTo(e); });
+  function end(e) { dragging = false; }
+  linesEl.addEventListener('pointerup', end); linesEl.addEventListener('pointercancel', end);
+
+  // ---- 폭에 맞춰 viewBox 를 실제 픽셀 폭으로 (가로 왜곡 방지) ----
+  function fit() {
+    W = Math.max(300, Math.round(linesEl.getBoundingClientRect().width || 340));
+    linesEl.setAttribute('viewBox', '0 0 ' + W + ' 210');
+    zoomEl.setAttribute('viewBox', '0 0 ' + W + ' 96');
+    render();
+  }
+  window.addEventListener('resize', fit);
+
+  setRanges(); resetPos(); updateUI(); setHint(hintDef()); fit();
+})();
+</script>
+</body>
+</html>
+$hands_on$::text),
+  true, null
+)
+on conflict (slug) do update
+  set type = excluded.type, config = excluded.config, updated_at = now();

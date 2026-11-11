@@ -23,10 +23,10 @@
   svg { display: block; width: 100%; touch-action: none; }
   #lines { height: 210px; }
   #zoom { height: 96px; border-top: 1px dashed #e5e7eb; }
-  #res { height: 84px; padding-top: 2px; font-size: 13px; }
+  #res { height: 89px; padding-top: 2px; font-size: 13px; }
   .rw { display: flex; height: 20px; align-items: center; white-space: nowrap; }
   .rw .l { width: 56%; } .rw .r { flex: 1; color: #2563eb; }
-  #note { font-size: 11px; color: #6b7280; line-height: 1.3; height: 24px; overflow: hidden; }
+  #note { font-size: 11px; color: #6b7280; line-height: 1.3; height: 29px; overflow: hidden; }
   #ctl { height: 44px; display: flex; gap: 6px; padding-top: 2px; }
   #ctl button { flex: 1; min-height: 40px; font-size: 12.5px; padding: 3px 2px; }
   details { min-height: 28px; font-size: 13px; padding: 4px 0; }
@@ -78,6 +78,9 @@
   ];
   var COL = ['#16a34a', '#2563eb', '#ea580c'];
   var HINT_DEF = '초록 구간을 끌어 보세요. g 로 한 번, f 로 또 한 번 옮겨지며 늘거나 줄어요.';
+  // ① 은 첫 화면(h=0.5)에서 구간이 뒤집혀 Δy/Δx 부호가 공식값과 달라서 안내를 따로 둔다
+  var HINT_S0 = '초록 구간을 끌어 보세요. h 가 크면 부호까지 다를 수 있어요. h 를 줄여 보세요.';
+  function hintDef() { return (st.set === 0 && !st.swap) ? HINT_S0 : HINT_DEF; }
   var st = { set: 0, swap: false, x: 1, k: 0, lo: 0, hi: 1, ranges: [] };
   var $ = function (id) { return document.getElementById(id); };
   var linesEl = $('lines'), zoomEl = $('zoom');
@@ -202,7 +205,7 @@
   function render() { var m = measure(); drawLines(m); drawZoom(m); drawRes(m); }
 
   function resetPos() { st.x = SETS[st.set].x0; st.k = 0; if (st.x > xmax()) st.x = xmax(); }
-  function chooseSet(i) { st.set = i; st.swap = false; setRanges(); resetPos(); updateUI(); setHint(HINT_DEF); render(); }
+  function chooseSet(i) { st.set = i; st.swap = false; setRanges(); resetPos(); updateUI(); setHint(hintDef()); render(); }
 
   // ---- 버튼 ----
   var fns = $('fns');
@@ -215,12 +218,12 @@
     if (st.k >= 10) { setHint('화면에서는 여기까지예요. 실제 미분계수는 h → 0 일 때의 값이에요.'); return; }
     st.k++; setHint('h 를 절반씩 줄여 보세요. 돋보기 막대 길이는 어떤 값에 다가가나요?'); render();
   });
-  $('bH0').addEventListener('click', function () { st.k = 0; if (st.x > xmax()) st.x = xmax(); setHint(HINT_DEF); render(); });
+  $('bH0').addEventListener('click', function () { st.k = 0; if (st.x > xmax()) st.x = xmax(); setHint(hintDef()); render(); });
   $('bSwap').addEventListener('click', function () {
     st.swap = !st.swap; setRanges(); st.k = 0; if (st.x > xmax()) st.x = xmax();
     updateUI(); setHint('같은 두 함수를 반대 순서로 합성했어요. 늘림 비율도 같을까요?'); render();
   });
-  $('bReset').addEventListener('click', function () { resetPos(); setHint(HINT_DEF); render(); });
+  $('bReset').addEventListener('click', function () { resetPos(); setHint(hintDef()); render(); });
 
   // ---- 끌기: x 줄 위에서 Pointer Events ----
   var dragging = false;
@@ -247,7 +250,7 @@
   }
   window.addEventListener('resize', fit);
 
-  setRanges(); resetPos(); updateUI(); setHint(HINT_DEF); fit();
+  setRanges(); resetPos(); updateUI(); setHint(hintDef()); fit();
 })();
 </script>
 </body>
